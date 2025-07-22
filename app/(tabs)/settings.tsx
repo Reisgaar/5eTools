@@ -12,7 +12,6 @@ import { useCombat } from 'src/context/CombatContext';
 
 // COMPONENTS
 import { Ionicons } from '@expo/vector-icons';
-import { Picker } from '@react-native-picker/picker';
 import { classes, races } from 'src/constants/players';
 import { addPlayer, loadPlayersList, removePlayer, updatePlayer } from 'src/utils/fileStorage';
 
@@ -169,9 +168,9 @@ export default function SettingsScreen() {
                 {/* Add/Edit Player Modal */}
                 <Modal visible={playerModalVisible} animationType="slide" transparent>
                     <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.3)', justifyContent: 'center', alignItems: 'center' }}>
-                        <View style={{ backgroundColor: currentTheme.card, borderRadius: 12, padding: 24, width: 320, maxWidth: '90%', maxHeight: Dimensions.get('window').height * 0.7 }}>
+                        <View style={{ backgroundColor: currentTheme.card, borderRadius: 12, padding: 24, marginBottom: 100, width: 320, maxWidth: '90%', maxHeight: Dimensions.get('window').height * 0.5 }}>
+                            <Text style={[styles.sectionTitle, { color: currentTheme.text, marginBottom: 8 }]}>{editPlayer ? 'Edit Player' : 'Add Player'}</Text>
                             <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
-                                <Text style={[styles.sectionTitle, { color: currentTheme.text, marginBottom: 8 }]}>{editPlayer ? 'Edit Player' : 'Add Player'}</Text>
                                 <TextInput
                                     style={[commonStyles.input, { backgroundColor: currentTheme.innerBackground, color: currentTheme.text }]}
                                     placeholder="Name"
@@ -179,34 +178,24 @@ export default function SettingsScreen() {
                                     value={form.name}
                                     onChangeText={t => setForm(f => ({ ...f, name: t }))}
                                 />
-                                <View style={{ marginBottom: 20, maxHeight: Platform.OS === 'ios' ? 120 : undefined }}>
-                                    <Picker
-                                        selectedValue={form.race}
-                                        onValueChange={t => setForm(f => ({ ...f, race: t }))}
-                                        style={{ color: currentTheme.text, backgroundColor: currentTheme.innerBackground, borderRadius: 8 }}
-                                        dropdownIconColor={currentTheme.text}
-                                        itemStyle={Platform.OS === 'ios' ? { height: 64, fontSize: 14 } : undefined}
-                                    >
-                                        <Picker.Item label="Select Race" value="" />
-                                        {races.map(r => (
-                                            <Picker.Item key={r} label={r} value={r} />
-                                        ))}
-                                    </Picker>
-                                </View>
-                                <View style={{ marginBottom: 20, maxHeight: Platform.OS === 'ios' ? 120 : undefined }}>
-                                    <Picker
-                                        selectedValue={form.class}
-                                        onValueChange={t => setForm(f => ({ ...f, class: t }))}
-                                        style={{ color: currentTheme.text, backgroundColor: currentTheme.innerBackground, borderRadius: 8 }}
-                                        dropdownIconColor={currentTheme.text}
-                                        itemStyle={Platform.OS === 'ios' ? { height: 64, fontSize: 14 } : undefined}
-                                    >
-                                        <Picker.Item label="Select Class" value="" />
-                                        {classes.map(c => (
-                                            <Picker.Item key={c} label={c} value={c} />
-                                        ))}
-                                    </Picker>
-                                </View>
+                                <TextInput
+                                    style={[commonStyles.input, { backgroundColor: currentTheme.innerBackground, color: currentTheme.text }]}
+                                    placeholder="Race"
+                                    placeholderTextColor={currentTheme.noticeText}
+                                    value={form.race}
+                                    onChangeText={t => setForm(f => ({ ...f, race: t }))}
+                                    autoCorrect={false}
+                                    autoCapitalize="words"
+                                />
+                                <TextInput
+                                    style={[commonStyles.input, { backgroundColor: currentTheme.innerBackground, color: currentTheme.text }]}
+                                    placeholder="Class"
+                                    placeholderTextColor={currentTheme.noticeText}
+                                    value={form.class}
+                                    onChangeText={t => setForm(f => ({ ...f, class: t }))}
+                                    autoCorrect={false}
+                                    autoCapitalize="words"
+                                />
                                 <TextInput
                                     style={[commonStyles.input, { backgroundColor: currentTheme.innerBackground, color: currentTheme.text }]}
                                     placeholder="Max HP"
@@ -230,15 +219,15 @@ export default function SettingsScreen() {
                                     value={form.tokenUrl}
                                     onChangeText={t => setForm(f => ({ ...f, tokenUrl: t }))}
                                 />
-                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 12 }}>
-                                    <Pressable onPress={() => { setPlayerModalVisible(false); setEditPlayer(null); }} style={[commonStyles.button, { backgroundColor: '#eee', flex: 1, marginRight: 8 }]}> 
-                                        <Text style={[commonStyles.buttonText, { color: 'black' }]}>Cancel</Text>
-                                    </Pressable>
-                                    <Pressable onPress={handleSavePlayer} style={[commonStyles.button, { backgroundColor: currentTheme.primary, flex: 1, marginLeft: 8 }]}> 
-                                        <Text style={[commonStyles.buttonText, { color: currentTheme.buttonText || 'white' }]}>{editPlayer ? 'Save' : 'Add'}</Text>
-                                    </Pressable>
-                                </View>
                             </ScrollView>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 12 }}>
+                                <Pressable onPress={() => { setPlayerModalVisible(false); setEditPlayer(null); }} style={[commonStyles.button, { backgroundColor: '#eee', flex: 1, marginRight: 8 }]}> 
+                                    <Text style={[commonStyles.buttonText, { color: 'black' }]}>Cancel</Text>
+                                </Pressable>
+                                <Pressable onPress={handleSavePlayer} style={[commonStyles.button, { backgroundColor: currentTheme.primary, flex: 1, marginLeft: 8 }]}> 
+                                    <Text style={[commonStyles.buttonText, { color: currentTheme.buttonText || 'white' }]}>{editPlayer ? 'Save' : 'Add'}</Text>
+                                </Pressable>
+                            </View>
                         </View>
                     </View>
                 </Modal>
