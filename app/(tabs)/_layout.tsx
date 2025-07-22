@@ -1,45 +1,61 @@
+// REACT
+import React, { useMemo } from 'react';
+
+// EXPO
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { Tabs } from 'expo-router';
-import React from 'react';
-import { Platform } from 'react-native';
 
-import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+// CONTEXTS
+import { SafeAreaView } from 'react-native-safe-area-context';
+// No longer import modal overlays or ModalProvider here
+import { useAppSettings } from 'src/context/AppSettingsContext';
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+// Layout for the main tab navigation of the app, providing themed tab bar and screen structure.
+export default function TabsLayout() {
+    const { currentTheme } = useAppSettings();
 
-  return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: 'absolute',
-          },
-          default: {},
-        }),
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
-        }}
-      />
-    </Tabs>
-  );
+    const screens = useMemo(() => [
+        { name: 'index', title: 'Home', icon: 'home' },
+        { name: 'bestiary', title: 'Bestiary', icon: 'paw' },
+        { name: 'spells', title: 'Spells', icon: 'book' },
+        { name: 'combat', title: 'Combat', icon: 'skull' },
+        { name: 'settings', title: 'Settings', icon: 'settings' },
+    ], []);
+
+    return (
+        <SafeAreaView edges={['bottom']} style={{ flex: 1, backgroundColor: currentTheme.tabBackground }}>
+            <Tabs
+                initialRouteName="index"
+                screenOptions={({ route }) => {
+                    const screen = screens.find(s => s.name === route.name);
+                    return {
+                        headerShown: false,
+                        tabBarActiveTintColor: '#5e60ce',
+                        tabBarInactiveTintColor: '#888',
+                        tabBarStyle: {
+                            paddingBottom: 0,
+                            height: 60,
+                            elevation: 0, // Android
+                            shadowOpacity: 0, // iOS
+                            backgroundColor: currentTheme.tabBackground,
+                            borderTopWidth: 1,
+                            borderColor: currentTheme.tabBorder
+                        },
+                        tabBarIcon: ({ color, size }) => (
+                            <Ionicons
+                                name={(screen?.icon || 'ellipse') as keyof typeof Ionicons.glyphMap}
+                                size={size}
+                                color={color}
+                            />
+                        ),
+                        tabBarLabel: screen?.title,
+                    };
+                }}
+            >
+                {screens.map(({ name }) => (
+                    <Tabs.Screen key={name} name={name} />
+                ))}
+            </Tabs>
+          </SafeAreaView>
+    );
 }

@@ -1,50 +1,246 @@
-# Welcome to your Expo app 👋
+# 🌐 Connectivity App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**Signal testing, coverage analysis, and device configuration — powered by React Native.**
 
-## Get started
+![React Native](https://img.shields.io/badge/React%20Native-2025-blue.svg)
+![TypeScript](https://img.shields.io/badge/TypeScript-strongly%20typed-blue.svg)
+![MIT License](https://img.shields.io/badge/license-MIT-green.svg)
 
-1. Install dependencies
 
-   ```bash
-   npm install
-   ```
+---
 
-2. Start the app
 
-   ```bash
-   npx expo start
-   ```
+## 📱 Overview
 
-In the output, you'll find options to open the app in a
+The Connectivity App by Denodl enables precise network signal testing, Bluetooth device configuration, and detailed coverage analysis. Key functionalities include:
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+* 🗺️ Interactive maps for positioning and visual feedback
+* 📡 Quick tests for instant signal measurements
+* 🧪 Advanced tests with directional and orientation-based metrics
+* 🛠️ Bluetooth configuration for hydroballs and other field devices
+* 📁 Sharing and saving analysis as `.json` files for use in the Denodl platform
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
-## Get a fresh project
+---
 
-When you're ready, run:
 
+## ✨ Features
+
+
+### 🧩 Architecture
+
+* Modular React Context-based state management
+* Environment-driven configuration with `.env` support
+
+
+### 📶 Connectivity
+
+* Real-time signal analysis via quick and advanced test modes
+* Bluetooth communication for device configuration
+* Map-integrated location selection (manual or GPS-based)
+
+
+### 🖥 Interface
+
+* Light/Dark theme toggle
+* Interactive UI components for test control and summaries
+* Dynamic map markers and visual signal indicators
+
+
+---
+
+
+## 🚀 Getting Started
+
+Steps to setup the app:
+
+- Clone the repository:
 ```bash
-npm run reset-project
+git clone https://my.fsestructuras.com/bitbucket/scm/fsimain/fszero.business.fsa.frontend.devicesconnectorapp.git
+cd src/devicesConnectorApp
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+- Install dependencies and CLI:
+```bash
+npm install
+npm install --global eas-cli
+```
 
-## Learn more
+- Usefull commands:
+```bash
+# Set up environment variable for maps
+eas env:create --name GOOGLE_MAPS_API_KEY --value yourApiKey
 
-To learn more about developing your project with Expo, look at the following resources:
+# Lint the project
+npx eslint .
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+# View app credentials
+npx eas credentials
 
-## Join the community
+# Use this to install new packages
+npx expo install <package-name>
 
-Join our community of developers creating universal apps.
+# Configure EAS build
+npx eas build:configure
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+# Optional: prebuild native code
+npx expo prebuild
+```
+
+- Development client build:
+```bash
+# Build for iOS and Android
+npx eas build --profile development --platform ios
+npx eas build --profile development --platform android
+
+# Start local development server
+npx expo start --dev-client
+````
+
+- Install built app on your device and scan the QR shown on console to run app on your device
+
+
+---
+
+
+## 👤 Account and Deployment
+
+### Expo Account Setup
+
+```bash
+# Log into your expo.dev account
+expo login
+
+# Confirm current account
+expo whoami
+```
+
+
+### Credential Management
+
+```bash
+# Manage Android keystore
+npx eas credentials -p android
+```
+
+
+### Build Versioning
+
+Before running a production build, make sure to update the following constants in app.config.js:
+
+```bash
+const version = "x.y.z";      // User-visible version
+const buildNumber = N;        // Increment 1 for each release
+```
+
+Failing to increment these may result in App Store / Play Store submission errors.
+
+
+### Build Profiles
+
+```bash
+# iOS builds
+npx eas build --platform ios --profile development
+npx eas build --platform ios --profile preview
+npx eas build --platform ios --profile production
+
+# Android builds
+npx eas build --platform android --profile development
+npx eas build --platform android --profile preview
+npx eas build --platform android --profile production
+```
+
+
+### Build Matrix
+
+| Build Type  | Description                                    | Android Format | iOS Format          |
+| ----------- | ---------------------------------------------- | -------------- | ------------------- |
+| Development | Expo app with QR scanner for local development | `.apk`         | `.ipa` (dev client) |
+| Preview     | Standalone installable app                     | `.apk`         | `.ipa`              |
+| Production  | Final app for store submission                 | `.aab`         | `.ipa`              |
+
+
+### TestFlight Submission
+
+```bash
+# Upload iOS build to TestFlight
+npx eas submit --platform ios --profile production
+```
+
+
+---
+
+
+## 📦 Environment Files
+
+### `.env`
+
+```env
+GOOGLE_MAPS_API_KEY=your_google_maps_key_here
+NODES_API_BASE_URL=http://camaro:52100/
+BACKEND_API_BASE_URL=https://z.denodl.com/bk/
+```
+
+
+### `.expo-env.d.ts`
+
+```ts
+/// <reference types="expo/types" />
+// Auto-generated by Expo — do not modify manually
+```
+
+
+### `eas.json`
+
+```json
+{
+    "cli": {
+        "version": ">= 16.3.1",
+        "appVersionSource": "remote"
+    },
+    "build": {
+        "development": {
+            "developmentClient": true,
+            "distribution": "internal",
+            "env": {
+                "GOOGLE_MAPS_API_KEY": "your-key",
+                "NODES_API_BASE_URL": "http://camaro:52100/",
+                "BACKEND_API_BASE_URL": "http://camaro.fsedome.com:52110/"
+            }
+        },
+        "preview": {
+            "distribution": "internal",
+            "android": {
+                "buildType": "apk"
+            },
+            "env": {
+                "GOOGLE_MAPS_API_KEY": "your-key",
+                "NODES_API_BASE_URL": "http://camaro:52100/",
+                "BACKEND_API_BASE_URL": "http://camaro.fsedome.com:52110/"
+            }
+        },
+        "production": {
+            "autoIncrement": true,
+            "android": {
+                "buildType": "app-bundle"
+            },
+            "env": {
+                "GOOGLE_MAPS_API_KEY": "your-key",
+                "NODES_API_BASE_URL": "https://z.denodl.com/napi/",
+                "BACKEND_API_BASE_URL": "https://z.denodl.com/bk/"
+            }
+        }
+    },
+    "submit": {
+        "production": {}
+    }
+}
+```
+
+
+---
+
+
+## 📄 License
+
+This project is licensed under the MIT License. See [LICENSE](./LICENSE) for details.
