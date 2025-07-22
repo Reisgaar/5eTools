@@ -1,245 +1,66 @@
-# 🌐 Connectivity App
+# 🐉 DTools: D&D 5e Utility App
 
-**Signal testing, coverage analysis, and device configuration — powered by React Native.**
-
-![React Native](https://img.shields.io/badge/React%20Native-2025-blue.svg)
-![TypeScript](https://img.shields.io/badge/TypeScript-strongly%20typed-blue.svg)
-![MIT License](https://img.shields.io/badge/license-MIT-green.svg)
-
+A React Native/Expo app for managing Dungeons & Dragons 5th Edition gameplay tools. Includes a bestiary, spellbook, combat tracker, and customizable settings.
 
 ---
-
-
-## 📱 Overview
-
-The Connectivity App by Denodl enables precise network signal testing, Bluetooth device configuration, and detailed coverage analysis. Key functionalities include:
-
-* 🗺️ Interactive maps for positioning and visual feedback
-* 📡 Quick tests for instant signal measurements
-* 🧪 Advanced tests with directional and orientation-based metrics
-* 🛠️ Bluetooth configuration for hydroballs and other field devices
-* 📁 Sharing and saving analysis as `.json` files for use in the Denodl platform
-
-
----
-
 
 ## ✨ Features
 
-
-### 🧩 Architecture
-
-* Modular React Context-based state management
-* Environment-driven configuration with `.env` support
-
-
-### 📶 Connectivity
-
-* Real-time signal analysis via quick and advanced test modes
-* Bluetooth communication for device configuration
-* Map-integrated location selection (manual or GPS-based)
-
-
-### 🖥 Interface
-
-* Light/Dark theme toggle
-* Interactive UI components for test control and summaries
-* Dynamic map markers and visual signal indicators
-
+- 📚 **Bestiary**: Browse, search, and filter monsters from the 5e SRD.
+- ✨ **Spellbook**: View and search spells with detailed descriptions.
+- ⚔️ **Combat Tracker**: Manage initiative, HP, and combat status for players and monsters.
+- 🎲 **Dice Roller**: Quick dice rolling for any situation.
+- 🎨 **Customizable Settings**: Theme, filters, and more.
 
 ---
-
 
 ## 🚀 Getting Started
 
-Steps to setup the app:
-
-- Clone the repository:
-```bash
-git clone https://my.fsestructuras.com/bitbucket/scm/fsimain/fszero.business.fsa.frontend.devicesconnectorapp.git
-cd src/devicesConnectorApp
-```
-
-- Install dependencies and CLI:
-```bash
-npm install
-npm install --global eas-cli
-```
-
-- Usefull commands:
-```bash
-# Set up environment variable for maps
-eas env:create --name GOOGLE_MAPS_API_KEY --value yourApiKey
-
-# Lint the project
-npx eslint .
-
-# View app credentials
-npx eas credentials
-
-# Use this to install new packages
-npx expo install <package-name>
-
-# Configure EAS build
-npx eas build:configure
-
-# Optional: prebuild native code
-npx expo prebuild
-```
-
-- Development client build:
-```bash
-# Build for iOS and Android
-npx eas build --profile development --platform ios
-npx eas build --profile development --platform android
-
-# Start local development server
-npx expo start --dev-client
-````
-
-- Install built app on your device and scan the QR shown on console to run app on your device
-
+1. **Clone the repository:**
+   ```sh
+   git clone <your-repo-url>
+   cd dtools
+   ```
+2. **Install dependencies:**
+   ```sh
+   npm install
+   ```
+3. **Start the Expo development server:**
+   ```sh
+   npx expo start
+   ```
+4. **Run on your device:**
+   - Use the Expo Go app (iOS/Android) to scan the QR code.
+   - Or run on an emulator/simulator.
 
 ---
 
+## 🗂 Project Structure
 
-## 👤 Account and Deployment
-
-### Expo Account Setup
-
-```bash
-# Log into your expo.dev account
-expo login
-
-# Confirm current account
-expo whoami
-```
-
-
-### Credential Management
-
-```bash
-# Manage Android keystore
-npx eas credentials -p android
-```
-
-
-### Build Versioning
-
-Before running a production build, make sure to update the following constants in app.config.js:
-
-```bash
-const version = "x.y.z";      // User-visible version
-const buildNumber = N;        // Increment 1 for each release
-```
-
-Failing to increment these may result in App Store / Play Store submission errors.
-
-
-### Build Profiles
-
-```bash
-# iOS builds
-npx eas build --platform ios --profile development
-npx eas build --platform ios --profile preview
-npx eas build --platform ios --profile production
-
-# Android builds
-npx eas build --platform android --profile development
-npx eas build --platform android --profile preview
-npx eas build --platform android --profile production
-```
-
-
-### Build Matrix
-
-| Build Type  | Description                                    | Android Format | iOS Format          |
-| ----------- | ---------------------------------------------- | -------------- | ------------------- |
-| Development | Expo app with QR scanner for local development | `.apk`         | `.ipa` (dev client) |
-| Preview     | Standalone installable app                     | `.apk`         | `.ipa`              |
-| Production  | Final app for store submission                 | `.aab`         | `.ipa`              |
-
-
-### TestFlight Submission
-
-```bash
-# Upload iOS build to TestFlight
-npx eas submit --platform ios --profile production
-```
-
+- `app/` — App entry points and navigation
+- `src/components/` — UI components (modals, lists, etc.)
+- `src/constants/` — Static data (monsters, spells, tags, etc.)
+- `src/context/` — React Context providers for state management
+- `src/data/` — Data helpers and resolvers
+- `src/hooks/` — Custom React hooks
+- `src/style/` — Stylesheets
+- `src/theme/` — Theme configuration
+- `src/utils/` — Utility functions
 
 ---
 
+## 🛠 Useful Commands
 
-## 📦 Environment Files
-
-### `.env`
-
-```env
-GOOGLE_MAPS_API_KEY=your_google_maps_key_here
-NODES_API_BASE_URL=http://camaro:52100/
-BACKEND_API_BASE_URL=https://z.denodl.com/bk/
-```
-
-
-### `.expo-env.d.ts`
-
-```ts
-/// <reference types="expo/types" />
-// Auto-generated by Expo — do not modify manually
-```
-
-
-### `eas.json`
-
-```json
-{
-    "cli": {
-        "version": ">= 16.3.1",
-        "appVersionSource": "remote"
-    },
-    "build": {
-        "development": {
-            "developmentClient": true,
-            "distribution": "internal",
-            "env": {
-                "GOOGLE_MAPS_API_KEY": "your-key",
-                "NODES_API_BASE_URL": "http://camaro:52100/",
-                "BACKEND_API_BASE_URL": "http://camaro.fsedome.com:52110/"
-            }
-        },
-        "preview": {
-            "distribution": "internal",
-            "android": {
-                "buildType": "apk"
-            },
-            "env": {
-                "GOOGLE_MAPS_API_KEY": "your-key",
-                "NODES_API_BASE_URL": "http://camaro:52100/",
-                "BACKEND_API_BASE_URL": "http://camaro.fsedome.com:52110/"
-            }
-        },
-        "production": {
-            "autoIncrement": true,
-            "android": {
-                "buildType": "app-bundle"
-            },
-            "env": {
-                "GOOGLE_MAPS_API_KEY": "your-key",
-                "NODES_API_BASE_URL": "https://z.denodl.com/napi/",
-                "BACKEND_API_BASE_URL": "https://z.denodl.com/bk/"
-            }
-        }
-    },
-    "submit": {
-        "production": {}
-    }
-}
-```
-
+- **Lint:**
+  ```sh
+  npx eslint .
+  ```
+- **Install new packages:**
+  ```sh
+  npx expo install <package-name>
+  ```
 
 ---
-
 
 ## 📄 License
 
