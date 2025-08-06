@@ -9,12 +9,7 @@ interface BeastListItemProps {
     theme: any;
 }
 
-interface GroupedBeastListItemProps {
-    beasts: any[];
-    onAddToCombat: (beast: any) => void;
-    onViewDetails: (beast: any) => void;
-    theme: any;
-}
+
 
 // Helper function to get source initials
 const getSourceInitials = (source: string): string => {
@@ -154,67 +149,21 @@ export default function BeastListItem({
             <TouchableOpacity onPress={() => onAddToCombat(beast)} >
                 <Ionicons name="add-circle" size={28} color={theme.primary} />
             </TouchableOpacity>
-            <View style={[styles.beastRow, { backgroundColor: theme.card }]}> 
+            <TouchableOpacity 
+                onPress={() => onViewDetails(beast)}
+                style={[styles.beastRow, { backgroundColor: theme.card }]}
+            > 
                 <View style={styles.beastInfo}>
                     <Text style={[styles.beastCR, { color: theme.noticeText }]}> {formatCR(beast.CR)} </Text>
                     <Text style={[styles.beastName, { color: theme.text }]}>{beast.name}</Text>
+                    <Text style={[styles.beastSource, { color: theme.noticeText }]}> ({getSourceInitials(beast.source)})</Text>
                 </View>
-                <TouchableOpacity
-                    onPress={() => onViewDetails(beast)}
-                    style={[styles.sourceButton, { backgroundColor: theme.primary }]}
-                >
-                    <Ionicons name="search" size={14} color="white" />
-                </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
         </View>
     );
 }
 
-// Component for grouped beasts (multiple sources)
-export function GroupedBeastListItem({
-    beasts,
-    onAddToCombat,
-    onViewDetails,
-    theme
-}: GroupedBeastListItemProps) {
-    const firstBeast = beasts[0];
-    
-    // Format CR display
-    const formatCR = (cr: any): string => {
-        if (!cr || cr === 'Unknown' || cr === '') return '?';
-        return String(cr);
-    };
-    
-    return (
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
-            <TouchableOpacity onPress={() => onAddToCombat(firstBeast)} >
-                <Ionicons name="add-circle" size={28} color={theme.primary} />
-            </TouchableOpacity>
-            <View style={[styles.beastRow, { backgroundColor: theme.card }]}> 
-                <View style={styles.beastInfo}>
-                    <Text style={[styles.beastCR, { color: theme.noticeText }]}>
-                        {formatCR(firstBeast.CR)}
-                    </Text>
-                    <Text style={[styles.beastName, { color: theme.text }]}>{firstBeast.name}</Text>
-                </View>
-                <View style={styles.sourceButtonsContainer}>
-                    {beasts.map((beast, index) => {
-                        const sourceInitials = getSourceInitials(beast.source);
-                        return (
-                            <TouchableOpacity
-                                key={`${beast.name}-${beast.source}-${index}`}
-                                onPress={() => onViewDetails(beast)}
-                                style={[styles.sourceButton, { backgroundColor: theme.primary, marginLeft: index > 0 ? 4 : 0 }]}
-                            >
-                                <Text style={[styles.sourceText, { color: 'white' }]}>{sourceInitials}</Text>
-                            </TouchableOpacity>
-                        );
-                    })}
-                </View>
-            </View>
-        </View>
-    );
-}
+
 
 const styles = StyleSheet.create({
     beastRow: {
@@ -240,26 +189,17 @@ const styles = StyleSheet.create({
         flex: 1,
         marginLeft: 8,
     },
+    beastSource: {
+        fontSize: 12,
+        fontWeight: '400',
+        marginLeft: 4,
+    },
     beastCR: {
         fontSize: 12, // smaller
         fontWeight: '400', // medium-light
         minWidth: 24,
         textAlign: 'center',
     },
-    sourceButton: {
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 4,
-        minWidth: 32,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    sourceText: {
-        fontSize: 12,
-        fontWeight: 'bold',
-    },
-    sourceButtonsContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
+
+
 }); 

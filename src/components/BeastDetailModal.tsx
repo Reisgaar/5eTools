@@ -10,8 +10,8 @@ interface BeastDetailModalProps {
     beast: Record<string, any> | null;
     onClose: () => void;
     theme: any;
-    onCreaturePress?: (name: string) => void;
-    onSpellPress?: (name: string) => void;
+    onCreaturePress?: (name: string, source: string) => void;
+    onSpellPress?: (name: string, source: string) => void;
 }
 
 function getTokenUrl(beast: any): string | null {
@@ -213,7 +213,7 @@ function formatConditionImmunities(conditionImmune: any): string {
     return String(conditionImmune);
 }
 
-function formatSpellcasting(spellcasting: any, theme: any, onCreaturePress?: (name: string) => void, onSpellPress?: (name: string) => void, handleDamagePress?: (expr: string) => void, handleHitPress?: (bonus: string) => void) {
+function formatSpellcasting(spellcasting: any, theme: any, onCreaturePress?: (name: string, source: string) => void, onSpellPress?: (name: string, source: string) => void, handleDamagePress?: (expr: string) => void, handleHitPress?: (bonus: string) => void) {
     if (!spellcasting) return null;
     if (!Array.isArray(spellcasting)) spellcasting = [spellcasting];
     return spellcasting.map((sc: any, i: number) => (
@@ -300,7 +300,7 @@ function preprocessSpellcastingBlock(sc: any) {
     };
 }
 
-function formatTraits(traits: any, theme: any, onCreaturePress?: (name: string) => void, onSpellPress?: (name: string) => void) {
+function formatTraits(traits: any, theme: any, onCreaturePress?: (name: string, source: string) => void, onSpellPress?: (name: string, source: string) => void) {
     if (!traits) return null;
     if (!Array.isArray(traits)) traits = [traits];
     return traits.map((trait: any, i: number) => (
@@ -315,7 +315,7 @@ function formatTraits(traits: any, theme: any, onCreaturePress?: (name: string) 
     ));
 }
 
-function formatActions(actions: any, label = 'Actions', theme: any, onCreaturePress?: (name: string) => void, onSpellPress?: (name: string) => void) {
+function formatActions(actions: any, label = 'Actions', theme: any, onCreaturePress?: (name: string, source: string) => void, onSpellPress?: (name: string, source: string) => void) {
     if (!actions) return null;
     if (!Array.isArray(actions)) actions = [actions];
     return (
@@ -352,17 +352,17 @@ const BeastDetailModal: React.FC<BeastDetailModalProps> = ({ visible, beast, onC
     const { openSpellModal, openBeastModal, openDiceModal } = useModal();
     const { simpleSpells, simpleBeasts } = require('src/context/DataContext').useData();
 
-    const handleCreaturePressLocal = (name: string) => {
+    const handleCreaturePressLocal = (name: string, source: string) => {
       // Find the beast object by name
-      const beast = simpleBeasts.find((b: any) => b.name.trim().toLowerCase() === name.trim().toLowerCase());
+      const beast = simpleBeasts.find((b: any) => b.name.trim().toLowerCase() === name.trim().toLowerCase() && b.source.trim().toLowerCase() === source.trim().toLowerCase());
       if (beast) {
         openBeastModal(beast, true);
       }
     };
 
-    const handleSpellPressLocal = (name: string) => {
+    const handleSpellPressLocal = (name: string, source: string) => {
       // Find the spell object by name
-      const spell = simpleSpells.find((s: any) => s.name.trim().toLowerCase() === name.trim().toLowerCase());
+      const spell = simpleSpells.find((s: any) => s.name.trim().toLowerCase() === name.trim().toLowerCase() && s.source.trim().toLowerCase() === source.trim().toLowerCase());
       if (spell) {
         openSpellModal(spell, true);
       }

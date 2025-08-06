@@ -304,7 +304,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       // Find the beast in the index
       const beastIndex = beastsIndex.find(b => 
-        b.name === name && b.source === source
+        b.name.trim().toLowerCase() === name.trim().toLowerCase() && b.source.trim().toLowerCase() === source.trim().toLowerCase()
       );
       
       if (!beastIndex) {
@@ -325,7 +325,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       // Find the spell in the index
       const spellIndex = spellsIndex.find(s => 
-        s.name === name && s.source === source
+        s.name.trim().toLowerCase() === name.trim().toLowerCase() && s.source.trim().toLowerCase() === source.trim().toLowerCase()
       );
       
       if (!spellIndex) {

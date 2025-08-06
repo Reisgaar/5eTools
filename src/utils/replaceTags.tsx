@@ -5,8 +5,8 @@ import { Text, View } from 'react-native';
 export function replaceTags(
     text: string,
     theme: any,
-    onCreaturePress?: (name: string) => void,
-    onSpellPress?: (name: string) => void,
+    onCreaturePress?: (name: string, source: string) => void,
+    onSpellPress?: (name: string, source: string) => void,
     onDamagePress?: (expression: string) => void,
     onHitPress?: (bonus: string) => void
 ): React.ReactNode[] {
@@ -118,7 +118,7 @@ export function replaceTags(
                     <Text
                         key={key++}
                         style={{ fontStyle: 'italic', textDecorationLine: 'underline', color: '#4a90e2' }}
-                        onPress={onCreaturePress ? () => onCreaturePress(params[0]) : undefined}
+                        onPress={onCreaturePress ? () => onCreaturePress(params[0], params[1]) : undefined}
                     >
                         {params[0]}
                     </Text>
@@ -130,7 +130,7 @@ export function replaceTags(
                     <Text
                         key={key++}
                         style={{ fontStyle: 'italic', textDecorationLine: 'underline', color: '#4a90e2' }}
-                        onPress={onSpellPress ? () => onSpellPress(params[0]) : undefined}
+                        onPress={onSpellPress ? () => onSpellPress(params[0], params[1]) : undefined}
                     >
                         {params[0]}
                     </Text>
@@ -155,8 +155,8 @@ export function renderEntries(
     entries: any, 
     indent: number = 0, 
     theme: any, 
-    onCreaturePress?: (name: string) => void, 
-    onSpellPress?: (name: string) => void,
+    onCreaturePress?: (name: string, source: string) => void, 
+    onSpellPress?: (name: string, source: string) => void,
     textStyle: any = {},
     onDamagePress?: (expression: string) => void,
     onHitPress?: (bonus: string) => void

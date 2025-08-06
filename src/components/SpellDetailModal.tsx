@@ -123,20 +123,20 @@ export function SpellDetailModal({
     onClose: () => void,
     schoolFullName: string,
     theme: any,
-    onCreaturePress?: (name: string) => void,
-    onSpellPress?: (name: string) => void,
+    onCreaturePress?: (name: string, source: string) => void,
+    onSpellPress?: (name: string, source: string) => void,
 }) {
     const { openDiceModal, openBeastModal, openSpellModal } = useModal();
     const { simpleBeasts, simpleSpells } = require('src/context/DataContext').useData();
 
-    const handleCreaturePressLocal = (name: string) => {
-      const beast = simpleBeasts.find((b: any) => b.name.trim().toLowerCase() === name.trim().toLowerCase());
+    const handleCreaturePressLocal = (name: string, source: string) => {
+      const beast = simpleBeasts.find((b: any) => b.name.trim().toLowerCase() === name.trim().toLowerCase() && b.source.trim().toLowerCase() === source.trim().toLowerCase());
       if (beast) {
         openBeastModal(beast, true);
       }
     };
-    const handleSpellPressLocal = (name: string) => {
-      const spell = simpleSpells.find((s: any) => s.name.trim().toLowerCase() === name.trim().toLowerCase());
+    const handleSpellPressLocal = (name: string, source: string) => {
+      const spell = simpleSpells.find((s: any) => s.name.trim().toLowerCase() === name.trim().toLowerCase() && s.source.trim().toLowerCase() === source.trim().toLowerCase());
       if (spell) {
         openSpellModal(spell, true);
       }
@@ -274,7 +274,7 @@ export function SpellDetailModal({
 
 
 
-function renderHigherLevel(entriesHigherLevel: any, theme: any, onCreaturePress?: (name: string) => void, onSpellPress?: (name: string) => void): React.ReactNode {
+function renderHigherLevel(entriesHigherLevel: any, theme: any, onCreaturePress?: (name: string, source: string) => void, onSpellPress?: (name: string, source: string) => void): React.ReactNode {
     if (!entriesHigherLevel) return null;
     if (Array.isArray(entriesHigherLevel)) {
         return entriesHigherLevel.map((e, idx) => (

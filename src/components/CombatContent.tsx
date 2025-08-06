@@ -246,16 +246,16 @@ export default function CombatContent({
   };
 
   // Handler for opening a beast modal from a tag
-  const handleCreaturePress = async (name: string) => {
-    const beast = simpleBeasts.find(b => b.name.trim().toLowerCase() === name.trim().toLowerCase());
+  const handleCreaturePress = async (name: string, source: string) => {
+    const beast = simpleBeasts.find(b => b.name.trim().toLowerCase() === name.trim().toLowerCase() && b.source.trim().toLowerCase() === source.trim().toLowerCase());
     if (beast) {
       openBeastModal(beast);
     }
   };
 
   // Handler for opening a spell modal from a tag
-  const handleSpellPress = async (name: string) => {
-    const spell = simpleSpells.find(s => s.name.trim().toLowerCase() === name.trim().toLowerCase());
+  const handleSpellPress = async (name: string, source: string) => {
+    const spell = simpleSpells.find(s => s.name.trim().toLowerCase() === name.trim().toLowerCase() && s.source.trim().toLowerCase() === source.trim().toLowerCase());
     if (spell) {
       openSpellModal(spell);
     }
@@ -391,7 +391,7 @@ export default function CombatContent({
                 )}
                 <View style={{ marginBottom: 5, marginTop: -5, width: 80, justifyContent: 'center', alignItems: 'center' }}>
                   <TouchableOpacity
-                    onPress={() => handleCreaturePress(group.name)}
+                    onPress={() => handleCreaturePress(group.name, group.source)}
                   >
                     {group.tokenUrl ? (
                       <Image 
@@ -421,7 +421,7 @@ export default function CombatContent({
                 <View style={{ flex: 1 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
                     <TouchableOpacity
-                      onPress={() => handleCreaturePress(group.name)}
+                      onPress={() => handleCreaturePress(group.name, group.source)}
                     >
                       <Text style={[styles.name, { color: theme.text }]}> {group.name}</Text>
                     </TouchableOpacity>

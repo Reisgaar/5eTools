@@ -1,9 +1,12 @@
 // REACT
 import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useAppSettings } from 'src/context/AppSettingsContext';
 import { useData } from 'src/context/DataContext';
 import { useModal } from 'src/context/ModalContext';
+import { useSpellbook } from 'src/context/SpellbookContext';
+import SpellbookModal from 'src/components/SpellbookModal';
 
 const LEVELS = [
     { label: 'C', value: 0 },
@@ -42,9 +45,11 @@ export default function SpellsScreen() {
     const { simpleBeasts, simpleSpells, isLoading, isInitialized, getFullBeast, getFullSpell } = useData();
     const { currentTheme: theme } = useAppSettings();
     const { openBeastModal, openSpellModal } = useModal();
+    const { currentSpellbookId, getCurrentSpellbook, addSpellToSpellbook, removeSpellFromSpellbook, isSpellInSpellbook } = useSpellbook();
     const [search, setSearch] = useState('');
     const [selectedLevels, setSelectedLevels] = useState<number[]>([]); // multi-select
     const [pageReady, setPageReady] = useState(false);
+    const [spellbookModalVisible, setSpellbookModalVisible] = useState(false);
 
     // Defer heavy computations to after navigation
     useEffect(() => {
@@ -81,15 +86,15 @@ export default function SpellsScreen() {
         }
     }
 
-    const handleCreaturePress = async (name: string) => {
-        const beast = simpleBeasts.find(b => b.name.trim().toLowerCase() === name.trim().toLowerCase());
+    const handleCreaturePress = async (name: string, source: string) => {
+        const beast = simpleBeasts.find(b => b.name.trim().toLowerCase() === name.trim().toLowerCase() && b.source.trim().toLowerCase() === source.trim().toLowerCase());
         if (beast) {
             openBeastModal(beast);
         }
     };
 
-    const handleSpellPress = async (name: string) => {
-        const spell = simpleSpells.find(s => s.name.trim().toLowerCase() === name.trim().toLowerCase());
+    const handleSpellPress = async (name: string, source: string) => {
+        const spell = simpleSpells.find(s => s.name.trim().toLowerCase() === name.trim().toLowerCase() && s.source.trim().toLowerCase() === source.trim().toLowerCase());
         if (spell) {
             openSpellModal(spell);
         }
@@ -116,15 +121,46 @@ export default function SpellsScreen() {
 
     const selectedSpellFullSchool = ''; // No longer needed as modal handles display
 
-    const renderSpellItem = ({ item: spell, index }: { item: any, index: number }) => (
-        <TouchableOpacity key={spell.name + index} style={[styles.spellCard, { backgroundColor: theme.card, borderColor: theme.primary }]} onPress={() => handleSpellPress(spell.name)}>
-            <Text>
-                <Text style={[styles.spellLevel, { color: theme.text }]}>{spell.level === 0 ? 'C' : spell.level}{' - '}</Text>
-                <Text style={[styles.spellName, { color: theme.text }]}>{spell.name}{' '}</Text>
-                <Text style={[styles.spellInfo, { color: theme.text }]}>{getFullSchool(spell.school)} ({spell.source || spell._source || 'Unknown'})</Text>
-            </Text>
-        </TouchableOpacity>
-    );
+    const handleAddToSpellbook = (spell: any) => {
+        if (currentSpellbookId) {
+            if (isSpellInSpellbook(currentSpellbookId, spell.name, spell.source)) {
+                removeSpellFromSpellbook(currentSpellbookId, spell.name, spell.source);
+            } else {
+                addSpellToSpellbook(currentSpellbookId, spell.name, spell.source);
+            }
+        }
+    };
+
+    const renderSpellItem = ({ item: spell, index }: { item: any, index: number }) => {
+        const isInSpellbook = currentSpellbookId ? isSpellInSpellbook(currentSpellbookId, spell.name, spell.source) : false;
+        
+        return (
+            <View style={[styles.spellCard, { backgroundColor: theme.card, borderColor: theme.primary }]}>
+                <TouchableOpacity 
+                    style={styles.spellInfoContainer}
+                    onPress={() => handleSpellPress(spell.name, spell.source)}
+                >
+                    <Text>
+                        <Text style={[styles.spellLevel, { color: theme.text }]}>{spell.level === 0 ? 'C' : spell.level}{' - '}</Text>
+                        <Text style={[styles.spellName, { color: theme.text }]}>{spell.name}{' '}</Text>
+                        <Text style={[styles.spellInfo, { color: theme.text }]}>{getFullSchool(spell.school)} ({spell.source || spell._source || 'Unknown'})</Text>
+                    </Text>
+                </TouchableOpacity>
+                {currentSpellbookId && (
+                    <TouchableOpacity
+                        onPress={() => handleAddToSpellbook(spell)}
+                        style={[styles.spellbookButton, { backgroundColor: isInSpellbook ? '#dc2626' : theme.primary }]}
+                    >
+                        <Ionicons 
+                            name={isInSpellbook ? "remove" : "add"} 
+                            size={16} 
+                            color="white" 
+                        />
+                    </TouchableOpacity>
+                )}
+            </View>
+        );
+    };
 
     return (
         <View style={[styles.container, { flex: 1, backgroundColor: theme.background, paddingBottom: 0 }]}>
@@ -236,6 +272,19 @@ const styles = StyleSheet.create({
         marginBottom: 8,
         borderWidth: 1,
         borderColor: '#333',
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    spellInfoContainer: {
+        flex: 1,
+    },
+    spellbookButton: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginLeft: 8,
     },
     spellLevel: {
         fontSize: 12,

@@ -10,7 +10,7 @@ export function resolveMonster(monster: any, allMonsters: any[], seen: Set<strin
 
   // Find the base monster
   const base = allMonsters.find(
-    (m: any) => m.name === monster._copy.name && m.source === monster._copy.source
+    (m: any) => m.name.trim().toLowerCase() === monster._copy.name.trim().toLowerCase() && m.source.trim().toLowerCase() === monster._copy.source.trim().toLowerCase()
   );
   if (!base) throw new Error(`Base monster not found: ${monster._copy.name} (${monster._copy.source})`);
 

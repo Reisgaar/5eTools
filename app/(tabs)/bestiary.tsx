@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 // COMPONENTS
-import BeastListItem, { GroupedBeastListItem } from 'src/components/BeastListItem';
+import BeastListItem from 'src/components/BeastListItem';
 import CombatSelectionModal from 'src/components/CombatSelectionModal';
 import CRFilterModal from 'src/components/CRFilterModal';
 import SourceFilterModal from 'src/components/SourceFilterModal';
@@ -37,24 +37,15 @@ export default function BestiaryScreen() {
     // Use custom hook for all filter logic - but defer initialization
     const filters = useBestiaryFilters(simpleBeasts, []);
 
-    // Group beasts by name for display
+    // Display beasts individually (no grouping)
     const groupedBeasts = React.useMemo(() => {
         if (!pageReady) return [];
         
-        const grouped = new Map<string, any[]>();
-        
-        filters.filteredBeasts.forEach(beast => {
-            const name = beast.name;
-            if (!grouped.has(name)) {
-                grouped.set(name, []);
-            }
-            grouped.get(name)!.push(beast);
-        });
-        
-        // Convert to array and sort by name
-        return Array.from(grouped.values()).sort((a, b) => 
-            a[0].name.localeCompare(b[0].name)
-        );
+        // Return each beast as an individual item, sorted by name
+        return filters.filteredBeasts
+            .slice()
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map(beast => [beast]); // Wrap each beast in an array to maintain compatibility
     }, [filters.filteredBeasts, pageReady]);
 
     // Defer heavy computations to after navigation
@@ -69,10 +60,10 @@ export default function BestiaryScreen() {
     }, [simpleBeasts.length]);
 
     // Find full beast by name (async)
-    const handleGetFullBeast = async (name: string) => {
+    const handleGetFullBeast = async (name: string, source: string) => {
         try {
             // Find the beast in simpleBeasts to get the source
-            const simpleBeast = simpleBeasts.find(b => b.name === name);
+            const simpleBeast = simpleBeasts.find(b => b.name.trim().toLowerCase() === name.trim().toLowerCase() && b.source.trim().toLowerCase() === source.trim().toLowerCase());
             if (!simpleBeast) return null;
             
             return await getFullBeast(name, simpleBeast.source);
@@ -84,7 +75,7 @@ export default function BestiaryScreen() {
 
     // Combat selection handlers
     const handleAddToCombat = async (beast: any) => {
-        const fullBeast = await handleGetFullBeast(beast.name);
+        const fullBeast = await handleGetFullBeast(beast.name, beast.source);
         setBeastToAdd(fullBeast || beast);
         setQuantity('1');
         setCombatSelectionModalVisible(true);
@@ -119,15 +110,15 @@ export default function BestiaryScreen() {
     const handleViewBeastDetails = async (beast: any) => {
         openBeastModal(beast);
     };
-    const handleCreaturePress = async (name: string) => {
-        const beast = simpleBeasts.find(b => b.name.trim().toLowerCase() === name.trim().toLowerCase());
+    const handleCreaturePress = async (name: string, source: string) => {
+        const beast = simpleBeasts.find(b => b.name.trim().toLowerCase() === name.trim().toLowerCase() && b.source.trim().toLowerCase() === source.trim().toLowerCase());
         if (beast) {
             openBeastModal(beast);
         }
     };
 
-    const handleSpellPress = async (name: string) => {
-        const spell = simpleSpells.find(s => s.name.trim().toLowerCase() === name.trim().toLowerCase());
+    const handleSpellPress = async (name: string, source: string) => {
+        const spell = simpleSpells.find(s => s.name.trim().toLowerCase() === name.trim().toLowerCase() && s.source.trim().toLowerCase() === source.trim().toLowerCase());
         if (spell) {
             openSpellModal(spell);
         }
@@ -268,24 +259,15 @@ export default function BestiaryScreen() {
                     <Text style={{ color: currentTheme.noticeText, marginVertical: 16 }}>No beasts found.</Text>
                 ) : (
                     <FlatList
-                            data={groupedBeasts}
-                            keyExtractor={(item, idx) => item[0].name + idx}
+                        data={groupedBeasts}
+                        keyExtractor={(item, idx) => `${item[0].name}-${item[0].source}-${idx}`}
                         renderItem={({ item }) => (
-                                item.length === 1 ? (
                             <BeastListItem
-                                        beast={item[0]}
-                                        onAddToCombat={handleAddToCombat}
-                                        onViewDetails={handleViewBeastDetails}
-                                        theme={currentTheme}
-                                    />
-                                ) : (
-                                    <GroupedBeastListItem
-                                        beasts={item}
+                                beast={item[0]}
                                 onAddToCombat={handleAddToCombat}
                                 onViewDetails={handleViewBeastDetails}
                                 theme={currentTheme}
                             />
-                                )
                         )}
                         contentContainerStyle={{ paddingBottom: 40 }}
                     />
