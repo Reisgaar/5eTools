@@ -4,6 +4,9 @@ import React, { useEffect, useState } from 'react';
 // REACT NATIVE
 import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
+// UTILS
+import { equalsNormalized } from 'src/utils/stringUtils';
+
 // COMPONENTS
 import BeastListItem from 'src/components/BeastListItem';
 import CombatSelectionModal from 'src/components/CombatSelectionModal';
@@ -35,7 +38,7 @@ export default function BestiaryScreen() {
     const [pageReady, setPageReady] = useState(false);
 
     // Use custom hook for all filter logic - but defer initialization
-    const filters = useBestiaryFilters(simpleBeasts, []);
+    const filters = useBestiaryFilters(simpleBeasts, simpleBeasts);
 
     // Display beasts individually (no grouping)
     const groupedBeasts = React.useMemo(() => {
@@ -63,7 +66,7 @@ export default function BestiaryScreen() {
     const handleGetFullBeast = async (name: string, source: string) => {
         try {
             // Find the beast in simpleBeasts to get the source
-            const simpleBeast = simpleBeasts.find(b => b.name.trim().toLowerCase() === name.trim().toLowerCase() && b.source.trim().toLowerCase() === source.trim().toLowerCase());
+            const simpleBeast = simpleBeasts.find(b => equalsNormalized(b.name, name) && equalsNormalized(b.source, source));
             if (!simpleBeast) return null;
             
             return await getFullBeast(name, simpleBeast.source);
@@ -111,14 +114,14 @@ export default function BestiaryScreen() {
         openBeastModal(beast);
     };
     const handleCreaturePress = async (name: string, source: string) => {
-        const beast = simpleBeasts.find(b => b.name.trim().toLowerCase() === name.trim().toLowerCase() && b.source.trim().toLowerCase() === source.trim().toLowerCase());
+        const beast = simpleBeasts.find(b => equalsNormalized(b.name, name) && equalsNormalized(b.source, source));
         if (beast) {
             openBeastModal(beast);
         }
     };
 
     const handleSpellPress = async (name: string, source: string) => {
-        const spell = simpleSpells.find(s => s.name.trim().toLowerCase() === name.trim().toLowerCase() && s.source.trim().toLowerCase() === source.trim().toLowerCase());
+        const spell = simpleSpells.find(s => equalsNormalized(s.name, name) && equalsNormalized(s.source, source));
         if (spell) {
             openSpellModal(spell);
         }

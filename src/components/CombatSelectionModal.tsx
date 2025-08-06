@@ -1,5 +1,6 @@
 import React from 'react';
-import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import BaseModal from './BaseModal';
 
 interface Combat {
   id: string;
@@ -42,17 +43,12 @@ export default function CombatSelectionModal({
   };
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={onClose}
+    <BaseModal 
+      visible={visible} 
+      onClose={onClose} 
+      theme={theme} 
+      title={`Add ${beastToAdd?.name} to Combat`}
     >
-      <View style={styles.modalOverlay}>
-        <View style={[styles.modalContent, { backgroundColor: theme.card }]}> 
-          <Text style={[styles.modalTitle, { color: theme.text }]}>
-            Add {beastToAdd?.name} to Combat
-          </Text>
           
           {/* Quantity Selector */}
           <View style={{ marginBottom: 16 }}>
@@ -127,32 +123,11 @@ export default function CombatSelectionModal({
           > 
             <Text style={{ color: theme.primary, fontWeight: 'bold' }}>Cancel</Text>
           </TouchableOpacity>
-        </View>
-      </View>
-    </Modal>
+    </BaseModal>
   );
 }
 
-const styles = StyleSheet.create({
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    width: '85%',
-    borderRadius: 16,
-    padding: 20,
-    alignItems: 'stretch',
-    elevation: 4,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    alignSelf: 'center',
-  },
+const styles = {
   sectionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -212,7 +187,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     paddingVertical: 10,
-    alignItems: 'center',
+    alignItems: 'center' as const,
     marginTop: 12,
   },
-}); 
+};

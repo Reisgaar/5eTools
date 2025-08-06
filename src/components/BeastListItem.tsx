@@ -1,6 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
+import { commonStyles } from 'src/styles/commonStyles';
 
 interface BeastListItemProps {
     beast: any;
@@ -145,19 +146,22 @@ export default function BeastListItem({
     };
     
     return (
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
-            <TouchableOpacity onPress={() => onAddToCombat(beast)} >
-                <Ionicons name="add-circle" size={28} color={theme.primary} />
-            </TouchableOpacity>
+        <View style={[commonStyles.itemCard, { backgroundColor: theme.card, borderColor: theme.primary }]}>
             <TouchableOpacity 
+                style={commonStyles.itemInfoContainer}
                 onPress={() => onViewDetails(beast)}
-                style={[styles.beastRow, { backgroundColor: theme.card }]}
-            > 
-                <View style={styles.beastInfo}>
-                    <Text style={[styles.beastCR, { color: theme.noticeText }]}> {formatCR(beast.CR)} </Text>
-                    <Text style={[styles.beastName, { color: theme.text }]}>{beast.name}</Text>
-                    <Text style={[styles.beastSource, { color: theme.noticeText }]}> ({getSourceInitials(beast.source)})</Text>
-                </View>
+            >
+                <Text>
+                    <Text style={[commonStyles.itemLevel, { color: theme.text }]}>{formatCR(beast.CR)}{' - '}</Text>
+                    <Text style={[commonStyles.itemName, { color: theme.text }]}>{beast.name}{' '}</Text>
+                    <Text style={[commonStyles.itemInfo, { color: theme.text }]}>({getSourceInitials(beast.source)})</Text>
+                </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+                onPress={() => onAddToCombat(beast)}
+                style={[commonStyles.itemActionButton, { backgroundColor: theme.primary }]}
+            >
+                <Ionicons name="add" size={16} color="white" />
             </TouchableOpacity>
         </View>
     );
@@ -165,41 +169,3 @@ export default function BeastListItem({
 
 
 
-const styles = StyleSheet.create({
-    beastRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingVertical: 8,
-        paddingHorizontal: 8,
-        marginLeft: 6,
-        borderRadius: 8,
-        elevation: 1,
-        flex: 1,
-    },
-    beastInfo: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginRight: 8,
-    },
-    beastName: {
-        fontSize: 16,
-        fontWeight: '600',
-        flex: 1,
-        marginLeft: 8,
-    },
-    beastSource: {
-        fontSize: 12,
-        fontWeight: '400',
-        marginLeft: 4,
-    },
-    beastCR: {
-        fontSize: 12, // smaller
-        fontWeight: '400', // medium-light
-        minWidth: 24,
-        textAlign: 'center',
-    },
-
-
-}); 

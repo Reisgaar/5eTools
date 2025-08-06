@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { normalizeString, extractBeastType, extractBeastSource, containsNormalized, includesNormalized } from 'src/utils/stringUtils';
 
 export function useBestiaryFilters(simpleBeasts: any[], beasts: any[]) {
     // Search and filter states
@@ -35,40 +36,35 @@ export function useBestiaryFilters(simpleBeasts: any[], beasts: any[]) {
         return [...known, ...unknown];
     }, [simpleBeasts]);
 
-    // Helper to extract type string from beast
+    // Helper to extract type string from beast (using utility function)
     function getBeastType(beast: any): string {
-        if (!beast) return '';
-        if (typeof beast.type === 'string') return beast.type.toLowerCase();
-        if (typeof beast.type === 'object' && typeof beast.type.type === 'string') return beast.type.type.toLowerCase();
-        return '';
+        return extractBeastType(beast);
     }
 
     // Get unique types for filter modal
     const typeOptions = useMemo(() => {
-        const types = Array.from(new Set(beasts.map(getBeastType))).filter(Boolean).sort();
+        const types = Array.from(new Set(simpleBeasts.map(extractBeastType))).filter(Boolean).sort();
         return types;
-    }, [beasts]);
+    }, [simpleBeasts]);
 
     // Get unique sources for filter modal
     const sourceOptions = useMemo(() => {
-        const sources = Array.from(new Set(beasts.map(b => typeof b.source === 'string' ? b.source.toLowerCase() : ''))).filter(Boolean).sort();
+        const sources = Array.from(new Set(simpleBeasts.map(extractBeastSource))).filter(Boolean).sort();
         return sources;
-    }, [beasts]);
+    }, [simpleBeasts]);
 
     // Filtered list
     const filteredBeasts = useMemo(() => {
         return simpleBeasts.filter(b => {
-            const matchesName = b.name.toLowerCase().includes(search.toLowerCase());
-            // Look up the full beast object for type/source (case-insensitive)
-            const fullBeast = beasts.find(beast => beast.name.toLowerCase() === b.name.toLowerCase());
-            const beastType = getBeastType(fullBeast);
-            const beastSource = fullBeast && typeof fullBeast.source === 'string' ? fullBeast.source.toLowerCase() : '';
+            const matchesName = containsNormalized(b.name, search);
+            const beastType = extractBeastType(b);
+            const beastSource = extractBeastSource(b);
             const matchesCR = selectedCRs.length === 0 || selectedCRs.includes(String(b.CR));
-            const matchesType = selectedTypes.length === 0 || selectedTypes.map(t => t.toLowerCase()).includes(beastType);
-            const matchesSource = selectedSources.length === 0 || selectedSources.map(s => s.toLowerCase()).includes(beastSource);
+            const matchesType = selectedTypes.length === 0 || includesNormalized(beastType, selectedTypes);
+            const matchesSource = selectedSources.length === 0 || includesNormalized(beastSource, selectedSources);
             return matchesName && matchesCR && matchesType && matchesSource;
         });
-    }, [simpleBeasts, search, selectedCRs, selectedTypes, selectedSources, beasts]);
+    }, [simpleBeasts, search, selectedCRs, selectedTypes, selectedSources]);
 
     // Modal handlers
     const openCRFilterModal = () => {

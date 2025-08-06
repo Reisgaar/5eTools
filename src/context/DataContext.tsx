@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { bestiaryGetRequests, spellsGetRequests } from '../constants/requests';
+import { equalsNormalized } from '../utils/stringUtils';
 import {
     clearBeastsAndSpellsOnly,
     loadBeastsIndexFromFile,
@@ -52,7 +53,7 @@ interface SpellIndex {
 
 interface DataContextType {
   beasts: Beast[];
-  simpleBeasts: { name: string; CR: string | number; source: string; ac: any }[];
+  simpleBeasts: { name: string; CR: string | number; type: string; source: string; ac: any }[];
   spells: Spell[];
   simpleSpells: { name: string; level: number; school: string; source: string }[];
   isLoading: boolean;
@@ -86,7 +87,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Derived simpleBeasts from index
   const simpleBeasts = React.useMemo(() => {
     const seen = new Set();
-    return beastsIndex.map(({ name, cr, source, ac }) => {
+    return beastsIndex.map(({ name, cr, type, source, ac }) => {
       let crValue: string | number = 'Unknown';
       if (cr !== undefined && cr !== null && cr !== '') {
         if (typeof cr === 'object') {
@@ -104,6 +105,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return {
         name,
         CR: crValue,
+        type: type || 'Unknown',
         source: source || 'Unknown',
         ac: ac,
       };
@@ -304,7 +306,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       // Find the beast in the index
       const beastIndex = beastsIndex.find(b => 
-        b.name.trim().toLowerCase() === name.trim().toLowerCase() && b.source.trim().toLowerCase() === source.trim().toLowerCase()
+        equalsNormalized(b.name, name) && equalsNormalized(b.source, source)
       );
       
       if (!beastIndex) {
@@ -325,7 +327,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       // Find the spell in the index
       const spellIndex = spellsIndex.find(s => 
-        s.name.trim().toLowerCase() === name.trim().toLowerCase() && s.source.trim().toLowerCase() === source.trim().toLowerCase()
+        equalsNormalized(s.name, name) && equalsNormalized(s.source, source)
       );
       
       if (!spellIndex) {
