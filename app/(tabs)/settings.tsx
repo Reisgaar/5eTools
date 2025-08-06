@@ -171,50 +171,61 @@ export default function SettingsScreen() {
                         <View style={{ backgroundColor: currentTheme.card, borderRadius: 12, padding: 24, marginBottom: 100, width: 320, maxWidth: '90%', maxHeight: Dimensions.get('window').height * 0.5 }}>
                             <Text style={[styles.sectionTitle, { color: currentTheme.text, marginBottom: 8 }]}>{editPlayer ? 'Edit Player' : 'Add Player'}</Text>
                             <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
+                                <Text style={[styles.fieldLabel, { color: currentTheme.text }]}>Character Name</Text>
                                 <TextInput
                                     style={[commonStyles.input, { backgroundColor: currentTheme.innerBackground, color: currentTheme.text }]}
-                                    placeholder="Name"
+                                    placeholder="Enter character name"
                                     placeholderTextColor={currentTheme.noticeText}
                                     value={form.name}
                                     onChangeText={t => setForm(f => ({ ...f, name: t }))}
                                 />
+                                
+                                <Text style={[styles.fieldLabel, { color: currentTheme.text }]}>Race</Text>
                                 <TextInput
                                     style={[commonStyles.input, { backgroundColor: currentTheme.innerBackground, color: currentTheme.text }]}
-                                    placeholder="Race"
+                                    placeholder="e.g., Human, Elf, Dwarf"
                                     placeholderTextColor={currentTheme.noticeText}
                                     value={form.race}
                                     onChangeText={t => setForm(f => ({ ...f, race: t }))}
                                     autoCorrect={false}
                                     autoCapitalize="words"
                                 />
+                                
+                                <Text style={[styles.fieldLabel, { color: currentTheme.text }]}>Class</Text>
                                 <TextInput
                                     style={[commonStyles.input, { backgroundColor: currentTheme.innerBackground, color: currentTheme.text }]}
-                                    placeholder="Class"
+                                    placeholder="e.g., Fighter, Wizard, Cleric"
                                     placeholderTextColor={currentTheme.noticeText}
                                     value={form.class}
                                     onChangeText={t => setForm(f => ({ ...f, class: t }))}
                                     autoCorrect={false}
                                     autoCapitalize="words"
                                 />
+                                
+                                <Text style={[styles.fieldLabel, { color: currentTheme.text }]}>Maximum Hit Points</Text>
                                 <TextInput
                                     style={[commonStyles.input, { backgroundColor: currentTheme.innerBackground, color: currentTheme.text }]}
-                                    placeholder="Max HP"
+                                    placeholder="e.g., 25"
                                     placeholderTextColor={currentTheme.noticeText}
                                     keyboardType="numeric"
                                     value={form.maxHp}
                                     onChangeText={t => setForm(f => ({ ...f, maxHp: t }))}
                                 />
+                                
+                                <Text style={[styles.fieldLabel, { color: currentTheme.text }]}>Armor Class</Text>
                                 <TextInput
                                     style={[commonStyles.input, { backgroundColor: currentTheme.innerBackground, color: currentTheme.text }]}
-                                    placeholder="AC"
+                                    placeholder="e.g., 16"
                                     placeholderTextColor={currentTheme.noticeText}
                                     keyboardType="numeric"
                                     value={form.ac}
                                     onChangeText={t => setForm(f => ({ ...f, ac: t }))}
                                 />
+                                
+                                <Text style={[styles.fieldLabel, { color: currentTheme.text }]}>Token Image URL (Optional)</Text>
                                 <TextInput
                                     style={[commonStyles.input, { backgroundColor: currentTheme.innerBackground, color: currentTheme.text }]}
-                                    placeholder="Token URL (optional)"
+                                    placeholder="https://example.com/token.png"
                                     placeholderTextColor={currentTheme.noticeText}
                                     value={form.tokenUrl}
                                     onChangeText={t => setForm(f => ({ ...f, tokenUrl: t }))}
@@ -243,5 +254,11 @@ const styles = StyleSheet.create({
         marginTop: 12,
         marginBottom: 8,
         textAlign: 'center',
+    },
+    fieldLabel: {
+        fontSize: 16,
+        fontWeight: '600',
+        marginTop: 16,
+        marginBottom: 6,
     },
 });
