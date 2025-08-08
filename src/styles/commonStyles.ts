@@ -161,7 +161,8 @@ export const commonStyles = StyleSheet.create({
         alignItems: 'center',
     },
     modalContent: {
-        width: '90%',
+        width: '85%',
+        maxWidth: 400,
         maxHeight: '80%',
         backgroundColor: '#232323',
         borderRadius: 16,
@@ -176,10 +177,10 @@ export const commonStyles = StyleSheet.create({
         marginBottom: 20,
     },
     modalTitle: {
-        fontSize: 24,
+        fontSize: 20,
         fontWeight: 'bold',
         color: 'white',
-        marginBottom: 10,
+        flex: 1,
         textAlign: 'center',
     },
     modalCloseButton: {

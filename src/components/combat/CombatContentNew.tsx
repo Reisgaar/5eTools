@@ -42,7 +42,7 @@ interface CombatContentProps {
   onUpdateNote: (id: string, note: string) => void;
   onRemoveCombatant: (id: string) => void;
   onRandomizeInitiative: () => void;
-  onClearCombat: () => void;
+  onStopCombat: () => void;
   onBackToList: () => void;
   theme: any;
   isGroupEnabled: (nameOrigin: string) => boolean;
@@ -68,7 +68,7 @@ export default function CombatContentNew({
   onUpdateNote,
   onRemoveCombatant,
   onRandomizeInitiative,
-  onClearCombat,
+  onStopCombat,
   onBackToList,
   theme,
   isGroupEnabled,
@@ -343,7 +343,7 @@ export default function CombatContentNew({
   };
 
   const handleCreaturePress = async (name: string, source: string) => {
-    openBeastModal(name, source);
+    openBeastModal({ name, source });
   };
 
   const handleTokenPress = (tokenUrl: string | undefined, creatureName: string) => {
@@ -352,7 +352,7 @@ export default function CombatContentNew({
   };
 
   const handleSpellPress = async (name: string, source: string) => {
-    openSpellModal(name, source);
+    openSpellModal({ name, source });
   };
 
   const groupedCombatants = getGroupedCombatants();
@@ -367,7 +367,7 @@ export default function CombatContentNew({
         onStartCombat={onStartCombat}
         onRandomizeInitiative={onRandomizeInitiative}
         onOpenPlayerModal={openPlayerModal}
-        onClearCombat={onClearCombat}
+        onStopCombat={onStopCombat}
         onResetCombat={resetCombatGroups}
         started={started}
         theme={theme}
@@ -434,7 +434,7 @@ export default function CombatContentNew({
       <CombatControls
         started={started}
         round={round}
-        onClearCombat={onClearCombat}
+        onStopCombat={onStopCombat}
         onNextTurn={onNextTurn}
         theme={theme}
       />

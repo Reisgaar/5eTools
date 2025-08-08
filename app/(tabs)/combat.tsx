@@ -28,6 +28,7 @@ export default function CombatScreen() {
     toggleGroupForName,
     groupByName,
     startCombat,
+    stopCombat,
     nextTurn,
     updateCombatantConditions,
     updateCombatantNote,
@@ -83,17 +84,6 @@ export default function CombatScreen() {
     );
   };
 
-  const handleClearAll = () => {
-    Alert.alert(
-      'Clear All Combatants',
-      'Are you sure you want to remove all combatants?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Clear All', style: 'destructive', onPress: clearCombat }
-      ]
-    );
-  };
-
   const handleCreateCombat = () => {
     if (newCombatName.trim()) {
       createCombat(newCombatName.trim());
@@ -122,18 +112,6 @@ export default function CombatScreen() {
 
   const handleBackToList = () => {
     clearCurrentCombat(); // Clear current combat selection
-  };
-
-  // Handler for finishing combat (when started)
-  const handleFinishCombat = () => {
-    Alert.alert(
-      'Finish Combat',
-      'Are you sure you want to finish this combat? This will stop combatants and reset the round counter.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Finish', style: 'destructive', onPress: clearCombat }
-      ]
-    );
   };
 
   const handleSetCombatActive = (combatId: string, active: boolean) => {
@@ -166,7 +144,7 @@ export default function CombatScreen() {
                   onUpdateNote={updateCombatantNote}
                   onRemoveCombatant={removeCombatant}
                   onRandomizeInitiative={handleRandomInitiative}
-                  onClearCombat={currentCombat?.started ? handleFinishCombat : handleClearAll}
+                  onStopCombat={stopCombat}
                   onBackToList={handleBackToList}
                   theme={currentTheme}
                   isGroupEnabled={isGroupEnabled}

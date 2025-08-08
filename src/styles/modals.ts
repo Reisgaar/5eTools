@@ -92,8 +92,8 @@ export const createModalStyles = (theme: any) => StyleSheet.create({
     backgroundColor: theme.card,
     borderRadius: 12,
     padding: 24,
-    width: 280,
-    maxWidth: '90%',
+    width: 300,
+    maxWidth: '85%',
   },
   valueEditTitle: {
     fontWeight: 'bold',
@@ -119,8 +119,8 @@ export const createModalStyles = (theme: any) => StyleSheet.create({
     backgroundColor: theme.card,
     borderRadius: 12,
     padding: 24,
-    width: 320,
-    maxWidth: '90%',
+    width: 340,
+    maxWidth: '85%',
   },
   colorPickerTitle: {
     fontWeight: 'bold',
@@ -152,8 +152,8 @@ export const createModalStyles = (theme: any) => StyleSheet.create({
     backgroundColor: theme.card,
     borderRadius: 12,
     padding: 24,
-    width: 320,
-    maxWidth: '90%',
+    width: 340,
+    maxWidth: '85%',
     maxHeight: '70%',
   },
   statusPickerTitle: {
@@ -188,8 +188,8 @@ export const createModalStyles = (theme: any) => StyleSheet.create({
     backgroundColor: theme.card,
     borderRadius: 12,
     padding: 24,
-    width: 320,
-    maxWidth: '90%',
+    width: 340,
+    maxWidth: '85%',
   },
   combatSelectionTitle: {
     fontWeight: 'bold',

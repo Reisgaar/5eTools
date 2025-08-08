@@ -6,7 +6,7 @@ import { createCombatStyles } from '../../styles/combat';
 interface CombatControlsProps {
   started: boolean;
   round: number;
-  onClearCombat: () => void;
+  onStopCombat: () => void;
   onNextTurn: () => void;
   theme: any;
 }
@@ -14,7 +14,7 @@ interface CombatControlsProps {
 export default function CombatControls({
   started,
   round,
-  onClearCombat,
+  onStopCombat,
   onNextTurn,
   theme
 }: CombatControlsProps) {
@@ -25,7 +25,7 @@ export default function CombatControls({
   return (
     <View style={[styles.controls, { borderTopColor: theme.border }]}>
       <TouchableOpacity 
-        onPress={onClearCombat} 
+        onPress={onStopCombat} 
         style={styles.controlsFinishButton}
       >
         <Ionicons name='stop' size={18} color={'#c00'} style={styles.controlsFinishIcon} />

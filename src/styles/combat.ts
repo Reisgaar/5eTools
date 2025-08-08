@@ -37,6 +37,7 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
     padding: 24,
     width: 280,
     maxWidth: '90%',
+    paddingHorizontal: 8,
   },
   headerModalTitle: {
     fontWeight: 'bold',
@@ -47,9 +48,11 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
   },
   headerModalButton: {
     borderRadius: 8,
-    padding: 12,
-    marginBottom: 8,
+    padding: 16,
+    marginBottom: 12,
     alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 48,
   },
   headerModalButtonPrimary: {
     backgroundColor: theme.primary,
@@ -68,6 +71,7 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
   },
   headerModalButtonText: {
     fontWeight: 'bold',
+    fontSize: 16,
   },
   headerModalButtonTextPrimary: {
     color: theme.buttonText || 'white',

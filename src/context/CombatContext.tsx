@@ -61,6 +61,7 @@ interface CombatContextType {
   clearCombat: () => void;
   resetCombatGroups: () => void;
   startCombat: () => void;
+  stopCombat: () => void;
   nextTurn: () => void;
   getTurnOrder: (combatants: Combatant[], groupByName: { [nameOrigin: string]: boolean }) => { ids: string[], name: string, initiative: number }[];
   addPlayerCombatant: (player: { name: string, race: string, class: string, maxHp?: number, ac?: number, passivePerception?: number, tokenUrl?: string }) => void;
@@ -657,43 +658,28 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setCombats(prev => prev.map(c => {
       if (c.id !== currentCombatId) return c;
       
-      // Regenerate groupByName based on current combatants using normalized name-source format
-      const groups: { [nameOrigin: string]: Combatant[] } = {};
-      c.combatants.forEach(combatant => {
-        const nameOrigin = `${normalizeString(combatant.name)}-${normalizeString(combatant.source)}`;
-        if (!groups[nameOrigin]) {
-          groups[nameOrigin] = [];
-        }
-        groups[nameOrigin].push(combatant);
-      });
-      
-      const newGroupByName: { [nameOrigin: string]: boolean } = {};
-      Object.entries(groups).forEach(([nameOrigin, members]) => {
-        // If there's more than one combatant of the same name-origin, group them by default
-        newGroupByName[nameOrigin] = members.length > 1;
-      });
-      
-      return { ...c, groupByName: newGroupByName };
+      // Clear all combatants and reset groups
+      return { 
+        ...c, 
+        combatants: [],
+        groupByName: {},
+        started: false,
+        round: undefined,
+        turnIndex: undefined
+      };
     }));
     
     // Save
     const updatedCombat = combats.find(c => c.id === currentCombatId);
     if (updatedCombat) {
-      const groups: { [nameOrigin: string]: Combatant[] } = {};
-      updatedCombat.combatants.forEach(combatant => {
-        const nameOrigin = `${normalizeString(combatant.name)}-${normalizeString(combatant.source)}`;
-        if (!groups[nameOrigin]) {
-          groups[nameOrigin] = [];
-        }
-        groups[nameOrigin].push(combatant);
+      storeCombatToFile({ 
+        ...updatedCombat, 
+        combatants: [],
+        groupByName: {},
+        started: false,
+        round: undefined,
+        turnIndex: undefined
       });
-      
-      const newGroupByName: { [nameOrigin: string]: boolean } = {};
-      Object.entries(groups).forEach(([nameOrigin, members]) => {
-        newGroupByName[nameOrigin] = members.length > 1;
-      });
-      
-      storeCombatToFile({ ...updatedCombat, groupByName: newGroupByName });
     }
   };
 
@@ -771,6 +757,22 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     // Save
     const updatedCombat = combats.find(c => c.id === currentCombatId);
     if (updatedCombat) storeCombatToFile({ ...updatedCombat, round: 1, turnIndex: 0, started: true });
+  };
+
+  const stopCombat = () => {
+    if (!currentCombatId) return;
+    setCombats(prev => prev.map(c => {
+      if (c.id !== currentCombatId) return c;
+      return {
+        ...c,
+        started: false,
+        round: undefined,
+        turnIndex: undefined,
+      };
+    }));
+    // Save
+    const updatedCombat = combats.find(c => c.id === currentCombatId);
+    if (updatedCombat) storeCombatToFile({ ...updatedCombat, started: false, round: undefined, turnIndex: undefined });
   };
 
   const nextTurn = () => {
@@ -934,6 +936,7 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       clearCombat,
       resetCombatGroups,
       startCombat,
+      stopCombat,
       nextTurn,
       getTurnOrder: (combatants: Combatant[], groupByName: { [name: string]: boolean }) => getTurnOrder(combatants, groupByName),
       addPlayerCombatant,
