@@ -145,7 +145,7 @@ export function replaceTags(
     }
     // Add any remaining text
     if (lastIndex < text.length) {
-        nodes.push(text.slice(lastIndex));
+        nodes.push(<Text key={key++}>{text.slice(lastIndex)}</Text>);
     }
     return nodes;
 }

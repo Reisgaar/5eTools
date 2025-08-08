@@ -9,9 +9,7 @@ import { ModalProvider } from 'src/context/ModalContext';
 import { SpellbookProvider } from 'src/context/SpellbookContext';
 
 // COMPONENTS
-import ErrorBoundary from 'src/components/ErrorBoundary';
-import GlobalModals from 'src/components/GlobalModals';
-import Header from 'src/components/Header';
+import { ErrorBoundary, GlobalModals, Header } from 'src/components';
 
 // Root layout for the app, providing all global providers and navigation stack.
 export default function RootLayout() {

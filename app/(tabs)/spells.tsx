@@ -6,8 +6,7 @@ import { useAppSettings } from 'src/context/AppSettingsContext';
 import { useData } from 'src/context/DataContext';
 import { useModal } from 'src/context/ModalContext';
 import { useSpellbook } from 'src/context/SpellbookContext';
-import SpellbookModal from 'src/components/SpellbookModal';
-import AddToSpellbookModal from 'src/components/AddToSpellbookModal';
+import { SpellbookModal, AddToSpellbookModal } from 'src/components/spells';
 import { commonStyles } from 'src/styles/commonStyles';
 
 const LEVELS = [
@@ -98,11 +97,8 @@ export default function SpellsScreen() {
         }
     };
 
-    const handleSpellPress = async (name: string, source: string) => {
-        const spell = simpleSpells.find(s => s.name.trim().toLowerCase() === name.trim().toLowerCase() && s.source.trim().toLowerCase() === source.trim().toLowerCase());
-        if (spell) {
-            openSpellModal(spell);
-        }
+    const handleSpellPress = async (spell: any) => {
+        openSpellModal(spell);
     };
 
     // Filtered and sorted spells - only compute when page is ready
@@ -166,7 +162,7 @@ export default function SpellsScreen() {
             <View style={[commonStyles.itemCard, { backgroundColor: theme.card, borderColor: theme.primary }]}>
                 <TouchableOpacity 
                     style={commonStyles.itemInfoContainer}
-                    onPress={() => handleSpellPress(spell.name, spell.source)}
+                    onPress={() => handleSpellPress(spell)}
                 >
                     <Text>
                         <Text style={[commonStyles.itemLevel, { color: theme.text }]}>{spell.level === 0 ? 'C' : spell.level}{' - '}</Text>

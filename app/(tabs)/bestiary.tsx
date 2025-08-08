@@ -8,11 +8,9 @@ import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, TouchableOpac
 import { equalsNormalized } from 'src/utils/stringUtils';
 
 // COMPONENTS
-import BeastListItem from 'src/components/BeastListItem';
-import CombatSelectionModal from 'src/components/CombatSelectionModal';
-import CRFilterModal from 'src/components/CRFilterModal';
-import SourceFilterModal from 'src/components/SourceFilterModal';
-import TypeFilterModal from 'src/components/TypeFilterModal';
+import { BeastListItem } from 'src/components/beasts';
+import { CombatSelectionModal } from 'src/components/combat';
+import { CRFilterModal, SourceFilterModal, TypeFilterModal } from 'src/components/modals';
 
 // CONTEXTS
 import { useAppSettings } from 'src/context/AppSettingsContext';
@@ -29,7 +27,7 @@ import { books as sourceIdToNameMap } from 'src/constants/books';
 export default function BestiaryScreen() {
     const { currentTheme } = useAppSettings();
     const { simpleBeasts, simpleSpells, isLoading, isInitialized, getFullBeast, getFullSpell } = useData();
-    const { combats, currentCombatId, addCombatantToCombat, createCombat, selectCombat } = useCombat();
+    const { combats, currentCombatId, addCombatantToCombat, createCombat, selectCombat, getSortedCombats } = useCombat();
     const { openBeastModal, openSpellModal } = useModal();
     const [combatSelectionModalVisible, setCombatSelectionModalVisible] = useState(false);
     const [beastToAdd, setBeastToAdd] = useState<any | null>(null);
@@ -84,7 +82,6 @@ export default function BestiaryScreen() {
         setCombatSelectionModalVisible(true);
     };
     const handleSelectCombat = (combatId: string) => {
-        selectCombat(combatId);
         if (beastToAdd) {
             const qty = parseInt(quantity, 10) || 1;
             for (let i = 0; i < qty; i++) {
@@ -150,7 +147,7 @@ export default function BestiaryScreen() {
                 visible={combatSelectionModalVisible}
                 onClose={() => setCombatSelectionModalVisible(false)}
                 beastToAdd={beastToAdd}
-                combats={combats}
+                combats={getSortedCombats()}
                 currentCombatId={currentCombatId}
                 newCombatName={newCombatName}
                 quantity={quantity}

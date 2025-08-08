@@ -20,6 +20,7 @@ export type Theme = {
     modelBackground: string;
     tabBackground: string;
     tabBorder: string;
+    border: string;
   };
   
   export const lightTheme: Theme = {
@@ -44,6 +45,7 @@ export type Theme = {
     modelBackground: '#eee',
     tabBackground: '#fff',
     tabBorder: '#aaa',
+    border: '#ddd',
   };
   
   export const darkTheme: Theme = {
@@ -68,5 +70,6 @@ export type Theme = {
     modelBackground: '#eee',
     tabBackground: '#111',
     tabBorder: '#777',
+    border: '#333',
   };
   

@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { bestiaryGetRequests, spellsGetRequests } from '../constants/requests';
 import { equalsNormalized } from '../utils/stringUtils';
+import { calculatePassivePerception } from '../utils/beastUtils';
+import { getTokenUrl } from '../utils/tokenCache';
 import {
     clearBeastsAndSpellsOnly,
     loadBeastsIndexFromFile,
@@ -53,7 +55,7 @@ interface SpellIndex {
 
 interface DataContextType {
   beasts: Beast[];
-  simpleBeasts: { name: string; CR: string | number; type: string; source: string; ac: any }[];
+  simpleBeasts: { name: string; CR: string | number; type: string; source: string; ac: any; passivePerception: number }[];
   spells: Spell[];
   simpleSpells: { name: string; level: number; school: string; source: string }[];
   isLoading: boolean;
@@ -108,6 +110,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         type: type || 'Unknown',
         source: source || 'Unknown',
         ac: ac,
+        passivePerception: 10, // Default value, will be calculated when full beast is loaded
       };
     }).filter(({ name, CR, source }) => {
       const key = `${name}||${CR}||${source}`;
@@ -315,6 +318,18 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // Load the full beast data from file
       const fullBeast = await loadMonsterFromFile(beastIndex.file);
+      
+      // If the beast has a token URL, try to cache it
+      if (fullBeast && fullBeast.tokenUrl) {
+        try {
+          const cachedTokenUrl = await getTokenUrl(source, name, fullBeast.tokenUrl);
+          fullBeast.tokenUrl = cachedTokenUrl;
+        } catch (error) {
+          console.error(`Error caching token for ${name}:`, error);
+          // Keep original URL if caching fails
+        }
+      }
+      
       return fullBeast;
     } catch (error) {
       console.error('Error loading full beast:', error);

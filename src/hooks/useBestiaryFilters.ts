@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { normalizeString, extractBeastType, extractBeastSource, containsNormalized, includesNormalized } from 'src/utils/stringUtils';
+import { getBeastType, getBeastSource, calculatePassivePerception } from 'src/utils/beastUtils';
 
 export function useBestiaryFilters(simpleBeasts: any[], beasts: any[]) {
     // Search and filter states
@@ -37,19 +38,19 @@ export function useBestiaryFilters(simpleBeasts: any[], beasts: any[]) {
     }, [simpleBeasts]);
 
     // Helper to extract type string from beast (using utility function)
-    function getBeastType(beast: any): string {
-        return extractBeastType(beast);
+    function getBeastTypeLocal(beast: any): string {
+        return getBeastType(beast);
     }
 
     // Get unique types for filter modal
     const typeOptions = useMemo(() => {
-        const types = Array.from(new Set(simpleBeasts.map(extractBeastType))).filter(Boolean).sort();
+        const types = Array.from(new Set(simpleBeasts.map(getBeastType))).filter(Boolean).sort();
         return types;
     }, [simpleBeasts]);
 
     // Get unique sources for filter modal
     const sourceOptions = useMemo(() => {
-        const sources = Array.from(new Set(simpleBeasts.map(extractBeastSource))).filter(Boolean).sort();
+        const sources = Array.from(new Set(simpleBeasts.map(getBeastSource))).filter(Boolean).sort();
         return sources;
     }, [simpleBeasts]);
 
@@ -57,8 +58,8 @@ export function useBestiaryFilters(simpleBeasts: any[], beasts: any[]) {
     const filteredBeasts = useMemo(() => {
         return simpleBeasts.filter(b => {
             const matchesName = containsNormalized(b.name, search);
-            const beastType = extractBeastType(b);
-            const beastSource = extractBeastSource(b);
+            const beastType = getBeastType(b);
+            const beastSource = getBeastSource(b);
             const matchesCR = selectedCRs.length === 0 || selectedCRs.includes(String(b.CR));
             const matchesType = selectedTypes.length === 0 || includesNormalized(beastType, selectedTypes);
             const matchesSource = selectedSources.length === 0 || includesNormalized(beastSource, selectedSources);

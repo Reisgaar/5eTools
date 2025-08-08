@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
-import CombatContent from 'src/components/CombatContent';
-import CombatList from 'src/components/CombatList';
+import { CombatContent, CombatList } from 'src/components/combat';
 import { useAppSettings } from 'src/context/AppSettingsContext';
 import { useCombat } from 'src/context/CombatContext';
 import { useData } from 'src/context/DataContext';
@@ -29,7 +28,10 @@ export default function CombatScreen() {
     groupByName,
     startCombat,
     nextTurn,
-    updateCombatantConditions
+    updateCombatantConditions,
+    updateCombatantNote,
+    setCombatActive,
+    getSortedCombats
   } = useCombat();
   const { currentTheme } = useAppSettings();
   const { getFullBeast } = useData();
@@ -133,6 +135,10 @@ export default function CombatScreen() {
     );
   };
 
+  const handleSetCombatActive = (combatId: string, active: boolean) => {
+    setCombatActive(combatId, active);
+  };
+
     return (
         <View style={{ flex: 1, backgroundColor: currentTheme.background }}>
             {/* Header */}
@@ -155,6 +161,7 @@ export default function CombatScreen() {
                   onUpdateInitiative={updateInitiative}
                   onUpdateInitiativeForGroup={updateInitiativeForGroup}
                   onUpdateConditions={onUpdateConditions}
+                  onUpdateNote={updateCombatantNote}
                   onRemoveCombatant={removeCombatant}
                   onRandomizeInitiative={handleRandomInitiative}
                   onClearCombat={currentCombat?.started ? handleFinishCombat : handleClearAll}
@@ -172,13 +179,13 @@ export default function CombatScreen() {
               ) : (
                   // Show combat list when no combat is selected
                   <CombatList
-                  combats={combats}
+                  combats={getSortedCombats()}
                   currentCombatId={currentCombatId}
                   newCombatName={newCombatName}
                   onNewCombatNameChange={setNewCombatName}
                   onSelectCombat={handleSelectCombat}
                   onCreateCombat={handleCreateCombat}
-                  onDeleteCombat={handleDeleteCombat}
+                  onSetCombatActive={handleSetCombatActive}
                   theme={currentTheme}
                   />
               )}

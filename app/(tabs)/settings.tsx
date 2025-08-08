@@ -12,6 +12,7 @@ import { useCombat } from 'src/context/CombatContext';
 
 // COMPONENTS
 import { Ionicons } from '@expo/vector-icons';
+import { ImagePickerWeb as PlayerImagePicker } from 'src/components/ui';
 import { classes, races } from 'src/constants/players';
 import { addPlayer, loadPlayersList, removePlayer, updatePlayer } from 'src/utils/fileStorage';
 
@@ -26,7 +27,8 @@ export default function SettingsScreen() {
     const [players, setPlayers] = React.useState<any[]>([]);
     const [playerModalVisible, setPlayerModalVisible] = React.useState(false);
     const [editPlayer, setEditPlayer] = React.useState<any | null>(null);
-    const [form, setForm] = React.useState({ name: '', race: '', class: '', maxHp: '', ac: '', tokenUrl: '' });
+    const [form, setForm] = React.useState({ name: '', race: '', class: '', maxHp: '', ac: '', passivePerception: '', tokenUrl: '' });
+    const [selectedImageUri, setSelectedImageUri] = React.useState<string | null>(null);
 
     // Load players on mount
     React.useEffect(() => {
@@ -48,7 +50,8 @@ export default function SettingsScreen() {
             class: form.class,
             maxHp: parseInt(form.maxHp) || 0,
             ac: parseInt(form.ac) || 0,
-            tokenUrl: form.tokenUrl?.trim() || DEFAULT_TOKEN_URL,
+            passivePerception: parseInt(form.passivePerception) || 10,
+            tokenUrl: selectedImageUri || form.tokenUrl?.trim() || DEFAULT_TOKEN_URL,
         };
         if (editPlayer) {
             await updatePlayer(editPlayer.name, playerData);
@@ -60,7 +63,8 @@ export default function SettingsScreen() {
         setPlayers(list);
         setPlayerModalVisible(false);
         setEditPlayer(null);
-        setForm({ name: '', race: '', class: '', maxHp: '', ac: '', tokenUrl: '' });
+        setForm({ name: '', race: '', class: '', maxHp: '', ac: '', passivePerception: '', tokenUrl: '' });
+        setSelectedImageUri(null);
     };
 
     // Delete player
@@ -78,7 +82,8 @@ export default function SettingsScreen() {
     // Open modal for add/edit
     const openAddModal = () => {
         setEditPlayer(null);
-        setForm({ name: '', race: '', class: '', maxHp: '', ac: '', tokenUrl: '' });
+        setForm({ name: '', race: '', class: '', maxHp: '', ac: '', passivePerception: '', tokenUrl: '' });
+        setSelectedImageUri(null);
         setPlayerModalVisible(true);
     };
     const openEditModal = (player: any) => {
@@ -89,8 +94,10 @@ export default function SettingsScreen() {
             class: player.class,
             maxHp: player.maxHp?.toString() || '',
             ac: player.ac?.toString() || '',
+            passivePerception: player.passivePerception?.toString() || '',
             tokenUrl: player.tokenUrl || '',
         });
+        setSelectedImageUri(null);
         setPlayerModalVisible(true);
     };
 
@@ -222,13 +229,20 @@ export default function SettingsScreen() {
                                     onChangeText={t => setForm(f => ({ ...f, ac: t }))}
                                 />
                                 
-                                <Text style={[styles.fieldLabel, { color: currentTheme.text }]}>Token Image URL (Optional)</Text>
+                                <Text style={[styles.fieldLabel, { color: currentTheme.text }]}>Passive Perception</Text>
                                 <TextInput
                                     style={[commonStyles.input, { backgroundColor: currentTheme.innerBackground, color: currentTheme.text }]}
-                                    placeholder="https://example.com/token.png"
+                                    placeholder="e.g., 14"
                                     placeholderTextColor={currentTheme.noticeText}
-                                    value={form.tokenUrl}
-                                    onChangeText={t => setForm(f => ({ ...f, tokenUrl: t }))}
+                                    keyboardType="numeric"
+                                    value={form.passivePerception}
+                                    onChangeText={t => setForm(f => ({ ...f, passivePerception: t }))}
+                                />
+                                
+                                <PlayerImagePicker
+                                    currentImageUri={selectedImageUri || form.tokenUrl}
+                                    onImageSelected={setSelectedImageUri}
+                                    theme={currentTheme}
                                 />
                             </ScrollView>
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 12 }}>

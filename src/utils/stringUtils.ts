@@ -98,3 +98,63 @@ export function includesNormalized(value: any, array: any[]): boolean {
     const normalizedArray = normalizeStrings(array);
     return normalizedArray.includes(normalizedValue);
 }
+
+// 2024 Source Logic
+export const SOURCES_2024: string[] = ['xdmg', 'xmm', 'xphb'];
+
+/**
+ * Checks if a source is a 2024 source
+ * @param source - Source to check
+ * @returns True if source is 2024
+ */
+export function is2024Source(source: any): boolean {
+    return includesNormalized(source, SOURCES_2024);
+}
+
+/**
+ * Gets the spell source for a beast based on 2024 logic
+ * @param beastSource - Source of the beast
+ * @returns Spell source to search in
+ */
+export function getSpellSourceForBeast(beastSource: any): string {
+    if (is2024Source(beastSource)) {
+        return 'xphb'; // 2024 sources use xphb spells
+    }
+    return beastSource; // Non-2024 sources use their own spells
+}
+
+/**
+ * Gets the creature source for a beast based on 2024 logic
+ * @param beastSource - Source of the beast
+ * @returns Creature source to search in
+ */
+export function getCreatureSourceForBeast(beastSource: any): string {
+    if (is2024Source(beastSource)) {
+        return beastSource; // 2024 sources use their own creatures
+    }
+    return beastSource; // Non-2024 sources use their own creatures
+}
+
+/**
+ * Gets excluded spell sources for a beast
+ * @param beastSource - Source of the beast
+ * @returns Array of excluded spell sources
+ */
+export function getExcludedSpellSources(beastSource: any): string[] {
+    if (is2024Source(beastSource)) {
+        return SOURCES_2024; // 2024 sources only search in 2024 sources
+    }
+    return SOURCES_2024; // Non-2024 sources exclude 2024 sources
+}
+
+/**
+ * Gets excluded creature sources for a beast
+ * @param beastSource - Source of the beast
+ * @returns Array of excluded creature sources
+ */
+export function getExcludedCreatureSources(beastSource: any): string[] {
+    if (is2024Source(beastSource)) {
+        return SOURCES_2024; // 2024 sources only search in 2024 sources
+    }
+    return SOURCES_2024; // Non-2024 sources exclude 2024 sources
+}

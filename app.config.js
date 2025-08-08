@@ -45,6 +45,7 @@ export default {
                 CFBundleDisplayName: appName,
                 ITSAppUsesNonExemptEncryption: false,
                 NSPhotoLibraryAddUsageDescription: 'To save files or exported data to your media library.',
+                NSPhotoLibraryUsageDescription: 'To select character token images from your photo library.',
                 NSDocumentsFolderUsageDescription: 'Used to store and access data in the local device storage.'
             }
         },
@@ -61,7 +62,8 @@ export default {
             permissions: [
                 "android.permission.INTERNET",
                 "android.permission.READ_EXTERNAL_STORAGE",
-                "android.permission.WRITE_EXTERNAL_STORAGE"
+                "android.permission.WRITE_EXTERNAL_STORAGE",
+                "android.permission.READ_MEDIA_IMAGES"
             ],
             package: 'com.dnd.dndtools',
             resourceFiles: ['./assets/network_security_config.xml'],
@@ -69,7 +71,7 @@ export default {
         web: {
             bundler: 'metro',
             output: 'static',
-            favicon: './assets/images/favicon.ico'
+            favicon: './assets/images/logo_and_name.png'
         },
         plugins: plugins,
         experiments: {
