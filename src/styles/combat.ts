@@ -610,23 +610,27 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
 
   // Combat Selection Modal Styles
   selectionContainer: {
-    marginBottom: 16,
+    marginBottom: 20,
   },
   selectionRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
+    marginTop: 8,
   },
   selectionTitle: {
-    marginRight: 8,
-    marginBottom: 0,
+    marginBottom: 8,
     fontSize: 16,
     fontWeight: 'bold',
+    textAlign: 'center',
   },
   selectionQuantityBtn: {
-    borderRadius: 4,
-    padding: 8,
-    marginRight: 8,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 4,
   },
   selectionQuantityBtnLeft: {
     marginRight: 8,
@@ -636,40 +640,47 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
   },
   selectionQuantityBtnText: {
     color: 'white',
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
   },
   selectionQuantityInput: {
     borderWidth: 1,
-    borderRadius: 4,
-    padding: 8,
-    width: 60,
+    borderRadius: 8,
+    padding: 12,
+    width: 80,
     textAlign: 'center',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   selectionSection: {
-    marginBottom: 16,
+    marginBottom: 20,
+    flex: 1,
   },
   selectionSectionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 8,
+    marginBottom: 12,
   },
   selectionEmptyText: {
     textAlign: 'center',
-    marginVertical: 8,
+    marginVertical: 16,
+    fontStyle: 'italic',
   },
   selectionScrollView: {
+    flex: 1,
+    minHeight: 120,
     maxHeight: 200,
   },
   selectionCombatOption: {
-    padding: 12,
+    padding: 16,
     marginBottom: 8,
-    borderRadius: 8,
+    borderRadius: 12,
     borderWidth: 1,
   },
   selectionCombatName: {
     fontWeight: 'bold',
     marginBottom: 4,
+    fontSize: 16,
   },
   selectionCombatInfo: {
     fontSize: 12,
@@ -680,23 +691,26 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
   selectionCreateRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 6,
   },
   selectionCreateInput: {
     flex: 1,
     borderWidth: 1,
     borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    fontSize: 16,
-    marginRight: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    fontSize: 14,
   },
   selectionCreateBtn: {
     borderRadius: 8,
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 10,
+    minWidth: 60,
+    alignItems: 'center',
   },
   selectionCreateBtnText: {
     color: 'white',
     fontWeight: 'bold',
+    fontSize: 14,
   },
 });

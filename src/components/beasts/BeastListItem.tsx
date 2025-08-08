@@ -153,7 +153,7 @@ export default function BeastListItem({
             >
                 <Text style={[commonStyles.itemName, { color: theme.text }]}>
                     <Text style={{ fontWeight: 'bold' }}>{beast.name}</Text>
-                    <Text style={{ fontStyle: 'italic' }}> - {formatCR(beast.CR)} ({getSourceInitials(beast.source)})</Text>
+                    <Text style={{ fontStyle: 'italic', fontWeight: 'normal' }}> - {formatCR(beast.CR)} ({getSourceInitials(beast.source)})</Text>
                 </Text>
             </TouchableOpacity>
             <TouchableOpacity
