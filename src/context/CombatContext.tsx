@@ -5,6 +5,7 @@ import { calculatePassivePerception } from '../utils/beastUtils';
 import { DEFAULT_CREATURE_TOKEN, DEFAULT_PLAYER_TOKEN } from '../constants/tokens';
 import { deleteCombatFile, loadCombatFromFile, loadCombatsIndexFromFile, storeCombatToFile } from '../utils/fileStorage';
 import { getTokenUrl, getCachedTokenUrl } from '../utils/tokenCache';
+import { getCachedToken } from '../utils/imageManager';
 import { normalizeString } from '../utils/stringUtils';
 
 export interface Combatant {
@@ -295,7 +296,8 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       const originalTokenUrl = `https://5e.tools/img/bestiary/tokens/${monster.source}/${encodeURIComponent(monster.name)}.webp`;
       
       try {
-        tokenUrl = await getTokenUrl(monster.source, monster.name, originalTokenUrl);
+        // Use the new image manager for better caching
+        tokenUrl = await getCachedToken(monster.source, monster.name, originalTokenUrl);
       } catch (error) {
         console.error(`Error caching token for ${monster.name}:`, error);
         // Fallback to original URL

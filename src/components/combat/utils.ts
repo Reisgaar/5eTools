@@ -1,5 +1,6 @@
 import { Combatant } from '../../context/CombatContext';
 import { CombatGroupData } from './types';
+import { getCombatTrackerImages } from '../../utils/imageManager';
 
 export const getGroupedCombatants = (combatants: Combatant[]): CombatGroupData[] => {
   const grouped: { [nameOrigin: string]: Combatant[] } = {};
@@ -36,11 +37,37 @@ export const loadCachedTokenUrl = async (
   if (!tokenUrl || !source || !name) return undefined;
   
   try {
-    const { getCachedTokenUrl } = await import('../../utils/tokenCache');
-    return await getCachedTokenUrl(source, name);
+    // Use the new image manager for better caching
+    const images = await getCombatTrackerImages(source, name);
+    return images.displayUrl;
   } catch (error) {
     console.error('Error loading cached token URL:', error);
     return undefined;
+  }
+};
+
+// Get both display and modal images for combat tracker
+export const loadCombatImages = async (
+  source: string, 
+  name: string
+): Promise<{
+  displayUrl: string;
+  modalUrl: string;
+  displayType: 'token' | 'full';
+  modalType: 'token' | 'full';
+}> => {
+  try {
+    return await getCombatTrackerImages(source, name);
+  } catch (error) {
+    console.error('Error loading combat images:', error);
+    // Fallback to default URLs
+    const encodedName = encodeURIComponent(name);
+    return {
+      displayUrl: `https://5e.tools/img/bestiary/tokens/${source}/${encodedName}.webp`,
+      modalUrl: `https://5e.tools/img/bestiary/${source}/${encodedName}.webp`,
+      displayType: 'token',
+      modalType: 'full'
+    };
   }
 };
 

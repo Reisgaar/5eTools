@@ -7,6 +7,7 @@ const isWeb = Platform.OS === 'web';
 // Web storage keys
 const WEB_STORAGE_KEYS = {
     TOKEN_CACHE: 'dnd_token_cache',
+    TOKEN_CACHE_META: 'dnd_token_cache_meta',
 };
 
 const TOKEN_CACHE_DIR = `${FileSystem.documentDirectory}dnd_data/token_cache/`;
@@ -18,10 +19,17 @@ interface TokenCacheEntry {
     cachedAt: number;
     dataUrl?: string; // For web, store as data URL
     localPath?: string; // For mobile, store local file path
+    size?: number; // Size in bytes for quota management
 }
 
 interface TokenCache {
     [key: string]: TokenCacheEntry;
+}
+
+interface TokenCacheMeta {
+    totalSize: number;
+    maxSize: number; // 4MB limit for token cache
+    lastCleanup: number;
 }
 
 // Generate cache key from source and name
@@ -38,6 +46,94 @@ const ensureTokenCacheDir = async (): Promise<void> => {
     const dirInfo = await FileSystem.getInfoAsync(TOKEN_CACHE_DIR);
     if (!dirInfo.exists) {
         await FileSystem.makeDirectoryAsync(TOKEN_CACHE_DIR, { intermediates: true });
+    }
+};
+
+// Get cache metadata
+const getCacheMeta = (): TokenCacheMeta => {
+    try {
+        const metaData = localStorage.getItem(WEB_STORAGE_KEYS.TOKEN_CACHE_META);
+        if (metaData) {
+            return JSON.parse(metaData);
+        }
+    } catch (error) {
+        console.error('Error loading cache metadata:', error);
+    }
+    
+    return {
+        totalSize: 0,
+        maxSize: 4 * 1024 * 1024, // 4MB limit
+        lastCleanup: Date.now()
+    };
+};
+
+// Save cache metadata
+const saveCacheMeta = (meta: TokenCacheMeta): void => {
+    try {
+        localStorage.setItem(WEB_STORAGE_KEYS.TOKEN_CACHE_META, JSON.stringify(meta));
+    } catch (error) {
+        console.error('Error saving cache metadata:', error);
+    }
+};
+
+// Clean up cache to make space
+const cleanupCache = async (cache: TokenCache, requiredSize: number): Promise<TokenCache> => {
+    const meta = getCacheMeta();
+    const availableSpace = meta.maxSize - meta.totalSize;
+    
+    if (availableSpace >= requiredSize) {
+        return cache;
+    }
+    
+    // Sort entries by age (oldest first)
+    const entries = Object.entries(cache).sort((a, b) => a[1].cachedAt - b[1].cachedAt);
+    
+    let newCache: TokenCache = {};
+    let newTotalSize = 0;
+    
+    // Keep entries until we run out of space
+    for (const [key, entry] of entries) {
+        const entrySize = entry.size || 0;
+        if (newTotalSize + entrySize + requiredSize <= meta.maxSize) {
+            newCache[key] = entry;
+            newTotalSize += entrySize;
+        } else {
+            // Remove from localStorage if it's a web entry
+            if (isWeb && entry.dataUrl) {
+                try {
+                    // Try to remove the individual image cache if it exists
+                    const imageCacheKey = `dnd_image_cache_${key}`;
+                    localStorage.removeItem(imageCacheKey);
+                } catch (error) {
+                    // Ignore errors when removing
+                }
+            }
+        }
+    }
+    
+    // Update metadata
+    const newMeta: TokenCacheMeta = {
+        ...meta,
+        totalSize: newTotalSize,
+        lastCleanup: Date.now()
+    };
+    saveCacheMeta(newMeta);
+    
+    console.log(`Cache cleanup: removed ${Object.keys(cache).length - Object.keys(newCache).length} entries`);
+    return newCache;
+};
+
+// Safe localStorage setItem with quota handling
+const safeSetItem = (key: string, value: string): boolean => {
+    try {
+        localStorage.setItem(key, value);
+        return true;
+    } catch (error) {
+        if (error instanceof Error && error.name === 'QuotaExceededError') {
+            console.warn(`Storage quota exceeded for key: ${key}`);
+            return false;
+        }
+        throw error;
     }
 };
 
@@ -69,7 +165,15 @@ export const loadTokenCache = async (): Promise<TokenCache> => {
 export const saveTokenCache = async (cache: TokenCache): Promise<void> => {
     try {
         if (isWeb) {
-            localStorage.setItem(WEB_STORAGE_KEYS.TOKEN_CACHE, JSON.stringify(cache));
+            const cacheJson = JSON.stringify(cache);
+            const success = safeSetItem(WEB_STORAGE_KEYS.TOKEN_CACHE, cacheJson);
+            
+            if (!success) {
+                // If we can't save the cache, try to clean it up first
+                const cleanedCache = await cleanupCache(cache, cacheJson.length);
+                const cleanedJson = JSON.stringify(cleanedCache);
+                safeSetItem(WEB_STORAGE_KEYS.TOKEN_CACHE, cleanedJson);
+            }
         } else {
             await ensureTokenCacheDir();
             const cacheFile = `${TOKEN_CACHE_DIR}cache.json`;
@@ -130,13 +234,44 @@ export const cacheToken = async (source: string, name: string, tokenUrl: string)
                 reader.readAsDataURL(blob);
             });
             
-            cache[key] = {
-                source,
-                name,
-                tokenUrl,
-                cachedAt: Date.now(),
-                dataUrl
-            };
+            const entrySize = dataUrl.length;
+            const meta = getCacheMeta();
+            
+            // Check if we have enough space
+            if (meta.totalSize + entrySize > meta.maxSize) {
+                // Clean up cache to make space
+                const cleanedCache = await cleanupCache(cache, entrySize);
+                cleanedCache[key] = {
+                    source,
+                    name,
+                    tokenUrl,
+                    cachedAt: Date.now(),
+                    dataUrl,
+                    size: entrySize
+                };
+                
+                // Update metadata
+                meta.totalSize += entrySize;
+                saveCacheMeta(meta);
+                
+                await saveTokenCache(cleanedCache);
+            } else {
+                // We have enough space
+                cache[key] = {
+                    source,
+                    name,
+                    tokenUrl,
+                    cachedAt: Date.now(),
+                    dataUrl,
+                    size: entrySize
+                };
+                
+                // Update metadata
+                meta.totalSize += entrySize;
+                saveCacheMeta(meta);
+                
+                await saveTokenCache(cache);
+            }
         } else {
             // For mobile, download and save locally
             await ensureTokenCacheDir();
@@ -153,13 +288,13 @@ export const cacheToken = async (source: string, name: string, tokenUrl: string)
                     cachedAt: Date.now(),
                     localPath
                 };
+                await saveTokenCache(cache);
             } else {
                 console.error('Failed to download token:', tokenUrl);
                 return;
             }
         }
         
-        await saveTokenCache(cache);
         console.log(`Token cached for ${source}/${name}`);
     } catch (error) {
         console.error('Error caching token:', error);
@@ -188,6 +323,7 @@ export const cleanTokenCache = async (): Promise<void> => {
         const cache = await loadTokenCache();
         const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
         let cleaned = false;
+        let totalSizeRemoved = 0;
         
         for (const [key, entry] of Object.entries(cache)) {
             if (entry.cachedAt < thirtyDaysAgo) {
@@ -198,12 +334,20 @@ export const cleanTokenCache = async (): Promise<void> => {
                         await FileSystem.deleteAsync(entry.localPath);
                     }
                 }
+                totalSizeRemoved += entry.size || 0;
                 delete cache[key];
                 cleaned = true;
             }
         }
         
         if (cleaned) {
+            // Update metadata
+            if (isWeb) {
+                const meta = getCacheMeta();
+                meta.totalSize = Math.max(0, meta.totalSize - totalSizeRemoved);
+                saveCacheMeta(meta);
+            }
+            
             await saveTokenCache(cache);
             console.log('Token cache cleaned');
         }
@@ -213,12 +357,19 @@ export const cleanTokenCache = async (): Promise<void> => {
 };
 
 // Get cache statistics
-export const getTokenCacheStats = async (): Promise<{ total: number; size: number }> => {
+export const getTokenCacheStats = async (): Promise<{ total: number; size: number; maxSize?: number }> => {
     const cache = await loadTokenCache();
-    return {
+    const stats = {
         total: Object.keys(cache).length,
         size: JSON.stringify(cache).length
     };
+    
+    if (isWeb) {
+        const meta = getCacheMeta();
+        return { ...stats, maxSize: meta.maxSize };
+    }
+    
+    return stats;
 };
 
 // Image cache functions for large images (like full creature images)
@@ -253,9 +404,15 @@ export const cacheLargeImage = async (source: string, name: string, imageUrl: st
             
             // Store in localStorage with a different key
             const imageCacheKey = `dnd_image_cache_${key}`;
-            localStorage.setItem(imageCacheKey, dataUrl);
-            console.log(`Large image cached for ${source}/${name}`);
-            return dataUrl;
+            const success = safeSetItem(imageCacheKey, dataUrl);
+            
+            if (success) {
+                console.log(`Large image cached for ${source}/${name}`);
+                return dataUrl;
+            } else {
+                console.warn(`Failed to cache large image for ${source}/${name} - storage quota exceeded`);
+                return imageUrl; // Return original URL if caching fails
+            }
         } else {
             // For mobile, download and save locally
             await ensureImageCacheDir();
@@ -311,6 +468,33 @@ export const getCachedLargeImageUrl = async (source: string, name: string, origi
     } catch (error) {
         console.error('Error getting cached large image:', error);
         return originalUrl;
+    }
+};
+
+// Clear all cached images
+export const clearImageCache = async (): Promise<void> => {
+    try {
+        if (isWeb) {
+            // Clear all image cache keys from localStorage
+            const keysToRemove: string[] = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('dnd_image_cache_')) {
+                    keysToRemove.push(key);
+                }
+            }
+            keysToRemove.forEach(key => localStorage.removeItem(key));
+            console.log('Image cache cleared');
+        } else {
+            // Clear image cache directory
+            const dirInfo = await FileSystem.getInfoAsync(IMAGE_CACHE_DIR);
+            if (dirInfo.exists) {
+                await FileSystem.deleteAsync(IMAGE_CACHE_DIR, { idempotent: true });
+                console.log('Image cache cleared');
+            }
+        }
+    } catch (error) {
+        console.error('Error clearing image cache:', error);
     }
 };
 

@@ -15,6 +15,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { createCombatStyles } from '../../styles/combat';
 import { CombatContentProps } from './types';
 import { getGroupedCombatants } from './utils';
+import { loadCombatImages } from './utils';
+import { TokenViewModal } from '../modals';
 
 export default function CombatContentNew({
   combatants,
@@ -50,6 +52,14 @@ export default function CombatContentNew({
   const [settingsModalVisible, setSettingsModalVisible] = React.useState(false);
   const [hpEditModalVisible, setHpEditModalVisible] = React.useState(false);
   const [maxHpEditModalVisible, setMaxHpEditModalVisible] = React.useState(false);
+  
+  // State for token view modal
+  const [tokenModalVisible, setTokenModalVisible] = React.useState(false);
+  const [tokenModalData, setTokenModalData] = React.useState<{
+    tokenUrl: string;
+    fallbackUrl: string;
+    creatureName: string;
+  } | null>(null);
   
   // State for editing
   const [editingValue, setEditingValue] = React.useState<{
@@ -276,10 +286,39 @@ export default function CombatContentNew({
     openBeastModal({ name, source });
   };
 
-  // Handle token press
-  const handleTokenPress = (tokenUrl: string | undefined, creatureName: string) => {
-    // Handle token press - could open a larger view
+  // Handle token press - show full image modal
+  const handleTokenPress = async (tokenUrl: string | undefined, creatureName: string) => {
     console.log('Token pressed for:', creatureName);
+    
+    // Find the combatant to get source
+    const combatant = combatants.find(c => c.name === creatureName);
+    if (!combatant || !combatant.source) {
+      console.log('No source found for creature:', creatureName);
+      return;
+    }
+    
+    try {
+      // Get both display and modal images
+      const images = await loadCombatImages(combatant.source, creatureName);
+      
+      setTokenModalData({
+        tokenUrl: images.modalUrl, // Use full image for modal
+        fallbackUrl: images.displayUrl, // Use token as fallback
+        creatureName
+      });
+      setTokenModalVisible(true);
+    } catch (error) {
+      console.error('Error loading images for token press:', error);
+      // Fallback to token URL if available
+      if (tokenUrl) {
+        setTokenModalData({
+          tokenUrl,
+          fallbackUrl: tokenUrl,
+          creatureName
+        });
+        setTokenModalVisible(true);
+      }
+    }
   };
 
   // Handle spell press
@@ -355,7 +394,7 @@ export default function CombatContentNew({
             );
           }
         }}
-        contentContainerStyle={{ padding: 16 }}
+        style={styles.combatList}
       />
 
       <CombatControls
@@ -427,6 +466,16 @@ export default function CombatContentNew({
         combatantNumber={editingHp?.combatantNumber || 1}
         currentHp={editingHp?.currentHp || 0}
         initialMaxHp={editingHp?.maxHp || 1}
+        theme={theme}
+      />
+      
+      {/* Token View Modal */}
+      <TokenViewModal
+        visible={tokenModalVisible}
+        onClose={() => setTokenModalVisible(false)}
+        tokenUrl={tokenModalData?.tokenUrl || ''}
+        fallbackUrl={tokenModalData?.fallbackUrl || ''}
+        creatureName={tokenModalData?.creatureName || ''}
         theme={theme}
       />
     </View>
