@@ -17,6 +17,7 @@ export default function CombatScreen() {
     clearCurrentCombat,
     deleteCombat,
     updateHp, 
+    updateMaxHp,
     updateAc,
     updateColor,
     updateInitiative, 
@@ -156,6 +157,7 @@ export default function CombatScreen() {
                   combatants={combatants}
                   combatName={currentCombat?.name || 'Combat'}
                   onUpdateHp={updateHp}
+                  onUpdateMaxHp={updateMaxHp}
                   onUpdateAc={updateAc}
                   onUpdateColor={updateColor}
                   onUpdateInitiative={updateInitiative}

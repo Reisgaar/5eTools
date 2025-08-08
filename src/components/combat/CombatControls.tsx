@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
+import { createCombatStyles } from '../../styles/combat';
 
 interface CombatControlsProps {
   started: boolean;
@@ -17,50 +18,29 @@ export default function CombatControls({
   onNextTurn,
   theme
 }: CombatControlsProps) {
+  const styles = createCombatStyles(theme);
+  
   if (!started) return null;
 
   return (
-    <View style={{ 
-      backgroundColor: theme.card, 
-      borderTopWidth: 1, 
-      borderTopColor: theme.border, 
-      flexDirection: 'row', 
-      alignItems: 'center', 
-      justifyContent: 'space-around', 
-      paddingVertical: 4, 
-      paddingHorizontal: 16 
-    }}>
+    <View style={[styles.controls, { borderTopColor: theme.border }]}>
       <TouchableOpacity 
         onPress={onClearCombat} 
-        style={{ 
-          backgroundColor: '#eee', 
-          borderRadius: 8, 
-          paddingHorizontal: 12, 
-          paddingVertical: 4, 
-          marginRight: 16, 
-          flexDirection: 'row', 
-          alignItems: 'center' 
-        }}
+        style={styles.controlsFinishButton}
       >
-        <Ionicons name='stop' size={18} color={'#c00'} style={{ marginRight: 4 }} />
-        <Text style={{ color: '#c00', fontWeight: 'bold', fontSize: 12 }}>Finish</Text>
+        <Ionicons name='stop' size={18} color={'#c00'} style={styles.controlsFinishIcon} />
+        <Text style={styles.controlsFinishText}>Finish</Text>
       </TouchableOpacity>
       
-      <Text style={{ fontSize: 12, fontWeight: 'bold', color: theme.text, marginRight: 16 }}>
+      <Text style={[styles.controlsRoundText, { color: theme.text }]}>
         Round {round}
       </Text>
       
       <TouchableOpacity 
         onPress={onNextTurn} 
-        style={{ 
-          backgroundColor: theme.primary, 
-          borderRadius: 8, 
-          paddingHorizontal: 16, 
-          paddingVertical: 4, 
-          marginLeft: 8 
-        }}
+        style={styles.controlsNextButton}
       >
-        <Text style={{ color: theme.buttonText || 'white', fontWeight: 'bold', fontSize: 12 }}>
+        <Text style={styles.controlsNextText}>
           Next Turn
         </Text>
       </TouchableOpacity>

@@ -3,6 +3,7 @@ import React from 'react';
 import { Image, Platform, Text, TouchableOpacity, View } from 'react-native';
 import { getCachedTokenUrl } from '../../utils/tokenCache';
 import { DEFAULT_CREATURE_TOKEN } from '../../constants/tokens';
+import { createCombatStyles } from '../../styles/combat';
 import CombatMember from './CombatMember';
 
 interface Combatant {
@@ -23,14 +24,17 @@ interface Combatant {
 interface CombatGroupProps {
   group: {
     name: string;
+    source: string;
+    nameOrigin: string;
     initiative: number;
     passivePerception?: number;
     groupMembers: Combatant[];
+    showGroupButton: boolean;
   };
   isActive: boolean;
   isGroupEnabled: boolean;
   onToggleGroup: () => void;
-  onValueEdit: (type: 'initiative' | 'hp' | 'ac', value: number, id: string, name: string, isGroup: boolean) => void;
+  onValueEdit: (type: 'initiative' | 'hp' | 'ac', value: number, id: string, name: string, isGroup: boolean, combatantNumber?: number) => void;
   onColorEdit: (id: string, name: string, currentColor?: string) => void;
   onStatusEdit: (id: string, name: string, currentColor?: string, currentCondition?: string) => void;
   onCreaturePress: (name: string, source: string) => void;
@@ -52,6 +56,7 @@ export default function CombatGroup({
   cachedTokenUrls,
   theme
 }: CombatGroupProps) {
+  const styles = createCombatStyles(theme);
   const [tokenUrl, setTokenUrl] = React.useState<string | undefined>(undefined);
 
   React.useEffect(() => {
@@ -65,94 +70,72 @@ export default function CombatGroup({
   }, [group.groupMembers[0]?.tokenUrl, group.groupMembers[0]?.source, group.groupMembers[0]?.name]);
 
   return (
-    <View style={{
-      backgroundColor: isActive ? theme.primary + '20' : theme.card,
-      borderRadius: 8,
-      marginBottom: 8,
-      padding: 8,
-      borderWidth: isActive ? 2 : 1,
-      borderColor: isActive ? theme.primary : theme.border
-    }}>
-      {/* Group Header - Structure like DNI */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-        {/* Token (Photo) - Left side */}
+    <View style={[
+      styles.groupContainer,
+      isActive && { backgroundColor: theme.primary + '20', borderWidth: 2, borderColor: theme.primary }
+    ]}>
+      {/* Group Header */}
+      <View style={styles.groupHeader}>
+        {/* Token */}
         <TouchableOpacity
           onPress={() => onTokenPress(tokenUrl, group.name)}
-          style={{ marginRight: 12 }}
+          style={styles.groupToken}
         >
           <Image
             source={tokenUrl ? { uri: tokenUrl } : { uri: DEFAULT_CREATURE_TOKEN }}
-            style={{ width: 50, height: 50, borderRadius: 25 }}
+            style={styles.groupTokenImage}
           />
         </TouchableOpacity>
 
-        {/* Content - Right side */}
-        <View style={{ flex: 1 }}>
+        {/* Content */}
+        <View style={styles.groupContent}>
           {/* Name and Group Toggle */}
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+          <View style={styles.groupNameRow}>
             <TouchableOpacity
-              onPress={() => onCreaturePress(group.name, group.groupMembers[0]?.source || '')}
-              style={{ flex: 1 }}
+              onPress={() => onCreaturePress(group.name, group.source)}
+              style={styles.groupName}
             >
-              <Text style={{ color: theme.text, fontWeight: 'bold', fontSize: 16 }}>
+              <Text style={[styles.groupNameText, { color: theme.text }]}>
                 {group.name}
               </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
-              onPress={onToggleGroup}
-              style={{
-                backgroundColor: isGroupEnabled ? '#f44336' : '#4CAF50',
-                borderRadius: 4,
-                paddingHorizontal: 8,
-                paddingVertical: 4
-              }}
-            >
-              <Text style={{ color: 'white', fontSize: 10, fontWeight: 'bold' }}>
-                {isGroupEnabled ? 'Ungroup' : 'Group'}
-              </Text>
-            </TouchableOpacity>
+            {/* Only show group button if there are multiple members */}
+            {group.showGroupButton ? (
+              <TouchableOpacity
+                onPress={onToggleGroup}
+                style={[
+                  styles.groupToggleButton,
+                  isGroupEnabled ? styles.groupToggleButtonGrouped : styles.groupToggleButtonUngrouped
+                ]}
+              >
+                <Text style={styles.groupToggleText}>
+                  {isGroupEnabled ? 'Ungroup' : 'Group'}
+                </Text>
+              </TouchableOpacity>
+            ) : null}
           </View>
 
           {/* Initiative and Passive Perception */}
-          <View style={{ flexDirection: 'row', marginBottom: 8 }}>
+          <View style={styles.groupButtonsRow}>
             <TouchableOpacity
-              onPress={() => onValueEdit('initiative', group.initiative, '', group.name, true)}
-              style={{
-                backgroundColor: theme.primary,
-                borderRadius: 4,
-                paddingHorizontal: 6,
-                paddingVertical: 2,
-                marginRight: 4,
-                minWidth: 36,
-                alignItems: 'center',
-                flexDirection: 'row'
-              }}
+              onPress={() => onValueEdit('initiative', group.initiative, '', group.name, true, 1)}
+              style={styles.groupButton}
             >
-              <Ionicons name='walk' size={10} color={theme.buttonText || 'white'} style={{ marginRight: 2 }} />
-              <Text style={{ color: theme.buttonText || 'white', fontSize: 10, fontWeight: 'bold' }}>
+              <Ionicons name='walk' size={10} color={theme.buttonText || 'white'} style={styles.groupButtonIcon} />
+              <Text style={styles.groupButtonText}>
                 {group.initiative}
               </Text>
             </TouchableOpacity>
             
-            {group.passivePerception && (
-              <TouchableOpacity
-                style={{
-                  backgroundColor: theme.primary,
-                  borderRadius: 4,
-                  paddingHorizontal: 6,
-                  paddingVertical: 2,
-                  minWidth: 36,
-                  alignItems: 'center',
-                  flexDirection: 'row'
-                }}
-              >
-                <Ionicons name='eye' size={10} color={theme.buttonText || 'white'} style={{ marginRight: 2 }} />
-                <Text style={{ color: theme.buttonText || 'white', fontSize: 10, fontWeight: 'bold' }}>
+            {group.passivePerception ? (
+              <TouchableOpacity style={styles.groupButton}>
+                <Ionicons name='eye' size={10} color={theme.buttonText || 'white'} style={styles.groupButtonIcon} />
+                <Text style={styles.groupButtonText}>
                   {group.passivePerception}
                 </Text>
               </TouchableOpacity>
-            )}
+            ) : null}
           </View>
         </View>
       </View>

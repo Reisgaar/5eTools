@@ -198,7 +198,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           </Text>
         </TouchableOpacity>
         
-        {onNoteUpdate && (
+        {onNoteUpdate ? (
           <TouchableOpacity
             style={[
               styles.tabButton,
@@ -213,9 +213,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
               Notes
             </Text>
           </TouchableOpacity>
-        )}
+        ) : null}
         
-        {onDelete && (
+        {onDelete ? (
           <TouchableOpacity
             style={[
               styles.tabButton,
@@ -230,13 +230,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
               Delete
             </Text>
           </TouchableOpacity>
-        )}
+        ) : null}
       </View>
 
       {/* Tab Content */}
-      {activeTab === 'status' && renderStatusTab()}
-      {activeTab === 'notes' && renderNotesTab()}
-      {activeTab === 'delete' && renderDeleteTab()}
+      {activeTab === 'status' ? renderStatusTab() : null}
+      {activeTab === 'notes' ? renderNotesTab() : null}
+      {activeTab === 'delete' ? renderDeleteTab() : null}
     </BaseModal>
   );
 };

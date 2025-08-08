@@ -427,7 +427,7 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
               ...c, 
               combatants: (c.combatants || []).map(comb => 
                 comb.id === id 
-                  ? { ...comb, currentHp: Math.max(0, Math.min(newHp, comb.maxHp)) }
+                  ? { ...comb, currentHp: Math.min(newHp, comb.maxHp) }
                   : comb
               )
             }

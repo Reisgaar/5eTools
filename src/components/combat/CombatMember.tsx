@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Platform, Text, TouchableOpacity, View } from 'react-native';
+import { createCombatStyles } from '../../styles/combat';
 
 interface Combatant {
   id: string;
@@ -21,7 +22,7 @@ interface CombatMemberProps {
   member: Combatant;
   memberIndex: number;
   isActive: boolean;
-  onValueEdit: (type: 'initiative' | 'hp' | 'ac', value: number, id: string, name: string, isGroup: boolean) => void;
+  onValueEdit: (type: 'initiative' | 'hp' | 'ac', value: number, id: string, name: string, isGroup: boolean, combatantNumber?: number) => void;
   onColorEdit: (id: string, name: string, currentColor?: string) => void;
   onStatusEdit: (id: string, name: string, currentColor?: string, currentCondition?: string) => void;
   onCreaturePress: (name: string, source: string) => void;
@@ -42,123 +43,87 @@ export default function CombatMember({
   cachedTokenUrls,
   theme
 }: CombatMemberProps) {
+  const styles = createCombatStyles(theme);
+
   return (
-    <View style={{ marginLeft: 16, marginBottom: 8 }}>
-      {/* Member Container */}
-      <View style={{
-        backgroundColor: theme.card,
-        borderRadius: 8,
-        padding: 8,
-        borderWidth: 1,
-        borderColor: theme.border
-      }}>
-        {/* Member Header with Number */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-          <View style={{
-            backgroundColor: theme.primary,
-            borderRadius: 12,
-            width: 24,
-            height: 24,
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginRight: 8
-          }}>
-            <Text style={{ color: theme.buttonText || 'white', fontSize: 10, fontWeight: 'bold' }}>
-              #{memberIndex}
-            </Text>
-          </View>
-        </View>
+    <View style={styles.member}>
+      {/* Member Container with Number on the left */}
+      <View style={styles.memberContainer}>
+        {/* Member Number - Left side */}
+        <Text style={styles.memberNumber}>
+          #{memberIndex}
+        </Text>
 
-        {/* Action Buttons Row */}
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
-          <TouchableOpacity
-            onPress={() => onValueEdit('ac', member.ac, member.id, member.name, false)}
-            style={{
-              backgroundColor: theme.primary,
-              borderRadius: 4,
-              paddingHorizontal: 8,
-              paddingVertical: 4,
-              width: 70,
-              height: 32,
-              justifyContent: 'center',
-              alignItems: 'center',
-              flexDirection: 'row'
-            }}
-          >
-            <Ionicons name='shield' size={12} color={theme.buttonText || 'white'} style={{ marginRight: 2 }} />
-            <Text style={{ color: theme.buttonText || 'white', fontSize: 10, fontWeight: 'bold' }}>
-              {member.ac}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => onValueEdit('hp', member.currentHp, member.id, member.name, false)}
-            style={{
-              backgroundColor: member.currentHp <= 0 ? '#f44336' : theme.primary,
-              borderRadius: 4,
-              paddingHorizontal: 8,
-              paddingVertical: 4,
-              width: 70,
-              height: 32,
-              justifyContent: 'center',
-              alignItems: 'center',
-              flexDirection: 'row'
-            }}
-          >
-            <Ionicons name='heart' size={12} color={theme.buttonText || 'white'} style={{ marginRight: 2 }} />
-            <Text style={{ color: theme.buttonText || 'white', fontSize: 10, fontWeight: 'bold' }}>
-              {member.currentHp}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => onStatusEdit(member.id, member.name, member.color, member.conditions?.join(', '))}
-            style={{
-              backgroundColor: theme.primary,
-              borderRadius: 4,
-              paddingHorizontal: 8,
-              paddingVertical: 4,
-              width: 60,
-              height: 32,
-              justifyContent: 'center',
-              alignItems: 'center'
-            }}
-          >
-            <Ionicons name='medical' size={16} color={theme.buttonText || 'white'} />
-          </TouchableOpacity>
-
-
-        </View>
-
-
-      </View>
-
-      {/* Status Conditions - Outside the container */}
-      {member.conditions && member.conditions.length > 0 && (
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 4 }}>
-          {member.conditions.map((condition, index) => (
-            <View
-              key={index}
-              style={{
-                backgroundColor: '#FF9800',
-                borderRadius: 12,
-                paddingHorizontal: 8,
-                paddingVertical: 2,
-                marginRight: 4,
-                marginBottom: 2
-              }}
-            >
-              <Text style={{ 
-                color: 'white', 
-                fontSize: Platform.OS === 'web' ? 10 : 8, 
-                fontWeight: 'bold' 
-              }}>
-                {condition}
+        {/* Member Box - Right side */}
+        <View style={styles.memberBox}>
+          {/* Notes - Above buttons */}
+          {member.note ? (
+            <View style={styles.memberNotes}>
+              <Text style={[styles.memberNoteText, { color: theme.text }]}>
+                {member.note}
               </Text>
             </View>
-          ))}
+          ) : null}
+
+          {/* Action Buttons Row */}
+          <View style={styles.memberButtonRow}>
+            <View style={styles.memberLeftButtons}>
+              <TouchableOpacity
+                onPress={() => onValueEdit('ac', member.ac, member.id, member.name, false, memberIndex)}
+                style={[styles.memberButton, styles.memberButtonPrimary]}
+              >
+                <Ionicons name='shield' size={12} color={theme.buttonText || 'white'} style={styles.memberIcon} />
+                <Text style={[styles.memberButtonText, styles.memberButtonTextLight]}>
+                  {member.ac}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => onValueEdit('hp', member.currentHp, member.id, member.name, false, memberIndex)}
+                style={[
+                  styles.memberButton, 
+                  member.currentHp <= 0 ? styles.memberButtonDanger : styles.memberButtonPrimary
+                ]}
+              >
+                <Ionicons 
+                  name={member.currentHp <= 0 ? 'skull' : 'heart'} 
+                  size={12} 
+                  color={theme.buttonText || 'white'} 
+                  style={styles.memberIcon} 
+                />
+                <Text style={[styles.memberButtonText, styles.memberButtonTextLight]}>
+                  {member.currentHp}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity
+              onPress={() => onStatusEdit(member.id, member.name, member.color, member.conditions?.join(', '))}
+              style={[styles.memberButton, styles.memberButtonSmall, styles.memberButtonPrimary]}
+            >
+              <Ionicons name='settings' size={16} color={theme.buttonText || 'white'} />
+            </TouchableOpacity>
+          </View>
+
+          {/* Status Conditions - Inside the container */}
+          {member.conditions && member.conditions.length > 0 ? (
+            <View style={styles.statusContainer}>
+              <View style={styles.statusConditions}>
+                {member.conditions.map((condition, index) => (
+                  <View key={index} style={styles.statusBadge}>
+                    <Text style={[
+                      styles.statusBadgeText, 
+                      Platform.OS === 'web' ? styles.statusBadgeTextWeb : styles.statusBadgeTextMobile
+                    ]}>
+                      {condition}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          ) : null}
         </View>
-      )}
+      </View>
     </View>
   );
 }

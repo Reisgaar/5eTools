@@ -1,8 +1,10 @@
 export { default as PlayerModal } from './PlayerModal';
 export { default as TokenViewModal } from './TokenViewModal';
-export { default as StatusPickerModal } from './StatusPickerModal';
+export { default as SettingsModal } from './SettingsModal';
 export { default as ValueEditModal } from './ValueEditModal';
 export { default as ColorPickerModal } from './ColorPickerModal';
+export { default as HPEditModal } from './HPEditModal';
+export { default as MaxHPEditModal } from './MaxHPEditModal';
 export { default as CRFilterModal } from './CRFilterModal';
 export { default as TypeFilterModal } from './TypeFilterModal';
 export { default as SourceFilterModal } from './SourceFilterModal';

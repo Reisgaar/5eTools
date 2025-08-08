@@ -144,6 +144,7 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
     marginRight: 20,
     minWidth: 28,
     textAlign: 'center',
+    color: theme.text,
   },
   memberBox: {
     backgroundColor: theme.card,
@@ -243,6 +244,15 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
   },
+  statusBadgeTextWeb: {
+    fontSize: 10,
+  },
+  statusBadgeTextMobile: {
+    fontSize: 8,
+  },
+  memberIconColor: {
+    color: 'white', // Default color, will be overridden by theme.buttonText
+  },
   
   // Combat Group Styles
   groupContainer: {
@@ -261,6 +271,11 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
   groupToken: {
     marginRight: 20,
   },
+  groupTokenImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+  },
   groupContent: {
     flex: 1,
   },
@@ -276,6 +291,7 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
   groupNameText: {
     fontWeight: 'bold',
     fontSize: 16,
+    color: 'black', // Will be overridden by theme.text
   },
   groupToggleButton: {
     borderRadius: 4,
@@ -395,5 +411,99 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
   },
   modalButtonTextPrimary: {
     color: theme.buttonText || 'white',
+  },
+
+  // Combat List Styles
+  listContainer: {
+    flex: 1,
+    padding: 16,
+  },
+  listSectionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    marginLeft: 6,
+    color: 'black', // Will be overridden by theme.text
+  },
+  listContainerBox: {
+    borderRadius: 8,
+    borderWidth: 1,
+    padding: 16,
+    marginBottom: 16,
+    backgroundColor: 'white', // Will be overridden by theme.card
+  },
+  listCombatNameInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    fontSize: 16,
+    marginRight: 8,
+    backgroundColor: 'white', // Will be overridden by theme.inputBackground
+    color: 'black', // Will be overridden by theme.text
+  },
+  listCreateBtn: {
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: 'blue', // Will be overridden by theme.primary
+  },
+  listCreateBtnText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  listCombatListItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    borderWidth: 1,
+    borderRadius: 8,
+  },
+  listCombatOption: {
+    flex: 1,
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'transparent',
+    backgroundColor: 'white', // Will be overridden by theme.inputBackground
+  },
+  listCombatName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 0,
+    color: 'black', // Will be overridden by theme.text
+  },
+  listCombatCount: {
+    fontSize: 12,
+    color: 'gray', // Will be overridden by theme.noticeText
+    marginLeft: 8,
+  },
+  listActiveBadge: {
+    backgroundColor: '#4CAF50',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    marginLeft: 8,
+  },
+  listActiveBadgeText: {
+    color: 'white',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  listActiveCombatBtn: {
+    padding: 8,
+    marginLeft: 8,
+    borderRadius: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'blue', // Will be overridden by theme.primary
+  },
+  listEmptyText: {
+    color: 'gray', // Will be overridden by theme.noticeText
+    textAlign: 'center',
+    marginVertical: 8,
+    fontStyle: 'italic',
+    fontSize: 16,
   },
 });
