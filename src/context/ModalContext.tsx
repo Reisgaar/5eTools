@@ -11,6 +11,19 @@ interface DiceModalState {
   label?: string;
 }
 
+interface AdvancedDiceModalState {
+  visible: boolean;
+  d20Config?: {
+    bonus: number;
+    label: string;
+    type: 'hit' | 'save' | 'ability';
+  };
+  damageConfig?: {
+    expression: string;
+    label: string;
+  };
+}
+
 interface ModalContextType {
   beastModalVisible: boolean;
   selectedBeast: any | null;
@@ -25,6 +38,11 @@ interface ModalContextType {
   diceModalState: DiceModalState;
   openDiceModal: (state: Omit<DiceModalState, 'visible'>) => void;
   closeDiceModal: () => void;
+
+  advancedDiceModalState: AdvancedDiceModalState;
+  openAdvancedDiceModal: (config: Omit<AdvancedDiceModalState, 'visible'>) => void;
+  closeAdvancedDiceModal: () => void;
+
   beastStack: any[];
   spellStack: any[];
 }
@@ -46,6 +64,10 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
     modifier: undefined,
     type: 'damage',
     label: '',
+  });
+
+  const [advancedDiceModalState, setAdvancedDiceModalState] = useState<AdvancedDiceModalState>({
+    visible: false,
   });
 
   const { getFullBeast, getFullSpell } = useData();
@@ -118,6 +140,13 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
     setDiceModalState(prev => ({ ...prev, visible: false }));
   };
 
+  const openAdvancedDiceModal = (config: Omit<AdvancedDiceModalState, 'visible'>) => {
+    setAdvancedDiceModalState({ ...config, visible: true });
+  };
+  const closeAdvancedDiceModal = () => {
+    setAdvancedDiceModalState(prev => ({ ...prev, visible: false }));
+  };
+
   return (
     <ModalContext.Provider
       value={{
@@ -132,6 +161,9 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
         diceModalState,
         openDiceModal,
         closeDiceModal,
+        advancedDiceModalState,
+        openAdvancedDiceModal,
+        closeAdvancedDiceModal,
         beastStack,
         spellStack,
       }}

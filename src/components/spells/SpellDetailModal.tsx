@@ -3,7 +3,8 @@ import React from 'react';
 import { ActivityIndicator, Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useModal } from '../../context/ModalContext';
 import { useData } from '../../context/DataContext';
-import { parseDiceExpression, renderEntries, rollDice } from '../../utils/replaceTags';
+import { useAppSettings } from '../../context/AppSettingsContext';
+import { renderEntries, parseDiceExpression, rollDice } from '../../utils/replaceTags';
 import { Separator } from '../ui';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -127,8 +128,9 @@ export function SpellDetailModal({
     onCreaturePress?: (name: string, source: string) => void,
     onSpellPress?: (name: string, source: string) => void,
 }) {
-    const { openDiceModal, openBeastModal, openSpellModal } = useModal();
+    const { openDiceModal, openAdvancedDiceModal, openBeastModal, openSpellModal } = useModal();
     const { simpleBeasts, simpleSpells } = useData();
+    const { useAdvancedDiceRoll } = useAppSettings();
 
     const handleCreaturePressLocal = (name: string, source: string) => {
       const beast = simpleBeasts.find((b: any) => b.name.trim().toLowerCase() === name.trim().toLowerCase() && b.source.trim().toLowerCase() === source.trim().toLowerCase());
@@ -144,28 +146,49 @@ export function SpellDetailModal({
     };
 
     function handleDamagePress(expr: string) {
-        const parsed = parseDiceExpression(expr);
-        if (!parsed) return;
-        const { numDice, diceType, modifier } = parsed;
-        const { result, breakdown } = rollDice(numDice, diceType, modifier);
-        openDiceModal({
-          expression: expr,
-          result,
-          breakdown,
-          modifier: modifier !== 0 ? modifier : undefined,
-          type: 'damage',
-        });
+        if (useAdvancedDiceRoll) {
+            openAdvancedDiceModal({
+                damageConfig: {
+                    expression: expr,
+                    label: 'Damage',
+                }
+            });
+        } else {
+            // Use simple dice roll
+            const parsed = parseDiceExpression(expr);
+            if (!parsed) return;
+            const { numDice, diceType, modifier } = parsed;
+            const { result, breakdown } = rollDice(numDice, diceType, modifier);
+            openDiceModal({
+                expression: expr,
+                result,
+                breakdown,
+                modifier: modifier !== 0 ? modifier : undefined,
+                type: 'damage',
+            });
+        }
     }
     function handleHitPress(bonus: string) {
         const bonusNum = parseInt(bonus, 10) || 0;
-        const roll = Math.floor(Math.random() * 20) + 1;
-        openDiceModal({
-          expression: `1d20 + ${bonusNum}`,
-          result: roll + bonusNum,
-          breakdown: [roll],
-          modifier: bonusNum !== 0 ? bonusNum : undefined,
-          type: 'hit',
-        });
+        if (useAdvancedDiceRoll) {
+            openAdvancedDiceModal({
+                d20Config: {
+                    bonus: bonusNum,
+                    label: 'Attack',
+                    type: 'hit',
+                }
+            });
+        } else {
+            // Use simple dice roll
+            const roll = Math.floor(Math.random() * 20) + 1;
+            openDiceModal({
+                expression: `1d20 + ${bonusNum}`,
+                result: roll + bonusNum,
+                breakdown: [roll],
+                modifier: bonusNum !== 0 ? bonusNum : undefined,
+                type: 'hit',
+            });
+        }
     }
 
     if (!visible) return null;

@@ -12,6 +12,8 @@ interface AppSettings {
     themeName: ThemeType;
     currentTheme: Theme;
     setTheme: (theme: ThemeType) => void;
+    useAdvancedDiceRoll: boolean;
+    setUseAdvancedDiceRoll: (useAdvanced: boolean) => void;
 }
 
 const AppSettingsContext = createContext<AppSettings | undefined>(undefined);
@@ -19,6 +21,7 @@ const AppSettingsContext = createContext<AppSettings | undefined>(undefined);
 // Provides theme and app settings context to the application.
 export const AppSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [themeName, setThemeName] = useState<ThemeType>('dark');
+    const [useAdvancedDiceRoll, setUseAdvancedDiceRollState] = useState<boolean>(true);
 
     const currentTheme = themeName === 'dark' ? darkTheme : lightTheme;
 
@@ -31,6 +34,11 @@ export const AppSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ c
                 const systemTheme = Appearance.getColorScheme() ?? 'dark';
                 setThemeName(systemTheme);
             }
+
+            const savedDiceRoll = await AsyncStorage.getItem('USE_ADVANCED_DICE_ROLL');
+            if (savedDiceRoll !== null) {
+                setUseAdvancedDiceRollState(savedDiceRoll === 'true');
+            }
         })();
     }, []);
 
@@ -39,9 +47,20 @@ export const AppSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ c
         AsyncStorage.setItem('APP_THEME', newTheme);
     };
 
+    const setUseAdvancedDiceRoll = (useAdvanced: boolean) => {
+        setUseAdvancedDiceRollState(useAdvanced);
+        AsyncStorage.setItem('USE_ADVANCED_DICE_ROLL', useAdvanced.toString());
+    };
+
     return (
         <AppSettingsContext.Provider
-            value={{ themeName, currentTheme, setTheme }}
+            value={{ 
+                themeName, 
+                currentTheme, 
+                setTheme, 
+                useAdvancedDiceRoll, 
+                setUseAdvancedDiceRoll 
+            }}
         >
             {children}
         </AppSettingsContext.Provider>

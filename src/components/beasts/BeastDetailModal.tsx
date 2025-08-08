@@ -3,8 +3,9 @@ import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacit
 import { getCachedCreatureImages, getBestCreatureImage } from '../../utils/imageManager';
 import { useModal } from '../../context/ModalContext';
 import { useData } from '../../context/DataContext';
+import { useAppSettings } from '../../context/AppSettingsContext';
 import { ALIGNMENTS, SIZES, STATS } from '../../data/helpers';
-import { parseDiceExpression, renderEntries, rollDice } from '../../utils/replaceTags';
+import { renderEntries, parseDiceExpression, rollDice } from '../../utils/replaceTags';
 import { Separator } from '../ui';
 import { 
     normalizeString, 
@@ -375,8 +376,9 @@ const BeastDetailModal: React.FC<BeastDetailModalProps> = ({ visible, beast, onC
     const [fullImageUrl, setFullImageUrl] = React.useState<string | null>(null);
     const [isLoadingImage, setIsLoadingImage] = React.useState(false);
     const [imageFailed, setImageFailed] = React.useState(false);
-    const { openSpellModal, openBeastModal, openDiceModal } = useModal();
+    const { openSpellModal, openBeastModal, openDiceModal, openAdvancedDiceModal } = useModal();
     const { simpleSpells, simpleBeasts } = useData();
+    const { useAdvancedDiceRoll } = useAppSettings();
     
     // Modal states
     const [spellNotFoundVisible, setSpellNotFoundVisible] = React.useState(false);
@@ -589,56 +591,87 @@ const BeastDetailModal: React.FC<BeastDetailModalProps> = ({ visible, beast, onC
     };
 
     function handleDamagePress(expr: string) {
-        const parsed = parseDiceExpression(expr);
-        if (!parsed) return;
-        const { numDice, diceType, modifier } = parsed;
-        const { result, breakdown } = rollDice(numDice, diceType, modifier);
-        openDiceModal({
-            expression: expr,
-            result,
-            breakdown,
-            modifier: modifier !== 0 ? modifier : undefined,
-            type: 'damage',
-            label: '',
-        });
+        if (useAdvancedDiceRoll) {
+            openAdvancedDiceModal({
+                damageConfig: {
+                    expression: expr,
+                    label: 'Damage',
+                }
+            });
+        } else {
+            // Use simple dice roll
+            const parsed = parseDiceExpression(expr);
+            if (!parsed) return;
+            const { numDice, diceType, modifier } = parsed;
+            const { result, breakdown } = rollDice(numDice, diceType, modifier);
+            openDiceModal({
+                expression: expr,
+                result,
+                breakdown,
+                modifier: modifier !== 0 ? modifier : undefined,
+                type: 'damage',
+                label: '',
+            });
+        }
     }
     function handleHitPress(bonus: string) {
         const bonusNum = parseInt(bonus, 10) || 0;
-        const roll = Math.floor(Math.random() * 20) + 1;
-        openDiceModal({
-            expression: `1d20 + ${bonusNum}`,
-            result: roll + bonusNum,
-            breakdown: [roll],
-            modifier: bonusNum !== 0 ? bonusNum : undefined,
-            type: 'hit',
-            label: '',
-        });
+        if (useAdvancedDiceRoll) {
+            openAdvancedDiceModal({
+                d20Config: {
+                    bonus: bonusNum,
+                    label: 'Attack',
+                    type: 'hit',
+                }
+            });
+        } else {
+            // Use simple dice roll
+            const roll = Math.floor(Math.random() * 20) + 1;
+            openDiceModal({
+                expression: `1d20 + ${bonusNum}`,
+                result: roll + bonusNum,
+                breakdown: [roll],
+                modifier: bonusNum !== 0 ? bonusNum : undefined,
+                type: 'hit',
+                label: '',
+            });
+        }
     }
     
     function handleSaveRoll(statKey: string, statLabel: string) {
         if (!beast) return;
         // Get save bonus from beast.save if present, else use ability mod
         let bonus = 0;
-        let bonusStr = '';
         if (beast['save'] && beast['save'][statKey] !== undefined) {
             // beast.save[statKey] can be '+5' or 5
-            bonusStr = String(beast['save'][statKey]);
+            const bonusStr = String(beast['save'][statKey]);
             bonus = parseInt(bonusStr, 10) || 0;
         } else {
             // Use ability modifier
             const statValue = beast[statKey];
             bonus = typeof statValue === 'number' ? Math.floor((statValue - 10) / 2) : 0;
-            bonusStr = bonus >= 0 ? `+${bonus}` : String(bonus);
         }
-        const roll = Math.floor(Math.random() * 20) + 1;
-        openDiceModal({
-            expression: `1d20 ${bonus >= 0 ? '+' : ''}${bonus}`,
-            result: roll + bonus,
-            breakdown: [roll],
-            modifier: bonus !== 0 ? bonus : undefined,
-            type: 'save',
-            label: `${statLabel} Saving Throw`,
-        });
+        
+        if (useAdvancedDiceRoll) {
+            openAdvancedDiceModal({
+                d20Config: {
+                    bonus,
+                    label: `${statLabel} Saving Throw`,
+                    type: 'save',
+                }
+            });
+        } else {
+            // Use simple dice roll
+            const roll = Math.floor(Math.random() * 20) + 1;
+            openDiceModal({
+                expression: `1d20 ${bonus >= 0 ? '+' : ''}${bonus}`,
+                result: roll + bonus,
+                breakdown: [roll],
+                modifier: bonus !== 0 ? bonus : undefined,
+                type: 'save',
+                label: `${statLabel} Saving Throw`,
+            });
+        }
     }
     
     // Debug: Info cargada de la criatura
