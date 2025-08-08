@@ -165,7 +165,8 @@ export default function SpellsScreen() {
                     onPress={() => handleSpellPress(spell)}
                 >
                     <Text style={[commonStyles.itemName, { color: theme.text }]}>
-                        {spell.level === 0 ? 'C' : spell.level} - {spell.name} {getFullSchool(spell.school)} ({spell.source || spell._source || 'Unknown'})
+                        {spell.level === 0 ? 'C' : spell.level} - <Text style={{ fontWeight: 'bold' }}>{spell.name}</Text>
+                        <Text style={{ fontStyle: 'italic' }}> - {getFullSchool(spell.school)} ({spell.source || spell._source || 'Unknown'})</Text>
                     </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
