@@ -16,3 +16,5 @@ export { default as SpellNotFoundModal } from './SpellNotFoundModal';
 export { default as CreatureNotFoundModal } from './CreatureNotFoundModal';
 export { default as SourceSelectionModal } from './SourceSelectionModal';
 export { StorageManagementModal } from './StorageManagementModal';
+export { default as SchoolFilterModal } from './SchoolFilterModal';
+export { default as ClassFilterModal } from './ClassFilterModal';

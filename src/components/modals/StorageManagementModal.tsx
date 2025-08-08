@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
-import { BaseModal } from '../ui/BaseModal';
-import { CustomButton } from '../ui/CustomButton';
+import BaseModal from '../ui/BaseModal';
+import CustomButton from '../ui/CustomButton';
 import { getStorageSummary, cleanupAllCaches, formatBytes } from '../../utils/storageManager';
+import { useData } from '../../context/DataContext';
 
 interface StorageManagementModalProps {
     visible: boolean;
@@ -13,6 +14,7 @@ export const StorageManagementModal: React.FC<StorageManagementModalProps> = ({
     visible,
     onClose
 }) => {
+    const { simpleBeasts, simpleSpells, availableClasses, spellClassRelations, isInitialized } = useData();
     const [storageInfo, setStorageInfo] = useState<{
         summary: string;
         details: string[];
@@ -75,7 +77,7 @@ export const StorageManagementModal: React.FC<StorageManagementModalProps> = ({
             visible={visible}
             onClose={onClose}
             title="Storage Management"
-            contentStyle={styles.modalContent}
+            theme={{ background: '#fff', text: '#333', primary: '#2196f3' }}
         >
             <ScrollView style={styles.container}>
                 {isLoading ? (
@@ -97,22 +99,42 @@ export const StorageManagementModal: React.FC<StorageManagementModalProps> = ({
                             ))}
                         </View>
 
+                        {isInitialized && (
+                            <View style={styles.dataSection}>
+                                <Text style={styles.sectionTitle}>Data Loaded:</Text>
+                                <Text style={styles.detailText}>
+                                    • Beasts: {simpleBeasts.length} loaded
+                                </Text>
+                                <Text style={styles.detailText}>
+                                    • Spells: {simpleSpells.length} loaded
+                                </Text>
+                                <Text style={styles.detailText}>
+                                    • Available Classes: {availableClasses.length} classes
+                                </Text>
+                                <Text style={styles.detailText}>
+                                    • Spell-Class Relations: {spellClassRelations.length} relations
+                                </Text>
+                                
+                                {availableClasses.length > 0 && (
+                                    <View style={styles.classesSection}>
+                                        <Text style={styles.subsectionTitle}>Classes Available:</Text>
+                                        <Text style={styles.detailText}>
+                                            {availableClasses.join(', ')}
+                                        </Text>
+                                    </View>
+                                )}
+                            </View>
+                        )}
+
                         <View style={styles.actionsSection}>
                             <CustomButton
-                                title="Refresh"
-                                onPress={loadStorageInfo}
-                                style={styles.refreshButton}
-                                disabled={isLoading}
+                                text="Refresh"
+                                action={loadStorageInfo}
                             />
                             
                             <CustomButton
-                                title={isCleaning ? "Cleaning..." : "Clean All Caches"}
-                                onPress={handleCleanup}
-                                style={[
-                                    styles.cleanupButton,
-                                    storageInfo.needsCleanup && styles.cleanupButtonUrgent
-                                ]}
-                                disabled={isCleaning}
+                                text={isCleaning ? "Cleaning..." : "Clean All Caches"}
+                                action={handleCleanup}
                             />
                         </View>
 
@@ -183,11 +205,25 @@ const styles = StyleSheet.create({
     detailsSection: {
         marginBottom: 20,
     },
+    dataSection: {
+        marginBottom: 20,
+    },
     sectionTitle: {
         fontSize: 16,
         fontWeight: 'bold',
         marginBottom: 8,
         color: '#333',
+    },
+    subsectionTitle: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        marginTop: 8,
+        marginBottom: 4,
+        color: '#555',
+    },
+    classesSection: {
+        marginTop: 8,
+        paddingLeft: 8,
     },
     detailText: {
         fontSize: 14,

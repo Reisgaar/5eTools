@@ -7,8 +7,9 @@ import { useData } from 'src/context/DataContext';
 import { useModal } from 'src/context/ModalContext';
 import { useSpellbook } from 'src/context/SpellbookContext';
 import { AddToSpellbookModal, SpellbookSelectorModal, CreateSpellbookModal } from 'src/components/spells';
-import ConfirmModal from 'src/components/modals/ConfirmModal';
+import { ConfirmModal, SchoolFilterModal, ClassFilterModal } from 'src/components/modals';
 import { commonStyles } from 'src/styles/commonStyles';
+import { useSpellFilters } from 'src/hooks/useSpellFilters';
 
 const LEVELS = [
     { label: 'C', value: 0 },
@@ -44,11 +45,10 @@ function formatComponents(components: any) {
 }
 
 export default function SpellsScreen() {
-    const { simpleBeasts, simpleSpells, isLoading, isInitialized, getFullBeast, getFullSpell } = useData();
+    const { simpleBeasts, simpleSpells, spells, spellSourceLookup, availableClasses, isLoading, isInitialized, getFullBeast, getFullSpell } = useData();
     const { currentTheme: theme } = useAppSettings();
     const { openBeastModal, openSpellModal } = useModal();
     const { spellbooks, currentSpellbookId, getCurrentSpellbook, addSpellToSpellbook, removeSpellFromSpellbook, isSpellInSpellbook, selectSpellbook } = useSpellbook();
-    const [search, setSearch] = useState('');
     const [selectedLevels, setSelectedLevels] = useState<number[]>([]); // multi-select
     const [pageReady, setPageReady] = useState(false);
     const [addToSpellbookModalVisible, setAddToSpellbookModalVisible] = useState(false);
@@ -63,6 +63,9 @@ export default function SpellsScreen() {
         spellbookName: string;
     } | null>(null);
     const [viewMode, setViewMode] = useState<'all' | 'spellbook'>('all'); // 'all' or 'spellbook'
+    
+    // Use the new spell filters hook
+    const filters = useSpellFilters(simpleSpells, spells, spellSourceLookup, availableClasses);
 
     // Defer heavy computations to after navigation
     useEffect(() => {
@@ -122,7 +125,7 @@ export default function SpellsScreen() {
     const filteredSpells = useMemo(() => {
         if (!pageReady) return [];
         
-        let result = simpleSpells;
+        let result = filters.filteredSpells;
         
         // Apply spellbook filter if in spellbook view mode
         if (viewMode === 'spellbook' && currentSpellbookId) {
@@ -138,16 +141,10 @@ export default function SpellsScreen() {
         if (!noneSelected && !allSelected) {
             result = result.filter(spell => selectedLevels.includes(Number(spell.level)));
         }
-        if (search.trim()) {
-            result = result.filter((spell: any) => {
-                const nameMatch = spell.name?.toLowerCase().includes(search.toLowerCase());
-                const schoolMatch = spell.school?.toLowerCase().includes(search.toLowerCase());
-                return nameMatch || schoolMatch;
-            });
-        }
+        
         // Sort alphabetically by name
         return result.slice().sort((a: any, b: any) => a.name.localeCompare(b.name));
-    }, [simpleSpells, search, selectedLevels, pageReady, viewMode, currentSpellbookId, spellbooks]);
+    }, [filters.filteredSpells, selectedLevels, pageReady, viewMode, currentSpellbookId, spellbooks]);
 
     const selectedSpellFullSchool = ''; // No longer needed as modal handles display
 
@@ -174,8 +171,6 @@ export default function SpellsScreen() {
             setConfirmRemoveModalVisible(false);
         }
     };
-
-
 
     const renderSpellItem = ({ item: spell, index }: { item: any, index: number }) => {
         const isInCurrentSpellbook = currentSpellbookId ? isSpellInSpellbook(currentSpellbookId, spell.name, spell.source) : false;
@@ -265,13 +260,30 @@ export default function SpellsScreen() {
             
             <TextInput
                 style={[commonStyles.input, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.card }]}
-                placeholder="Search by name or school..."
-                value={search}
-                onChangeText={setSearch}
+                placeholder="Search by name..."
+                value={filters.search}
+                onChangeText={filters.setSearch}
                 autoCorrect={false}
                 autoCapitalize="none"
                 placeholderTextColor={theme.noticeText}
             />
+            
+            {/* Filter Buttons */}
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 8 }}>
+                <TouchableOpacity
+                    onPress={filters.openSchoolFilterModal}
+                    style={[styles.filterBtn, { borderColor: theme.primary }]}
+                >
+                    <Text style={{ color: theme.primary, fontWeight: 'bold', fontSize: 12 }}>School</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={filters.openClassFilterModal}
+                    style={[styles.filterBtn, { borderColor: theme.primary }]}
+                >
+                    <Text style={{ color: theme.primary, fontWeight: 'bold', fontSize: 12 }}>Class</Text>
+                </TouchableOpacity>
+            </View>
+            
             {/* Level Filter Bar */}
             <View style={[commonStyles.levelBar, { paddingVertical: 4, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }]}>
                 {/* All button */}
@@ -330,8 +342,6 @@ export default function SpellsScreen() {
             
             {/* BeastDetailModal and SpellDetailModal are now handled by context */}
             
-
-            
             {/* Add to Spellbook Modal */}
             <AddToSpellbookModal
                 visible={addToSpellbookModalVisible}
@@ -389,8 +399,46 @@ export default function SpellsScreen() {
                 cancelText="Cancel"
                 theme={theme}
             />
+            
+            {/* School Filter Modal */}
+            <SchoolFilterModal
+                visible={filters.schoolFilterModalVisible}
+                onClose={() => filters.setSchoolFilterModalVisible(false)}
+                schoolOptions={filters.schoolOptions}
+                selectedSchools={filters.pendingSchools}
+                onToggleSchool={filters.togglePendingSchool}
+                onClear={filters.selectAllPendingSchools}
+                onApply={filters.applySchoolFilter}
+                theme={theme}
+            />
+            
+            {/* Class Filter Modal */}
+            <ClassFilterModal
+                visible={filters.classFilterModalVisible}
+                onClose={() => filters.setClassFilterModalVisible(false)}
+                classOptions={filters.classOptions}
+                selectedClasses={filters.pendingClasses}
+                onToggleClass={filters.togglePendingClass}
+                onClear={filters.selectAllPendingClasses}
+                onApply={filters.applyClassFilter}
+                theme={theme}
+            />
         </View>
     );
 }
+
+const styles = StyleSheet.create({
+    filterBtn: {
+        borderWidth: 1,
+        borderRadius: 6,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        minHeight: 32,
+        justifyContent: 'center',
+        alignItems: 'center',
+        flex: 1,
+        marginHorizontal: 4,
+    },
+});
 
 

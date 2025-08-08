@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { bestiaryGetRequests, spellsGetRequests } from '../constants/requests';
+import { bestiaryGetRequests, spellsGetRequests, spellSourceLookupRequest } from '../constants/requests';
 import { equalsNormalized } from '../utils/stringUtils';
 import { calculatePassivePerception } from '../utils/beastUtils';
 import { getTokenUrl } from '../utils/tokenCache';
@@ -47,17 +47,39 @@ interface SpellIndex {
   level: number;
   school: string;
   source: string;
-  classes: any;
+  availableClasses: string[];
   ritual: boolean;
   concentration: boolean;
   file: string;
+}
+
+interface SpellSourceLookup {
+  [source: string]: {
+    [spellName: string]: {
+      class: {
+        [book: string]: {
+          [className: string]: boolean;
+        };
+      };
+    };
+  };
+}
+
+interface SpellClassRelation {
+  spellName: string;
+  source: string;
+  className: string;
+  book: string;
 }
 
 interface DataContextType {
   beasts: Beast[];
   simpleBeasts: { name: string; CR: string | number; type: string; source: string; ac: any; passivePerception: number }[];
   spells: Spell[];
-  simpleSpells: { name: string; level: number; school: string; source: string }[];
+  simpleSpells: { name: string; level: number; school: string; source: string; availableClasses: string[] }[];
+  spellSourceLookup: SpellSourceLookup;
+  availableClasses: string[];
+  spellClassRelations: SpellClassRelation[];
   isLoading: boolean;
   isInitialized: boolean;
   loadData: () => Promise<void>;
@@ -83,6 +105,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [beastsIndex, setBeastsIndex] = useState<BeastIndex[]>([]);
   const [spells, setSpells] = useState<Spell[]>([]);
   const [spellsIndex, setSpellsIndex] = useState<SpellIndex[]>([]);
+  const [spellSourceLookup, setSpellSourceLookup] = useState<SpellSourceLookup>({});
+  const [availableClasses, setAvailableClasses] = useState<string[]>([]);
+  const [spellClassRelations, setSpellClassRelations] = useState<SpellClassRelation[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -120,15 +145,16 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   }, [beastsIndex]);
 
-  // Derived simpleSpells from index
+  // Derived simpleSpells from index with available classes
   const simpleSpells = React.useMemo(() => {
     const seen = new Set();
-    return spellsIndex.map(({ name, level, school, source }) => {
+    return spellsIndex.map(({ name, level, school, source, availableClasses }) => {
       return {
         name,
         level,
         school,
         source: source || 'Unknown',
+        availableClasses: availableClasses || []
       };
     }).filter(({ name, level, school, source }) => {
       const key = `${name}||${level}||${school}||${source}`;
@@ -158,6 +184,62 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
               extractCurlyTags(val, tagSet);
           });
       }
+  }
+
+  // Process spell source lookup data to extract available classes and spell-class relations
+  function processSpellSourceLookup(spellSourceLookupData: SpellSourceLookup, spellsData: Spell[]) {
+    const allClasses = new Set<string>();
+    const relations: SpellClassRelation[] = [];
+
+    // Process each source
+    Object.entries(spellSourceLookupData).forEach(([source, spells]) => {
+      // Process each spell in the source
+      Object.entries(spells).forEach(([spellName, spellData]) => {
+        if (spellData.class) {
+          // Process each book for this spell
+          Object.entries(spellData.class).forEach(([book, classData]) => {
+            if (typeof classData === 'object') {
+              // Process each class in this book
+              Object.entries(classData).forEach(([className, canCast]) => {
+                if (canCast === true) {
+                  allClasses.add(className);
+                  relations.push({
+                    spellName,
+                    source,
+                    className,
+                    book
+                  });
+                }
+              });
+            }
+          });
+        }
+      });
+    });
+
+    // Update spells with their available classes
+    const updatedSpells = spellsData.map(spell => {
+      const spellClasses = new Set<string>();
+      
+      // Find all relations for this spell (case insensitive)
+      relations.forEach(relation => {
+        if (relation.spellName.toLowerCase() === spell.name.toLowerCase() && 
+            relation.source.toLowerCase() === spell.source.toLowerCase()) {
+          spellClasses.add(relation.className);
+        }
+      });
+      
+      return {
+        ...spell,
+        availableClasses: Array.from(spellClasses).sort()
+      };
+    });
+
+    return {
+      availableClasses: Array.from(allClasses).sort(),
+      spellClassRelations: relations,
+      updatedSpells
+    };
   }
 
   // Fetch all data from the API
@@ -200,10 +282,29 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       });
 
+      console.log('Fetching spell source lookup data...');
+      
+      // Fetch spell source lookup data
+      const spellSourceLookupPromise = spellSourceLookupRequest.map(async (url: string) => {
+        try {
+          const response = await fetch(url);
+          if (!response.ok) {
+            console.warn(`Failed to fetch ${url}: ${response.status}`);
+            return {};
+          }
+          const data = await response.json();
+          return data;
+        } catch (error) {
+          console.warn(`Error fetching ${url}:`, error);
+          return {};
+        }
+      });
+
       // Wait for all requests to complete
-      const [beastsResults, spellsResults] = await Promise.all([
+      const [beastsResults, spellsResults, spellSourceLookupResults] = await Promise.all([
         Promise.all(beastsPromises),
-        Promise.all(spellsPromises)
+        Promise.all(spellsPromises),
+        Promise.all(spellSourceLookupPromise)
       ]);
 
       // Flatten and combine results
@@ -221,12 +322,26 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       console.log(`Fetched ${beastsData.length} beasts and ${spellsData.length} spells`);
 
+      // Process spell source lookup data
+      const spellSourceLookupData = spellSourceLookupResults[0] || {};
+      console.log('Spell source lookup data loaded');
+
+      // Process the spell source lookup to extract classes and relations
+      const { availableClasses: classes, spellClassRelations: relations, updatedSpells } = processSpellSourceLookup(spellSourceLookupData, spellsData);
+      console.log(`Extracted ${classes.length} available classes and ${relations.length} spell-class relations`);
+      console.log(`Updated ${updatedSpells.length} spells with class information`);
+
       // Store data to files
       console.log('Storing beasts to individual files...');
       await storeBeastsToFile(beastsData);
       
-      console.log('Storing spells to individual files...');
-      await storeSpellsToFile(spellsData);
+      console.log('Storing spells to individual files with class information...');
+      await storeSpellsToFile(updatedSpells);
+
+      // Set spell source lookup data and derived data
+      setSpellSourceLookup(spellSourceLookupData);
+      setAvailableClasses(classes);
+      setSpellClassRelations(relations);
 
       // Load indexes for immediate use
       const [beastsIndexData, spellsIndexData] = await Promise.all([
@@ -382,6 +497,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       simpleBeasts,
       spells,
       simpleSpells,
+      spellSourceLookup,
+      availableClasses,
+      spellClassRelations,
       isLoading,
       isInitialized,
       loadData,

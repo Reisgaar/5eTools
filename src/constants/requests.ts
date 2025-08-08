@@ -17,6 +17,10 @@ export const spellsGetRequests = [
 	'https://5e.tools/data/spells/spells-xphb.json'
 ];
 
+export const spellSourceLookupRequest = [
+    'https://5e.tools/data/generated/gendata-spell-source-lookup.json'
+];
+
 export const bestiaryGetRequests = [
         "https://5e.tools/data/bestiary/bestiary-aatm.json",
         "https://5e.tools/data/bestiary/bestiary-ai.json",

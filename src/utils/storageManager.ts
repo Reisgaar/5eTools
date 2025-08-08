@@ -1,6 +1,8 @@
 import { Platform } from 'react-native';
 import { getTokenCacheStats, cleanTokenCache, clearImageCache } from './tokenCache';
 import { getStorageInfo } from './fileStorage';
+import { formatBytes } from './storageUtils';
+import { STORAGE_CONFIG } from './constants';
 
 const isWeb = Platform.OS === 'web';
 
@@ -54,7 +56,7 @@ export const getStorageUsage = async (): Promise<StorageUsage> => {
             (dataStats.beastsIndexSize || 0) + (dataStats.spellsIndexSize || 0);
         
         // Estimate available storage (rough approximation)
-        const totalAvailable = isWeb ? 5 * 1024 * 1024 : 0; // 5MB for web localStorage
+        const totalAvailable = isWeb ? STORAGE_CONFIG.WEB_LOCAL_STORAGE_LIMIT : 0;
         
         return {
             totalUsed,
@@ -130,12 +132,12 @@ export const isStorageGettingFull = async (): Promise<{
         }
         
         const percentage = (usage.totalUsed / usage.totalAvailable) * 100;
-        const isFull = percentage > 80;
+        const isFull = percentage > STORAGE_CONFIG.WARNING_THRESHOLD;
         
         let warning = null;
-        if (percentage > 90) {
+        if (percentage > STORAGE_CONFIG.CRITICAL_THRESHOLD) {
             warning = 'Storage is almost full! Consider cleaning caches.';
-        } else if (percentage > 80) {
+        } else if (percentage > STORAGE_CONFIG.WARNING_THRESHOLD) {
             warning = 'Storage usage is high. Consider cleaning caches soon.';
         }
         
@@ -146,16 +148,8 @@ export const isStorageGettingFull = async (): Promise<{
     }
 };
 
-// Format bytes to human readable format
-export const formatBytes = (bytes: number): string => {
-    if (bytes === 0) return '0 Bytes';
-    
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-};
+// Re-export formatBytes from storageUtils for backward compatibility
+export { formatBytes } from './storageUtils';
 
 // Get storage usage summary for display
 export const getStorageSummary = async (): Promise<{

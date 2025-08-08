@@ -13,6 +13,7 @@ import { useCombat } from 'src/context/CombatContext';
 // COMPONENTS
 import { Ionicons } from '@expo/vector-icons';
 import { ImagePickerWeb as PlayerImagePicker } from 'src/components/ui';
+import { StorageManagementModal } from 'src/components/modals';
 import { classes, races } from 'src/constants/players';
 import { addPlayer, loadPlayersList, removePlayer, updatePlayer } from 'src/utils/fileStorage';
 import { Image } from 'react-native';
@@ -30,6 +31,9 @@ export default function SettingsScreen() {
     const [editPlayer, setEditPlayer] = React.useState<any | null>(null);
     const [form, setForm] = React.useState({ name: '', race: '', class: '', maxHp: '', ac: '', passivePerception: '', initiativeBonus: '', tokenUrl: '' });
     const [selectedImageUri, setSelectedImageUri] = React.useState<string | null>(null);
+    
+    // Storage management state
+    const [storageModalVisible, setStorageModalVisible] = React.useState(false);
 
     // Load players on mount
     React.useEffect(() => {
@@ -139,6 +143,16 @@ export default function SettingsScreen() {
                             <Text style={{ color: currentTheme.text }}>Dark</Text>
                         </Pressable>
                     </View>
+                </View>
+                
+                <View style={{ justifyContent: 'center', marginBottom: 12 }}>
+                    <Text style={[styles.sectionTitle, { color: currentTheme.text }]}>Data Management</Text>
+                    <Pressable 
+                        onPress={() => setStorageModalVisible(true)} 
+                        style={[commonStyles.button, { backgroundColor: currentTheme.primary, marginTop: 8 }]}
+                    > 
+                        <Text style={[commonStyles.buttonText, { color: currentTheme.buttonText || 'white' }]}>Storage Management</Text>
+                    </Pressable>
                 </View>
                 {/* Player Character Management Section */}
                 <View style={{ flex: 1, marginTop: 32 }}>
@@ -289,6 +303,12 @@ export default function SettingsScreen() {
                         </View>
                     </View>
                 </Modal>
+                
+                {/* Storage Management Modal */}
+                <StorageManagementModal
+                    visible={storageModalVisible}
+                    onClose={() => setStorageModalVisible(false)}
+                />
             </View>
         </View>
     );

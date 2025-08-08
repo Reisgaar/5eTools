@@ -11,7 +11,7 @@ import { commonStyles } from 'src/style/styles';
 // Home screen tab displaying data summary and management actions for beasts and spells.
 export default function HomeScreen() {
     const { currentTheme } = useAppSettings();
-    const { simpleBeasts, simpleSpells, isLoading, isInitialized, reloadData, clearData } = useData();
+    const { simpleBeasts, simpleSpells, availableClasses, spellClassRelations, isLoading, isInitialized, reloadData, clearData } = useData();
 
     const handleReload = async () => {
         await reloadData();
@@ -64,6 +64,24 @@ export default function HomeScreen() {
                         <Text style={{ fontSize: 16, color: currentTheme.noticeText }}>
                             Total: {simpleSpells.length} spells
                         </Text>
+                    </View>
+
+                    {/* Spell-Class Relations Section */}
+                    <View style={{ backgroundColor: currentTheme.card, padding: 16, borderRadius: 8, marginBottom: 16 }}>
+                        <Text style={{ fontSize: 20, fontWeight: 'bold', color: currentTheme.text, marginBottom: 8 }}>
+                            Spell-Class Relations
+                        </Text>
+                        <Text style={{ fontSize: 16, color: currentTheme.noticeText, marginBottom: 4 }}>
+                            Total: {spellClassRelations.length} relations
+                        </Text>
+                        <Text style={{ fontSize: 16, color: currentTheme.noticeText, marginBottom: 4 }}>
+                            Classes: {availableClasses.length} available
+                        </Text>
+                        {availableClasses.length > 0 && (
+                            <Text style={{ fontSize: 14, color: currentTheme.noticeText, fontStyle: 'italic' }}>
+                                {availableClasses.join(', ')}
+                            </Text>
+                        )}
                     </View>
 
                     {/* Status */}
