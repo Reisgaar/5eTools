@@ -19,6 +19,14 @@ export const storeSpellsToFile = async (spells: Spell[]): Promise<void> => {
     await storage.storeSpellsIndex(spells);
 };
 
+export const storeSpellClassRelationsToFile = async (relations: any[]): Promise<void> => {
+    await storage.storeSpellClassRelationsIndex(relations);
+};
+
+export const storeAvailableClassesToFile = async (classes: string[]): Promise<void> => {
+    await storage.storeAvailableClassesIndex(classes);
+};
+
 export const storeCombatToFile = async (combat: Combat): Promise<void> => {
     await storage.storeCombatIndex(combat);
 };
@@ -29,6 +37,14 @@ export const loadBeastsIndexFromFile = async (): Promise<any[] | null> => {
 
 export const loadSpellsIndexFromFile = async (): Promise<any[] | null> => {
     return await storage.loadSpellsIndex();
+};
+
+export const loadSpellClassRelationsIndexFromFile = async (): Promise<any[] | null> => {
+    return await storage.loadSpellClassRelationsIndex();
+};
+
+export const loadAvailableClassesIndexFromFile = async (): Promise<string[] | null> => {
+    return await storage.loadAvailableClassesIndex();
 };
 
 export const loadCombatsIndexFromFile = async (): Promise<any[] | null> => {

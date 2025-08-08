@@ -1,5 +1,5 @@
 import { IStorageProvider } from './IStorageProvider';
-import { Beast, Spell, Player, Spellbook, Combat, BeastIndex, SpellIndex, CombatIndex } from '../types';
+import { Beast, Spell, Player, Spellbook, Combat, BeastIndex, SpellIndex, CombatIndex, SpellClassRelationIndex, AvailableClassesIndex, STORAGE_KEYS } from '../types';
 import { resolveMonster } from '../../data/resolveMonster';
 import { 
     generateSafeFilename, 
@@ -34,7 +34,7 @@ export abstract class BaseStorageProvider implements IStorageProvider {
         console.log('storeBeastsIndex called with', beasts.length, 'beasts');
         
         // Clear existing index first
-        await this.deleteIndex('BEASTS_INDEX');
+        await this.deleteIndex(STORAGE_KEYS.BEASTS_INDEX);
         console.log('Cleared existing beasts index');
         
         // Process beasts (resolve _copy references)
@@ -46,7 +46,7 @@ export abstract class BaseStorageProvider implements IStorageProvider {
         };
         
         // Store index
-        await this.storeIndex('BEASTS_INDEX', indexData);
+        await this.storeIndex(STORAGE_KEYS.BEASTS_INDEX, indexData);
         console.log(`Stored beasts index with ${allResolvedMonsters.length} beasts`);
         
         // Store individual beasts
@@ -58,7 +58,7 @@ export abstract class BaseStorageProvider implements IStorageProvider {
         console.log('Sample spell availableClasses:', spells[0]?.availableClasses);
         
         // Clear existing index first
-        await this.deleteIndex('SPELLS_INDEX');
+        await this.deleteIndex(STORAGE_KEYS.SPELLS_INDEX);
         console.log('Cleared existing spells index');
         
         // Create index data
@@ -75,7 +75,7 @@ export abstract class BaseStorageProvider implements IStorageProvider {
         };
         
         console.log('Index data sample:', JSON.stringify(indexData.spells.slice(0, 2), null, 2));
-        await this.storeIndex('SPELLS_INDEX', indexData);
+        await this.storeIndex(STORAGE_KEYS.SPELLS_INDEX, indexData);
         console.log(`Stored spells index with ${spells.length} spells`);
         
         // Store individual spells
@@ -86,11 +86,11 @@ export abstract class BaseStorageProvider implements IStorageProvider {
         const filename = generateCombatFilename(combat.id, combat.name);
         
         // Store individual combat
-        await this.storeIndividual(`COMBATS_PREFIX${combat.id}`, combat);
+        await this.storeIndividual(`${STORAGE_KEYS.COMBATS_PREFIX}${combat.id}`, combat);
         
         // Update combat index
         let indexData: { combats: CombatIndex[] } = { combats: [] };
-        const existingIndex = await this.loadIndex('COMBATS_INDEX');
+        const existingIndex = await this.loadIndex(STORAGE_KEYS.COMBATS_INDEX);
         if (existingIndex) {
             indexData = existingIndex;
         }
@@ -101,56 +101,108 @@ export abstract class BaseStorageProvider implements IStorageProvider {
         // Add new combat
         indexData.combats.push(createCombatIndexEntry(combat));
         
-        await this.storeIndex('COMBATS_INDEX', indexData);
+        await this.storeIndex(STORAGE_KEYS.COMBATS_INDEX, indexData);
+    }
+    
+    public async storeSpellClassRelationsIndex(relations: SpellClassRelationIndex[]): Promise<void> {
+        console.log('storeSpellClassRelationsIndex called with', relations.length, 'relations');
+        
+        // Clear existing index first
+        await this.deleteIndex(STORAGE_KEYS.SPELL_CLASS_RELATIONS_INDEX);
+        console.log('Cleared existing spell-class relations index');
+        
+        // Create index data
+        const indexData = {
+            relations: relations
+        };
+        
+        // Store index
+        await this.storeIndex(STORAGE_KEYS.SPELL_CLASS_RELATIONS_INDEX, indexData);
+        console.log(`Stored spell-class relations index with ${relations.length} relations`);
+    }
+    
+    public async storeAvailableClassesIndex(classes: string[]): Promise<void> {
+        console.log('storeAvailableClassesIndex called with', classes.length, 'classes');
+        
+        // Clear existing index first
+        await this.deleteIndex(STORAGE_KEYS.AVAILABLE_CLASSES_INDEX);
+        console.log('Cleared existing available classes index');
+        
+        // Create index data
+        const indexData = {
+            classes: classes
+        };
+        
+        // Store index
+        await this.storeIndex(STORAGE_KEYS.AVAILABLE_CLASSES_INDEX, indexData);
+        console.log(`Stored available classes index with ${classes.length} classes`);
     }
     
     // Load operations
     public async loadBeastsIndex(): Promise<BeastIndex[] | null> {
-        const indexData = await this.loadIndex('BEASTS_INDEX');
+        const indexData = await this.loadIndex(STORAGE_KEYS.BEASTS_INDEX);
         return indexData?.monsters || null;
     }
     
     public async loadSpellsIndex(): Promise<SpellIndex[] | null> {
-        const indexData = await this.loadIndex('SPELLS_INDEX');
+        const indexData = await this.loadIndex(STORAGE_KEYS.SPELLS_INDEX);
         return indexData?.spells || null;
     }
     
     public async loadCombatsIndex(): Promise<CombatIndex[] | null> {
-        const indexData = await this.loadIndex('COMBATS_INDEX');
+        const indexData = await this.loadIndex(STORAGE_KEYS.COMBATS_INDEX);
         return indexData?.combats || null;
+    }
+    
+    public async loadSpellClassRelationsIndex(): Promise<SpellClassRelationIndex[] | null> {
+        const indexData = await this.loadIndex(STORAGE_KEYS.SPELL_CLASS_RELATIONS_INDEX);
+        return indexData?.relations || null;
+    }
+    
+    public async loadAvailableClassesIndex(): Promise<string[] | null> {
+        const indexData = await this.loadIndex(STORAGE_KEYS.AVAILABLE_CLASSES_INDEX);
+        return indexData?.classes || null;
     }
     
     // Individual file operations
     public async storeBeast(beast: Beast): Promise<void> {
-        const key = `MONSTERS_PREFIX${generateSafeFilename(beast.name, beast.source)}`;
+        const key = `${STORAGE_KEYS.MONSTERS_PREFIX}${generateSafeFilename(beast.name, beast.source)}`;
         await this.storeIndividual(key, beast);
     }
     
     public async storeSpell(spell: Spell): Promise<void> {
-        const key = `SPELLS_PREFIX${generateSafeFilename(spell.name, spell.source)}`;
+        const key = `${STORAGE_KEYS.SPELLS_PREFIX}${generateSafeFilename(spell.name, spell.source)}`;
         await this.storeIndividual(key, spell);
     }
     
     public async storeCombat(combat: Combat): Promise<void> {
-        const key = `COMBATS_PREFIX${combat.id}`;
+        const key = `${STORAGE_KEYS.COMBATS_PREFIX}${combat.id}`;
         await this.storeIndividual(key, combat);
     }
     
     public async loadBeast(filename: string): Promise<Beast | null> {
         const beastId = filename.replace('.json', '');
-        const key = `MONSTERS_PREFIX${beastId}`;
+        const key = `${STORAGE_KEYS.MONSTERS_PREFIX}${beastId}`;
         return await this.loadIndividual(key);
     }
     
     public async loadSpell(filename: string): Promise<Spell | null> {
         const spellId = filename.replace('.json', '');
-        const key = `SPELLS_PREFIX${spellId}`;
+        const key = `${STORAGE_KEYS.SPELLS_PREFIX}${spellId}`;
         return await this.loadIndividual(key);
     }
     
     public async loadCombat(filename: string): Promise<Combat | null> {
-        const combatId = filename.split('-')[0];
-        const key = `COMBATS_PREFIX${combatId}`;
+        // Remove .json extension and extract the combat ID
+        // Filename format: combat-1754675833566-0.9178056674399327-t3st.json
+        // We need to extract: combat-1754675833566-0.9178056674399327
+        const withoutExtension = filename.replace('.json', '');
+        const parts = withoutExtension.split('-');
+        
+        // The combat ID is everything except the last part (the safe name)
+        // So we join all parts except the last one
+        const combatId = parts.slice(0, -1).join('-');
+        const key = `${STORAGE_KEYS.COMBATS_PREFIX}${combatId}`;
         return await this.loadIndividual(key);
     }
     
@@ -179,11 +231,11 @@ export abstract class BaseStorageProvider implements IStorageProvider {
     
     // Player operations
     public async savePlayers(players: Player[]): Promise<void> {
-        await this.storeIndex('PLAYERS', players);
+        await this.storeIndex(STORAGE_KEYS.PLAYERS, players);
     }
     
     public async loadPlayers(): Promise<Player[]> {
-        const data = await this.loadIndex('PLAYERS');
+        const data = await this.loadIndex(STORAGE_KEYS.PLAYERS);
         return data || [];
     }
     
@@ -210,11 +262,11 @@ export abstract class BaseStorageProvider implements IStorageProvider {
     
     // Spellbook operations
     public async saveSpellbooks(spellbooks: Spellbook[]): Promise<void> {
-        await this.storeIndex('SPELLBOOKS', spellbooks);
+        await this.storeIndex(STORAGE_KEYS.SPELLBOOKS, spellbooks);
     }
     
     public async loadSpellbooks(): Promise<Spellbook[]> {
-        const data = await this.loadIndex('SPELLBOOKS');
+        const data = await this.loadIndex(STORAGE_KEYS.SPELLBOOKS);
         return data || [];
     }
     
@@ -262,13 +314,13 @@ export abstract class BaseStorageProvider implements IStorageProvider {
     // Combat operations
     public async deleteCombat(id: string): Promise<void> {
         // Remove from individual storage
-        await this.deleteIndividual(`COMBATS_PREFIX${id}`);
+        await this.deleteIndividual(`${STORAGE_KEYS.COMBATS_PREFIX}${id}`);
         
         // Remove from index
-        const indexData = await this.loadIndex('COMBATS_INDEX');
+        const indexData = await this.loadIndex(STORAGE_KEYS.COMBATS_INDEX);
         if (indexData) {
             indexData.combats = indexData.combats.filter((c: CombatIndex) => c.id !== id);
-            await this.storeIndex('COMBATS_INDEX', indexData);
+            await this.storeIndex(STORAGE_KEYS.COMBATS_INDEX, indexData);
         }
     }
     
@@ -283,10 +335,12 @@ export abstract class BaseStorageProvider implements IStorageProvider {
         
         // Filter keys to remove
         const keysToRemove = allKeys.filter(key => 
-            key.startsWith('MONSTERS_PREFIX') ||
-            key.startsWith('SPELLS_PREFIX') ||
-            key === 'BEASTS_INDEX' ||
-            key === 'SPELLS_INDEX'
+            key.startsWith(STORAGE_KEYS.MONSTERS_PREFIX) ||
+            key.startsWith(STORAGE_KEYS.SPELLS_PREFIX) ||
+            key === STORAGE_KEYS.BEASTS_INDEX ||
+            key === STORAGE_KEYS.SPELLS_INDEX ||
+            key === STORAGE_KEYS.SPELL_CLASS_RELATIONS_INDEX ||
+            key === STORAGE_KEYS.AVAILABLE_CLASSES_INDEX
         );
         
         // Remove each key
@@ -295,8 +349,10 @@ export abstract class BaseStorageProvider implements IStorageProvider {
         }
         
         // Clear indexes
-        await this.deleteIndex('BEASTS_INDEX');
-        await this.deleteIndex('SPELLS_INDEX');
+        await this.deleteIndex(STORAGE_KEYS.BEASTS_INDEX);
+        await this.deleteIndex(STORAGE_KEYS.SPELLS_INDEX);
+        await this.deleteIndex(STORAGE_KEYS.SPELL_CLASS_RELATIONS_INDEX);
+        await this.deleteIndex(STORAGE_KEYS.AVAILABLE_CLASSES_INDEX);
     }
     
     public async getStorageInfo(): Promise<{
@@ -304,22 +360,28 @@ export abstract class BaseStorageProvider implements IStorageProvider {
         beastsCount: number;
         spellsIndexSize: number;
         spellsCount: number;
+        spellClassRelationsCount: number;
+        availableClassesCount: number;
     }> {
-        const beastsIndex = await this.loadIndex('BEASTS_INDEX');
-        const spellsIndex = await this.loadIndex('SPELLS_INDEX');
+        const beastsIndex = await this.loadIndex(STORAGE_KEYS.BEASTS_INDEX);
+        const spellsIndex = await this.loadIndex(STORAGE_KEYS.SPELLS_INDEX);
+        const spellClassRelationsIndex = await this.loadIndex(STORAGE_KEYS.SPELL_CLASS_RELATIONS_INDEX);
+        const availableClassesIndex = await this.loadIndex(STORAGE_KEYS.AVAILABLE_CLASSES_INDEX);
         
         return {
             beastsIndexSize: beastsIndex ? JSON.stringify(beastsIndex).length : 0,
             beastsCount: beastsIndex?.monsters?.length || 0,
             spellsIndexSize: spellsIndex ? JSON.stringify(spellsIndex).length : 0,
-            spellsCount: spellsIndex?.spells?.length || 0
+            spellsCount: spellsIndex?.spells?.length || 0,
+            spellClassRelationsCount: spellClassRelationsIndex?.relations?.length || 0,
+            availableClassesCount: availableClassesIndex?.classes?.length || 0
         };
     }
     
     // Helper methods
     protected async processBeasts(beasts: Beast[]): Promise<Beast[]> {
-        const monstersWithoutCopy = beasts.filter(beast => !beast._copy);
-        let monstersWithCopy = beasts.filter(beast => beast._copy);
+        const monstersWithoutCopy = beasts.filter(beast => !beast['_copy']);
+        let monstersWithCopy = beasts.filter(beast => beast['_copy']);
         const allResolvedMonsters: Beast[] = [...monstersWithoutCopy];
         
         let unresolved = [...monstersWithCopy];

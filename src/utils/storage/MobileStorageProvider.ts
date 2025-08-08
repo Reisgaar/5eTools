@@ -1,5 +1,6 @@
 import * as FileSystem from 'expo-file-system';
 import { BaseStorageProvider } from './BaseStorageProvider';
+import { STORAGE_KEYS } from '../types';
 import { 
     DATA_DIR, 
     MONSTERS_DIR, 
@@ -24,7 +25,9 @@ export class MobileStorageProvider extends BaseStorageProvider {
             'SPELLS_INDEX': SPELLS_INDEX_FILE,
             'COMBATS_INDEX': COMBATS_INDEX_FILE,
             'PLAYERS': PLAYERS_FILE,
-            'SPELLBOOKS': SPELLBOOKS_FILE
+            'SPELLBOOKS': SPELLBOOKS_FILE,
+            'SPELL_CLASS_RELATIONS_INDEX': `${DATA_DIR}spell_class_relations_index.json`,
+            'AVAILABLE_CLASSES_INDEX': `${DATA_DIR}available_classes_index.json`
         };
         
         return pathMap[key] || `${DATA_DIR}${key}.json`;
@@ -65,14 +68,14 @@ export class MobileStorageProvider extends BaseStorageProvider {
     protected async storeIndividual(key: string, data: any): Promise<void> {
         let filePath: string;
         
-        if (key.startsWith('MONSTERS_PREFIX')) {
-            const filename = key.replace('MONSTERS_PREFIX', '') + '.json';
+        if (key.startsWith(STORAGE_KEYS.MONSTERS_PREFIX)) {
+            const filename = key.replace(STORAGE_KEYS.MONSTERS_PREFIX, '') + '.json';
             filePath = `${MONSTERS_DIR}${filename}`;
-        } else if (key.startsWith('SPELLS_PREFIX')) {
-            const filename = key.replace('SPELLS_PREFIX', '') + '.json';
+        } else if (key.startsWith(STORAGE_KEYS.SPELLS_PREFIX)) {
+            const filename = key.replace(STORAGE_KEYS.SPELLS_PREFIX, '') + '.json';
             filePath = `${SPELLS_DIR}${filename}`;
-        } else if (key.startsWith('COMBATS_PREFIX')) {
-            const filename = key.replace('COMBATS_PREFIX', '') + '.json';
+        } else if (key.startsWith(STORAGE_KEYS.COMBATS_PREFIX)) {
+            const filename = key.replace(STORAGE_KEYS.COMBATS_PREFIX, '') + '.json';
             filePath = `${COMBATS_DIR}${filename}`;
         } else {
             filePath = `${DATA_DIR}${key}.json`;
@@ -84,14 +87,14 @@ export class MobileStorageProvider extends BaseStorageProvider {
     protected async loadIndividual(key: string): Promise<any> {
         let filePath: string;
         
-        if (key.startsWith('MONSTERS_PREFIX')) {
-            const filename = key.replace('MONSTERS_PREFIX', '') + '.json';
+        if (key.startsWith(STORAGE_KEYS.MONSTERS_PREFIX)) {
+            const filename = key.replace(STORAGE_KEYS.MONSTERS_PREFIX, '') + '.json';
             filePath = `${MONSTERS_DIR}${filename}`;
-        } else if (key.startsWith('SPELLS_PREFIX')) {
-            const filename = key.replace('SPELLS_PREFIX', '') + '.json';
+        } else if (key.startsWith(STORAGE_KEYS.SPELLS_PREFIX)) {
+            const filename = key.replace(STORAGE_KEYS.SPELLS_PREFIX, '') + '.json';
             filePath = `${SPELLS_DIR}${filename}`;
-        } else if (key.startsWith('COMBATS_PREFIX')) {
-            const filename = key.replace('COMBATS_PREFIX', '') + '.json';
+        } else if (key.startsWith(STORAGE_KEYS.COMBATS_PREFIX)) {
+            const filename = key.replace(STORAGE_KEYS.COMBATS_PREFIX, '') + '.json';
             filePath = `${COMBATS_DIR}${filename}`;
         } else {
             filePath = `${DATA_DIR}${key}.json`;
@@ -113,14 +116,14 @@ export class MobileStorageProvider extends BaseStorageProvider {
     protected async deleteIndividual(key: string): Promise<void> {
         let filePath: string;
         
-        if (key.startsWith('MONSTERS_PREFIX')) {
-            const filename = key.replace('MONSTERS_PREFIX', '') + '.json';
+        if (key.startsWith(STORAGE_KEYS.MONSTERS_PREFIX)) {
+            const filename = key.replace(STORAGE_KEYS.MONSTERS_PREFIX, '') + '.json';
             filePath = `${MONSTERS_DIR}${filename}`;
-        } else if (key.startsWith('SPELLS_PREFIX')) {
-            const filename = key.replace('SPELLS_PREFIX', '') + '.json';
+        } else if (key.startsWith(STORAGE_KEYS.SPELLS_PREFIX)) {
+            const filename = key.replace(STORAGE_KEYS.SPELLS_PREFIX, '') + '.json';
             filePath = `${SPELLS_DIR}${filename}`;
-        } else if (key.startsWith('COMBATS_PREFIX')) {
-            const filename = key.replace('COMBATS_PREFIX', '') + '.json';
+        } else if (key.startsWith(STORAGE_KEYS.COMBATS_PREFIX)) {
+            const filename = key.replace(STORAGE_KEYS.COMBATS_PREFIX, '') + '.json';
             filePath = `${COMBATS_DIR}${filename}`;
         } else {
             filePath = `${DATA_DIR}${key}.json`;
@@ -148,17 +151,17 @@ export class MobileStorageProvider extends BaseStorageProvider {
             // Convert file paths to keys
             monsterFiles.forEach(file => {
                 const key = file.replace(MONSTERS_DIR, '').replace('.json', '');
-                allFiles.push(`MONSTERS_PREFIX${key}`);
+                allFiles.push(`${STORAGE_KEYS.MONSTERS_PREFIX}${key}`);
             });
             
             spellFiles.forEach(file => {
                 const key = file.replace(SPELLS_DIR, '').replace('.json', '');
-                allFiles.push(`SPELLS_PREFIX${key}`);
+                allFiles.push(`${STORAGE_KEYS.SPELLS_PREFIX}${key}`);
             });
             
             combatFiles.forEach(file => {
                 const key = file.replace(COMBATS_DIR, '').replace('.json', '');
-                allFiles.push(`COMBATS_PREFIX${key}`);
+                allFiles.push(`${STORAGE_KEYS.COMBATS_PREFIX}${key}`);
             });
             
             return allFiles;
@@ -183,7 +186,9 @@ export class MobileStorageProvider extends BaseStorageProvider {
                 this.deleteIndex('SPELLS_INDEX'),
                 this.deleteIndex('COMBATS_INDEX'),
                 this.deleteIndex('PLAYERS'),
-                this.deleteIndex('SPELLBOOKS')
+                this.deleteIndex('SPELLBOOKS'),
+                this.deleteIndex('SPELL_CLASS_RELATIONS_INDEX'),
+                this.deleteIndex('AVAILABLE_CLASSES_INDEX')
             ]);
         } catch (error) {
             console.error('Error clearing all data:', error);
@@ -228,13 +233,13 @@ export class MobileStorageProvider extends BaseStorageProvider {
     }
     
     // Override storeBeastsIndex to add mobile-specific logging
-    public async storeBeastsIndex(beasts: any[]): Promise<void> {
+    public override async storeBeastsIndex(beasts: any[]): Promise<void> {
         console.log('storeBeastsIndex (mobile) called with', beasts.length, 'beasts');
         await super.storeBeastsIndex(beasts);
     }
     
     // Override storeSpellsIndex to add mobile-specific logging
-    public async storeSpellsIndex(spells: any[]): Promise<void> {
+    public override async storeSpellsIndex(spells: any[]): Promise<void> {
         console.log('storeSpellsIndex (mobile) called with', spells.length, 'spells');
         await super.storeSpellsIndex(spells);
     }

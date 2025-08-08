@@ -177,14 +177,32 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     (async () => {
       setLoading(true);
       console.log('Loading combats from storage...');
-      const loadedCombats = await loadCombatsIndexFromFile();
-      console.log('Loaded combats:', loadedCombats);
+      const combatIndexes = await loadCombatsIndexFromFile();
+      console.log('Loaded combat indexes:', combatIndexes);
       
-      if (loadedCombats && loadedCombats.length > 0) {
-        console.log('Total loaded combats:', loadedCombats.length);
+      if (combatIndexes && combatIndexes.length > 0) {
+        console.log('Total loaded combat indexes:', combatIndexes.length);
         
-        // Update token URLs for existing combats
-        const updatedCombats = await Promise.all(loadedCombats.map(async (combat) => {
+        // Load full combat data for each combat
+        const loadedCombats = await Promise.all(combatIndexes.map(async (combatIndex) => {
+          try {
+            const fullCombat = await loadCombatFromFile(combatIndex.file);
+            if (fullCombat) {
+              console.log(`Loaded full combat ${fullCombat.name} with ${fullCombat.combatants?.length || 0} combatants`);
+              return fullCombat;
+            } else {
+              console.warn(`Failed to load full combat for ${combatIndex.name}`);
+              return null;
+            }
+          } catch (error) {
+            console.error(`Error loading combat ${combatIndex.name}:`, error);
+            return null;
+          }
+        }));
+        
+        // Filter out null values and update token URLs
+        const validCombats = loadedCombats.filter(combat => combat !== null);
+        const updatedCombats = await Promise.all(validCombats.map(async (combat) => {
           if (combat.combatants && combat.combatants.length > 0) {
             const updatedCombatants = await Promise.all(combat.combatants.map(async (combatant: Combatant) => {
               if (combatant.tokenUrl && combatant.tokenUrl.startsWith('http')) {

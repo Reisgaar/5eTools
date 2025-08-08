@@ -9,8 +9,12 @@ import {
     loadMonsterFromFile,
     loadSpellFromFile,
     loadSpellsIndexFromFile,
+    loadSpellClassRelationsIndexFromFile,
+    loadAvailableClassesIndexFromFile,
     storeBeastsToFile,
-    storeSpellsToFile
+    storeSpellsToFile,
+    storeSpellClassRelationsToFile,
+    storeAvailableClassesToFile
 } from '../utils/fileStorage';
 
 interface Beast {
@@ -338,15 +342,24 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('Storing spells to individual files with class information...');
       await storeSpellsToFile(updatedSpells);
 
+      // Store spell-class relations and available classes indexes
+      console.log('Storing spell-class relations index...');
+      await storeSpellClassRelationsToFile(relations);
+      
+      console.log('Storing available classes index...');
+      await storeAvailableClassesToFile(classes);
+
       // Set spell source lookup data and derived data
       setSpellSourceLookup(spellSourceLookupData);
       setAvailableClasses(classes);
       setSpellClassRelations(relations);
 
       // Load indexes for immediate use
-      const [beastsIndexData, spellsIndexData] = await Promise.all([
+      const [beastsIndexData, spellsIndexData, spellClassRelationsData, availableClassesData] = await Promise.all([
         loadBeastsIndexFromFile(),
-        loadSpellsIndexFromFile()
+        loadSpellsIndexFromFile(),
+        loadSpellClassRelationsIndexFromFile(),
+        loadAvailableClassesIndexFromFile()
       ]);
       
       if (beastsIndexData) {
@@ -355,6 +368,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (spellsIndexData) {
         setSpellsIndex(spellsIndexData);
+      }
+
+      if (spellClassRelationsData) {
+        setSpellClassRelations(spellClassRelationsData);
+      }
+
+      if (availableClassesData) {
+        setAvailableClasses(availableClassesData);
       }
 
       setIsInitialized(true);
@@ -374,9 +395,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('Loading data from files...');
       
       // Load indexes
-      const [beastsIndexData, spellsIndexData] = await Promise.all([
+      const [beastsIndexData, spellsIndexData, spellClassRelationsData, availableClassesData] = await Promise.all([
         loadBeastsIndexFromFile(),
-        loadSpellsIndexFromFile()
+        loadSpellsIndexFromFile(),
+        loadSpellClassRelationsIndexFromFile(),
+        loadAvailableClassesIndexFromFile()
       ]);
       
       if (beastsIndexData) {
@@ -387,6 +410,16 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (spellsIndexData) {
         setSpellsIndex(spellsIndexData);
         console.log(`Loaded index with ${spellsIndexData.length} spells`);
+      }
+
+      if (spellClassRelationsData) {
+        setSpellClassRelations(spellClassRelationsData);
+        console.log(`Loaded index with ${spellClassRelationsData.length} spell-class relations`);
+      }
+
+      if (availableClassesData) {
+        setAvailableClasses(availableClassesData);
+        console.log(`Loaded index with ${availableClassesData.length} available classes`);
       }
 
       setIsInitialized(true);
@@ -412,6 +445,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setBeastsIndex([]);
       setSpells([]);
       setSpellsIndex([]);
+      setSpellClassRelations([]);
+      setAvailableClasses([]);
       setIsInitialized(false);
       console.log('Beasts and spells data cleared successfully');
     } catch (error) {

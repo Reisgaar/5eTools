@@ -33,7 +33,13 @@ export default function CombatPlayer({
 
   React.useEffect(() => {
     const loadToken = async () => {
-      if (combatant.tokenUrl && combatant.source && combatant.name) {
+      // For players, use the token URL directly since it's already set
+      if (combatant.source === 'player') {
+        // Always set a token URL for players - either the custom one or the default
+        const finalTokenUrl = combatant.tokenUrl || DEFAULT_PLAYER_TOKEN;
+        setTokenUrl(finalTokenUrl);
+      } else if (combatant.tokenUrl && combatant.source && combatant.name) {
+        // For creatures, use the cached token loading logic
         const cachedUrl = await loadCachedTokenUrl(
           combatant.tokenUrl, 
           combatant.source, 
@@ -48,19 +54,28 @@ export default function CombatPlayer({
   return (
     <View style={[
       styles.groupContainer,
-      isActive && { backgroundColor: theme.primary + '20', borderWidth: 2, borderColor: theme.primary },
-      { borderWidth: 2, borderColor: '#22c55a' } // Green border for players
+      { 
+        borderColor: theme.border,
+        borderWidth: 1,
+        borderStyle: 'solid'
+      }, // Force normal border color and style
+      isActive && { 
+        backgroundColor: theme.primary + '20', 
+        borderWidth: 2, 
+        borderColor: theme.primary,
+        borderStyle: 'solid'
+      }
     ]}>
       {/* Main Container with Two Columns */}
       <View style={styles.groupHeader}>
         {/* Left Column: Token and Stats */}
         <View style={styles.leftColumn}>
           <TouchableOpacity
-            onPress={() => onTokenPress(tokenUrl, combatant.name)}
-            style={styles.groupToken}
+            onPress={() => onTokenPress(tokenUrl || combatant.tokenUrl || DEFAULT_PLAYER_TOKEN, combatant.name)}
+            style={[styles.groupToken, { borderWidth: 3, borderColor: '#22c55a', borderRadius: 32 }]}
           >
             <Image
-              source={tokenUrl ? { uri: tokenUrl } : { uri: DEFAULT_PLAYER_TOKEN }}
+              source={{ uri: tokenUrl || DEFAULT_PLAYER_TOKEN }}
               style={styles.groupTokenImage}
             />
           </TouchableOpacity>
@@ -95,37 +110,46 @@ export default function CombatPlayer({
             </View>
           </View>
 
-          {/* Race and Class - Below name */}
-          {(combatant.race || combatant.class) && (
+          {/* Player Info in two columns */}
+          {(combatant.race || combatant.class || combatant.passivePerception) && (
             <View style={{ marginBottom: 4 }}>
-              {combatant.race && (
-                <View style={{ flexDirection: 'row' }}>
-                  <View>
-                    <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, fontWeight: 'bold' }]}>
-                      Race:
-                    </Text>
-                  </View>
-                  <View style={{ marginLeft: 4 }}>
-                    <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8 }]}>
-                      {combatant.race}
-                    </Text>
-                  </View>
+              <View style={{ flexDirection: 'row' }}>
+                {/* First column */}
+                <View style={{ flex: 1 }}>
+                  {combatant.race && (
+                    <View style={{ flexDirection: 'row', marginBottom: 2 }}>
+                      <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, fontWeight: 'bold', width: 40 }]}>
+                        Race:
+                      </Text>
+                      <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8 }]}>
+                        {combatant.race}
+                      </Text>
+                    </View>
+                  )}
+                  {combatant.class && (
+                    <View style={{ flexDirection: 'row' }}>
+                      <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, fontWeight: 'bold', width: 40 }]}>
+                        Class:
+                      </Text>
+                      <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8 }]}>
+                        {combatant.class}
+                      </Text>
+                    </View>
+                  )}
                 </View>
-              )}
-              {combatant.class && (
-                <View style={{ flexDirection: 'row' }}>
-                  <View>
-                    <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, fontWeight: 'bold' }]}>
-                      Class:
-                    </Text>
-                  </View>
-                  <View style={{ marginLeft: 4 }}>
-                    <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8 }]}>
-                      {combatant.class}
-                    </Text>
-                  </View>
+                
+                {/* Second column */}
+                <View style={{ flex: 1 }}>
+                  {combatant.passivePerception && (
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      <Ionicons name='eye' size={12} color={theme.text} style={{ opacity: 0.8, marginRight: 4 }} />
+                      <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8 }]}>
+                        {combatant.passivePerception}
+                      </Text>
+                    </View>
+                  )}
                 </View>
-              )}
+              </View>
             </View>
           )}
 

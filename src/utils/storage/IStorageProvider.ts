@@ -1,4 +1,4 @@
-import { Beast, Spell, Player, Spellbook, Combat, BeastIndex, SpellIndex, CombatIndex } from '../types';
+import { Beast, Spell, Player, Spellbook, Combat, BeastIndex, SpellIndex, CombatIndex, SpellClassRelationIndex, AvailableClassesIndex } from '../types';
 
 /**
  * Interface defining the contract for storage providers
@@ -8,10 +8,14 @@ export interface IStorageProvider {
     storeBeastsIndex(beasts: Beast[]): Promise<void>;
     storeSpellsIndex(spells: Spell[]): Promise<void>;
     storeCombatIndex(combat: Combat): Promise<void>;
+    storeSpellClassRelationsIndex(relations: SpellClassRelationIndex[]): Promise<void>;
+    storeAvailableClassesIndex(classes: string[]): Promise<void>;
     
     loadBeastsIndex(): Promise<BeastIndex[] | null>;
     loadSpellsIndex(): Promise<SpellIndex[] | null>;
     loadCombatsIndex(): Promise<CombatIndex[] | null>;
+    loadSpellClassRelationsIndex(): Promise<SpellClassRelationIndex[] | null>;
+    loadAvailableClassesIndex(): Promise<string[] | null>;
     
     // Individual file operations
     storeBeast(beast: Beast): Promise<void>;
@@ -52,6 +56,8 @@ export interface IStorageProvider {
         beastsCount: number;
         spellsIndexSize: number;
         spellsCount: number;
+        spellClassRelationsCount: number;
+        availableClassesCount: number;
     }>;
     
     // Platform-specific operations

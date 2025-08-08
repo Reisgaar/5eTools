@@ -8,6 +8,8 @@ export interface StorageKeys {
     MONSTERS_PREFIX: string;
     SPELLS_PREFIX: string;
     COMBATS_PREFIX: string;
+    SPELL_CLASS_RELATIONS_INDEX: string;
+    AVAILABLE_CLASSES_INDEX: string;
 }
 
 // Index Types
@@ -40,6 +42,17 @@ export interface CombatIndex {
     name: string;
     createdAt: number;
     file: string;
+}
+
+export interface SpellClassRelationIndex {
+    spellName: string;
+    source: string;
+    className: string;
+    book: string;
+}
+
+export interface AvailableClassesIndex {
+    classes: string[];
 }
 
 // Data Types
@@ -128,5 +141,7 @@ export const STORAGE_KEYS: StorageKeys = {
     PLAYERS: 'dnd_players',
     MONSTERS_PREFIX: 'dnd_monster_',
     SPELLS_PREFIX: 'dnd_spell_',
-    COMBATS_PREFIX: 'dnd_combat_'
+    COMBATS_PREFIX: 'dnd_combat_',
+    SPELL_CLASS_RELATIONS_INDEX: 'dnd_spell_class_relations_index',
+    AVAILABLE_CLASSES_INDEX: 'dnd_available_classes_index'
 };

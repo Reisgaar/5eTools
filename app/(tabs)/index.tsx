@@ -78,9 +78,28 @@ export default function HomeScreen() {
                             Classes: {availableClasses.length} available
                         </Text>
                         {availableClasses.length > 0 && (
-                            <Text style={{ fontSize: 14, color: currentTheme.noticeText, fontStyle: 'italic' }}>
-                                {availableClasses.join(', ')}
-                            </Text>
+                            <View style={{ marginTop: 8 }}>
+                                <Text style={{ fontSize: 14, color: currentTheme.noticeText, fontStyle: 'italic', marginBottom: 4 }}>
+                                    Available Classes:
+                                </Text>
+                                <Text style={{ fontSize: 12, color: currentTheme.noticeText, lineHeight: 16 }}>
+                                    {availableClasses.slice(0, 10).join(', ')}
+                                    {availableClasses.length > 10 && ` ... and ${availableClasses.length - 10} more`}
+                                </Text>
+                            </View>
+                        )}
+                        {spellClassRelations.length > 0 && (
+                            <View style={{ marginTop: 8 }}>
+                                <Text style={{ fontSize: 14, color: currentTheme.noticeText, fontStyle: 'italic', marginBottom: 4 }}>
+                                    Sample Relations:
+                                </Text>
+                                <Text style={{ fontSize: 12, color: currentTheme.noticeText, lineHeight: 16 }}>
+                                    {spellClassRelations.slice(0, 3).map((relation, index) => 
+                                        `${relation.spellName} → ${relation.className} (${relation.book})`
+                                    ).join('\n')}
+                                    {spellClassRelations.length > 3 && `\n... and ${spellClassRelations.length - 3} more relations`}
+                                </Text>
+                            </View>
                         )}
                     </View>
 

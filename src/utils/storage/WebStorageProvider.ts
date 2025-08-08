@@ -17,7 +17,9 @@ export class WebStorageProvider extends BaseStorageProvider {
             'SPELLBOOKS': STORAGE_KEYS.SPELLBOOKS,
             'MONSTERS_PREFIX': STORAGE_KEYS.MONSTERS_PREFIX,
             'SPELLS_PREFIX': STORAGE_KEYS.SPELLS_PREFIX,
-            'COMBATS_PREFIX': STORAGE_KEYS.COMBATS_PREFIX
+            'COMBATS_PREFIX': STORAGE_KEYS.COMBATS_PREFIX,
+            'SPELL_CLASS_RELATIONS_INDEX': STORAGE_KEYS.SPELL_CLASS_RELATIONS_INDEX,
+            'AVAILABLE_CLASSES_INDEX': STORAGE_KEYS.AVAILABLE_CLASSES_INDEX
         };
         
         return keyMap[abstractKey] || abstractKey;
@@ -70,13 +72,13 @@ export class WebStorageProvider extends BaseStorageProvider {
     }
     
     // Override storeBeastsIndex to add web-specific logging
-    public async storeBeastsIndex(beasts: any[]): Promise<void> {
+    public override async storeBeastsIndex(beasts: any[]): Promise<void> {
         console.log('storeBeastsIndex (web) called with', beasts.length, 'beasts');
         await super.storeBeastsIndex(beasts);
     }
     
     // Override storeSpellsIndex to add web-specific logging
-    public async storeSpellsIndex(spells: any[]): Promise<void> {
+    public override async storeSpellsIndex(spells: any[]): Promise<void> {
         console.log('storeSpellsIndex (web) called with', spells.length, 'spells');
         await super.storeSpellsIndex(spells);
     }
