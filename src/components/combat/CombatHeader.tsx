@@ -10,6 +10,7 @@ interface CombatHeaderProps {
   onRandomizeInitiative: () => void;
   onOpenPlayerModal: () => void;
   onClearCombat: () => void;
+  onResetCombat: () => void;
   started: boolean;
   theme: any;
 }
@@ -21,6 +22,7 @@ export default function CombatHeader({
   onRandomizeInitiative,
   onOpenPlayerModal,
   onClearCombat,
+  onResetCombat,
   started,
   theme
 }: CombatHeaderProps) {
@@ -67,6 +69,13 @@ export default function CombatHeader({
               style={[styles.headerModalButton, styles.headerModalButtonInfo]}
             >
               <Text style={[styles.headerModalButtonText, styles.headerModalButtonTextLight]}>Add Players</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              onPress={() => { onResetCombat(); setMenuVisible(false); }} 
+              style={[styles.headerModalButton, styles.headerModalButtonInfo]}
+            >
+              <Text style={[styles.headerModalButtonText, styles.headerModalButtonTextLight]}>Reset Combat</Text>
             </TouchableOpacity>
             
             <TouchableOpacity 

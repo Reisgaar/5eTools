@@ -27,7 +27,7 @@ export interface Combat {
   name: string;
   createdAt: number;
   combatants: Combatant[];
-  groupByName: { [name: string]: boolean };
+  groupByName: { [nameOrigin: string]: boolean };
   round?: number;
   turnIndex?: number;
   started?: boolean;
@@ -39,7 +39,7 @@ interface CombatContextType {
   currentCombatId: string | null;
   currentCombat: Combat | null;
   combatants: Combatant[];
-  groupByName: { [name: string]: boolean };
+  groupByName: { [nameOrigin: string]: boolean };
   createCombat: (name: string) => string;
   selectCombat: (id: string) => void;
   clearCurrentCombat: () => void;
@@ -55,13 +55,14 @@ interface CombatContextType {
   updateColor: (id: string, color: string | null) => void;
   updateInitiative: (id: string, newInit: number) => void;
   updateInitiativeForGroup: (name: string, newInit: number) => void;
-  isGroupEnabled: (name: string) => boolean;
-  toggleGroupForName: (name: string) => void;
-  setGroupForName: (name: string, value: boolean) => void;
+  isGroupEnabled: (nameOrigin: string) => boolean;
+  toggleGroupForName: (nameOrigin: string) => void;
+  setGroupForName: (nameOrigin: string, value: boolean) => void;
   clearCombat: () => void;
+  resetCombatGroups: () => void;
   startCombat: () => void;
   nextTurn: () => void;
-  getTurnOrder: (combatants: Combatant[], groupByName: { [name: string]: boolean }) => { ids: string[], name: string, initiative: number }[];
+  getTurnOrder: (combatants: Combatant[], groupByName: { [nameOrigin: string]: boolean }) => { ids: string[], name: string, initiative: number }[];
   addPlayerCombatant: (player: { name: string, race: string, class: string, maxHp?: number, ac?: number, passivePerception?: number, tokenUrl?: string }) => void;
   syncPlayerCombatants: (player: { name: string, race: string, class: string, maxHp?: number, ac?: number, passivePerception?: number, tokenUrl?: string }) => void;
   updateCombatantConditions: (id: string, conditions: string[]) => void;
@@ -605,13 +606,13 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
 
   // Grouping logic
-  const isGroupEnabled = (name: string) => {
-    if (!currentCombat) return true;
-    // Default to true (grouped) if not set
-    return (currentCombat.groupByName || {})[name] !== false;
+  const isGroupEnabled = (nameOrigin: string) => {
+    if (!currentCombat) return false;
+    // Default to false (ungrouped) if not set
+    return (currentCombat.groupByName || {})[nameOrigin] === true;
   };
 
-  const toggleGroupForName = (name: string) => {
+  const toggleGroupForName = (nameOrigin: string) => {
     if (!currentCombatId) return;
     setCombats(prev => prev.map(c =>
       c.id === currentCombatId
@@ -619,7 +620,7 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             ...c,
             groupByName: {
               ...(c.groupByName || {}),
-              [name]: !((c.groupByName || {})[name] !== false)
+              [nameOrigin]: !((c.groupByName || {})[nameOrigin] === true)
             }
           }
         : c
@@ -627,12 +628,12 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     // Save
     const updatedCombat = combats.find(c => c.id === currentCombatId);
     if (updatedCombat) {
-      const newGroupByName = { ...(updatedCombat.groupByName || {}), [name]: !((updatedCombat.groupByName || {})[name] !== false) };
+      const newGroupByName = { ...(updatedCombat.groupByName || {}), [nameOrigin]: !((updatedCombat.groupByName || {})[nameOrigin] === true) };
       storeCombatToFile({ ...updatedCombat, groupByName: newGroupByName });
     }
   };
 
-  const setGroupForName = (name: string, value: boolean) => {
+  const setGroupForName = (nameOrigin: string, value: boolean) => {
     if (!currentCombatId) return;
     setCombats(prev => prev.map(c =>
       c.id === currentCombatId
@@ -640,14 +641,14 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             ...c,
             groupByName: {
               ...(c.groupByName || {}),
-              [name]: value
+              [nameOrigin]: value
             }
           }
         : c
     ));
     // Save
     const updatedCombat = combats.find(c => c.id === currentCombatId);
-    if (updatedCombat) storeCombatToFile({ ...updatedCombat, groupByName: { ...(updatedCombat.groupByName || {}), [name]: value } });
+    if (updatedCombat) storeCombatToFile({ ...updatedCombat, groupByName: { ...(updatedCombat.groupByName || {}), [nameOrigin]: value } });
   };
 
   const clearCombat = () => {
@@ -690,6 +691,62 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       const newGroupByName: { [nameOrigin: string]: boolean } = {};
       Object.entries(groups).forEach(([nameOrigin, members]) => {
         newGroupByName[nameOrigin] = members.length > 1;
+      });
+      
+      storeCombatToFile({ ...updatedCombat, groupByName: newGroupByName });
+    }
+  };
+
+  const resetCombatGroups = () => {
+    if (!currentCombatId) return;
+    
+    setCombats(prev => prev.map(c => {
+      if (c.id !== currentCombatId) return c;
+      
+      // Clear all existing groups
+      const newGroupByName: { [nameOrigin: string]: boolean } = {};
+      
+      // Reanalyze current combatants and create new groups following the rules
+      const groups: { [nameOrigin: string]: Combatant[] } = {};
+      c.combatants.forEach(combatant => {
+        const nameOrigin = `${normalizeString(combatant.name)}-${normalizeString(combatant.source)}`;
+        if (!groups[nameOrigin]) {
+          groups[nameOrigin] = [];
+        }
+        groups[nameOrigin].push(combatant);
+      });
+      
+      // Apply grouping rules:
+      // 1. If only one combatant with this name-origin, don't group (no need)
+      // 2. If multiple combatants with same name-origin, group by default (true)
+      Object.entries(groups).forEach(([nameOrigin, members]) => {
+        if (members.length > 1) {
+          newGroupByName[nameOrigin] = true; // Group by default
+        }
+        // If only one member, don't add to groupByName (will default to false)
+      });
+      
+      return { ...c, groupByName: newGroupByName };
+    }));
+    
+    // Save
+    const updatedCombat = combats.find(c => c.id === currentCombatId);
+    if (updatedCombat) {
+      const newGroupByName: { [nameOrigin: string]: boolean } = {};
+      const groups: { [nameOrigin: string]: Combatant[] } = {};
+      
+      updatedCombat.combatants.forEach(combatant => {
+        const nameOrigin = `${normalizeString(combatant.name)}-${normalizeString(combatant.source)}`;
+        if (!groups[nameOrigin]) {
+          groups[nameOrigin] = [];
+        }
+        groups[nameOrigin].push(combatant);
+      });
+      
+      Object.entries(groups).forEach(([nameOrigin, members]) => {
+        if (members.length > 1) {
+          newGroupByName[nameOrigin] = true;
+        }
       });
       
       storeCombatToFile({ ...updatedCombat, groupByName: newGroupByName });
@@ -752,21 +809,22 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   // Helper to get turn order based on grouping
-  function getTurnOrder(combatants: Combatant[], groupByName: { [name: string]: boolean }) {
-    // Group combatants by name
+  function getTurnOrder(combatants: Combatant[], groupByName: { [nameOrigin: string]: boolean }) {
+    // Group combatants by name-origin
     const groups = new Map<string, Combatant[]>();
     combatants.forEach(c => {
-      if (!groups.has(c.name)) {
-        groups.set(c.name, []);
+      const nameOrigin = `${normalizeString(c.name)}-${normalizeString(c.source)}`;
+      if (!groups.has(nameOrigin)) {
+        groups.set(nameOrigin, []);
       }
-      groups.get(c.name)!.push(c);
+      groups.get(nameOrigin)!.push(c);
     });
     // Build turn order: grouped = one entry per group, ungrouped = each individual
     let turnOrder: { ids: string[], name: string, initiative: number }[] = [];
-    Array.from(groups.entries()).forEach(([name, members]) => {
-      if (groupByName[name]) {
+    Array.from(groups.entries()).forEach(([nameOrigin, members]) => {
+      if (groupByName[nameOrigin]) {
         // Grouped: one turn for all
-        turnOrder.push({ ids: members.map(m => m.id), name, initiative: Math.max(...members.map(m => m.initiative)) });
+        turnOrder.push({ ids: members.map(m => m.id), name: members[0].name, initiative: Math.max(...members.map(m => m.initiative)) });
       } else {
         // Ungrouped: each is its own turn
         members.forEach(m => {
@@ -874,6 +932,7 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       toggleGroupForName,
       setGroupForName,
       clearCombat,
+      resetCombatGroups,
       startCombat,
       nextTurn,
       getTurnOrder: (combatants: Combatant[], groupByName: { [name: string]: boolean }) => getTurnOrder(combatants, groupByName),

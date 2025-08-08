@@ -5,9 +5,11 @@ import { useData } from '../../context/DataContext';
 import { useModal } from '../../context/ModalContext';
 import { loadPlayersList } from '../../utils/fileStorage';
 import { getCachedTokenUrl } from '../../utils/tokenCache';
+import { normalizeString } from '../../utils/stringUtils';
 import CombatHeader from './CombatHeader';
 import CombatControls from './CombatControls';
 import CombatGroup from './CombatGroup';
+import CombatIndividual from './CombatIndividual';
 import { PlayerModal, SettingsModal, ValueEditModal, ColorPickerModal, HPEditModal, MaxHPEditModal } from '../modals';
 import { Ionicons } from '@expo/vector-icons';
 import { createCombatStyles } from '../../styles/combat';
@@ -43,9 +45,9 @@ interface CombatContentProps {
   onClearCombat: () => void;
   onBackToList: () => void;
   theme: any;
-  isGroupEnabled: (name: string) => boolean;
-  toggleGroupForName: (name: string) => void;
-  groupByName: { [name: string]: boolean };
+  isGroupEnabled: (nameOrigin: string) => boolean;
+  toggleGroupForName: (nameOrigin: string) => void;
+  groupByName: { [nameOrigin: string]: boolean };
   round: number;
   turnIndex: number;
   started: boolean;
@@ -78,7 +80,7 @@ export default function CombatContentNew({
   onStartCombat,
   onNextTurn
 }: CombatContentProps) {
-  const { getTurnOrder, addPlayerCombatant } = useCombat();
+  const { getTurnOrder, addPlayerCombatant, resetCombatGroups } = useCombat();
   const { openBeastModal, openSpellModal } = useModal();
   
   // State for modals
@@ -144,8 +146,10 @@ export default function CombatContentNew({
     const urls: { [key: string]: string } = {};
     for (const combatant of combatants) {
       if (combatant.tokenUrl) {
-        const cachedUrl = await getCachedTokenUrl(combatant.tokenUrl);
-        urls[combatant.id] = cachedUrl;
+        const cachedUrl = await getCachedTokenUrl(combatant.source, combatant.name);
+        if (cachedUrl) {
+          urls[combatant.id] = cachedUrl;
+        }
       }
     }
     setCachedTokenUrls(urls);
@@ -169,7 +173,7 @@ export default function CombatContentNew({
     const groups: { [nameOrigin: string]: Combatant[] } = {};
     
     combatants.forEach(combatant => {
-      const nameOrigin = `${combatant.name}-${combatant.source}`;
+      const nameOrigin = `${normalizeString(combatant.name)}-${normalizeString(combatant.source)}`;
       if (!groups[nameOrigin]) {
         groups[nameOrigin] = [];
       }
@@ -364,6 +368,7 @@ export default function CombatContentNew({
         onRandomizeInitiative={onRandomizeInitiative}
         onOpenPlayerModal={openPlayerModal}
         onClearCombat={onClearCombat}
+        onResetCombat={resetCombatGroups}
         started={started}
         theme={theme}
       />
@@ -382,21 +387,46 @@ export default function CombatContentNew({
           );
           const groupEnabled = isGroupEnabled(group.nameOrigin);
           
-          return (
-            <CombatGroup
-              group={group}
-              isActive={isActive}
-              isGroupEnabled={groupEnabled}
-              onToggleGroup={() => toggleGroupForName(group.nameOrigin)}
-              onValueEdit={handleValueEdit}
-              onColorEdit={handleColorEdit}
-              onStatusEdit={handleStatusEdit}
-              onCreaturePress={handleCreaturePress}
-              onTokenPress={handleTokenPress}
-              cachedTokenUrls={cachedTokenUrls}
-              theme={theme}
-            />
-          );
+          // If group is enabled, render as a group
+          if (groupEnabled) {
+            return (
+              <CombatGroup
+                group={group}
+                isActive={isActive}
+                isGroupEnabled={groupEnabled}
+                onToggleGroup={() => toggleGroupForName(group.nameOrigin)}
+                onValueEdit={handleValueEdit}
+                onColorEdit={handleColorEdit}
+                onStatusEdit={handleStatusEdit}
+                onCreaturePress={handleCreaturePress}
+                onTokenPress={handleTokenPress}
+                cachedTokenUrls={cachedTokenUrls}
+                theme={theme}
+              />
+            );
+          } else {
+            // If group is disabled, render each combatant individually
+            return (
+              <View>
+                {group.groupMembers.map((member: Combatant, memberIndex: number) => (
+                  <CombatIndividual
+                    key={member.id}
+                    combatant={member}
+                    isActive={isActive}
+                    canGroup={group.showGroupButton}
+                    onToggleGroup={() => toggleGroupForName(group.nameOrigin)}
+                    onValueEdit={handleValueEdit}
+                    onColorEdit={handleColorEdit}
+                    onStatusEdit={handleStatusEdit}
+                    onCreaturePress={handleCreaturePress}
+                    onTokenPress={handleTokenPress}
+                    cachedTokenUrls={cachedTokenUrls}
+                    theme={theme}
+                  />
+                ))}
+              </View>
+            );
+          }
         }}
         contentContainerStyle={{ padding: 16 }}
       />
