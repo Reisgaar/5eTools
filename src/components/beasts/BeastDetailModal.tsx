@@ -14,11 +14,9 @@ import {
     getExcludedSpellSources,
     is2024Source
 } from '../../utils/stringUtils';
-import { 
-    SpellNotFoundModal, 
-    CreatureNotFoundModal, 
-    SourceSelectionModal 
-} from '../modals';
+import SpellNotFoundModal from '../modals/SpellNotFoundModal';
+import CreatureNotFoundModal from '../modals/CreatureNotFoundModal';
+import SourceSelectionModal from '../modals/SourceSelectionModal';
 
 interface BeastDetailModalProps {
     visible: boolean;
