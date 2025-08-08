@@ -1,8 +1,8 @@
-import { getStorage } from './storage';
+import { StorageFactory } from './storage/StorageFactory';
 import { Beast, Spell, Player, Spellbook, Combat } from './types';
 
 // Re-export the storage provider for direct access
-export const storage = getStorage();
+export const storage = StorageFactory.getStorageProvider();
 
 // Legacy API compatibility functions
 // These maintain the same interface as the old fileStorage functions
