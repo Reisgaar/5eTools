@@ -10,50 +10,11 @@ import CombatHeader from './CombatHeader';
 import CombatControls from './CombatControls';
 import CombatGroup from './CombatGroup';
 import CombatIndividual from './CombatIndividual';
-import { PlayerModal, SettingsModal, ValueEditModal, ColorPickerModal, HPEditModal, MaxHPEditModal } from '../modals';
+import { PlayerModal, SettingsModal, ValueEditModal, HPEditModal, MaxHPEditModal } from '../modals';
 import { Ionicons } from '@expo/vector-icons';
 import { createCombatStyles } from '../../styles/combat';
-
-interface Combatant {
-  id: string;
-  name: string;
-  source: string;
-  tokenUrl?: string;
-  maxHp: number;
-  currentHp: number;
-  initiative: number;
-  ac: number;
-  passivePerception?: number;
-  color?: string;
-  conditions?: string[];
-  note?: string;
-}
-
-interface CombatContentProps {
-  combatants: Combatant[];
-  combatName: string;
-  onUpdateHp: (id: string, newHp: number) => void;
-  onUpdateMaxHp: (id: string, newMaxHp: number) => void;
-  onUpdateAc: (id: string, newAc: number) => void;
-  onUpdateInitiative: (id: string, newInit: number) => void;
-  onUpdateInitiativeForGroup: (name: string, newInit: number) => void;
-  onUpdateColor: (id: string, color: string | null) => void;
-  onUpdateConditions: (id: string, conditions: string[]) => void;
-  onUpdateNote: (id: string, note: string) => void;
-  onRemoveCombatant: (id: string) => void;
-  onRandomizeInitiative: () => void;
-  onStopCombat: () => void;
-  onBackToList: () => void;
-  theme: any;
-  isGroupEnabled: (nameOrigin: string) => boolean;
-  toggleGroupForName: (nameOrigin: string) => void;
-  groupByName: { [nameOrigin: string]: boolean };
-  round: number;
-  turnIndex: number;
-  started: boolean;
-  onStartCombat: () => void;
-  onNextTurn: () => void;
-}
+import { CombatContentProps } from './types';
+import { getGroupedCombatants } from './utils';
 
 export default function CombatContentNew({
   combatants,
@@ -86,7 +47,6 @@ export default function CombatContentNew({
   // State for modals
   const [playerModalVisible, setPlayerModalVisible] = React.useState(false);
   const [valueEditModalVisible, setValueEditModalVisible] = React.useState(false);
-  const [colorPickerModalVisible, setColorPickerModalVisible] = React.useState(false);
   const [settingsModalVisible, setSettingsModalVisible] = React.useState(false);
   const [hpEditModalVisible, setHpEditModalVisible] = React.useState(false);
   const [maxHpEditModalVisible, setMaxHpEditModalVisible] = React.useState(false);
@@ -98,20 +58,7 @@ export default function CombatContentNew({
     id: string;
     name: string;
     isGroup: boolean;
-    combatantNumber?: number; // Added for ValueEditModal
-  } | null>(null);
-  
-  const [editingColor, setEditingColor] = React.useState<{
-    id: string;
-    name: string;
-    currentColor?: string;
-  } | null>(null);
-  
-  const [editingStatus, setEditingStatus] = React.useState<{
-    id: string;
-    name: string;
-    currentConditions?: string[];
-    currentNote?: string;
+    combatantNumber?: number;
   } | null>(null);
   
   const [editingHp, setEditingHp] = React.useState<{
@@ -121,81 +68,71 @@ export default function CombatContentNew({
     maxHp: number;
     combatantNumber?: number;
   } | null>(null);
-  const [editingNote, setEditingNote] = React.useState<{
-    name: string;
-    displayName: string;
-    currentNote?: string;
-  } | null>(null);
-  const [deletingCombatant, setDeletingCombatant] = React.useState<{
+  
+  const [editingStatus, setEditingStatus] = React.useState<{
     id: string;
     name: string;
+    currentColor?: string;
+    currentConditions?: string[];
+    currentNote?: string;
   } | null>(null);
   
   // State for players
   const [allPlayers, setAllPlayers] = React.useState<any[]>([]);
   const [selectedPlayers, setSelectedPlayers] = React.useState<string[]>([]);
-  const [noteModalText, setNoteModalText] = React.useState('');
   
-  // State for token caching
+  // State for cached token URLs
   const [cachedTokenUrls, setCachedTokenUrls] = React.useState<{ [key: string]: string }>({});
   
+  // Refs
   const flatListRef = React.useRef<FlatList>(null);
 
   // Load cached token URLs
   const loadCachedTokenUrls = async () => {
-    const urls: { [key: string]: string } = {};
+    const newCachedUrls: { [key: string]: string } = {};
+    
     for (const combatant of combatants) {
-      if (combatant.tokenUrl) {
-        const cachedUrl = await getCachedTokenUrl(combatant.source, combatant.name);
-        if (cachedUrl) {
-          urls[combatant.id] = cachedUrl;
+      if (combatant.tokenUrl && combatant.source && combatant.name) {
+        try {
+          const cachedUrl = await getCachedTokenUrl(combatant.source, combatant.name);
+          if (cachedUrl) {
+            newCachedUrls[`${combatant.source}-${combatant.name}`] = cachedUrl;
+          }
+        } catch (error) {
+          console.error('Error loading cached token URL:', error);
         }
       }
     }
-    setCachedTokenUrls(urls);
+    
+    setCachedTokenUrls(newCachedUrls);
   };
-
-  React.useEffect(() => {
-    loadCachedTokenUrls();
-  }, [combatants]);
 
   // Load players list
-  React.useEffect(() => {
-    const loadPlayers = async () => {
+  const loadPlayers = async () => {
+    try {
       const players = await loadPlayersList();
       setAllPlayers(players);
-    };
-    loadPlayers();
-  }, []);
-
-  // Get grouped combatants
-  const getGroupedCombatants = () => {
-    const groups: { [nameOrigin: string]: Combatant[] } = {};
-    
-    combatants.forEach(combatant => {
-      const nameOrigin = `${normalizeString(combatant.name)}-${normalizeString(combatant.source)}`;
-      if (!groups[nameOrigin]) {
-        groups[nameOrigin] = [];
-      }
-      groups[nameOrigin].push(combatant);
-    });
-    
-    return Object.entries(groups).map(([nameOrigin, members]) => ({
-      name: members[0].name,
-      source: members[0].source,
-      nameOrigin,
-      initiative: members[0].initiative,
-      passivePerception: members[0].passivePerception,
-      groupMembers: members,
-      showGroupButton: members.length > 1
-    }));
+    } catch (error) {
+      console.error('Error loading players:', error);
+    }
   };
 
-  // Event handlers
+  // Get grouped combatants
+  const groupedCombatants = getGroupedCombatants(combatants);
+
+  // Load data on mount
+  React.useEffect(() => {
+    loadCachedTokenUrls();
+    loadPlayers();
+  }, [combatants]);
+
+  // Open player modal
   const openPlayerModal = async () => {
+    await loadPlayers();
     setPlayerModalVisible(true);
   };
 
+  // Handle adding players to combat
   const handleAddPlayersToCombat = () => {
     selectedPlayers.forEach(playerName => {
       const player = allPlayers.find(p => p.name === playerName);
@@ -203,10 +140,11 @@ export default function CombatContentNew({
         addPlayerCombatant(player);
       }
     });
-    setPlayerModalVisible(false);
     setSelectedPlayers([]);
+    setPlayerModalVisible(false);
   };
 
+  // Handle value editing
   const handleValueEdit = (type: 'initiative' | 'hp' | 'ac', value: number, id: string, name: string, isGroup: boolean, combatantNumber?: number) => {
     if (type === 'hp') {
       // Find the combatant to get maxHp
@@ -222,20 +160,16 @@ export default function CombatContentNew({
 
   const handleValueAccept = (newValue: number) => {
     if (editingValue) {
-      if (editingValue.isGroup) {
-        onUpdateInitiativeForGroup(editingValue.name, newValue);
-      } else {
-        switch (editingValue.type) {
-          case 'initiative':
-            onUpdateInitiative(editingValue.id, newValue);
-            break;
-          case 'hp':
-            onUpdateHp(editingValue.id, newValue);
-            break;
-          case 'ac':
-            onUpdateAc(editingValue.id, newValue);
-            break;
+      if (editingValue.type === 'initiative') {
+        if (editingValue.isGroup) {
+          onUpdateInitiativeForGroup(editingValue.name, newValue);
+        } else {
+          onUpdateInitiative(editingValue.id, newValue);
         }
+      } else if (editingValue.type === 'hp') {
+        onUpdateHp(editingValue.id, newValue);
+      } else if (editingValue.type === 'ac') {
+        onUpdateAc(editingValue.id, newValue);
       }
     }
     setValueEditModalVisible(false);
@@ -247,6 +181,7 @@ export default function CombatContentNew({
     setEditingValue(null);
   };
 
+  // Handle HP editing
   const handleHpEdit = (id: string, name: string, currentHp: number, maxHp: number, combatantNumber?: number) => {
     setEditingHp({ id, name, currentHp, maxHp, combatantNumber });
     setHpEditModalVisible(true);
@@ -270,7 +205,7 @@ export default function CombatContentNew({
   };
 
   const handleMaxHpAccept = (newMaxHp: number) => {
-    if (editingHp && onUpdateMaxHp) {
+    if (editingHp) {
       onUpdateMaxHp(editingHp.id, newMaxHp);
       // Update the editingHp state to reflect the new maxHp
       setEditingHp(prev => prev ? { ...prev, maxHp: newMaxHp } : null);
@@ -282,30 +217,30 @@ export default function CombatContentNew({
     setMaxHpEditModalVisible(false);
   };
 
+  // Handle color editing - moved to settings modal
   const handleColorEdit = (id: string, name: string, currentColor?: string) => {
-    setEditingColor({ id, name, currentColor });
-    setColorPickerModalVisible(true);
+    // Color editing is now handled in the settings modal
+    console.log('Color editing moved to settings modal');
   };
 
   const handleColorSelect = (color: string | null) => {
-    if (editingColor) {
-      onUpdateColor(editingColor.id, color);
+    if (editingStatus) {
+      onUpdateColor(editingStatus.id, color);
     }
-    setColorPickerModalVisible(false);
-    setEditingColor(null);
   };
 
   const handleColorCancel = () => {
-    setColorPickerModalVisible(false);
-    setEditingColor(null);
+    // Color cancel is now handled in the settings modal
   };
 
+  // Handle status editing
   const handleStatusEdit = (id: string, name: string, currentColor?: string, currentCondition?: string) => {
     const combatant = combatants.find(c => c.id === id);
-    setEditingStatus({ 
-      id, 
-      name, 
-      currentConditions: currentCondition ? currentCondition.split(', ') : [],
+    setEditingStatus({
+      id,
+      name,
+      currentColor,
+      currentConditions: combatant?.conditions || [],
       currentNote: combatant?.note || ''
     });
     setSettingsModalVisible(true);
@@ -315,8 +250,6 @@ export default function CombatContentNew({
     if (editingStatus) {
       onUpdateConditions(editingStatus.id, conditions);
     }
-    setSettingsModalVisible(false);
-    setEditingStatus(null);
   };
 
   const handleStatusCancel = () => {
@@ -324,38 +257,36 @@ export default function CombatContentNew({
     setEditingStatus(null);
   };
 
+  // Handle note update
   const handleNoteUpdate = (note: string) => {
     if (editingStatus) {
       onUpdateNote(editingStatus.id, note);
-      setSettingsModalVisible(false);
-      setEditingStatus(null);
     }
   };
 
-
+  // Handle delete confirmation
   const handleDeleteConfirm = (id: string, name: string) => {
-    setDeletingCombatant({ id, name });
-    // Show confirmation dialog
-    if (confirm(`Are you sure you want to remove ${name} from combat?`)) {
-      onRemoveCombatant(id);
-    }
-    setDeletingCombatant(null);
+    onRemoveCombatant(id);
+    setSettingsModalVisible(false);
+    setEditingStatus(null);
   };
 
+  // Handle creature press
   const handleCreaturePress = async (name: string, source: string) => {
     openBeastModal({ name, source });
   };
 
+  // Handle token press
   const handleTokenPress = (tokenUrl: string | undefined, creatureName: string) => {
     // Handle token press - could open a larger view
     console.log('Token pressed for:', creatureName);
   };
 
+  // Handle spell press
   const handleSpellPress = async (name: string, source: string) => {
     openSpellModal({ name, source });
   };
 
-  const groupedCombatants = getGroupedCombatants();
   const turnOrder = getTurnOrder(combatants, groupByName);
   const styles = createCombatStyles(theme);
 
@@ -372,8 +303,6 @@ export default function CombatContentNew({
         started={started}
         theme={theme}
       />
-
-
 
       {/* Combat List */}
       <FlatList
@@ -396,7 +325,6 @@ export default function CombatContentNew({
                 isGroupEnabled={groupEnabled}
                 onToggleGroup={() => toggleGroupForName(group.nameOrigin)}
                 onValueEdit={handleValueEdit}
-                onColorEdit={handleColorEdit}
                 onStatusEdit={handleStatusEdit}
                 onCreaturePress={handleCreaturePress}
                 onTokenPress={handleTokenPress}
@@ -408,7 +336,7 @@ export default function CombatContentNew({
             // If group is disabled, render each combatant individually
             return (
               <View>
-                {group.groupMembers.map((member: Combatant, memberIndex: number) => (
+                {group.groupMembers.map((member: any, memberIndex: number) => (
                   <CombatIndividual
                     key={member.id}
                     combatant={member}
@@ -416,7 +344,6 @@ export default function CombatContentNew({
                     canGroup={group.showGroupButton}
                     onToggleGroup={() => toggleGroupForName(group.nameOrigin)}
                     onValueEdit={handleValueEdit}
-                    onColorEdit={handleColorEdit}
                     onStatusEdit={handleStatusEdit}
                     onCreaturePress={handleCreaturePress}
                     onTokenPress={handleTokenPress}
@@ -466,18 +393,12 @@ export default function CombatContentNew({
         theme={theme}
       />
 
-      <ColorPickerModal
-        visible={colorPickerModalVisible}
-        onClose={handleColorCancel}
-        onSelectColor={handleColorSelect}
-        currentColor={editingColor?.currentColor}
-        theme={theme}
-      />
-
       <SettingsModal
         visible={settingsModalVisible}
         currentConditions={editingStatus?.currentConditions || []}
+        currentColor={editingStatus?.currentColor}
         onSelect={handleStatusSelect}
+        onColorSelect={handleColorSelect}
         onClose={handleStatusCancel}
         onDelete={editingStatus ? () => onRemoveCombatant(editingStatus.id) : undefined}
         onNoteUpdate={editingStatus ? handleNoteUpdate : undefined}
@@ -508,8 +429,6 @@ export default function CombatContentNew({
         initialMaxHp={editingHp?.maxHp || 1}
         theme={theme}
       />
-
-
     </View>
   );
 }

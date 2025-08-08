@@ -1,38 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Image, Platform, Text, TouchableOpacity, View } from 'react-native';
-import { getCachedTokenUrl } from '../../utils/tokenCache';
 import { DEFAULT_CREATURE_TOKEN } from '../../constants/tokens';
 import { createCombatStyles } from '../../styles/combat';
-
-interface Combatant {
-  id: string;
-  name: string;
-  source: string;
-  tokenUrl?: string;
-  maxHp: number;
-  currentHp: number;
-  initiative: number;
-  ac: number;
-  passivePerception?: number;
-  color?: string;
-  conditions?: string[];
-  note?: string;
-}
-
-interface CombatIndividualProps {
-  combatant: Combatant;
-  isActive: boolean;
-  canGroup: boolean;
-  onToggleGroup: () => void;
-  onValueEdit: (type: 'initiative' | 'hp' | 'ac', value: number, id: string, name: string, isGroup: boolean, combatantNumber?: number) => void;
-  onColorEdit: (id: string, name: string, currentColor?: string) => void;
-  onStatusEdit: (id: string, name: string, currentColor?: string, currentCondition?: string) => void;
-  onCreaturePress: (name: string, source: string) => void;
-  onTokenPress: (tokenUrl: string | undefined, creatureName: string) => void;
-  cachedTokenUrls: { [key: string]: string };
-  theme: any;
-}
+import { CombatIndividualProps } from './types';
+import { loadCachedTokenUrl } from './utils';
 
 export default function CombatIndividual({
   combatant,
@@ -40,7 +12,6 @@ export default function CombatIndividual({
   canGroup,
   onToggleGroup,
   onValueEdit,
-  onColorEdit,
   onStatusEdit,
   onCreaturePress,
   onTokenPress,
@@ -53,7 +24,11 @@ export default function CombatIndividual({
   React.useEffect(() => {
     const loadToken = async () => {
       if (combatant.tokenUrl && combatant.source && combatant.name) {
-        const cachedUrl = await getCachedTokenUrl(combatant.source, combatant.name);
+        const cachedUrl = await loadCachedTokenUrl(
+          combatant.tokenUrl, 
+          combatant.source, 
+          combatant.name
+        );
         setTokenUrl(cachedUrl || undefined);
       }
     };
@@ -128,11 +103,15 @@ export default function CombatIndividual({
         </View>
       </View>
 
-      {/* Individual Combatant Stats */}
+      {/* Individual Combatant Details */}
       <View style={styles.member}>
         <View style={styles.memberContainer}>
-          <View style={styles.memberBox}>
-            {/* Notes */}
+          <Text style={styles.memberNumber}>#1</Text>
+          <View style={[
+            styles.memberBox,
+            combatant.color && { backgroundColor: combatant.color }
+          ]}>
+            {/* Notes - Above buttons */}
             {combatant.note ? (
               <View style={styles.memberNotes}>
                 <Text style={[styles.memberNoteText, { color: theme.text }]}>
@@ -175,29 +154,11 @@ export default function CombatIndividual({
 
               <TouchableOpacity
                 onPress={() => onStatusEdit(combatant.id, combatant.name, combatant.color, combatant.conditions?.join(', '))}
-                style={[styles.memberButton, styles.memberButtonSmall, styles.memberButtonPrimary]}
+                style={[styles.memberButton, styles.memberButtonSmall, styles.memberButtonSettings]}
               >
-                <Ionicons name='settings' size={16} color={theme.buttonText || 'white'} />
+                <Ionicons name='medical' size={12} color={theme.buttonText || 'white'} style={styles.memberIcon} />
               </TouchableOpacity>
             </View>
-
-            {/* Status Conditions */}
-            {combatant.conditions && combatant.conditions.length > 0 ? (
-              <View style={styles.statusContainer}>
-                <View style={styles.statusConditions}>
-                  {combatant.conditions.map((condition, index) => (
-                    <View key={index} style={styles.statusBadge}>
-                      <Text style={[
-                        styles.statusBadgeText, 
-                        Platform.OS === 'web' ? styles.statusBadgeTextWeb : styles.statusBadgeTextMobile
-                      ]}>
-                        {condition}
-                      </Text>
-                    </View>
-                  ))}
-                </View>
-              </View>
-            ) : null}
           </View>
         </View>
       </View>

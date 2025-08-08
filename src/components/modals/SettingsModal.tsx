@@ -8,39 +8,58 @@ interface SettingsModalProps {
   visible: boolean;
   onClose: () => void;
   onSelect: (conditions: string[]) => void;
+  onColorSelect?: (color: string | null) => void;
   onDelete?: () => void;
   onNoteUpdate?: (note: string) => void;
   currentConditions?: string[];
+  currentColor?: string;
   currentNote?: string;
   creatureName?: string;
   combatantNumber?: number;
   theme: any;
 }
 
-type TabType = 'status' | 'notes' | 'delete';
+type TabType = 'status' | 'color' | 'notes' | 'delete';
+
+const COLORS = [
+    'rgba(255, 107, 107, 0.3)', // Light Red
+    'rgba(255, 167, 38, 0.3)', // Light Orange
+    'rgba(255, 235, 59, 0.3)', // Light Yellow
+    'rgba(102, 187, 106, 0.3)', // Light Green
+    'rgba(66, 165, 245, 0.3)', // Light Blue
+    'rgba(171, 71, 188, 0.3)', // Light Purple
+    'rgba(236, 64, 122, 0.3)', // Light Pink
+    'rgba(141, 110, 99, 0.3)', // Light Brown
+    'rgba(120, 144, 156, 0.3)', // Light Gray
+    'rgba(255, 152, 0, 0.3)', // Light Dark Orange
+];
 
 const SettingsModal: React.FC<SettingsModalProps> = ({
   visible,
   onClose,
   onSelect,
+  onColorSelect,
   onDelete,
   onNoteUpdate,
   currentConditions = [],
+  currentColor,
   currentNote = '',
   creatureName = 'Creature',
   theme
 }) => {
   const [selectedConditions, setSelectedConditions] = useState<string[]>(currentConditions);
+  const [selectedColor, setSelectedColor] = useState<string | undefined>(currentColor);
   const [noteText, setNoteText] = useState(currentNote);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('status');
   
   React.useEffect(() => {
     setSelectedConditions(currentConditions);
+    setSelectedColor(currentColor);
     setNoteText(currentNote);
     setShowDeleteConfirmation(false);
     setActiveTab('status');
-  }, [currentConditions, currentNote, visible]);
+  }, [currentConditions, currentColor, currentNote, visible]);
 
     const handleToggleCondition = (cond: string) => {
     setSelectedConditions(prev => 
@@ -52,6 +71,20 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
   const handleAccept = () => {
     onSelect(selectedConditions);
+    onClose();
+  };
+
+  const handleColorAccept = () => {
+    if (onColorSelect) {
+      onColorSelect(selectedColor || null);
+    }
+    onClose();
+  };
+
+  const handleColorClear = () => {
+    if (onColorSelect) {
+      onColorSelect(null);
+    }
     onClose();
   };
 
@@ -113,6 +146,63 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         </TouchableOpacity>
       </View>
     </ScrollView>
+  );
+
+  const renderColorTab = () => (
+    <View style={styles.tabContent}>
+      <Text style={[styles.subtitle, { color: theme.text }]}>{creatureName}</Text>
+      
+      {/* Color Selection Section */}
+      <View style={styles.section}>
+        <Text style={[styles.sectionTitle, { color: theme.text }]}>Creature Color</Text>
+        <Text style={[styles.sectionDescription, { color: theme.noticeText }]}>
+          Select a color to highlight this creature in the combat tracker.
+        </Text>
+        
+        {/* Color Grid */}
+        <View style={styles.colorGrid}>
+          {COLORS.map((color) => (
+            <TouchableOpacity
+              key={color}
+              style={[
+                styles.colorOption,
+                { backgroundColor: color },
+                selectedColor === color && styles.selectedColor
+              ]}
+              onPress={() => setSelectedColor(color)}
+            >
+              {selectedColor === color && (
+                <Ionicons name="checkmark" size={20} color="#000" />
+              )}
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Current Selection */}
+        {selectedColor && (
+          <View style={styles.currentSelection}>
+            <Text style={[styles.currentText, { color: theme.text }]}>Selected:</Text>
+            <View style={[styles.currentColor, { backgroundColor: selectedColor }]} />
+          </View>
+        )}
+
+        {/* Action Buttons */}
+        <View style={styles.actionRow}>
+          <TouchableOpacity
+            style={[styles.actionButton, { borderColor: theme.primary }]}
+            onPress={handleColorClear}
+          >
+            <Text style={[styles.actionButtonText, { color: theme.primary }]}>Clear</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.actionButton, { backgroundColor: theme.primary }]}
+            onPress={handleColorAccept}
+          >
+            <Text style={[styles.actionButtonText, { color: 'white' }]}>Save Color</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
   );
 
   const renderNotesTab = () => (
@@ -198,6 +288,23 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           </Text>
         </TouchableOpacity>
         
+        {onColorSelect ? (
+          <TouchableOpacity
+            style={[
+              styles.tabButton,
+              activeTab === 'color' && { backgroundColor: theme.primary }
+            ]}
+            onPress={() => setActiveTab('color')}
+          >
+            <Text style={[
+              styles.tabText,
+              { color: activeTab === 'color' ? 'white' : theme.text }
+            ]}>
+              Color
+            </Text>
+          </TouchableOpacity>
+        ) : null}
+        
         {onNoteUpdate ? (
           <TouchableOpacity
             style={[
@@ -235,6 +342,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
       {/* Tab Content */}
       {activeTab === 'status' ? renderStatusTab() : null}
+      {activeTab === 'color' ? renderColorTab() : null}
       {activeTab === 'notes' ? renderNotesTab() : null}
       {activeTab === 'delete' ? renderDeleteTab() : null}
     </BaseModal>
@@ -333,6 +441,58 @@ const styles = StyleSheet.create({
     minHeight: 80,
     textAlignVertical: 'top',
     marginBottom: 16,
+  },
+  colorGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-around',
+    marginTop: 10,
+  },
+  colorOption: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    margin: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  selectedColor: {
+    borderWidth: 2,
+    borderColor: 'black',
+  },
+  currentSelection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  currentText: {
+    fontSize: 14,
+    marginRight: 8,
+  },
+  currentColor: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 10,
+  },
+  actionButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 6,
+    borderWidth: 1,
+    alignItems: 'center',
+  },
+  actionButtonText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  sectionDescription: {
+    fontSize: 12,
+    marginBottom: 10,
   },
 });
 

@@ -1,28 +1,9 @@
 import React from 'react';
 import { ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { BaseModal } from '../ui';
-
-interface Combat {
-  id: string;
-  name: string;
-  createdAt: number;
-  combatants: any[];
-}
-
-interface CombatSelectionModalProps {
-  visible: boolean;
-  onClose: () => void;
-  beastToAdd: any | null;
-  combats: Combat[];
-  currentCombatId: string | null;
-  newCombatName: string;
-  quantity: string;
-  onNewCombatNameChange: (name: string) => void;
-  onQuantityChange: (quantity: string) => void;
-  onSelectCombat: (combatId: string) => void;
-  onCreateNewCombat: () => void;
-  theme: any;
-}
+import { CombatSelectionModalProps } from './types';
+import { formatDate } from './utils';
+import { createCombatStyles } from '../../styles/combat';
 
 export default function CombatSelectionModal({
   visible,
@@ -38,9 +19,7 @@ export default function CombatSelectionModal({
   onCreateNewCombat,
   theme
 }: CombatSelectionModalProps) {
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleDateString() + ' ' + new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
+  const styles = createCombatStyles(theme);
 
   return (
     <BaseModal 
@@ -51,9 +30,9 @@ export default function CombatSelectionModal({
     >
           
           {/* Quantity Selector */}
-          <View style={{ marginBottom: 16 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start' }}>
-            <Text style={[styles.sectionTitle, { color: theme.text, marginRight: 8, marginBottom: 0 }]}>Quantity</Text>
+          <View style={styles.selectionContainer}>
+            <View style={styles.selectionRow}>
+            <Text style={[styles.selectionTitle, { color: theme.text }]}>Quantity</Text>
               <TouchableOpacity 
                 onPress={() => {
                   const currentQty = parseInt(quantity, 10) || 1;
@@ -61,13 +40,13 @@ export default function CombatSelectionModal({
                     onQuantityChange(String(currentQty - 1));
                   }
                 }}
-                style={[styles.quantityBtn, { backgroundColor: theme.primary }]}
+                style={[styles.selectionQuantityBtn, styles.selectionQuantityBtnLeft, { backgroundColor: theme.primary }]}
               >
-                <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold' }}>-</Text>
+                <Text style={styles.selectionQuantityBtnText}>-</Text>
               </TouchableOpacity>
               
               <TextInput
-                style={[styles.quantityInput, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.primary }]}
+                style={[styles.selectionQuantityInput, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.primary }]}
                 value={quantity}
                 onChangeText={onQuantityChange}
                 keyboardType="numeric"
@@ -79,115 +58,69 @@ export default function CombatSelectionModal({
                   const currentQty = parseInt(quantity, 10) || 1;
                   onQuantityChange(String(currentQty + 1));
                 }}
-                style={[styles.quantityBtn, { backgroundColor: theme.primary }]}
+                style={[styles.selectionQuantityBtn, styles.selectionQuantityBtnRight, { backgroundColor: theme.primary }]}
               >
-                <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold' }}>+</Text>
+                <Text style={styles.selectionQuantityBtnText}>+</Text>
               </TouchableOpacity>
             </View>
           </View>
 
           {/* Existing Combats */}
-          <View style={{ marginBottom: 16 }}>
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>Select a combat</Text>
+          <View style={styles.selectionSection}>
+            <Text style={[styles.selectionSectionTitle, { color: theme.text }]}>Select a combat</Text>
             {!combats || combats.length === 0 ? (
-              <Text style={{ color: theme.noticeText, textAlign: 'center', marginVertical: 8 }}>
+              <Text style={[styles.selectionEmptyText, { color: theme.noticeText }]}>
                 Create a combat first.
               </Text>
             ) : (
-              <ScrollView style={{ maxHeight: 200 }}>
+              <ScrollView style={styles.selectionScrollView}>
                 {combats.map(combat => (
                   <TouchableOpacity
                     key={combat.id}
                     onPress={() => onSelectCombat(combat.id)}
                     style={[
-                      styles.combatOption,
-                      { backgroundColor: theme.inputBackground, borderColor: theme.primary, borderWidth: 1 },
-                      currentCombatId === combat.id && { borderColor: theme.primary, borderWidth: 2 }
+                      styles.selectionCombatOption,
+                      { backgroundColor: theme.inputBackground, borderColor: currentCombatId === combat.id ? theme.primary : theme.border }
                     ]}
                   >
-                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <Text style={[styles.combatName, { color: theme.text }]}>{combat.name}</Text>
-                        <Text style={[styles.combatCount, { color: theme.noticeText }]}>
-                        ({combat.combatants?.length || 0} creatures)
-                        </Text>
-                    </View>
+                    <Text style={[styles.selectionCombatName, { color: theme.text }]}>
+                      {combat.name}
+                    </Text>
+                    <Text style={[styles.selectionCombatInfo, { color: theme.noticeText }]}>
+                      {formatDate(combat.createdAt)} • {combat.combatants?.length || 0} creatures
+                    </Text>
                   </TouchableOpacity>
                 ))}
               </ScrollView>
             )}
           </View>
 
-          <TouchableOpacity 
-            onPress={onClose}
-            style={[styles.cancelBtn, { borderColor: theme.primary }]}
-          > 
-            <Text style={{ color: theme.primary, fontWeight: 'bold' }}>Cancel</Text>
-          </TouchableOpacity>
+          {/* Create New Combat */}
+          <View style={styles.selectionCreateSection}>
+            <Text style={[styles.selectionSectionTitle, { color: theme.text }]}>Or create new combat</Text>
+            <View style={styles.selectionCreateRow}>
+              <TextInput
+                style={[
+                  styles.selectionCreateInput,
+                  { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.primary }
+                ]}
+                placeholder="New combat name..."
+                placeholderTextColor={theme.noticeText}
+                value={newCombatName}
+                onChangeText={onNewCombatNameChange}
+              />
+              <TouchableOpacity
+                onPress={onCreateNewCombat}
+                style={[
+                  styles.selectionCreateBtn,
+                  { backgroundColor: theme.primary }
+                ]}
+                disabled={!newCombatName.trim()}
+              >
+                <Text style={styles.selectionCreateBtnText}>Create</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
     </BaseModal>
   );
 }
-
-const styles = {
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  quantityBtn: {
-    width: 30,
-    height: 30,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 8,
-  },
-  quantityInput: {
-    width: 60,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  combatNameInput: {
-    flex: 1,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    fontSize: 16,
-    marginRight: 8,
-  },
-  createBtn: {
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
-  combatOption: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: 'transparent',
-  },
-  combatName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  combatDate: {
-    fontSize: 12,
-    marginBottom: 2,
-  },
-  combatCount: {
-    fontSize: 12,
-  },
-  cancelBtn: {
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingVertical: 10,
-    alignItems: 'center' as const,
-    marginTop: 12,
-  },
-};

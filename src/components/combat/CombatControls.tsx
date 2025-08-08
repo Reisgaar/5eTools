@@ -2,14 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { createCombatStyles } from '../../styles/combat';
-
-interface CombatControlsProps {
-  started: boolean;
-  round: number;
-  onStopCombat: () => void;
-  onNextTurn: () => void;
-  theme: any;
-}
+import { CombatControlsProps } from './types';
 
 export default function CombatControls({
   started,

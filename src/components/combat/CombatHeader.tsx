@@ -3,18 +3,7 @@ import React, { useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { createCombatStyles } from '../../styles/combat';
 import BaseModal from '../ui/BaseModal';
-
-interface CombatHeaderProps {
-  combatName: string;
-  onBackToList: () => void;
-  onStartCombat: () => void;
-  onStopCombat: () => void;
-  onRandomizeInitiative: () => void;
-  onOpenPlayerModal: () => void;
-  onResetCombat: () => void;
-  started: boolean;
-  theme: any;
-}
+import { CombatHeaderProps } from './types';
 
 export default function CombatHeader({
   combatName,
@@ -29,6 +18,11 @@ export default function CombatHeader({
 }: CombatHeaderProps) {
   const [menuVisible, setMenuVisible] = useState(false);
   const styles = createCombatStyles(theme);
+
+  const handleMenuAction = (action: () => void) => {
+    action();
+    setMenuVisible(false);
+  };
 
   return (
     <>
@@ -55,14 +49,14 @@ export default function CombatHeader({
         <View style={styles.headerModalContent}>
           {!started ? (
             <TouchableOpacity 
-              onPress={() => { onStartCombat(); setMenuVisible(false); }} 
+              onPress={() => handleMenuAction(onStartCombat)} 
               style={[styles.headerModalButton, styles.headerModalButtonPrimary, { backgroundColor: theme.primary }]}
             >
               <Text style={[styles.headerModalButtonText, styles.headerModalButtonTextPrimary]}>Start Combat</Text>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity 
-              onPress={() => { onStopCombat(); setMenuVisible(false); }} 
+              onPress={() => handleMenuAction(onStopCombat)} 
               style={[styles.headerModalButton, styles.headerModalButtonDanger]}
             >
               <Text style={[styles.headerModalButtonText, styles.headerModalButtonTextLight]}>Stop Combat</Text>
@@ -70,21 +64,21 @@ export default function CombatHeader({
           )}
           
           <TouchableOpacity 
-            onPress={() => { onRandomizeInitiative(); setMenuVisible(false); }} 
+            onPress={() => handleMenuAction(onRandomizeInitiative)} 
             style={[styles.headerModalButton, styles.headerModalButtonSuccess]}
           >
             <Text style={[styles.headerModalButtonText, styles.headerModalButtonTextLight]}>Randomize Initiative</Text>
           </TouchableOpacity>
           
           <TouchableOpacity 
-            onPress={() => { onOpenPlayerModal(); setMenuVisible(false); }} 
+            onPress={() => handleMenuAction(onOpenPlayerModal)} 
             style={[styles.headerModalButton, styles.headerModalButtonInfo]}
           >
             <Text style={[styles.headerModalButtonText, styles.headerModalButtonTextLight]}>Add Players</Text>
           </TouchableOpacity>
           
           <TouchableOpacity 
-            onPress={() => { onResetCombat(); setMenuVisible(false); }} 
+            onPress={() => handleMenuAction(onResetCombat)} 
             style={[styles.headerModalButton, styles.headerModalButtonInfo]}
           >
             <Text style={[styles.headerModalButtonText, styles.headerModalButtonTextLight]}>Reset Combat</Text>

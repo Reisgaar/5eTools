@@ -2,41 +2,13 @@ import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Platform, Text, TouchableOpacity, View } from 'react-native';
 import { createCombatStyles } from '../../styles/combat';
-
-interface Combatant {
-  id: string;
-  name: string;
-  source: string;
-  tokenUrl?: string;
-  maxHp: number;
-  currentHp: number;
-  initiative: number;
-  ac: number;
-  passivePerception?: number;
-  color?: string;
-  conditions?: string[];
-  note?: string;
-}
-
-interface CombatMemberProps {
-  member: Combatant;
-  memberIndex: number;
-  isActive: boolean;
-  onValueEdit: (type: 'initiative' | 'hp' | 'ac', value: number, id: string, name: string, isGroup: boolean, combatantNumber?: number) => void;
-  onColorEdit: (id: string, name: string, currentColor?: string) => void;
-  onStatusEdit: (id: string, name: string, currentColor?: string, currentCondition?: string) => void;
-  onCreaturePress: (name: string, source: string) => void;
-  onTokenPress: (tokenUrl: string | undefined, creatureName: string) => void;
-  cachedTokenUrls: { [key: string]: string };
-  theme: any;
-}
+import { CombatMemberProps } from './types';
 
 export default function CombatMember({
   member,
   memberIndex,
   isActive,
   onValueEdit,
-  onColorEdit,
   onStatusEdit,
   onCreaturePress,
   onTokenPress,
@@ -55,7 +27,10 @@ export default function CombatMember({
         </Text>
 
         {/* Member Box - Right side */}
-        <View style={styles.memberBox}>
+        <View style={[
+          styles.memberBox,
+          member.color && { backgroundColor: member.color }
+        ]}>
           {/* Notes - Above buttons */}
           {member.note ? (
             <View style={styles.memberNotes}>
@@ -99,9 +74,9 @@ export default function CombatMember({
 
             <TouchableOpacity
               onPress={() => onStatusEdit(member.id, member.name, member.color, member.conditions?.join(', '))}
-              style={[styles.memberButton, styles.memberButtonSmall, styles.memberButtonPrimary]}
+              style={[styles.memberButton, styles.memberButtonSmall, styles.memberButtonSettings]}
             >
-              <Ionicons name='settings' size={16} color={theme.buttonText || 'white'} />
+              <Ionicons name='medical' size={12} color={theme.buttonText || 'white'} style={styles.memberIcon} />
             </TouchableOpacity>
           </View>
 

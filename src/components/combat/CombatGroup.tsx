@@ -1,47 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Image, Platform, Text, TouchableOpacity, View } from 'react-native';
-import { getCachedTokenUrl } from '../../utils/tokenCache';
 import { DEFAULT_CREATURE_TOKEN } from '../../constants/tokens';
 import { createCombatStyles } from '../../styles/combat';
 import CombatMember from './CombatMember';
-
-interface Combatant {
-  id: string;
-  name: string;
-  source: string;
-  tokenUrl?: string;
-  maxHp: number;
-  currentHp: number;
-  initiative: number;
-  ac: number;
-  passivePerception?: number;
-  color?: string;
-  conditions?: string[];
-  note?: string;
-}
-
-interface CombatGroupProps {
-  group: {
-    name: string;
-    source: string;
-    nameOrigin: string;
-    initiative: number;
-    passivePerception?: number;
-    groupMembers: Combatant[];
-    showGroupButton: boolean;
-  };
-  isActive: boolean;
-  isGroupEnabled: boolean;
-  onToggleGroup: () => void;
-  onValueEdit: (type: 'initiative' | 'hp' | 'ac', value: number, id: string, name: string, isGroup: boolean, combatantNumber?: number) => void;
-  onColorEdit: (id: string, name: string, currentColor?: string) => void;
-  onStatusEdit: (id: string, name: string, currentColor?: string, currentCondition?: string) => void;
-  onCreaturePress: (name: string, source: string) => void;
-  onTokenPress: (tokenUrl: string | undefined, creatureName: string) => void;
-  cachedTokenUrls: { [key: string]: string };
-  theme: any;
-}
+import { CombatGroupProps } from './types';
+import { loadCachedTokenUrl } from './utils';
 
 export default function CombatGroup({
   group,
@@ -49,7 +13,6 @@ export default function CombatGroup({
   isGroupEnabled,
   onToggleGroup,
   onValueEdit,
-  onColorEdit,
   onStatusEdit,
   onCreaturePress,
   onTokenPress,
@@ -62,7 +25,11 @@ export default function CombatGroup({
   React.useEffect(() => {
     const loadToken = async () => {
       if (group.groupMembers[0]?.tokenUrl && group.groupMembers[0]?.source && group.groupMembers[0]?.name) {
-        const cachedUrl = await getCachedTokenUrl(group.groupMembers[0].source, group.groupMembers[0].name);
+        const cachedUrl = await loadCachedTokenUrl(
+          group.groupMembers[0].tokenUrl, 
+          group.groupMembers[0].source, 
+          group.groupMembers[0].name
+        );
         setTokenUrl(cachedUrl || undefined);
       }
     };
@@ -148,7 +115,6 @@ export default function CombatGroup({
           memberIndex={index + 1}
           isActive={isActive}
           onValueEdit={onValueEdit}
-          onColorEdit={onColorEdit}
           onStatusEdit={onStatusEdit}
           onCreaturePress={onCreaturePress}
           onTokenPress={onTokenPress}

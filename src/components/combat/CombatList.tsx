@@ -2,25 +2,8 @@ import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { createCombatStyles } from '../../styles/combat';
-
-interface Combat {
-  id: string;
-  name: string;
-  createdAt: number;
-  combatants: any[];
-  isActive?: boolean;
-}
-
-interface CombatListProps {
-  combats: Combat[];
-  currentCombatId: string | null;
-  newCombatName: string;
-  onNewCombatNameChange: (name: string) => void;
-  onSelectCombat: (combatId: string) => void;
-  onCreateCombat: () => void;
-  onSetCombatActive: (combatId: string, active: boolean) => void;
-  theme: any;
-}
+import { CombatListProps } from './types';
+import { formatDate } from './utils';
 
 export default function CombatList({
   combats,
@@ -33,10 +16,6 @@ export default function CombatList({
   theme
 }: CombatListProps) {
   const styles = createCombatStyles(theme);
-  
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleDateString() + ' ' + new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
 
   return (
     <View style={styles.listContainer}>
@@ -98,11 +77,19 @@ export default function CombatList({
                                                 </Text>
                                             </View>
                                         </TouchableOpacity>
+                                        
                                         <TouchableOpacity
                                             onPress={() => onSetCombatActive(combat.id, !combat.isActive)}
-                                            style={[styles.listActiveCombatBtn, { backgroundColor: combat.isActive ? '#4CAF50' : theme.primary }]}
+                                            style={[
+                                                styles.listActiveCombatBtn,
+                                                { backgroundColor: combat.isActive ? '#4CAF50' : theme.primary }
+                                            ]}
                                         >
-                                            <Ionicons name={combat.isActive ? 'pause' : 'play'} size={14} color='white' />
+                                            <Ionicons 
+                                                name={combat.isActive ? 'pause' : 'play'} 
+                                                size={14} 
+                                                color='white' 
+                                            />
                                         </TouchableOpacity>
                                     </View>
                                 ))}
@@ -110,7 +97,7 @@ export default function CombatList({
                         </ScrollView>
                     )}
                 </View>
-            </View>
         </View>
+    </View>
   );
 } 

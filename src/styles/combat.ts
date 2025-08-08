@@ -186,6 +186,9 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
   memberButtonSmall: {
     width: 60,
   },
+  memberButtonSettings: {
+    backgroundColor: '#2196F3',
+  },
   memberLeftButtons: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -509,5 +512,97 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
     marginVertical: 8,
     fontStyle: 'italic',
     fontSize: 16,
+  },
+
+  // Combat Selection Modal Styles
+  selectionContainer: {
+    marginBottom: 16,
+  },
+  selectionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+  },
+  selectionTitle: {
+    marginRight: 8,
+    marginBottom: 0,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  selectionQuantityBtn: {
+    borderRadius: 4,
+    padding: 8,
+    marginRight: 8,
+  },
+  selectionQuantityBtnLeft: {
+    marginRight: 8,
+  },
+  selectionQuantityBtnRight: {
+    marginLeft: 8,
+  },
+  selectionQuantityBtnText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  selectionQuantityInput: {
+    borderWidth: 1,
+    borderRadius: 4,
+    padding: 8,
+    width: 60,
+    textAlign: 'center',
+  },
+  selectionSection: {
+    marginBottom: 16,
+  },
+  selectionSectionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  selectionEmptyText: {
+    textAlign: 'center',
+    marginVertical: 8,
+  },
+  selectionScrollView: {
+    maxHeight: 200,
+  },
+  selectionCombatOption: {
+    padding: 12,
+    marginBottom: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+  },
+  selectionCombatName: {
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  selectionCombatInfo: {
+    fontSize: 12,
+  },
+  selectionCreateSection: {
+    marginBottom: 16,
+  },
+  selectionCreateRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  selectionCreateInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    fontSize: 16,
+    marginRight: 8,
+  },
+  selectionCreateBtn: {
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  selectionCreateBtnText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
 });
