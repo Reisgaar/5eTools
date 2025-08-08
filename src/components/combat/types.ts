@@ -7,6 +7,8 @@ export interface CombatGroupData {
   initiative: number;
   initiativeBonus: number; // Initiative bonus for the group
   passivePerception?: number;
+  speed?: string; // Speed information
+  senses?: string; // Senses information
   groupMembers: Combatant[];
   showGroupButton: boolean;
 }
@@ -28,6 +30,7 @@ export interface CombatIndividualProps {
   combatant: Combatant;
   isActive: boolean;
   canGroup: boolean;
+  memberIndex?: number;
   onToggleGroup: () => void;
   onValueEdit: (type: 'initiative' | 'hp' | 'ac', value: number, id: string, name: string, isGroup: boolean, combatantNumber?: number) => void;
   onStatusEdit: (id: string, name: string, currentColor?: string, currentCondition?: string) => void;

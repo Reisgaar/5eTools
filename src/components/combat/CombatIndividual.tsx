@@ -10,6 +10,7 @@ export default function CombatIndividual({
   combatant,
   isActive,
   canGroup,
+  memberIndex,
   onToggleGroup,
   onValueEdit,
   onStatusEdit,
@@ -65,8 +66,8 @@ export default function CombatIndividual({
               <Text style={styles.tokenButtonText}>
                 {combatant.initiative}
               </Text>
-              {combatant.initiativeBonus && combatant.initiativeBonus !== 0 && (
-                <Text style={[styles.tokenButtonText, { fontSize: 10, marginLeft: 2 }]}>
+              {combatant.initiativeBonus !== undefined && combatant.initiativeBonus !== null && (
+                <Text style={[styles.tokenButtonText, { fontSize: 10, marginLeft: 2, color: theme.buttonText || 'white' }]}>
                   ({combatant.initiativeBonus >= 0 ? '+' : ''}{combatant.initiativeBonus})
                 </Text>
               )}
@@ -109,10 +110,36 @@ export default function CombatIndividual({
             ) : null}
           </View>
 
+          {/* Speed and Senses - Below name */}
+          {(combatant.speed || combatant.senses) && (
+            <View style={{ marginBottom: 4 }}>
+              {combatant.speed && (
+                <View style={{ flexDirection: 'row' }}>
+                  <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, fontWeight: 'bold' }]}>
+                    Speed:
+                  </Text>
+                  <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, marginLeft: 4 }]}>
+                    {combatant.speed}
+                  </Text>
+                </View>
+              )}
+              {combatant.senses && (
+                <View style={{ flexDirection: 'row' }}>
+                  <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, fontWeight: 'bold' }]}>
+                    Senses:
+                  </Text>
+                  <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, marginLeft: 4 }]}>
+                    {combatant.senses}
+                  </Text>
+                </View>
+              )}
+            </View>
+          )}
+
           {/* Individual Combatant Details */}
           <View style={styles.member}>
             <View style={styles.memberContainer}>
-              <Text style={styles.memberNumber}>#1</Text>
+              <Text style={styles.memberNumber}>#{memberIndex || 1}</Text>
               <View style={[
                 styles.memberBox,
                 combatant.color && { backgroundColor: combatant.color }

@@ -134,3 +134,44 @@ export function calculateInitiativeBonus(beast: any): number {
     // Default initiative bonus (0 for creatures without dexterity)
     return 0;
 }
+
+/**
+ * Extracts and formats speed from beast data
+ * @param beast - Beast object with speed data
+ * @returns Formatted speed string (empty string if not found)
+ */
+export function extractSpeed(beast: any): string {
+    if (!beast.speed) return '';
+    
+    if (typeof beast.speed === 'object') {
+        return Object.entries(beast.speed).map(([k, v]) => {
+            if (typeof v === 'object' && v !== null) {
+                let str = '';
+                if ('number' in v) str += v.number;
+                if ('condition' in v) str += ` (${v.condition})`;
+                return `${k[0].toUpperCase() + k.slice(1)} ${str} ft.`;
+            }
+            return `${k[0].toUpperCase() + k.slice(1)} ${v} ft.`;
+        }).join(', ');
+    }
+    
+    return String(beast.speed);
+}
+
+/**
+ * Extracts and formats senses from beast data
+ * @param beast - Beast object with senses data
+ * @returns Formatted senses string (empty string if not found)
+ */
+export function extractSenses(beast: any): string {
+    if (!beast.senses) return '';
+    
+    let senses = Array.isArray(beast.senses) ? beast.senses.join(', ') : beast.senses;
+    
+    // Add passive perception if available
+    if (beast.passive) {
+        senses += (senses ? ', ' : '') + `Passive Perception ${beast.passive}`;
+    }
+    
+    return senses;
+}

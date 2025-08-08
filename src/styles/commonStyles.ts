@@ -186,6 +186,11 @@ export const commonStyles = StyleSheet.create({
     modalCloseButton: {
         padding: 4,
     },
+    modalSeparator: {
+        height: 1,
+        marginBottom: 20,
+        opacity: 0.3,
+    },
     
     // Modal item styles
     modalItem: {

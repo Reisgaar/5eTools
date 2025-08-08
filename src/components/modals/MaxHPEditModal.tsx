@@ -48,8 +48,11 @@ export default function MaxHPEditModal({
         onClose();
     };
 
+    // Create title with current HP info
+    const modalTitle = `Edit Max HP - #${combatantNumber} ${creatureName} (Current: ${currentHp})`;
+
     return (
-        <BaseModal visible={visible} onClose={handleCancel} theme={theme} title={`Edit Max HP - #${combatantNumber} ${creatureName} (Current: ${currentHp})`}>
+        <BaseModal visible={visible} onClose={handleCancel} theme={theme} title={modalTitle}>
             {/* Max HP Display */}
             <View style={styles.maxHpContainer}>
                 <Text style={[styles.label, { color: theme.text }]}>Max HP:</Text>

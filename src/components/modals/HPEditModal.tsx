@@ -50,8 +50,11 @@ export default function HPEditModal({
         onClose();
     };
 
+    // Create title
+    const modalTitle = "Edit Current HP";
+
     return (
-        <BaseModal visible={visible} onClose={handleCancel} theme={theme} title="Edit Current HP">
+        <BaseModal visible={visible} onClose={handleCancel} theme={theme} title={modalTitle}>
             {/* Creature Name */}
             <View style={styles.creatureNameContainer}>
                 <Text style={[styles.creatureName, { color: theme.text }]}>

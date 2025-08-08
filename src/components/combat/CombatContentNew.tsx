@@ -432,6 +432,7 @@ export default function CombatContentNew({
                     combatant={member}
                     isActive={isActive}
                     canGroup={group.showGroupButton}
+                    memberIndex={memberIndex + 1}
                     onToggleGroup={() => toggleGroupForName(group.nameOrigin)}
                     onValueEdit={handleValueEdit}
                     onStatusEdit={handleStatusEdit}
@@ -481,6 +482,13 @@ export default function CombatContentNew({
         combatantNumber={editingValue?.combatantNumber}
         initialValue={editingValue?.value || 0}
         theme={theme}
+        isInitiative={editingValue?.type === 'initiative'}
+        initiativeBonus={editingValue?.type === 'initiative' ? 
+          (editingValue?.isGroup ? 
+            combatants.find(c => c.name === editingValue.name)?.initiativeBonus || 0 :
+            combatants.find(c => c.id === editingValue.id)?.initiativeBonus || 0
+          ) : 0}
+        isGroup={editingValue?.isGroup || false}
       />
 
       <SettingsModal

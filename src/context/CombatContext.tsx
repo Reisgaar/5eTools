@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 import { extractACValue } from '../components/beasts/BeastDetailModal';
-import { calculatePassivePerception, calculateInitiativeBonus } from '../utils/beastUtils';
+import { calculatePassivePerception, calculateInitiativeBonus, extractSpeed, extractSenses } from '../utils/beastUtils';
 import { DEFAULT_CREATURE_TOKEN, DEFAULT_PLAYER_TOKEN } from '../constants/tokens';
 import { deleteCombatFile, loadCombatFromFile, loadCombatsIndexFromFile, storeCombatToFile } from '../utils/fileStorage';
 import { getTokenUrl, getCachedTokenUrl } from '../utils/tokenCache';
@@ -19,6 +19,8 @@ export interface Combatant {
   initiativeBonus: number; // Initiative bonus (dexterity modifier)
   ac: number; // Armor Class
   passivePerception?: number; // Passive Perception
+  speed?: string; // Speed information
+  senses?: string; // Senses information
   color?: string; // Custom color for the beast container
   conditions?: string[]; // Status conditions for the combatant
   note?: string; // Short note about the combatant
@@ -319,6 +321,8 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       initiativeBonus: calculateInitiativeBonus(monster), // Calculate initiative bonus
       ac: extractACValue(monster.ac), // Extract AC from monster.ac
       passivePerception: calculatePassivePerception(monster), // Calculate passive perception
+      speed: extractSpeed(monster), // Extract speed information
+      senses: extractSenses(monster), // Extract senses information
     };
 
     setCombats(prev => {
@@ -390,6 +394,8 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       initiativeBonus: calculateInitiativeBonus(monster), // Calculate initiative bonus
       ac: extractACValue(monster.ac), // Extract AC from monster.ac
       passivePerception: calculatePassivePerception(monster), // Calculate passive perception
+      speed: extractSpeed(monster), // Extract speed information
+      senses: extractSenses(monster), // Extract senses information
     };
 
     setCombats(prev => {

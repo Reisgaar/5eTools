@@ -33,6 +33,9 @@ export default function BaseModal({ visible, onClose, children, theme, title }: 
                         </TouchableOpacity>
                     </View>
                     
+                    {/* Separator line */}
+                    <View style={[commonStyles.modalSeparator, { backgroundColor: theme.primary }]} />
+                    
                     {/* Content */}
                     {children}
                 </View>

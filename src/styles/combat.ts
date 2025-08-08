@@ -548,6 +548,9 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
     fontStyle: 'italic',
     fontSize: 16,
   },
+  combatList: {
+    flex: 1,
+  },
 
   // Combat Selection Modal Styles
   selectionContainer: {

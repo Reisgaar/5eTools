@@ -21,12 +21,15 @@ export default function CombatSelectionModal({
 }: CombatSelectionModalProps) {
   const styles = createCombatStyles(theme);
 
+  // Create title with beast name
+  const modalTitle = `Add ${beastToAdd?.name} to Combat`;
+
   return (
-    <BaseModal 
-      visible={visible} 
+    <BaseModal
+      visible={visible}
       onClose={onClose} 
       theme={theme} 
-      title={`Add ${beastToAdd?.name} to Combat`}
+      title={modalTitle}
     >
           
           {/* Quantity Selector */}

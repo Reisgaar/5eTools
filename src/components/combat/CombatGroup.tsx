@@ -66,8 +66,8 @@ export default function CombatGroup({
               <Text style={styles.tokenButtonText}>
                 {group.initiative}
               </Text>
-              {group.initiativeBonus && group.initiativeBonus !== 0 && (
-                <Text style={[styles.tokenButtonText, { fontSize: 10, marginLeft: 2 }]}>
+              {group.initiativeBonus !== undefined && group.initiativeBonus !== null && (
+                <Text style={[styles.tokenButtonText, { fontSize: 10, marginLeft: 2, color: theme.buttonText || 'white' }]}>
                   ({group.initiativeBonus >= 0 ? '+' : ''}{group.initiativeBonus})
                 </Text>
               )}
@@ -112,6 +112,32 @@ export default function CombatGroup({
               </TouchableOpacity>
             ) : null}
           </View>
+
+          {/* Speed and Senses - Below name */}
+          {(group.speed || group.senses) && (
+            <View style={{ marginBottom: 4 }}>
+              {group.speed && (
+                <View style={{ flexDirection: 'row' }}>
+                  <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, fontWeight: 'bold' }]}>
+                    Speed:
+                  </Text>
+                  <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, marginLeft: 4 }]}>
+                    {group.speed}
+                  </Text>
+                </View>
+              )}
+              {group.senses && (
+                <View style={{ flexDirection: 'row' }}>
+                  <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, fontWeight: 'bold' }]}>
+                    Senses:
+                  </Text>
+                  <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, marginLeft: 4 }]}>
+                    {group.senses}
+                  </Text>
+                </View>
+              )}
+            </View>
+          )}
 
           {/* Group Members */}
           {group.groupMembers.map((member, index) => (

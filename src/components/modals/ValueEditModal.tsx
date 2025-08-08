@@ -11,6 +11,9 @@ interface ValueEditModalProps {
     combatantNumber?: number;
     initialValue: number;
     theme: any;
+    isInitiative?: boolean;
+    initiativeBonus?: number;
+    isGroup?: boolean;
 }
 
 export default function ValueEditModal({
@@ -21,7 +24,10 @@ export default function ValueEditModal({
     creatureName,
     combatantNumber,
     initialValue,
-    theme
+    theme,
+    isInitiative = false,
+    initiativeBonus = 0,
+    isGroup = false
 }: ValueEditModalProps) {
     const [value, setValue] = useState(initialValue);
 
@@ -48,14 +54,31 @@ export default function ValueEditModal({
         onClose();
     };
 
+    const handleRollInitiative = () => {
+        // Roll 1d20 + initiative bonus
+        const roll = Math.floor(Math.random() * 20) + 1;
+        const total = roll + initiativeBonus;
+        setValue(total);
+    };
+
+    // Create title with bonus for initiative
+    const modalTitle = isInitiative 
+        ? `${title} (Bonus: ${initiativeBonus >= 0 ? '+' : ''}${initiativeBonus})` 
+        : title;
+
     return (
-        <BaseModal visible={visible} onClose={handleCancel} theme={theme} title={title}>
+        <BaseModal 
+            visible={visible} 
+            onClose={handleCancel} 
+            theme={theme} 
+            title={modalTitle}
+        >
             
             {/* Creature Name */}
-            {creatureName && combatantNumber && (
+            {creatureName && (
                 <View style={styles.creatureNameContainer}>
                     <Text style={[styles.creatureName, { color: theme.text }]}>
-                        #{combatantNumber} {creatureName}
+                        {!isGroup && combatantNumber ? `#${combatantNumber} ` : ''}{creatureName}
                     </Text>
                 </View>
             )}
@@ -129,6 +152,20 @@ export default function ValueEditModal({
                         </View>
                     </View>
 
+                    {/* Roll Initiative Button - Only for initiative */}
+                    {isInitiative && (
+                        <View style={styles.rollButtonContainer}>
+                            <TouchableOpacity
+                                style={[styles.rollButton, { backgroundColor: '#4CAF50' }]}
+                                onPress={handleRollInitiative}
+                            >
+                                <Text style={styles.rollButtonText}>
+                                    Roll Initiative (1d20{initiativeBonus >= 0 ? '+' : ''}{initiativeBonus})
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    )}
+
                     {/* Action Buttons */}
                     <View style={styles.actionRow}>
                         <TouchableOpacity
@@ -201,6 +238,21 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     actionButtonText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    rollButtonContainer: {
+        marginBottom: 16,
+        width: '100%',
+    },
+    rollButton: {
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderRadius: 8,
+        alignItems: 'center',
+    },
+    rollButtonText: {
+        color: 'white',
         fontSize: 16,
         fontWeight: 'bold',
     },

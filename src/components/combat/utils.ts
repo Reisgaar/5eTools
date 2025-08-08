@@ -24,6 +24,8 @@ export const getGroupedCombatants = (combatants: Combatant[]): CombatGroupData[]
       initiative: firstMember.initiative,
       initiativeBonus: firstMember.initiativeBonus,
       passivePerception: firstMember.passivePerception,
+      speed: firstMember.speed,
+      senses: firstMember.senses,
       groupMembers: members,
       showGroupButton
     };
