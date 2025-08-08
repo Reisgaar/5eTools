@@ -46,7 +46,8 @@ export default function CombatHeader({
         theme={theme}
         title="Combat Menu"
       >
-        <View style={styles.headerModalContent}>
+        <View style={styles.headerModalSeparator} />
+        <View style={styles.headerModalButtonsContainer}>
           {!started ? (
             <TouchableOpacity 
               onPress={() => handleMenuAction(onStartCombat)} 

@@ -31,13 +31,14 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  headerModalContent: {
-    backgroundColor: theme.card,
-    borderRadius: 12,
-    padding: 24,
-    width: 280,
-    maxWidth: '90%',
-    paddingHorizontal: 8,
+  headerModalSeparator: {
+    height: 1,
+    backgroundColor: theme.border,
+    marginBottom: 20,
+  },
+  headerModalButtonsContainer: {
+    alignItems: 'center',
+    paddingHorizontal: 16,
   },
   headerModalTitle: {
     fontWeight: 'bold',
@@ -53,6 +54,7 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 48,
+    width: 200,
   },
   headerModalButtonPrimary: {
     backgroundColor: theme.primary,
@@ -134,18 +136,16 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
 
   // Combat Member Styles
   member: {
-    marginLeft: 16,
     marginBottom: 8,
   },
   memberContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginLeft: 16,
   },
   memberNumber: {
     fontSize: 14,
     fontWeight: 'bold',
-    marginRight: 20,
+    marginRight: 12,
     minWidth: 28,
     textAlign: 'center',
     color: theme.text,
@@ -272,17 +272,52 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
   },
   groupHeader: {
     flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  // Left column: token and stats
+  leftColumn: {
+    width: 60,
     alignItems: 'center',
-    marginBottom: 8,
+    marginRight: 16,
   },
   groupToken: {
-    marginRight: 20,
+    marginBottom: 8,
   },
   groupTokenImage: {
     width: 60,
     height: 60,
     borderRadius: 30,
   },
+  tokenButtonsRow: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    width: 60,
+  },
+  tokenButton: {
+    backgroundColor: theme.primary,
+    borderRadius: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    width: 70,
+    height: 32,
+    marginBottom: 2,
+  },
+  tokenButtonIcon: {
+    marginRight: 3,
+  },
+  tokenButtonText: {
+    color: theme.buttonText || 'white',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  // Right column: name and combatants
+  rightColumn: {
+    flex: 1,
+  },
+
   groupContent: {
     flex: 1,
   },

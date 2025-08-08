@@ -21,6 +21,7 @@ export default function CombatGroup({
 }: CombatGroupProps) {
   const styles = createCombatStyles(theme);
   const [tokenUrl, setTokenUrl] = React.useState<string | undefined>(undefined);
+  const ICON_SIZE = 14;
 
   React.useEffect(() => {
     const loadToken = async () => {
@@ -43,19 +44,43 @@ export default function CombatGroup({
     ]}>
       {/* Group Header */}
       <View style={styles.groupHeader}>
-        {/* Token */}
-        <TouchableOpacity
-          onPress={() => onTokenPress(tokenUrl, group.name)}
-          style={styles.groupToken}
-        >
-          <Image
-            source={tokenUrl ? { uri: tokenUrl } : { uri: DEFAULT_CREATURE_TOKEN }}
-            style={styles.groupTokenImage}
-          />
-        </TouchableOpacity>
+        {/* Left Column: Token and Stats */}
+        <View style={styles.leftColumn}>
+          <TouchableOpacity
+            onPress={() => onTokenPress(tokenUrl, group.name)}
+            style={styles.groupToken}
+          >
+            <Image
+              source={tokenUrl ? { uri: tokenUrl } : { uri: DEFAULT_CREATURE_TOKEN }}
+              style={styles.groupTokenImage}
+            />
+          </TouchableOpacity>
 
-        {/* Content */}
-        <View style={styles.groupContent}>
+          {/* Initiative and Passive Perception below token */}
+          <View style={styles.tokenButtonsRow}>
+            <TouchableOpacity
+              onPress={() => onValueEdit('initiative', group.initiative, '', group.name, true, 1)}
+              style={styles.tokenButton}
+            >
+              <Ionicons name='flash' size={ICON_SIZE} color={theme.buttonText || 'white'} style={styles.tokenButtonIcon} />
+              <Text style={styles.tokenButtonText}>
+                {group.initiative}
+              </Text>
+            </TouchableOpacity>
+            
+            {group.passivePerception ? (
+              <TouchableOpacity style={styles.tokenButton}>
+                <Ionicons name='eye' size={ICON_SIZE} color={theme.buttonText || 'white'} style={styles.tokenButtonIcon} />
+                <Text style={styles.tokenButtonText}>
+                  {group.passivePerception}
+                </Text>
+              </TouchableOpacity>
+            ) : null}
+          </View>
+        </View>
+
+        {/* Right Column: Name and Combatants */}
+        <View style={styles.rightColumn}>
           {/* Name and Group Toggle */}
           <View style={styles.groupNameRow}>
             <TouchableOpacity
@@ -83,45 +108,23 @@ export default function CombatGroup({
             ) : null}
           </View>
 
-          {/* Initiative and Passive Perception */}
-          <View style={styles.groupButtonsRow}>
-            <TouchableOpacity
-              onPress={() => onValueEdit('initiative', group.initiative, '', group.name, true, 1)}
-              style={styles.groupButton}
-            >
-              <Ionicons name='walk' size={10} color={theme.buttonText || 'white'} style={styles.groupButtonIcon} />
-              <Text style={styles.groupButtonText}>
-                {group.initiative}
-              </Text>
-            </TouchableOpacity>
-            
-            {group.passivePerception ? (
-              <TouchableOpacity style={styles.groupButton}>
-                <Ionicons name='eye' size={10} color={theme.buttonText || 'white'} style={styles.groupButtonIcon} />
-                <Text style={styles.groupButtonText}>
-                  {group.passivePerception}
-                </Text>
-              </TouchableOpacity>
-            ) : null}
-          </View>
+          {/* Group Members */}
+          {group.groupMembers.map((member, index) => (
+            <CombatMember
+              key={member.id}
+              member={member}
+              memberIndex={index + 1}
+              isActive={isActive}
+              onValueEdit={onValueEdit}
+              onStatusEdit={onStatusEdit}
+              onCreaturePress={onCreaturePress}
+              onTokenPress={onTokenPress}
+              cachedTokenUrls={cachedTokenUrls}
+              theme={theme}
+            />
+          ))}
         </View>
       </View>
-
-      {/* Group Members */}
-      {group.groupMembers.map((member, index) => (
-        <CombatMember
-          key={member.id}
-          member={member}
-          memberIndex={index + 1}
-          isActive={isActive}
-          onValueEdit={onValueEdit}
-          onStatusEdit={onStatusEdit}
-          onCreaturePress={onCreaturePress}
-          onTokenPress={onTokenPress}
-          cachedTokenUrls={cachedTokenUrls}
-          theme={theme}
-        />
-      ))}
     </View>
   );
 }

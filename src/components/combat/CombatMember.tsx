@@ -16,6 +16,7 @@ export default function CombatMember({
   theme
 }: CombatMemberProps) {
   const styles = createCombatStyles(theme);
+  const ICON_SIZE = 14;
 
   return (
     <View style={styles.member}>
@@ -47,7 +48,7 @@ export default function CombatMember({
                 onPress={() => onValueEdit('ac', member.ac, member.id, member.name, false, memberIndex)}
                 style={[styles.memberButton, styles.memberButtonPrimary]}
               >
-                <Ionicons name='shield' size={12} color={theme.buttonText || 'white'} style={styles.memberIcon} />
+                <Ionicons name='shield' size={ICON_SIZE} color={theme.buttonText || 'white'} style={styles.memberIcon} />
                 <Text style={[styles.memberButtonText, styles.memberButtonTextLight]}>
                   {member.ac}
                 </Text>
@@ -63,7 +64,7 @@ export default function CombatMember({
                 <Ionicons 
                   name={member.currentHp <= 0 ? 'skull' : 'heart'} 
                   size={12} 
-                  color={theme.buttonText || 'white'} 
+                  color={member.currentHp <= 0 ? (theme.buttonText || 'white') : '#ff4444'} 
                   style={styles.memberIcon} 
                 />
                 <Text style={[styles.memberButtonText, styles.memberButtonTextLight]}>
@@ -76,7 +77,7 @@ export default function CombatMember({
               onPress={() => onStatusEdit(member.id, member.name, member.color, member.conditions?.join(', '))}
               style={[styles.memberButton, styles.memberButtonSmall, styles.memberButtonSettings]}
             >
-              <Ionicons name='medical' size={12} color={theme.buttonText || 'white'} style={styles.memberIcon} />
+              <Ionicons name='medical' size={ICON_SIZE} color={theme.buttonText || 'white'} style={styles.memberIcon} />
             </TouchableOpacity>
           </View>
 
