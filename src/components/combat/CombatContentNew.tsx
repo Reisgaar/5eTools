@@ -149,6 +149,41 @@ export default function CombatContentNew({
     // This will trigger a re-render when groupByName changes
   }, [groupByName]);
 
+  // Auto-scroll to active combatant when turn changes
+  React.useEffect(() => {
+    if (started && flatListRef.current) {
+      const turnOrder = getTurnOrder(combatants, groupByName);
+      if (turnOrder.length > 0 && turnIndex < turnOrder.length) {
+        const activeTurn = turnOrder[turnIndex];
+        if (activeTurn) {
+          // Find the index of the active combatant in the groupedCombatants list
+          const activeIndex = groupedCombatants.findIndex(group => {
+            if (group.groupMembers.length === 1) {
+              // Individual combatant
+              return group.groupMembers[0].id === activeTurn.ids[0];
+            } else {
+              // Group - check if any member is active
+              return activeTurn.ids.some(id => 
+                group.groupMembers.some(member => member.id === id)
+              );
+            }
+          });
+          
+          if (activeIndex !== -1) {
+            // Scroll to the active combatant with a small delay to ensure the list is rendered
+            setTimeout(() => {
+              flatListRef.current?.scrollToIndex({
+                index: activeIndex,
+                animated: true,
+                viewPosition: 0.3, // Position the item 30% from the top
+              });
+            }, 100);
+          }
+        }
+      }
+    }
+  }, [turnIndex, started, combatants, groupByName, groupedCombatants]);
+
   // Open player modal
   const openPlayerModal = async () => {
     await loadPlayers();
@@ -420,6 +455,9 @@ export default function CombatContentNew({
         ref={flatListRef}
         data={groupedCombatants}
         keyExtractor={(item) => item.key}
+        onScrollToIndexFailed={(info) => {
+          console.warn('Failed to scroll to index:', info);
+        }}
         renderItem={({ item: group, index }) => {
           const isActive = started && turnOrder[index] && turnOrder[index].ids.some(id => 
             combatants.find(c => c.id === id) && 

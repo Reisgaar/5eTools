@@ -23,7 +23,7 @@ export default function CombatControls({
           style={[styles.controlsStartButton, { backgroundColor: theme.primary }]}
         >
           <Ionicons name='play' size={18} color="white" style={styles.controlsStartIcon} />
-          <Text style={styles.controlsStartText}>Start Combat</Text>
+          <Text style={styles.controlsStartText}>Start</Text>
         </TouchableOpacity>
       ) : (
         // Finish Combat Button
@@ -46,6 +46,7 @@ export default function CombatControls({
             onPress={onNextTurn} 
             style={styles.controlsNextButton}
           >
+            <Ionicons name='refresh' size={16} color="white" style={styles.controlsNextIcon} />
             <Text style={styles.controlsNextText}>
               Next Turn
             </Text>

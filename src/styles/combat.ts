@@ -130,19 +130,20 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
   controlsFinishButton: {
     backgroundColor: '#eee',
     borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     marginRight: 16,
     flexDirection: 'row',
     alignItems: 'center',
+    minWidth: 120,
   },
   controlsFinishIcon: {
-    marginRight: 4,
+    marginRight: 6,
   },
   controlsFinishText: {
     color: '#c00',
     fontWeight: 'bold',
-    fontSize: 12,
+    fontSize: 13,
   },
   controlsRoundText: {
     fontSize: 12,
@@ -154,13 +155,19 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
     backgroundColor: theme.primary,
     borderRadius: 8,
     paddingHorizontal: 16,
-    paddingVertical: 4,
+    paddingVertical: 8,
     marginLeft: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    minWidth: 110,
+  },
+  controlsNextIcon: {
+    marginRight: 6,
   },
   controlsNextText: {
     color: theme.buttonText || 'white',
     fontWeight: 'bold',
-    fontSize: 12,
+    fontSize: 13,
   },
 
 
