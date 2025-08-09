@@ -138,16 +138,16 @@ export default function CombatContentNew({
   // Get combat display list
   const groupedCombatants = getCombatDisplayList(combatants, groupByName, started);
 
+  // Memoize the toggle group function to prevent unnecessary re-renders
+  const handleToggleGroup = React.useCallback((nameOrigin: string) => {
+    toggleGroupForName(nameOrigin);
+  }, [toggleGroupForName]);
+
   // Load data on mount
   React.useEffect(() => {
     loadCachedTokenUrls();
     loadPlayers();
   }, [combatants]);
-
-  // Reload combat display list when groupByName changes
-  React.useEffect(() => {
-    // This will trigger a re-render when groupByName changes
-  }, [groupByName]);
 
   // Auto-scroll to active combatant when turn changes
   React.useEffect(() => {
@@ -472,7 +472,7 @@ export default function CombatContentNew({
                 group={group}
                 isActive={isActive}
                 isGroupEnabled={groupEnabled}
-                onToggleGroup={() => toggleGroupForName(group.nameOrigin)}
+                onToggleGroup={() => handleToggleGroup(group.nameOrigin)}
                 onValueEdit={handleValueEdit}
                 onStatusEdit={handleStatusEdit}
                 onCreaturePress={handleCreaturePress}
@@ -492,7 +492,7 @@ export default function CombatContentNew({
                     isActive={isActive}
                     canGroup={group.showGroupButton}
                     memberIndex={memberIndex + 1}
-                    onToggleGroup={() => toggleGroupForName(group.nameOrigin)}
+                    onToggleGroup={() => handleToggleGroup(group.nameOrigin)}
                     onValueEdit={handleValueEdit}
                     onStatusEdit={handleStatusEdit}
                     onCreaturePress={handleCreaturePress}
@@ -543,11 +543,16 @@ export default function CombatContentNew({
         initialValue={editingValue?.value || 0}
         theme={theme}
         isInitiative={editingValue?.type === 'initiative'}
-        initiativeBonus={editingValue?.type === 'initiative' ? 
-          (editingValue?.isGroup ? 
-            combatants.find(c => c.name === editingValue.name)?.initiativeBonus || 0 :
-            combatants.find(c => c.id === editingValue.id)?.initiativeBonus || 0
-          ) : 0}
+        initiativeBonus={(() => {
+          if (editingValue?.type !== 'initiative') return 0;
+          if (editingValue?.isGroup) {
+            const combatant = combatants.find(c => c.name === editingValue.name);
+            return combatant?.initiativeBonus || 0;
+          } else {
+            const combatant = combatants.find(c => c.id === editingValue.id);
+            return combatant?.initiativeBonus || 0;
+          }
+        })()}
         isGroup={editingValue?.isGroup || false}
       />
 

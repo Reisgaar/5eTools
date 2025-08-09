@@ -1,6 +1,7 @@
 import { Combatant } from '../../context/CombatContext';
 import { CombatGroupData } from './types';
 import { getCombatTrackerImages } from '../../utils/imageManager';
+import { getCachedTokenUrl } from '../../utils/tokenCache';
 import { normalizeString } from '../../utils/stringUtils';
 
 export const getGroupedCombatants = (combatants: Combatant[]): CombatGroupData[] => {
@@ -65,7 +66,6 @@ export const getCombatDisplayList = (combatants: Combatant[], groupByName: { [na
         key: nameOrigin, // Usar nameOrigin como key para grupos
         initiative: firstMember.initiative,
         initiativeBonus: firstMember.initiativeBonus,
-        passivePerception: firstMember.passivePerception,
         speed: firstMember.speed,
         senses: firstMember.senses,
         groupMembers: members,
@@ -81,7 +81,6 @@ export const getCombatDisplayList = (combatants: Combatant[], groupByName: { [na
           key: `${nameOrigin}-${member.id}`, // Key único para cada combatiente individual
           initiative: member.initiative,
           initiativeBonus: member.initiativeBonus,
-          passivePerception: member.passivePerception,
           speed: member.speed,
           senses: member.senses,
           groupMembers: [member],
@@ -109,9 +108,15 @@ export const loadCachedTokenUrl = async (
   if (!tokenUrl || !source || !name) return undefined;
   
   try {
-    // Use the new image manager for better caching
-    const images = await getCombatTrackerImages(source, name);
-    return images.displayUrl;
+    // Only load token for display, not full image
+    const cachedToken = await getCachedTokenUrl(source, name);
+    if (cachedToken) {
+      return cachedToken;
+    }
+    
+    // If not cached, return the original token URL
+    const encodedName = encodeURIComponent(name);
+    return `https://5e.tools/img/bestiary/tokens/${source}/${encodedName}.webp`;
   } catch (error) {
     console.error('Error loading cached token URL:', error);
     return undefined;

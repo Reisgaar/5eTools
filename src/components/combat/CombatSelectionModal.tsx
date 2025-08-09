@@ -90,7 +90,7 @@ export default function CombatSelectionModal({
                       {combat.name}
                     </Text>
                     <Text style={[styles.selectionCombatInfo, { color: theme.noticeText }]}>
-                      {formatDate(combat.createdAt)} • {combat.combatants?.length || 0} creatures
+                      {`${formatDate(combat.createdAt)} • ${combat.combatants?.length || 0} creatures`}
                     </Text>
                   </TouchableOpacity>
                 ))}

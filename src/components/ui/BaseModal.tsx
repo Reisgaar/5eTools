@@ -19,13 +19,23 @@ export default function BaseModal({ visible, onClose, children, theme, title }: 
             transparent={true}
             onRequestClose={onClose}
         >
-            <View style={[commonStyles.modalOverlay, { backgroundColor: 'rgba(0,0,0,0.6)' }]}>
-                <View style={[commonStyles.modalContent, { backgroundColor: theme.background }]}>
+            <TouchableOpacity 
+                style={[commonStyles.modalOverlay, { backgroundColor: 'rgba(0,0,0,0.6)' }]}
+                activeOpacity={1}
+                onPress={onClose}
+            >
+                <TouchableOpacity 
+                    style={[commonStyles.modalContent, { backgroundColor: theme.background }]}
+                    activeOpacity={1}
+                    onPress={(e) => e.stopPropagation()}
+                >
                     {/* Header with close button */}
                     <View style={commonStyles.modalHeader}>
-                        {title && (
+                        {title && title.trim() !== '' && (
                             <View style={{ flex: 1 }}>
-                                <Text style={[commonStyles.modalTitle, { color: theme.text }]}>{title}</Text>
+                                <Text style={[commonStyles.modalTitle, { color: theme.text }]}>
+                                    {title}
+                                </Text>
                             </View>
                         )}
                         <TouchableOpacity onPress={onClose} style={commonStyles.modalCloseButton}>
@@ -38,8 +48,8 @@ export default function BaseModal({ visible, onClose, children, theme, title }: 
                     
                     {/* Content */}
                     {children}
-                </View>
-            </View>
+                </TouchableOpacity>
+            </TouchableOpacity>
         </Modal>
     );
 }

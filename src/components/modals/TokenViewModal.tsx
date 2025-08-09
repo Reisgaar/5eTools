@@ -32,9 +32,10 @@ export default function TokenViewModal({
   }, [visible]);
   
   const currentImageUrl = useFallback && fallbackUrl ? fallbackUrl : tokenUrl;
+  const displayTitle = creatureName && creatureName.trim() !== '' ? creatureName : 'Creature';
   
   return (
-    <BaseModal visible={visible} onClose={onClose} theme={theme} title={creatureName}>
+    <BaseModal visible={visible} onClose={onClose} theme={theme} title={displayTitle}>
           
           {/* Token Image */}
           <View style={styles.imageContainer}>

@@ -68,7 +68,7 @@ export default function CombatIndividual({
               </Text>
               {combatant.initiativeBonus !== undefined && combatant.initiativeBonus !== null && (
                 <Text style={[styles.tokenButtonText, { fontSize: 10, marginLeft: 2, color: theme.buttonText || 'white' }]}>
-                  ({combatant.initiativeBonus >= 0 ? '+' : ''}{combatant.initiativeBonus})
+                  {`(${combatant.initiativeBonus >= 0 ? '+' : ''}${combatant.initiativeBonus})`}
                 </Text>
               )}
             </TouchableOpacity>
@@ -108,22 +108,30 @@ export default function CombatIndividual({
             <View style={{ marginBottom: 4 }}>
               {combatant.speed && (
                 <View style={{ flexDirection: 'row' }}>
-                  <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, fontWeight: 'bold' }]}>
-                    Speed:
-                  </Text>
-                  <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, marginLeft: 4 }]}>
-                    {combatant.speed}
-                  </Text>
+                  <View>
+                    <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, fontWeight: 'bold' }]}>
+                      Speed:
+                    </Text>
+                  </View>
+                  <View style={{ marginLeft: 4 }}>
+                    <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8 }]}>
+                      {combatant.speed}
+                    </Text>
+                  </View>
                 </View>
               )}
               {combatant.senses && (
                 <View style={{ flexDirection: 'row' }}>
-                  <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, fontWeight: 'bold' }]}>
-                    Senses:
-                  </Text>
-                  <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, marginLeft: 4 }]}>
-                    {combatant.senses}
-                  </Text>
+                  <View>
+                    <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, fontWeight: 'bold' }]}>
+                      Senses:
+                    </Text>
+                  </View>
+                  <View style={{ marginLeft: 4 }}>
+                    <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8 }]}>
+                      {combatant.senses}
+                    </Text>
+                  </View>
                 </View>
               )}
             </View>
@@ -132,7 +140,7 @@ export default function CombatIndividual({
           {/* Individual Combatant Details */}
           <View style={styles.member}>
             <View style={styles.memberContainer}>
-              <Text style={styles.memberNumber}>#{memberIndex || 1}</Text>
+              <Text style={styles.memberNumber}>{`#${memberIndex || 1}`}</Text>
               <View style={[
                 styles.memberBox,
                 combatant.color && { backgroundColor: combatant.color }
@@ -199,7 +207,12 @@ export default function CombatIndividual({
                   </View>
 
                   <TouchableOpacity
-                    onPress={() => onStatusEdit(combatant.id, combatant.name, combatant.color, combatant.conditions?.join(', '))}
+                    onPress={() => {
+                      const conditionsText = combatant.conditions && combatant.conditions.length > 0 
+                        ? combatant.conditions.join(', ') 
+                        : '';
+                      onStatusEdit(combatant.id, combatant.name, combatant.color, conditionsText);
+                    }}
                     style={[styles.memberButton, styles.memberButtonSmall, styles.memberButtonSettings]}
                   >
                     <Ionicons name='medical' size={ICON_SIZE} color={theme.buttonText || 'white'} style={styles.memberIcon} />

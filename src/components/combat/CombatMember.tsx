@@ -24,7 +24,7 @@ export default function CombatMember({
       <View style={styles.memberContainer}>
         {/* Member Number - Left side */}
         <Text style={styles.memberNumber}>
-          #{memberIndex}
+          {`#${memberIndex}`}
         </Text>
 
         {/* Member Box - Right side */}
@@ -93,7 +93,12 @@ export default function CombatMember({
             </View>
 
             <TouchableOpacity
-              onPress={() => onStatusEdit(member.id, member.name, member.color, member.conditions?.join(', '))}
+              onPress={() => {
+                const conditionsText = member.conditions && member.conditions.length > 0 
+                  ? member.conditions.join(', ') 
+                  : '';
+                onStatusEdit(member.id, member.name, member.color, conditionsText);
+              }}
               style={[styles.memberButton, styles.memberButtonSmall, styles.memberButtonSettings]}
             >
               <Ionicons name='medical' size={ICON_SIZE} color={theme.buttonText || 'white'} style={styles.memberIcon} />

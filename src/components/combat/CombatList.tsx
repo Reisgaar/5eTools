@@ -73,7 +73,7 @@ export default function CombatList({
                                                     ) : null}
                                                 </View>
                                                 <Text style={[styles.listCombatCount, { color: theme.noticeText }]}>
-                                                    ({combat.combatants?.length || 0} creatures)
+                                                    {`(${combat.combatants?.length || 0} creatures)`}
                                                 </Text>
                                             </View>
                                         </TouchableOpacity>

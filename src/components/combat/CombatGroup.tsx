@@ -68,7 +68,7 @@ export default function CombatGroup({
               </Text>
               {group.initiativeBonus !== undefined && group.initiativeBonus !== null && (
                 <Text style={[styles.tokenButtonText, { fontSize: 10, marginLeft: 2, color: theme.buttonText || 'white' }]}>
-                  ({group.initiativeBonus >= 0 ? '+' : ''}{group.initiativeBonus})
+                  {`(${group.initiativeBonus >= 0 ? '+' : ''}${group.initiativeBonus})`}
                 </Text>
               )}
             </TouchableOpacity>
@@ -111,22 +111,30 @@ export default function CombatGroup({
             <View style={{ marginBottom: 4 }}>
               {group.speed && (
                 <View style={{ flexDirection: 'row' }}>
-                  <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, fontWeight: 'bold' }]}>
-                    Speed:
-                  </Text>
-                  <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, marginLeft: 4 }]}>
-                    {group.speed}
-                  </Text>
+                  <View>
+                    <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, fontWeight: 'bold' }]}>
+                      Speed:
+                    </Text>
+                  </View>
+                  <View style={{ marginLeft: 4 }}>
+                    <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8 }]}>
+                      {group.speed}
+                    </Text>
+                  </View>
                 </View>
               )}
               {group.senses && (
                 <View style={{ flexDirection: 'row' }}>
-                  <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, fontWeight: 'bold' }]}>
-                    Senses:
-                  </Text>
-                  <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, marginLeft: 4 }]}>
-                    {group.senses}
-                  </Text>
+                  <View>
+                    <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, fontWeight: 'bold' }]}>
+                      Senses:
+                    </Text>
+                  </View>
+                  <View style={{ marginLeft: 4 }}>
+                    <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8 }]}>
+                      {group.senses}
+                    </Text>
+                  </View>
                 </View>
               )}
             </View>

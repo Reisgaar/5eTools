@@ -39,7 +39,7 @@ export default function CombatControls({
       {started && (
         <>
           <Text style={[styles.controlsRoundText, { color: theme.text }]}>
-            Round {round}
+            {`Round ${round}`}
           </Text>
           
           <TouchableOpacity 
