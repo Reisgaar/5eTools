@@ -4,6 +4,7 @@ export interface CombatGroupData {
   name: string;
   source: string;
   nameOrigin: string;
+  key: string; // Unique key for React rendering
   initiative: number;
   initiativeBonus: number; // Initiative bonus for the group
   passivePerception?: number;

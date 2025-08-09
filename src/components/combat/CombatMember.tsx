@@ -85,16 +85,18 @@ export default function CombatMember({
           {member.conditions && member.conditions.length > 0 ? (
             <View style={styles.statusContainer}>
               <View style={styles.statusConditions}>
-                {member.conditions.map((condition, index) => (
-                  <View key={index} style={styles.statusBadge}>
-                    <Text style={[
-                      styles.statusBadgeText, 
-                      Platform.OS === 'web' ? styles.statusBadgeTextWeb : styles.statusBadgeTextMobile
-                    ]}>
-                      {condition}
-                    </Text>
-                  </View>
-                ))}
+                {member.conditions
+                  .filter(condition => condition && condition.trim() !== '') // Filter out empty conditions
+                  .map((condition, index) => (
+                    <View key={index} style={styles.statusBadge}>
+                      <Text style={[
+                        styles.statusBadgeText, 
+                        Platform.OS === 'web' ? styles.statusBadgeTextWeb : styles.statusBadgeTextMobile
+                      ]}>
+                        {condition}
+                      </Text>
+                    </View>
+                  ))}
               </View>
             </View>
           ) : null}

@@ -1,6 +1,7 @@
 import { Combatant } from '../../context/CombatContext';
 import { CombatGroupData } from './types';
 import { getCombatTrackerImages } from '../../utils/imageManager';
+import { normalizeString } from '../../utils/stringUtils';
 
 export const getGroupedCombatants = (combatants: Combatant[]): CombatGroupData[] => {
   const grouped: { [nameOrigin: string]: Combatant[] } = {};
@@ -21,6 +22,7 @@ export const getGroupedCombatants = (combatants: Combatant[]): CombatGroupData[]
       name: firstMember.name,
       source: firstMember.source,
       nameOrigin,
+      key: nameOrigin,
       initiative: firstMember.initiative,
       initiativeBonus: firstMember.initiativeBonus,
       passivePerception: firstMember.passivePerception,
@@ -30,6 +32,73 @@ export const getGroupedCombatants = (combatants: Combatant[]): CombatGroupData[]
       showGroupButton
     };
   });
+};
+
+// Nueva función que genera la lista de visualización correcta
+export const getCombatDisplayList = (combatants: Combatant[], groupByName: { [nameOrigin: string]: boolean }, isCombatStarted: boolean = false): CombatGroupData[] => {
+  // 1. Obtener todos los combatientes
+  const allCombatants = [...combatants];
+  
+  // 2. Comprobar qué combatientes están agrupados
+  const groups = new Map<string, Combatant[]>();
+  allCombatants.forEach(combatant => {
+    const nameOrigin = `${normalizeString(combatant.name)}-${normalizeString(combatant.source)}`;
+    if (!groups.has(nameOrigin)) {
+      groups.set(nameOrigin, []);
+    }
+    groups.get(nameOrigin)!.push(combatant);
+  });
+  
+  // 3. Crear lista de cómo se tienen que mostrar
+  const displayList: CombatGroupData[] = [];
+  
+  groups.forEach((members, nameOrigin) => {
+    const isGrouped = groupByName[nameOrigin];
+    const firstMember = members[0];
+    
+    if (isGrouped && members.length > 1) {
+      // Agrupados: una sola entrada para todo el grupo
+      displayList.push({
+        name: firstMember.name,
+        source: firstMember.source,
+        nameOrigin,
+        key: nameOrigin, // Usar nameOrigin como key para grupos
+        initiative: firstMember.initiative,
+        initiativeBonus: firstMember.initiativeBonus,
+        passivePerception: firstMember.passivePerception,
+        speed: firstMember.speed,
+        senses: firstMember.senses,
+        groupMembers: members,
+        showGroupButton: true
+      });
+    } else {
+      // No agrupados: entrada individual para cada miembro
+      members.forEach(member => {
+        displayList.push({
+          name: member.name,
+          source: member.source,
+          nameOrigin: nameOrigin, // Mantener el nameOrigin original para el toggle
+          key: `${nameOrigin}-${member.id}`, // Key único para cada combatiente individual
+          initiative: member.initiative,
+          initiativeBonus: member.initiativeBonus,
+          passivePerception: member.passivePerception,
+          speed: member.speed,
+          senses: member.senses,
+          groupMembers: [member],
+          showGroupButton: members.length > 1 // Mostrar botón si hay múltiples miembros del mismo tipo
+        });
+      });
+    }
+  });
+  
+  // 4. Ordenar según el estado del combate
+  if (isCombatStarted) {
+    // Si el combate está iniciado, ordenar por iniciativa (descendente)
+    displayList.sort((a, b) => b.initiative - a.initiative);
+  }
+  // Si no está iniciado, mantener el orden de ingreso (no ordenar)
+  
+  return displayList;
 };
 
 export const loadCachedTokenUrl = async (

@@ -612,13 +612,19 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const updateCombatantConditions = (id: string, conditions: string[]) => {
     if (!currentCombatId) return;
+    
+    // Clean conditions: remove empty strings and trim whitespace
+    const cleanedConditions = conditions
+      .filter(condition => condition && condition.trim() !== '')
+      .map(condition => condition.trim());
+    
     setCombats(prev => prev.map(c =>
       c.id === currentCombatId
         ? {
             ...c,
             combatants: (c.combatants || []).map(comb =>
               comb.id === id
-                ? { ...comb, conditions }
+                ? { ...comb, conditions: cleanedConditions }
                 : comb
             )
           }
@@ -630,7 +636,7 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       storeCombatToFile({
         ...updatedCombat,
         combatants: (updatedCombat.combatants || []).map(comb =>
-          comb.id === id ? { ...comb, conditions } : comb
+          comb.id === id ? { ...comb, conditions: cleanedConditions } : comb
         )
       });
     }
@@ -800,12 +806,43 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   };
 
+  // Helper function to sort combatants considering groups
+  const sortCombatantsWithGroups = (combatants: Combatant[], groupByName: { [nameOrigin: string]: boolean }) => {
+    // Group combatants by name-origin
+    const groups = new Map<string, Combatant[]>();
+    combatants.forEach(c => {
+      const nameOrigin = `${normalizeString(c.name)}-${normalizeString(c.source)}`;
+      if (!groups.has(nameOrigin)) {
+        groups.set(nameOrigin, []);
+      }
+      groups.get(nameOrigin)!.push(c);
+    });
+
+    // Create a list of combatants in the correct order
+    const sortedCombatants: Combatant[] = [];
+    
+    // Get turn order to determine the correct sequence
+    const turnOrder = getTurnOrder(combatants, groupByName);
+    
+    // For each turn in the order, add the corresponding combatants
+    turnOrder.forEach(turn => {
+      turn.ids.forEach(id => {
+        const combatant = combatants.find(c => c.id === id);
+        if (combatant) {
+          sortedCombatants.push(combatant);
+        }
+      });
+    });
+    
+    return sortedCombatants;
+  };
+
   const startCombat = () => {
     if (!currentCombatId) return;
     setCombats(prev => prev.map(c => {
       if (c.id !== currentCombatId) return c;
-      // Sort combatants by initiative descending
-      const sorted = [...(c.combatants || [])].sort((a, b) => b.initiative - a.initiative);
+      // Sort combatants considering groups
+      const sorted = sortCombatantsWithGroups(c.combatants || [], c.groupByName || {});
       const turnOrder = getTurnOrder(sorted, c.groupByName || {});
       return {
         ...c,

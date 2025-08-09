@@ -192,6 +192,26 @@ export default function CombatIndividual({
                     <Ionicons name='medical' size={ICON_SIZE} color={theme.buttonText || 'white'} style={styles.memberIcon} />
                   </TouchableOpacity>
                 </View>
+
+                {/* Status Conditions - Inside the container */}
+                {combatant.conditions && combatant.conditions.length > 0 ? (
+                  <View style={styles.statusContainer}>
+                    <View style={styles.statusConditions}>
+                      {combatant.conditions
+                        .filter(condition => condition && condition.trim() !== '') // Filter out empty conditions
+                        .map((condition, index) => (
+                          <View key={index} style={styles.statusBadge}>
+                            <Text style={[
+                              styles.statusBadgeText, 
+                              Platform.OS === 'web' ? styles.statusBadgeTextWeb : styles.statusBadgeTextMobile
+                            ]}>
+                              {condition}
+                            </Text>
+                          </View>
+                        ))}
+                    </View>
+                  </View>
+                ) : null}
               </View>
             </View>
           </View>

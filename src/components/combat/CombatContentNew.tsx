@@ -14,7 +14,7 @@ import { PlayerModal, SettingsModal, ValueEditModal, HPEditModal, MaxHPEditModal
 import { Ionicons } from '@expo/vector-icons';
 import { createCombatStyles } from '../../styles/combat';
 import { CombatContentProps } from './types';
-import { getGroupedCombatants } from './utils';
+import { getCombatDisplayList } from './utils';
 import { loadCombatImages } from './utils';
 import { TokenViewModal } from '../modals';
 
@@ -135,14 +135,19 @@ export default function CombatContentNew({
     }
   };
 
-  // Get grouped combatants
-  const groupedCombatants = getGroupedCombatants(combatants);
+  // Get combat display list
+  const groupedCombatants = getCombatDisplayList(combatants, groupByName, started);
 
   // Load data on mount
   React.useEffect(() => {
     loadCachedTokenUrls();
     loadPlayers();
   }, [combatants]);
+
+  // Reload combat display list when groupByName changes
+  React.useEffect(() => {
+    // This will trigger a re-render when groupByName changes
+  }, [groupByName]);
 
   // Open player modal
   const openPlayerModal = async () => {
@@ -398,7 +403,7 @@ export default function CombatContentNew({
       <FlatList
         ref={flatListRef}
         data={groupedCombatants}
-        keyExtractor={(item) => item.nameOrigin}
+        keyExtractor={(item) => item.key}
         renderItem={({ item: group, index }) => {
           const isActive = started && turnOrder[index] && turnOrder[index].ids.some(id => 
             combatants.find(c => c.id === id) && 
