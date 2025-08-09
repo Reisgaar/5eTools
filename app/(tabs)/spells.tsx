@@ -164,10 +164,8 @@ export default function SpellsScreen() {
                     style={commonStyles.itemInfoContainer}
                     onPress={() => handleSpellPress(spell)}
                 >
-                    <Text>
-                        <Text style={[commonStyles.itemLevel, { color: theme.text }]}>{spell.level === 0 ? 'C' : spell.level}{' - '}</Text>
-                        <Text style={[commonStyles.itemName, { color: theme.text }]}>{spell.name}{' '}</Text>
-                        <Text style={[commonStyles.itemInfo, { color: theme.text }]}>{getFullSchool(spell.school)} ({spell.source || spell._source || 'Unknown'})</Text>
+                    <Text style={[commonStyles.itemName, { color: theme.text }]}>
+                        {spell.level === 0 ? 'C' : spell.level} - {spell.name} {getFullSchool(spell.school)} ({spell.source || spell._source || 'Unknown'})
                     </Text>
                 </TouchableOpacity>
                 <TouchableOpacity

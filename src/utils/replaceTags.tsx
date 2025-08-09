@@ -31,7 +31,10 @@ export function replaceTags(
     while ((match = tagRegex.exec(text)) !== null) {
         // Add text before the tag
         if (match.index > lastIndex) {
-            nodes.push(<Text key={key++}>{text.slice(lastIndex, match.index)}</Text>);
+            const textBefore = text.slice(lastIndex, match.index);
+            if (textBefore.trim()) {
+                nodes.push(<Text key={key++} style={{ color: theme.text }}>{textBefore}</Text>);
+            }
         }
         const [full, tag, rest] = match;
         const params = rest.split('|').map(s => s.trim());
@@ -57,7 +60,7 @@ export function replaceTags(
             case 'table':
             case 'variantrule':
                 // Italic, stop at first |
-                nodes.push(<Text key={key++} style={{ fontStyle: 'italic' }}>{params[0]}</Text>);
+                nodes.push(<Text key={key++} style={{ fontStyle: 'italic', color: theme.text }}>{params[0]}</Text>);
                 break;
             case 'atk':
             case 'atkr':
@@ -70,33 +73,33 @@ export function replaceTags(
                     ms: 'Melee Spell Attack',
                     rs: 'Ranged Spell Attack',
                 };
-                nodes.push(<Text key={key++} style={{ fontStyle: 'italic' }}>{params[0].split(',').map(a => atkMap[a.trim()] || a.trim()).join(', ')}</Text>);
+                nodes.push(<Text key={key++} style={{ fontStyle: 'italic', color: theme.text }}>{params[0].split(',').map(a => atkMap[a.trim()] || a.trim()).join(', ')}</Text>);
                 break;
             case 'damage':
             case 'dice':
                 if (onDamagePress) {
                     nodes.push(
-                        <Text key={key++} style={rollStyle} onPress={() => onDamagePress(params[0])}>{' '}{params[0]}{' '}</Text>
+                        <Text key={key++} style={rollStyle} onPress={() => onDamagePress(params[0])}>{params[0]}</Text>
                     );
                 } else {
                     nodes.push(
-                        <Text key={key++} style={{ fontWeight: 'bold' }}>{' '}{params[0]}{' '}</Text>
+                        <Text key={key++} style={{ fontWeight: 'bold', color: theme.text }}>{params[0]}</Text>
                     );
                 }
                 break;
             case 'dc':
                 nodes.push(
-                    <Text key={key++} style={{ fontWeight: 'bold' }}>{' '}{`DC ${params[0]}`}{' '}</Text>
+                    <Text key={key++} style={{ fontWeight: 'bold', color: theme.text }}>{`DC ${params[0]}`}</Text>
                 );
                 break;
             case 'hit':
                 if (onHitPress) {
                     nodes.push(
-                        <Text key={key++} style={rollStyle} onPress={() => onHitPress(params[0])}>{' '}{`+${params[0]}`}{' '}</Text>
+                        <Text key={key++} style={rollStyle} onPress={() => onHitPress(params[0])}>{`+${params[0]}`}</Text>
                     );
                 } else {
                     nodes.push(
-                        <Text key={key++} style={{ fontWeight: 'bold' }}>{' '}{`+${params[0]}`}{' '}</Text>
+                        <Text key={key++} style={{ fontWeight: 'bold', color: theme.text }}>{`+${params[0]}`}</Text>
                     );
                 }
                 break;
@@ -106,11 +109,11 @@ export function replaceTags(
                 break;
             case 'recharge':
                 // Recharge value
-                nodes.push(<Text key={key++} style={{ fontWeight: 'bold' }}>{params[0] ? `Recharge ${params[0]}` : 'Recharge'}</Text>);
+                nodes.push(<Text key={key++} style={{ fontWeight: 'bold', color: theme.text }}>{params[0] ? `Recharge ${params[0]}` : 'Recharge'}</Text>);
                 break;
             case 'condition':
                 // Italic, add parenthesis if | found
-                nodes.push(<Text key={key++} style={{ fontStyle: 'italic' }}>{params[0]}{params[1] ? ` (${params[1]})` : ''}</Text>);
+                nodes.push(<Text key={key++} style={{ fontStyle: 'italic', color: theme.text }}>{params[0]}{params[1] ? ` (${params[1]})` : ''}</Text>);
                 break;
             case 'creature':
                 // Clickable link to bestiary
@@ -138,14 +141,17 @@ export function replaceTags(
                 break;
             default:
                 // Fallback: just show the first param in italic
-                nodes.push(<Text key={key++} style={{ fontStyle: 'italic' }}>{params[0]}</Text>);
+                nodes.push(<Text key={key++} style={{ fontStyle: 'italic', color: theme.text }}>{params[0]}</Text>);
                 break;
         }
         lastIndex = tagRegex.lastIndex;
     }
     // Add any remaining text
     if (lastIndex < text.length) {
-        nodes.push(<Text key={key++}>{text.slice(lastIndex)}</Text>);
+        const textAfter = text.slice(lastIndex);
+        if (textAfter.trim()) {
+            nodes.push(<Text key={key++} style={{ color: theme.text }}>{textAfter}</Text>);
+        }
     }
     return nodes;
 }
@@ -166,9 +172,9 @@ export function renderEntries(
     if (typeof entries === 'string') {
         const parsed = replaceTags(entries, theme, onCreaturePress, onSpellPress, onDamagePress, onHitPress);
         return (
-            <View style={[{ marginLeft: indent, marginBottom: 6 }]}>
+            <Text style={[{ marginLeft: indent, marginBottom: 6, color: theme.text, fontSize: 12, flexWrap: 'wrap' }, textStyle]}>
                 {parsed}
-            </View>
+            </Text>
         );
     }
     
@@ -197,7 +203,11 @@ export function renderEntries(
                         <View key={idx} style={{ flexDirection: 'row', marginBottom: 2 }}>
                             <Text style={[{ color: theme.text, marginRight: 8, fontSize: 12 }, textStyle]}>•</Text>
                             <View style={[{ flex: 1 }]}>
-                                {typeof item === 'string' ? replaceTags(item, theme, onCreaturePress, onSpellPress, onDamagePress, onHitPress) : renderEntries(item, 0, theme, onCreaturePress, onSpellPress, textStyle, onDamagePress, onHitPress)}
+                                {typeof item === 'string' ? (
+                                    <Text style={[{ color: theme.text, fontSize: 12, flexWrap: 'wrap' }, textStyle]}>
+                                        {replaceTags(item, theme, onCreaturePress, onSpellPress, onDamagePress, onHitPress)}
+                                    </Text>
+                                ) : renderEntries(item, 0, theme, onCreaturePress, onSpellPress, textStyle, onDamagePress, onHitPress)}
                             </View>
                         </View>
                     ))}

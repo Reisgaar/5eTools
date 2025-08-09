@@ -235,7 +235,7 @@ function formatSpellcasting(spellcasting: any, theme: any, onCreaturePress?: (na
         <View key={i} style={{ marginBottom: 8 }}>
             <Text style={{ fontWeight: 'bold', color: theme.text }}>{sc.name || 'Spellcasting'}{sc.displayAs ? ` (${sc.displayAs})` : ''}.</Text>
             {sc.headerEntries && (
-                                        <View>{renderEntries(sc.headerEntries, 0, theme, onCreaturePress, onSpellPress, {}, handleDamagePress, handleHitPress)}</View>
+                renderEntries(sc.headerEntries, 0, theme, onCreaturePress, onSpellPress, {}, handleDamagePress, handleHitPress)
             )}
             {/* Spellbook style */}
             {sc.spells && (
@@ -245,7 +245,10 @@ function formatSpellcasting(spellcasting: any, theme: any, onCreaturePress?: (na
                         <Text style={{ marginBottom: 2, color: theme.text }}>
                             <Text style={{ fontWeight: 'bold', color: theme.text }}>Cantrips (at will): </Text>
                             {sc.spells['0'].spells.map((spell: string, idx: number) => (
-                                <View key={idx} style={{ flexDirection: 'row' }}><View>{renderEntries(spell, 0, theme, onCreaturePress, onSpellPress, {}, handleDamagePress, handleHitPress)}</View><Text style={{ color: theme.text }}>{idx < sc.spells['0'].spells.length - 1 ? ', ' : ''}</Text></View>
+                                <React.Fragment key={idx}>
+                                    {renderEntries(spell, 0, theme, onCreaturePress, onSpellPress, {}, handleDamagePress, handleHitPress)}
+                                    {idx < sc.spells['0'].spells.length - 1 ? <Text style={{ color: theme.text }}>{', '}</Text> : null}
+                                </React.Fragment>
                             ))}
                         </Text>
                     )}
@@ -254,7 +257,10 @@ function formatSpellcasting(spellcasting: any, theme: any, onCreaturePress?: (na
                         <Text key={lvl} style={{ marginBottom: 2, color: theme.text }}>
                             <Text style={{ fontWeight: 'bold', color: theme.text }}>Level {lvl}{data.slots ? ` (${data.slots} slots)` : ''}: </Text>
                             {data.spells.map((spell: string, idx: number) => (
-                                <View key={idx} style={{ flexDirection: 'row' }}><View>{renderEntries(spell, 0, theme, onCreaturePress, onSpellPress, {}, handleDamagePress, handleHitPress)}</View><Text style={{ color: theme.text }}>{idx < data.spells.length - 1 ? ', ' : ''}</Text></View>
+                                <React.Fragment key={idx}>
+                                    {renderEntries(spell, 0, theme, onCreaturePress, onSpellPress, {}, handleDamagePress, handleHitPress)}
+                                    {idx < data.spells.length - 1 ? <Text style={{ color: theme.text }}>{', '}</Text> : null}
+                                </React.Fragment>
                             ))}
                         </Text>
                     ))}
@@ -266,7 +272,7 @@ function formatSpellcasting(spellcasting: any, theme: any, onCreaturePress?: (na
                     {Object.entries(sc.daily).map(([level, spells]: [string, any], idx: number) => (
                         <View key={level}>
                             <Text style={{ color: theme.text }}>{level.replace('e', '/day')}: </Text>
-                            <View>{renderEntries(spells, 0, theme, onCreaturePress, onSpellPress, {}, handleDamagePress, handleHitPress)}</View>
+                            {renderEntries(spells, 0, theme, onCreaturePress, onSpellPress, {}, handleDamagePress, handleHitPress)}
                             {idx < Object.entries(sc.daily).length - 1 ? <Text style={{ color: theme.text }}>{'\n'}</Text> : null}
                         </View>
                     ))}
@@ -325,9 +331,9 @@ function formatTraits(traits: any, theme: any, onCreaturePress?: (name: string, 
             <Text style={{ fontWeight: 'bold', color: theme.text }}>{trait.name}.</Text>
             {Array.isArray(trait.entries)
                 ? trait.entries.map((e: any, j: number) => (
-                    <View key={j}>{renderEntries(e, 0, theme, onCreaturePress, onSpellPress)}</View>
+                    <React.Fragment key={j}>{renderEntries(e, 0, theme, onCreaturePress, onSpellPress)}</React.Fragment>
                 ))
-                : <View>{renderEntries(trait.entries, 0, theme, onCreaturePress, onSpellPress)}</View>}
+                : renderEntries(trait.entries, 0, theme, onCreaturePress, onSpellPress)}
         </View>
     ));
 }
@@ -342,9 +348,9 @@ function formatActions(actions: any, label = 'Actions', theme: any, onCreaturePr
                     <Text style={{ fontWeight: 'bold', color: theme.text }}>{action.name}.</Text>
                     {Array.isArray(action.entries)
                         ? action.entries.map((e: any, j: number) => (
-                            <View key={j}>{renderEntries(e, 0, theme, onCreaturePress, onSpellPress)}</View>
+                            <React.Fragment key={j}>{renderEntries(e, 0, theme, onCreaturePress, onSpellPress)}</React.Fragment>
                         ))
-                        : <View>{renderEntries(action.entries, 0, theme, onCreaturePress, onSpellPress)}</View>}
+                        : renderEntries(action.entries, 0, theme, onCreaturePress, onSpellPress)}
                 </View>
             ))}
         </View>

@@ -151,10 +151,8 @@ export default function BeastListItem({
                 style={commonStyles.itemInfoContainer}
                 onPress={() => onViewDetails(beast)}
             >
-                <Text>
-                    <Text style={[commonStyles.itemLevel, { color: theme.text }]}>{formatCR(beast.CR)}{' - '}</Text>
-                    <Text style={[commonStyles.itemName, { color: theme.text }]}>{beast.name}{' '}</Text>
-                    <Text style={[commonStyles.itemInfo, { color: theme.text }]}>({getSourceInitials(beast.source)})</Text>
+                <Text style={[commonStyles.itemName, { color: theme.text }]}>
+                    {formatCR(beast.CR)} - {beast.name} ({getSourceInitials(beast.source)})
                 </Text>
             </TouchableOpacity>
             <TouchableOpacity
