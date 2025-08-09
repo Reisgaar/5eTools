@@ -114,3 +114,23 @@ export function getBeastSource(beast: any): string {
     
     return '';
 }
+
+/**
+ * Calculates initiative bonus (dexterity modifier) from beast data
+ * @param beast - Beast object with dexterity stat
+ * @returns Initiative bonus value (default 0 if not found)
+ */
+export function calculateInitiativeBonus(beast: any): number {
+    // Check if beast has dexterity stat
+    if (beast.dex && typeof beast.dex === 'number') {
+        return Math.floor((beast.dex - 10) / 2);
+    }
+    
+    // Check if dexterity is in a different format (e.g., object with value)
+    if (beast.dex && typeof beast.dex === 'object' && beast.dex.value) {
+        return Math.floor((beast.dex.value - 10) / 2);
+    }
+    
+    // Default initiative bonus (0 for creatures without dexterity)
+    return 0;
+}

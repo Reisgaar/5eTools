@@ -66,6 +66,11 @@ export default function CombatGroup({
               <Text style={styles.tokenButtonText}>
                 {group.initiative}
               </Text>
+              {group.initiativeBonus && group.initiativeBonus !== 0 && (
+                <Text style={[styles.tokenButtonText, { fontSize: 10, marginLeft: 2 }]}>
+                  ({group.initiativeBonus >= 0 ? '+' : ''}{group.initiativeBonus})
+                </Text>
+              )}
             </TouchableOpacity>
             
             {group.passivePerception ? (

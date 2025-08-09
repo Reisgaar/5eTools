@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 import { extractACValue } from '../components/beasts/BeastDetailModal';
-import { calculatePassivePerception } from '../utils/beastUtils';
+import { calculatePassivePerception, calculateInitiativeBonus } from '../utils/beastUtils';
 import { DEFAULT_CREATURE_TOKEN, DEFAULT_PLAYER_TOKEN } from '../constants/tokens';
 import { deleteCombatFile, loadCombatFromFile, loadCombatsIndexFromFile, storeCombatToFile } from '../utils/fileStorage';
 import { getTokenUrl, getCachedTokenUrl } from '../utils/tokenCache';
@@ -16,6 +16,7 @@ export interface Combatant {
   maxHp: number;
   currentHp: number;
   initiative: number;
+  initiativeBonus: number; // Initiative bonus (dexterity modifier)
   ac: number; // Armor Class
   passivePerception?: number; // Passive Perception
   color?: string; // Custom color for the beast container
@@ -56,6 +57,7 @@ interface CombatContextType {
   updateColor: (id: string, color: string | null) => void;
   updateInitiative: (id: string, newInit: number) => void;
   updateInitiativeForGroup: (name: string, newInit: number) => void;
+  updateInitiativeBonus: (id: string, newBonus: number) => void;
   isGroupEnabled: (nameOrigin: string) => boolean;
   toggleGroupForName: (nameOrigin: string) => void;
   setGroupForName: (nameOrigin: string, value: boolean) => void;
@@ -275,6 +277,7 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
               currentHp: comb.maxHp, // Reset HP to max
               initiative: 0, // Reset initiative
               conditions: [] // Clear conditions
+              // Note: initiativeBonus is preserved
             }))
           }
         : c
@@ -313,6 +316,7 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       maxHp: maxHp,
       currentHp: maxHp,
       initiative: 0,
+      initiativeBonus: calculateInitiativeBonus(monster), // Calculate initiative bonus
       ac: extractACValue(monster.ac), // Extract AC from monster.ac
       passivePerception: calculatePassivePerception(monster), // Calculate passive perception
     };
@@ -383,6 +387,7 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       maxHp: maxHp,
       currentHp: maxHp,
       initiative: 0,
+      initiativeBonus: calculateInitiativeBonus(monster), // Calculate initiative bonus
       ac: extractACValue(monster.ac), // Extract AC from monster.ac
       passivePerception: calculatePassivePerception(monster), // Calculate passive perception
     };
@@ -514,41 +519,89 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   const updateInitiative = (id: string, newInit: number) => {
+    console.log(`updateInitiative called: id=${id}, newInit=${newInit}, currentCombatId=${currentCombatId}`);
     if (!currentCombatId) return;
-    setCombats(prev => prev.map(c => 
-      c.id === currentCombatId 
-        ? { 
-            ...c, 
-            combatants: (c.combatants || []).map(comb => 
-              comb.id === id 
-                ? { ...comb, initiative: newInit }
-                : comb
-            )
-          }
-        : c
-    ));
-    // Save
-    const updatedCombat = combats.find(c => c.id === currentCombatId);
-    if (updatedCombat) storeCombatToFile({ ...updatedCombat, combatants: (updatedCombat.combatants || []).map(comb => comb.id === id ? { ...comb, initiative: newInit } : comb) });
+    setCombats(prev => {
+      const updatedCombats = prev.map(c => 
+        c.id === currentCombatId 
+          ? { 
+              ...c, 
+              combatants: (c.combatants || []).map(comb => 
+                comb.id === id 
+                  ? { ...comb, initiative: newInit }
+                  : comb
+              )
+            }
+          : c
+      );
+      console.log(`State updated for ${id} with initiative ${newInit}`);
+      // Save the updated combat immediately
+      const updatedCombat = updatedCombats.find(c => c.id === currentCombatId);
+      if (updatedCombat) {
+        console.log(`Saving combat with updated initiative for ${id}: ${newInit}`);
+        // Use setTimeout to ensure the state update completes first
+        setTimeout(() => {
+          storeCombatToFile(updatedCombat);
+          console.log(`Combat saved for ${id} with initiative ${newInit}`);
+        }, 0);
+      }
+      return updatedCombats;
+    });
   };
 
   const updateInitiativeForGroup = (name: string, newInit: number) => {
+    console.log(`updateInitiativeForGroup called: name=${name}, newInit=${newInit}, currentCombatId=${currentCombatId}`);
     if (!currentCombatId) return;
-    setCombats(prev => prev.map(c => 
-      c.id === currentCombatId 
-        ? { 
-            ...c, 
-            combatants: (c.combatants || []).map(comb => 
-              comb.name === name 
-                ? { ...comb, initiative: newInit }
-                : comb
-            )
-          }
-        : c
-    ));
-    // Save
-    const updatedCombat = combats.find(c => c.id === currentCombatId);
-    if (updatedCombat) storeCombatToFile({ ...updatedCombat, combatants: (updatedCombat.combatants || []).map(comb => comb.name === name ? { ...comb, initiative: newInit } : comb) });
+    setCombats(prev => {
+      const updatedCombats = prev.map(c => 
+        c.id === currentCombatId 
+          ? { 
+              ...c, 
+              combatants: (c.combatants || []).map(comb => 
+                comb.name === name 
+                  ? { ...comb, initiative: newInit }
+                  : comb
+              )
+            }
+          : c
+      );
+      // Save the updated combat immediately
+      const updatedCombat = updatedCombats.find(c => c.id === currentCombatId);
+      if (updatedCombat) {
+        // Use setTimeout to ensure the state update completes first
+        setTimeout(() => {
+          storeCombatToFile(updatedCombat);
+        }, 0);
+      }
+      return updatedCombats;
+    });
+  };
+
+  const updateInitiativeBonus = (id: string, newBonus: number) => {
+    if (!currentCombatId) return;
+    setCombats(prev => {
+      const updatedCombats = prev.map(c => 
+        c.id === currentCombatId 
+          ? { 
+              ...c, 
+              combatants: (c.combatants || []).map(comb => 
+                comb.id === id 
+                  ? { ...comb, initiativeBonus: newBonus }
+                  : comb
+              )
+            }
+          : c
+      );
+      // Save the updated combat immediately
+      const updatedCombat = updatedCombats.find(c => c.id === currentCombatId);
+      if (updatedCombat) {
+        // Use setTimeout to ensure the state update completes first
+        setTimeout(() => {
+          storeCombatToFile(updatedCombat);
+        }, 0);
+      }
+      return updatedCombats;
+    });
   };
 
   const updateCombatantConditions = (id: string, conditions: string[]) => {
@@ -851,6 +904,7 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       maxHp: player.maxHp || 0,
       currentHp: player.maxHp || 0,
       initiative: 0,
+      initiativeBonus: 0, // Players start with 0 initiative bonus (can be edited later)
       ac: player.ac || 0,
       passivePerception: player.passivePerception || 10,
       color: undefined,
@@ -932,6 +986,7 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       updateColor,
       updateInitiative, 
       updateInitiativeForGroup,
+      updateInitiativeBonus,
       isGroupEnabled,
       toggleGroupForName,
       setGroupForName,

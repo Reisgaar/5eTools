@@ -60,28 +60,9 @@ export default function CombatScreen() {
 
   // Menu handlers
   const handleRandomInitiative = () => {
-    Alert.alert(
-      'Randomize Initiative',
-      'Do you want to overwrite all initiative values with a random roll?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'OK', onPress: () => {
-           // Per-creature grouping
-           const uniqueNames = [...new Set(combatants.map(c => c.name))];
-           uniqueNames.forEach(name => {
-             if (isGroupEnabled(name)) {
-               updateInitiativeForGroup(name, Math.floor(Math.random() * 21));
-             } else {
-               // Update each combatant with this name individually
-               combatants.filter(c => c.name === name).forEach(c => {
-                 updateInitiative(c.id, Math.floor(Math.random() * 21));
-               });
-             }
-           });
-          }
-        }
-      ]
-    );
+    console.log('=== RANDOMIZE INITIATIVE CALLED ===');
+    console.log('Combatants count:', combatants.length);
+    // This function is now handled by the modal in CombatContentNew
   };
 
   const handleCreateCombat = () => {

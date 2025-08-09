@@ -10,7 +10,7 @@ import CombatHeader from './CombatHeader';
 import CombatControls from './CombatControls';
 import CombatGroup from './CombatGroup';
 import CombatIndividual from './CombatIndividual';
-import { PlayerModal, SettingsModal, ValueEditModal, HPEditModal, MaxHPEditModal } from '../modals';
+import { PlayerModal, SettingsModal, ValueEditModal, HPEditModal, MaxHPEditModal, ConfirmModal } from '../modals';
 import { Ionicons } from '@expo/vector-icons';
 import { createCombatStyles } from '../../styles/combat';
 import { CombatContentProps } from './types';
@@ -59,6 +59,14 @@ export default function CombatContentNew({
     tokenUrl: string;
     fallbackUrl: string;
     creatureName: string;
+  } | null>(null);
+  
+  // State for confirm modal
+  const [confirmModalVisible, setConfirmModalVisible] = React.useState(false);
+  const [confirmModalData, setConfirmModalData] = React.useState<{
+    title: string;
+    message: string;
+    onConfirm: () => void;
   } | null>(null);
   
   // State for editing
@@ -326,6 +334,49 @@ export default function CombatContentNew({
     openSpellModal({ name, source });
   };
 
+  // Function to show confirm modal
+  const showConfirmModal = (title: string, message: string, onConfirm: () => void) => {
+    setConfirmModalData({ title, message, onConfirm });
+    setConfirmModalVisible(true);
+  };
+
+  // Handle randomize initiative with confirm modal
+  const handleRandomizeInitiativeWithConfirm = () => {
+    showConfirmModal(
+      'Randomize Initiative',
+      'Do you want to roll initiative for all creatures? (1d20 + initiative bonus)',
+      () => {
+        console.log('=== RANDOMIZE INITIATIVE CONFIRMED ===');
+        
+        if (combatants.length === 0) {
+          console.log('No combatants to update');
+          return;
+        }
+        
+        // Simple approach: update each combatant individually
+        combatants.forEach((combatant, index) => {
+          console.log(`Processing combatant ${index + 1}: ${combatant.name}`);
+          
+          // Roll 1d20
+          const initiativeRoll = Math.floor(Math.random() * 20) + 1;
+          
+          // Get initiative bonus (default to 0 if not set)
+          const initiativeBonus = combatant.initiativeBonus || 0;
+          
+          // Calculate total initiative
+          const totalInitiative = initiativeRoll + initiativeBonus;
+          
+          console.log(`${combatant.name}: roll=${initiativeRoll}, bonus=${initiativeBonus}, total=${totalInitiative}`);
+          
+          // Update the combatant's initiative
+          onUpdateInitiative(combatant.id, totalInitiative);
+        });
+        
+        console.log('=== RANDOMIZE INITIATIVE COMPLETED ===');
+      }
+    );
+  };
+
   const turnOrder = getTurnOrder(combatants, groupByName);
   const styles = createCombatStyles(theme);
 
@@ -335,7 +386,7 @@ export default function CombatContentNew({
         combatName={combatName}
         onBackToList={onBackToList}
         onStartCombat={onStartCombat}
-        onRandomizeInitiative={onRandomizeInitiative}
+        onRandomizeInitiative={handleRandomizeInitiativeWithConfirm}
         onOpenPlayerModal={openPlayerModal}
         onStopCombat={onStopCombat}
         onResetCombat={resetCombatGroups}
@@ -476,6 +527,16 @@ export default function CombatContentNew({
         tokenUrl={tokenModalData?.tokenUrl || ''}
         fallbackUrl={tokenModalData?.fallbackUrl || ''}
         creatureName={tokenModalData?.creatureName || ''}
+        theme={theme}
+      />
+
+      {/* Confirm Modal */}
+      <ConfirmModal
+        visible={confirmModalVisible}
+        onClose={() => setConfirmModalVisible(false)}
+        onConfirm={() => confirmModalData?.onConfirm()}
+        title={confirmModalData?.title || ''}
+        message={confirmModalData?.message || ''}
         theme={theme}
       />
     </View>

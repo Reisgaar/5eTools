@@ -5,6 +5,7 @@ export interface CombatGroupData {
   source: string;
   nameOrigin: string;
   initiative: number;
+  initiativeBonus: number; // Initiative bonus for the group
   passivePerception?: number;
   groupMembers: Combatant[];
   showGroupButton: boolean;

@@ -22,6 +22,7 @@ export const getGroupedCombatants = (combatants: Combatant[]): CombatGroupData[]
       source: firstMember.source,
       nameOrigin,
       initiative: firstMember.initiative,
+      initiativeBonus: firstMember.initiativeBonus,
       passivePerception: firstMember.passivePerception,
       groupMembers: members,
       showGroupButton

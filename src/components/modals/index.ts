@@ -2,6 +2,7 @@ export { default as PlayerModal } from './PlayerModal';
 export { default as TokenViewModal } from './TokenViewModal';
 export { default as SettingsModal } from './SettingsModal';
 export { default as ValueEditModal } from './ValueEditModal';
+export { default as ConfirmModal } from './ConfirmModal';
 export { default as ColorPickerModal } from './ColorPickerModal';
 export { default as HPEditModal } from './HPEditModal';
 export { default as MaxHPEditModal } from './MaxHPEditModal';

@@ -65,6 +65,11 @@ export default function CombatIndividual({
               <Text style={styles.tokenButtonText}>
                 {combatant.initiative}
               </Text>
+              {combatant.initiativeBonus && combatant.initiativeBonus !== 0 && (
+                <Text style={[styles.tokenButtonText, { fontSize: 10, marginLeft: 2 }]}>
+                  ({combatant.initiativeBonus >= 0 ? '+' : ''}{combatant.initiativeBonus})
+                </Text>
+              )}
             </TouchableOpacity>
             
             {combatant.passivePerception ? (
