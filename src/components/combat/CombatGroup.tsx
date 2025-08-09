@@ -73,14 +73,7 @@ export default function CombatGroup({
               )}
             </TouchableOpacity>
             
-            {group.passivePerception ? (
-              <TouchableOpacity style={styles.tokenButton}>
-                <Ionicons name='eye' size={ICON_SIZE} color={theme.buttonText || 'white'} style={styles.tokenButtonIcon} />
-                <Text style={styles.tokenButtonText}>
-                  {group.passivePerception}
-                </Text>
-              </TouchableOpacity>
-            ) : null}
+
           </View>
         </View>
 

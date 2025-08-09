@@ -32,12 +32,31 @@ export default function CombatMember({
           styles.memberBox,
           member.color && { backgroundColor: member.color }
         ]}>
-          {/* Notes - Above buttons */}
+          {/* Notes - Title of the container */}
           {member.note ? (
-            <View style={styles.memberNotes}>
+            <View style={styles.memberNotesTitle}>
               <Text style={[styles.memberNoteText, { color: theme.text }]}>
                 {member.note}
               </Text>
+            </View>
+          ) : null}
+
+          {/* Status Conditions - Below notes */}
+          {member.conditions && member.conditions.length > 0 ? (
+            <View style={styles.statusContainerTop}>
+              <View style={styles.statusConditions}>
+                {member.conditions
+                  .filter(condition => condition && condition.trim() !== '') // Filter out empty conditions
+                  .map((condition, index) => (
+                    <View key={index} style={styles.statusBadge}>
+                      <Text style={[styles.statusBadgeText, 
+                        Platform.OS === 'web' ? styles.statusBadgeTextWeb : styles.statusBadgeTextMobile
+                      ]}>
+                        {condition}
+                      </Text>
+                    </View>
+                  ))}
+              </View>
             </View>
           ) : null}
 
@@ -80,26 +99,6 @@ export default function CombatMember({
               <Ionicons name='medical' size={ICON_SIZE} color={theme.buttonText || 'white'} style={styles.memberIcon} />
             </TouchableOpacity>
           </View>
-
-          {/* Status Conditions - Inside the container */}
-          {member.conditions && member.conditions.length > 0 ? (
-            <View style={styles.statusContainer}>
-              <View style={styles.statusConditions}>
-                {member.conditions
-                  .filter(condition => condition && condition.trim() !== '') // Filter out empty conditions
-                  .map((condition, index) => (
-                    <View key={index} style={styles.statusBadge}>
-                      <Text style={[
-                        styles.statusBadgeText, 
-                        Platform.OS === 'web' ? styles.statusBadgeTextWeb : styles.statusBadgeTextMobile
-                      ]}>
-                        {condition}
-                      </Text>
-                    </View>
-                  ))}
-              </View>
-            </View>
-          ) : null}
         </View>
       </View>
     </View>

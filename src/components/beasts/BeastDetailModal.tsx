@@ -235,7 +235,7 @@ function formatSpellcasting(spellcasting: any, theme: any, onCreaturePress?: (na
         <View key={i} style={{ marginBottom: 8 }}>
             <Text style={{ fontWeight: 'bold', color: theme.text }}>{sc.name || 'Spellcasting'}{sc.displayAs ? ` (${sc.displayAs})` : ''}.</Text>
             {sc.headerEntries && (
-                <Text style={{ color: theme.text }}>{renderEntries(sc.headerEntries, 0, theme, onCreaturePress, onSpellPress, {}, handleDamagePress, handleHitPress)}</Text>
+                                        <View>{renderEntries(sc.headerEntries, 0, theme, onCreaturePress, onSpellPress, {}, handleDamagePress, handleHitPress)}</View>
             )}
             {/* Spellbook style */}
             {sc.spells && (
@@ -245,7 +245,7 @@ function formatSpellcasting(spellcasting: any, theme: any, onCreaturePress?: (na
                         <Text style={{ marginBottom: 2, color: theme.text }}>
                             <Text style={{ fontWeight: 'bold', color: theme.text }}>Cantrips (at will): </Text>
                             {sc.spells['0'].spells.map((spell: string, idx: number) => (
-                                <Text style={{ color: theme.text }} key={idx}>{renderEntries(spell, 0, theme, onCreaturePress, onSpellPress, {}, handleDamagePress, handleHitPress)}{idx < sc.spells['0'].spells.length - 1 ? ', ' : ''}</Text>
+                                <View key={idx} style={{ flexDirection: 'row' }}><View>{renderEntries(spell, 0, theme, onCreaturePress, onSpellPress, {}, handleDamagePress, handleHitPress)}</View><Text style={{ color: theme.text }}>{idx < sc.spells['0'].spells.length - 1 ? ', ' : ''}</Text></View>
                             ))}
                         </Text>
                     )}
@@ -254,7 +254,7 @@ function formatSpellcasting(spellcasting: any, theme: any, onCreaturePress?: (na
                         <Text key={lvl} style={{ marginBottom: 2, color: theme.text }}>
                             <Text style={{ fontWeight: 'bold', color: theme.text }}>Level {lvl}{data.slots ? ` (${data.slots} slots)` : ''}: </Text>
                             {data.spells.map((spell: string, idx: number) => (
-                                <Text style={{ color: theme.text }} key={idx}>{renderEntries(spell, 0, theme, onCreaturePress, onSpellPress, {}, handleDamagePress, handleHitPress)}{idx < data.spells.length - 1 ? ', ' : ''}</Text>
+                                <View key={idx} style={{ flexDirection: 'row' }}><View>{renderEntries(spell, 0, theme, onCreaturePress, onSpellPress, {}, handleDamagePress, handleHitPress)}</View><Text style={{ color: theme.text }}>{idx < data.spells.length - 1 ? ', ' : ''}</Text></View>
                             ))}
                         </Text>
                     ))}
@@ -262,13 +262,15 @@ function formatSpellcasting(spellcasting: any, theme: any, onCreaturePress?: (na
             )}
             {/* Daily spells */}
             {sc.daily && (
-                <Text style={{ color: theme.text }}>
+                <View>
                     {Object.entries(sc.daily).map(([level, spells]: [string, any], idx: number) => (
-                        <Text style={{ color: theme.text }} key={level}>
-                            {level.replace('e', '/day')}: {renderEntries(spells, 0, theme, onCreaturePress, onSpellPress, {}, handleDamagePress, handleHitPress)}{idx < Object.entries(sc.daily).length - 1 ? '\n' : ''}
-                        </Text>
+                        <View key={level}>
+                            <Text style={{ color: theme.text }}>{level.replace('e', '/day')}: </Text>
+                            <View>{renderEntries(spells, 0, theme, onCreaturePress, onSpellPress, {}, handleDamagePress, handleHitPress)}</View>
+                            {idx < Object.entries(sc.daily).length - 1 ? <Text style={{ color: theme.text }}>{'\n'}</Text> : null}
+                        </View>
                     ))}
-                </Text>
+                </View>
             )}
         </View>
     ));
@@ -812,7 +814,7 @@ const BeastDetailModal: React.FC<BeastDetailModalProps> = ({ visible, beast, onC
                                         )}
                                         {/* Source */}
                                         <Text style={{ color: theme.noticeText, fontStyle: 'italic', marginTop: 8, marginBottom: 18, textAlign: 'right', fontSize: 10 }}>
-                                            Source: {beast['source']}{beast['page'] ? `, page ${beast['page']}` : ''}{beast['otherSources'] ? `. Also found in ${formatArray(beast['otherSources'].map((s: any) => s.source))}` : ''}
+                                            Source: {beast['source']}{beast['page'] ? `, page ${beast['page']}` : ''}{beast['otherSources'] && beast['otherSources'].length > 0 ? `. Also found in ${formatArray(beast['otherSources'].map((s: any) => s.source))}` : ''}
                                         </Text>
                                     </ScrollView>
                                 </View>

@@ -25,6 +25,19 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
   headerMenuButton: {
     padding: 8,
   },
+  headerActionButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  headerIconButton: {
+    width: 40,
+    height: 36,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 8,
+  },
   headerModal: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.3)',
@@ -93,8 +106,26 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    paddingVertical: 4,
+    paddingVertical: 8,
     paddingHorizontal: 16,
+    minHeight: 60,
+  },
+  controlsStartButton: {
+    borderRadius: 8,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 150,
+  },
+  controlsStartIcon: {
+    marginRight: 6,
+  },
+  controlsStartText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 14,
   },
   controlsFinishButton: {
     backgroundColor: '#eee',
@@ -136,7 +167,7 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
 
   // Combat Member Styles
   member: {
-    marginBottom: 8,
+    marginBottom: 4,
   },
   memberContainer: {
     flexDirection: 'row',
@@ -162,7 +193,7 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   memberButton: {
     borderRadius: 4,
@@ -210,8 +241,20 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
   memberNotes: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 6,
     marginLeft: 0,
+  },
+  memberNotesTitle: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 6,
+    paddingVertical: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    borderRadius: 4,
+    marginHorizontal: -4,
+    marginTop: -4,
   },
   memberNoteButton: {
     backgroundColor: theme.primary,
@@ -225,9 +268,11 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
     height: 32,
   },
   memberNoteText: {
-    fontSize: 12,
+    fontSize: 11,
     flex: 1,
     fontStyle: 'italic',
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   
   // Status Conditions Styles
@@ -235,17 +280,21 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
     marginTop: 4,
     minHeight: 20, // Ensure container has minimum height
   },
+  statusContainerTop: {
+    marginBottom: 4,
+    minHeight: 16, // Slightly smaller for top placement
+  },
   statusConditions: {
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
   statusBadge: {
     backgroundColor: '#4A5568', // Better contrast gray for dark mode
-    borderRadius: 12,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    marginRight: 4,
-    marginBottom: 2,
+    borderRadius: 10,
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    marginRight: 3,
+    marginBottom: 1,
   },
   statusBadgeText: {
     color: 'white',
@@ -265,7 +314,7 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
   groupContainer: {
     backgroundColor: theme.card,
     borderRadius: 8,
-    marginBottom: 8,
+    marginBottom: 4,
     padding: 8,
     borderWidth: 1,
     borderColor: theme.border,

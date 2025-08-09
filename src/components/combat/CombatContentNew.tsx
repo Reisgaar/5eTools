@@ -230,8 +230,28 @@ export default function CombatContentNew({
   const handleMaxHpAccept = (newMaxHp: number) => {
     if (editingHp) {
       onUpdateMaxHp(editingHp.id, newMaxHp);
-      // Update the editingHp state to reflect the new maxHp
-      setEditingHp(prev => prev ? { ...prev, maxHp: newMaxHp } : null);
+      
+      // Calculate the adjusted currentHp based on the logic:
+      // - If MaxHP goes down below CurrentHP → CurrentHP = MaxHP
+      // - If MaxHP goes up and CurrentHP = MaxHP → CurrentHP goes up with MaxHP
+      // - If MaxHP goes up and CurrentHP < MaxHP → CurrentHP stays the same
+      let adjustedCurrentHp = editingHp.currentHp;
+      
+      if (newMaxHp < editingHp.currentHp) {
+        // MaxHP went down below CurrentHP → CurrentHP = MaxHP
+        adjustedCurrentHp = newMaxHp;
+      } else if (editingHp.currentHp === editingHp.maxHp && newMaxHp > editingHp.maxHp) {
+        // MaxHP went up and CurrentHP was equal to MaxHP → CurrentHP goes up with MaxHP
+        adjustedCurrentHp = newMaxHp;
+      }
+      // Otherwise: CurrentHP stays the same
+      
+      // Update the editingHp state with both new maxHp and adjusted currentHp
+      setEditingHp(prev => prev ? { 
+        ...prev, 
+        maxHp: newMaxHp,
+        currentHp: adjustedCurrentHp
+      } : null);
     }
     setMaxHpEditModalVisible(false);
   };
@@ -390,12 +410,8 @@ export default function CombatContentNew({
       <CombatHeader
         combatName={combatName}
         onBackToList={onBackToList}
-        onStartCombat={onStartCombat}
         onRandomizeInitiative={handleRandomizeInitiativeWithConfirm}
         onOpenPlayerModal={openPlayerModal}
-        onStopCombat={onStopCombat}
-        onResetCombat={resetCombatGroups}
-        started={started}
         theme={theme}
       />
 
@@ -459,6 +475,7 @@ export default function CombatContentNew({
         round={round}
         onStopCombat={onStopCombat}
         onNextTurn={onNextTurn}
+        onStartCombat={onStartCombat}
         theme={theme}
       />
 

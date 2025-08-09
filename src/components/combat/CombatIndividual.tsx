@@ -73,14 +73,7 @@ export default function CombatIndividual({
               )}
             </TouchableOpacity>
             
-            {combatant.passivePerception ? (
-              <TouchableOpacity style={styles.tokenButton}>
-                <Ionicons name='eye' size={ICON_SIZE} color={theme.buttonText || 'white'} style={styles.tokenButtonIcon} />
-                <Text style={styles.tokenButtonText}>
-                  {combatant.passivePerception}
-                </Text>
-              </TouchableOpacity>
-            ) : null}
+
           </View>
         </View>
 
@@ -144,12 +137,32 @@ export default function CombatIndividual({
                 styles.memberBox,
                 combatant.color && { backgroundColor: combatant.color }
               ]}>
-                {/* Notes - Above buttons */}
+                {/* Notes - Title of the container */}
                 {combatant.note ? (
-                  <View style={styles.memberNotes}>
+                  <View style={styles.memberNotesTitle}>
                     <Text style={[styles.memberNoteText, { color: theme.text }]}>
                       {combatant.note}
                     </Text>
+                  </View>
+                ) : null}
+
+                {/* Status Conditions - Below notes */}
+                {combatant.conditions && combatant.conditions.length > 0 ? (
+                  <View style={styles.statusContainerTop}>
+                    <View style={styles.statusConditions}>
+                      {combatant.conditions
+                        .filter(condition => condition && condition.trim() !== '') // Filter out empty conditions
+                        .map((condition, index) => (
+                          <View key={index} style={styles.statusBadge}>
+                            <Text style={[
+                              styles.statusBadgeText, 
+                              Platform.OS === 'web' ? styles.statusBadgeTextWeb : styles.statusBadgeTextMobile
+                            ]}>
+                              {condition}
+                            </Text>
+                          </View>
+                        ))}
+                    </View>
                   </View>
                 ) : null}
 
@@ -192,26 +205,6 @@ export default function CombatIndividual({
                     <Ionicons name='medical' size={ICON_SIZE} color={theme.buttonText || 'white'} style={styles.memberIcon} />
                   </TouchableOpacity>
                 </View>
-
-                {/* Status Conditions - Inside the container */}
-                {combatant.conditions && combatant.conditions.length > 0 ? (
-                  <View style={styles.statusContainer}>
-                    <View style={styles.statusConditions}>
-                      {combatant.conditions
-                        .filter(condition => condition && condition.trim() !== '') // Filter out empty conditions
-                        .map((condition, index) => (
-                          <View key={index} style={styles.statusBadge}>
-                            <Text style={[
-                              styles.statusBadgeText, 
-                              Platform.OS === 'web' ? styles.statusBadgeTextWeb : styles.statusBadgeTextMobile
-                            ]}>
-                              {condition}
-                            </Text>
-                          </View>
-                        ))}
-                    </View>
-                  </View>
-                ) : null}
               </View>
             </View>
           </View>

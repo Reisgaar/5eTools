@@ -35,7 +35,7 @@ export default function MaxHPEditModal({
     };
 
     const handleDecrement = (amount: number) => {
-        setMaxHp(prev => Math.max(Math.max(1, currentHp), prev - amount));
+        setMaxHp(prev => Math.max(1, prev - amount));
     };
 
     const handleAccept = () => {
@@ -66,9 +66,9 @@ export default function MaxHPEditModal({
                     onChangeText={(text) => {
                         const num = parseInt(text, 10);
                         if (!isNaN(num)) {
-                            setMaxHp(Math.max(Math.max(1, currentHp), num));
+                            setMaxHp(Math.max(1, num));
                         } else if (text === '') {
-                            setMaxHp(Math.max(1, currentHp));
+                            setMaxHp(1);
                         }
                     }}
                     keyboardType="numeric"

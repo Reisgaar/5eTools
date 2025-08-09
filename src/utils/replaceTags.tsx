@@ -31,7 +31,7 @@ export function replaceTags(
     while ((match = tagRegex.exec(text)) !== null) {
         // Add text before the tag
         if (match.index > lastIndex) {
-            nodes.push(text.slice(lastIndex, match.index));
+            nodes.push(<Text key={key++}>{text.slice(lastIndex, match.index)}</Text>);
         }
         const [full, tag, rest] = match;
         const params = rest.split('|').map(s => s.trim());
@@ -165,7 +165,11 @@ export function renderEntries(
     
     if (typeof entries === 'string') {
         const parsed = replaceTags(entries, theme, onCreaturePress, onSpellPress, onDamagePress, onHitPress);
-        return <Text style={[{ marginLeft: indent, marginBottom: 6, color: theme.text, fontSize: 12 }, textStyle]}>{parsed}</Text>;
+        return (
+            <View style={[{ marginLeft: indent, marginBottom: 6 }]}>
+                {parsed}
+            </View>
+        );
     }
     
     if (Array.isArray(entries)) {
@@ -192,9 +196,9 @@ export function renderEntries(
                     {entries.items.map((item: any, idx: number) => (
                         <View key={idx} style={{ flexDirection: 'row', marginBottom: 2 }}>
                             <Text style={[{ color: theme.text, marginRight: 8, fontSize: 12 }, textStyle]}>•</Text>
-                            <Text style={[{ color: theme.text, flex: 1, fontSize: 12 }, textStyle]}>
+                            <View style={[{ flex: 1 }]}>
                                 {typeof item === 'string' ? replaceTags(item, theme, onCreaturePress, onSpellPress, onDamagePress, onHitPress) : renderEntries(item, 0, theme, onCreaturePress, onSpellPress, textStyle, onDamagePress, onHitPress)}
-                            </Text>
+                            </View>
                         </View>
                     ))}
                 </View>

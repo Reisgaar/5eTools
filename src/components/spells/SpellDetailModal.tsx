@@ -262,7 +262,7 @@ export function SpellDetailModal({
                             {/* SRD and Source Info */}
                             {spell.source && (
                                 <>
-                                    <Text style={[styles.modalField, { marginTop: 25, textAlign: 'right', fontSize: 10, fontStyle: 'italic', color: theme.noticeText }]}>Source: {spell.source}{spell.page ? `, page ${spell.page}` : ''}{spell.srd ? '. Available in the SRD and Basic Rules.' : ''}</Text>
+                                    <Text style={[styles.modalField, { marginTop: 25, textAlign: 'right', fontSize: 10, fontStyle: 'italic', color: theme.noticeText }]}>Source: {spell.source}{spell.page ? `, page ${spell.page}` : ''}{spell.srd ? ' Available in the SRD and Basic Rules.' : ''}</Text>
                                 </>
                             )}
                         </View>

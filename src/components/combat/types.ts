@@ -7,7 +7,6 @@ export interface CombatGroupData {
   key: string; // Unique key for React rendering
   initiative: number;
   initiativeBonus: number; // Initiative bonus for the group
-  passivePerception?: number;
   speed?: string; // Speed information
   senses?: string; // Senses information
   groupMembers: Combatant[];
@@ -56,12 +55,8 @@ export interface CombatMemberProps {
 export interface CombatHeaderProps {
   combatName: string;
   onBackToList: () => void;
-  onStartCombat: () => void;
-  onStopCombat: () => void;
   onRandomizeInitiative: () => void;
   onOpenPlayerModal: () => void;
-  onResetCombat: () => void;
-  started: boolean;
   theme: any;
 }
 
@@ -70,6 +65,7 @@ export interface CombatControlsProps {
   round: number;
   onStopCombat: () => void;
   onNextTurn: () => void;
+  onStartCombat: () => void;
   theme: any;
 }
 

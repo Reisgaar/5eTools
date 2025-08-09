@@ -459,7 +459,7 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const updateMaxHp = (id: string, newMaxHp: number) => {
     if (!currentCombatId) return;
-    const clampedMaxHp = Math.max(1, Math.min(999, newMaxHp));
+    const clampedMaxHp = Math.max(1, newMaxHp);
     setCombats(prev => {
       const updatedCombats = prev.map(c => 
         c.id === currentCombatId 
@@ -470,7 +470,19 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                   ? { 
                       ...comb, 
                       maxHp: clampedMaxHp,
-                      currentHp: Math.min(comb.currentHp, clampedMaxHp)
+                      currentHp: (() => {
+                        // Apply the same logic as in the UI:
+                        // - If MaxHP goes down below CurrentHP → CurrentHP = MaxHP
+                        // - If MaxHP goes up and CurrentHP = MaxHP → CurrentHP goes up with MaxHP
+                        // - If MaxHP goes up and CurrentHP < MaxHP → CurrentHP stays the same
+                        if (clampedMaxHp < comb.currentHp) {
+                          return clampedMaxHp;
+                        } else if (comb.currentHp === comb.maxHp && clampedMaxHp > comb.maxHp) {
+                          return clampedMaxHp;
+                        } else {
+                          return comb.currentHp;
+                        }
+                      })()
                     }
                   : comb
               )
