@@ -24,6 +24,9 @@ export interface Combatant {
   color?: string; // Custom color for the beast container
   conditions?: string[]; // Status conditions for the combatant
   note?: string; // Short note about the combatant
+  // Player-specific fields
+  race?: string; // Player race
+  class?: string; // Player class
 }
 
 export interface Combat {
@@ -69,8 +72,8 @@ interface CombatContextType {
   stopCombat: () => void;
   nextTurn: () => void;
   getTurnOrder: (combatants: Combatant[], groupByName: { [nameOrigin: string]: boolean }) => { ids: string[], name: string, initiative: number }[];
-  addPlayerCombatant: (player: { name: string, race: string, class: string, maxHp?: number, ac?: number, passivePerception?: number, tokenUrl?: string }) => void;
-  syncPlayerCombatants: (player: { name: string, race: string, class: string, maxHp?: number, ac?: number, passivePerception?: number, tokenUrl?: string }) => void;
+  addPlayerCombatant: (player: { name: string, race: string, class: string, maxHp?: number, ac?: number, passivePerception?: number, initiativeBonus?: number, tokenUrl?: string }) => void;
+  syncPlayerCombatants: (player: { name: string, race: string, class: string, maxHp?: number, ac?: number, passivePerception?: number, initiativeBonus?: number, tokenUrl?: string }) => void;
   updateCombatantConditions: (id: string, conditions: string[]) => void;
   updateCombatantNote: (id: string, note: string) => void;
   setCombatActive: (id: string, active: boolean) => void;
@@ -949,7 +952,7 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return turnOrder;
   }
 
-  const addPlayerCombatant = (player: { name: string, race: string, class: string, maxHp?: number, ac?: number, passivePerception?: number, tokenUrl?: string }) => {
+  const addPlayerCombatant = (player: { name: string, race: string, class: string, maxHp?: number, ac?: number, passivePerception?: number, initiativeBonus?: number, tokenUrl?: string }) => {
     if (!currentCombatId) return;
     const id = `player-${player.name}-${Date.now()}-${Math.random()}`;
     const newCombatant = {
@@ -959,11 +962,13 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       maxHp: player.maxHp || 0,
       currentHp: player.maxHp || 0,
       initiative: 0,
-      initiativeBonus: 0, // Players start with 0 initiative bonus (can be edited later)
+      initiativeBonus: player.initiativeBonus || 0, // Use player's initiative bonus or default to 0
       ac: player.ac || 0,
       passivePerception: player.passivePerception || 10,
       color: undefined,
-      tokenUrl: player.tokenUrl || DEFAULT_PLAYER_TOKEN
+      tokenUrl: player.tokenUrl || DEFAULT_PLAYER_TOKEN,
+      race: player.race,
+      class: player.class
     };
     setCombats(prev => prev.map(c =>
       c.id === currentCombatId
@@ -973,7 +978,7 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 };
 
   // Sync all player combatants in all combats when a player is edited
-  const syncPlayerCombatants = (player: { name: string, race: string, class: string, maxHp?: number, ac?: number, passivePerception?: number, tokenUrl?: string }) => {
+  const syncPlayerCombatants = (player: { name: string, race: string, class: string, maxHp?: number, ac?: number, passivePerception?: number, initiativeBonus?: number, tokenUrl?: string }) => {
     setCombats(prev => prev.map(combat => ({
       ...combat,
       combatants: (combat.combatants || []).map(comb =>
@@ -985,6 +990,7 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
               maxHp: player.maxHp || 0,
               ac: player.ac || 0,
               passivePerception: player.passivePerception || 10,
+              initiativeBonus: player.initiativeBonus || 0,
               tokenUrl: player.tokenUrl || comb.tokenUrl,
             }
           : comb

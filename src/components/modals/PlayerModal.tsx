@@ -1,7 +1,8 @@
 import React from 'react';
-import { Dimensions, FlatList, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, FlatList, ScrollView, Text, TouchableOpacity, View, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { BaseModal } from '../ui';
+import { DEFAULT_PLAYER_TOKEN } from '../../constants/tokens';
 
 interface Player {
   name: string;
@@ -47,10 +48,23 @@ export default function PlayerModal({
                     color={theme.primary}
                     style={{ marginRight: 8 }}
                   />
-                  <Text style={{ color: theme.text, fontWeight: 'bold' }}>{item.name}</Text>
-                  <Text style={{ color: theme.text, marginLeft: 8, fontSize: 12 }}>
-                    {item.race} - {item.class}
-                  </Text>
+                  <Image
+                    source={{ uri: item.tokenUrl || DEFAULT_PLAYER_TOKEN }}
+                    style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: 16,
+                      marginRight: 8,
+                      borderWidth: 2,
+                      borderColor: '#22c55a'
+                    }}
+                  />
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ color: theme.text, fontWeight: 'bold' }}>{item.name}</Text>
+                    <Text style={{ color: theme.text, fontSize: 12 }}>
+                      {item.race} - {item.class}
+                    </Text>
+                  </View>
                 </TouchableOpacity>
               )}
               ListEmptyComponent={

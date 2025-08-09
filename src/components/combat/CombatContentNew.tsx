@@ -10,6 +10,7 @@ import CombatHeader from './CombatHeader';
 import CombatControls from './CombatControls';
 import CombatGroup from './CombatGroup';
 import CombatIndividual from './CombatIndividual';
+import CombatPlayer from './CombatPlayer';
 import { PlayerModal, SettingsModal, ValueEditModal, HPEditModal, MaxHPEditModal, ConfirmModal } from '../modals';
 import { Ionicons } from '@expo/vector-icons';
 import { createCombatStyles } from '../../styles/combat';
@@ -239,6 +240,8 @@ export default function CombatContentNew({
     setEditingValue(null);
   };
 
+
+
   // Handle HP editing
   const handleHpEdit = (id: string, name: string, currentHp: number, maxHp: number, combatantNumber?: number) => {
     setEditingHp({ id, name, currentHp, maxHp, combatantNumber });
@@ -358,9 +361,26 @@ export default function CombatContentNew({
   const handleTokenPress = async (tokenUrl: string | undefined, creatureName: string) => {
     console.log('Token pressed for:', creatureName);
     
-    // Find the combatant to get source
+    // Find the combatant by name
     const combatant = combatants.find(c => c.name === creatureName);
-    if (!combatant || !combatant.source) {
+    if (!combatant) {
+      console.log('No combatant found for:', creatureName);
+      return;
+    }
+    
+    // For players, use the token URL directly
+    if (combatant.source === 'player') {
+      setTokenModalData({
+        tokenUrl: tokenUrl || combatant.tokenUrl || '',
+        fallbackUrl: tokenUrl || combatant.tokenUrl || '',
+        creatureName
+      });
+      setTokenModalVisible(true);
+      return;
+    }
+    
+    // For creatures, load images from the source
+    if (!combatant.source) {
       console.log('No source found for creature:', creatureName);
       return;
     }
@@ -485,22 +505,41 @@ export default function CombatContentNew({
             // If group is disabled, render each combatant individually
             return (
               <View>
-                {group.groupMembers.map((member: any, memberIndex: number) => (
-                  <CombatIndividual
-                    key={member.id}
-                    combatant={member}
-                    isActive={isActive}
-                    canGroup={group.showGroupButton}
-                    memberIndex={memberIndex + 1}
-                    onToggleGroup={() => handleToggleGroup(group.nameOrigin)}
-                    onValueEdit={handleValueEdit}
-                    onStatusEdit={handleStatusEdit}
-                    onCreaturePress={handleCreaturePress}
-                    onTokenPress={handleTokenPress}
-                    cachedTokenUrls={cachedTokenUrls}
-                    theme={theme}
-                  />
-                ))}
+                {group.groupMembers.map((member: any, memberIndex: number) => {
+                  // Use CombatPlayer for players, CombatIndividual for creatures
+                  if (member.source === 'player') {
+                    return (
+                      <CombatPlayer
+                        key={member.id}
+                        combatant={member}
+                        isActive={isActive}
+                        onValueEdit={handleValueEdit}
+                        onStatusEdit={handleStatusEdit}
+                        onCreaturePress={handleCreaturePress}
+                        onTokenPress={handleTokenPress}
+                        cachedTokenUrls={cachedTokenUrls}
+                        theme={theme}
+                      />
+                    );
+                  } else {
+                    return (
+                      <CombatIndividual
+                        key={member.id}
+                        combatant={member}
+                        isActive={isActive}
+                        canGroup={group.showGroupButton}
+                        memberIndex={memberIndex + 1}
+                        onToggleGroup={() => handleToggleGroup(group.nameOrigin)}
+                        onValueEdit={handleValueEdit}
+                        onStatusEdit={handleStatusEdit}
+                        onCreaturePress={handleCreaturePress}
+                        onTokenPress={handleTokenPress}
+                        cachedTokenUrls={cachedTokenUrls}
+                        theme={theme}
+                      />
+                    );
+                  }
+                })}
               </View>
             );
           }

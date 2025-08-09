@@ -54,39 +54,60 @@ export const getCombatDisplayList = (combatants: Combatant[], groupByName: { [na
   const displayList: CombatGroupData[] = [];
   
   groups.forEach((members, nameOrigin) => {
-    const isGrouped = groupByName[nameOrigin];
     const firstMember = members[0];
     
-    if (isGrouped && members.length > 1) {
-      // Agrupados: una sola entrada para todo el grupo
-      displayList.push({
-        name: firstMember.name,
-        source: firstMember.source,
-        nameOrigin,
-        key: nameOrigin, // Usar nameOrigin como key para grupos
-        initiative: firstMember.initiative,
-        initiativeBonus: firstMember.initiativeBonus,
-        speed: firstMember.speed,
-        senses: firstMember.senses,
-        groupMembers: members,
-        showGroupButton: true
-      });
-    } else {
-      // No agrupados: entrada individual para cada miembro
+    // Players should never be grouped
+    if (firstMember.source === 'player') {
+      // Players: always individual entries
       members.forEach(member => {
         displayList.push({
           name: member.name,
           source: member.source,
-          nameOrigin: nameOrigin, // Mantener el nameOrigin original para el toggle
-          key: `${nameOrigin}-${member.id}`, // Key único para cada combatiente individual
+          nameOrigin: nameOrigin,
+          key: `${nameOrigin}-${member.id}`,
           initiative: member.initiative,
           initiativeBonus: member.initiativeBonus,
           speed: member.speed,
           senses: member.senses,
           groupMembers: [member],
-          showGroupButton: members.length > 1 // Mostrar botón si hay múltiples miembros del mismo tipo
+          showGroupButton: false // Players can never be grouped
         });
       });
+    } else {
+      // Creatures: can be grouped
+      const isGrouped = groupByName[nameOrigin];
+      
+      if (isGrouped && members.length > 1) {
+        // Agrupados: una sola entrada para todo el grupo
+        displayList.push({
+          name: firstMember.name,
+          source: firstMember.source,
+          nameOrigin,
+          key: nameOrigin, // Usar nameOrigin como key para grupos
+          initiative: firstMember.initiative,
+          initiativeBonus: firstMember.initiativeBonus,
+          speed: firstMember.speed,
+          senses: firstMember.senses,
+          groupMembers: members,
+          showGroupButton: true
+        });
+      } else {
+        // No agrupados: entrada individual para cada miembro
+        members.forEach(member => {
+          displayList.push({
+            name: member.name,
+            source: member.source,
+            nameOrigin: nameOrigin, // Mantener el nameOrigin original para el toggle
+            key: `${nameOrigin}-${member.id}`, // Key único para cada combatiente individual
+            initiative: member.initiative,
+            initiativeBonus: member.initiativeBonus,
+            speed: member.speed,
+            senses: member.senses,
+            groupMembers: [member],
+            showGroupButton: members.length > 1 // Mostrar botón si hay múltiples miembros del mismo tipo
+          });
+        });
+      }
     }
   });
   

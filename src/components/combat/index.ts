@@ -4,6 +4,7 @@ export { default as CombatContent } from './CombatContentNew';
 export { default as CombatGroup } from './CombatGroup';
 export { default as CombatMember } from './CombatMember';
 export { default as CombatIndividual } from './CombatIndividual';
+export { default as CombatPlayer } from './CombatPlayer';
 export { default as CombatList } from './CombatList';
 export { default as CombatSelectionModal } from './CombatSelectionModal';
 
