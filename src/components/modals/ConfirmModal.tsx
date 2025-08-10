@@ -1,6 +1,10 @@
+// REACT
 import React from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
-import { BaseModal } from '../ui';
+import { Modal, View, Text, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+
+// STYLES
+import { modalStyles } from 'src/styles/modalStyles';
 
 interface ConfirmModalProps {
     visible: boolean;
@@ -13,84 +17,61 @@ interface ConfirmModalProps {
     theme: any;
 }
 
-export default function ConfirmModal({
-    visible,
-    onClose,
-    onConfirm,
-    title,
-    message,
-    confirmText = 'OK',
+const ConfirmModal: React.FC<ConfirmModalProps> = ({ 
+    visible, 
+    onClose, 
+    onConfirm, 
+    title, 
+    message, 
+    confirmText = 'Delete', 
     cancelText = 'Cancel',
-    theme
-}: ConfirmModalProps) {
-    const handleConfirm = () => {
-        onConfirm();
-        onClose();
-    };
-
-    const handleCancel = () => {
-        onClose();
-    };
-
+    theme 
+}) => {
     return (
-        <BaseModal visible={visible} onClose={handleCancel} theme={theme} title={title}>
-            <View style={{ alignItems: 'center', paddingVertical: 16 }}>
-                <Text style={{ 
-                    color: theme.text, 
-                    fontSize: 16, 
-                    textAlign: 'center',
-                    marginBottom: 24
-                }}>
-                    {message}
-                </Text>
-                
-                <View style={{ 
-                    flexDirection: 'row', 
-                    justifyContent: 'space-between',
-                    width: '100%',
-                    gap: 12
-                }}>
-                    <TouchableOpacity
-                        style={{
-                            flex: 1,
-                            backgroundColor: '#eee',
-                            paddingVertical: 12,
-                            paddingHorizontal: 16,
-                            borderRadius: 8,
-                            alignItems: 'center'
-                        }}
-                        onPress={handleCancel}
-                    >
-                        <Text style={{ 
-                            color: theme.text, 
-                            fontWeight: 'bold',
-                            fontSize: 16
-                        }}>
-                            {cancelText}
+        <Modal visible={visible} animationType="slide" transparent>
+            <TouchableOpacity style={modalStyles.modalOverlay} activeOpacity={1} onPress={onClose}>
+                <TouchableOpacity style={[modalStyles.modalContent, { backgroundColor: theme.card }]} activeOpacity={1} onPress={() => {}}>
+                    <View style={modalStyles.modalHeader}>
+                        <Text style={[modalStyles.modalTitle, { color: theme.text }]}>
+                            {title}
                         </Text>
-                    </TouchableOpacity>
+                        <TouchableOpacity onPress={onClose} style={modalStyles.closeButton}>
+                            <Ionicons name="close" size={24} color={theme.text} />
+                        </TouchableOpacity>
+                    </View>
+                    <View style={[modalStyles.separator, { backgroundColor: theme.border }]} />
                     
-                    <TouchableOpacity
-                        style={{
-                            flex: 1,
-                            backgroundColor: theme.primary,
-                            paddingVertical: 12,
-                            paddingHorizontal: 16,
-                            borderRadius: 8,
-                            alignItems: 'center'
-                        }}
-                        onPress={handleConfirm}
-                    >
-                        <Text style={{ 
-                            color: theme.buttonText || 'white', 
-                            fontWeight: 'bold',
-                            fontSize: 16
-                        }}>
-                            {confirmText}
+                    <View style={modalStyles.modalBody}>
+                        <Text style={[modalStyles.emptyText, { color: theme.text, marginBottom: 20 }]}>
+                            {message}
                         </Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
-        </BaseModal>
+                        
+                        <View style={modalStyles.modalButtons}>
+                            <TouchableOpacity 
+                                onPress={onClose} 
+                                style={[modalStyles.modalButton, { backgroundColor: theme.innerBackground, marginRight: 8, borderWidth: 1, borderColor: theme.border }]}
+                            >
+                                <Text style={[modalStyles.modalButtonText, { color: theme.text }]}>
+                                    {cancelText}
+                                </Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity 
+                                onPress={() => {
+                                    onConfirm();
+                                    onClose();
+                                }} 
+                                style={[modalStyles.modalButton, { backgroundColor: '#dc2626' }]}
+                            >
+                                <Text style={[modalStyles.modalButtonText, { color: 'white' }]}>
+                                    {confirmText}
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </TouchableOpacity>
+            </TouchableOpacity>
+        </Modal>
     );
-}
+};
+
+export default ConfirmModal;

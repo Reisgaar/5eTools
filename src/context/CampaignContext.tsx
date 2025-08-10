@@ -25,7 +25,7 @@ const CampaignContext = createContext<CampaignContextType | null>(null);
 
 export const CampaignProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
-  const [selectedCampaignId, setSelectedCampaignId] = useState<string>('all');
+  const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(null);
 
   // Load campaigns and selected campaign on mount
   useEffect(() => {
@@ -124,9 +124,9 @@ export const CampaignProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     });
   };
 
-        const clearSelectedCampaign = () => {
-    setSelectedCampaignId('all');
-    saveSelectedCampaign('all');
+  const clearSelectedCampaign = () => {
+    setSelectedCampaignId(null);
+    saveSelectedCampaign(null);
   };
 
   const selectedCampaign = campaigns.find(c => c.id === selectedCampaignId) || null;
@@ -137,7 +137,6 @@ export const CampaignProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         campaigns,
         selectedCampaignId,
         selectedCampaign,
-    selectedCampaignId,
         createCampaign,
         deleteCampaign,
         selectCampaign,

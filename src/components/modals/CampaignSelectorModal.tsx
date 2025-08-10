@@ -42,8 +42,8 @@ const CampaignSelectorModal: React.FC<CampaignSelectorModalProps> = ({ visible, 
 
     return (
         <Modal visible={visible} animationType="slide" transparent>
-            <View style={styles.modalOverlay}>
-                <View style={[styles.modalContent, { backgroundColor: currentTheme.card }]}>
+            <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={onClose}>
+                <TouchableOpacity style={[styles.modalContent, { backgroundColor: currentTheme.card }]} activeOpacity={1} onPress={() => {}}>
                     <View style={styles.modalHeader}>
                         <Text style={[styles.modalTitle, { color: currentTheme.text }]}>
                             Select Campaign
@@ -52,6 +52,7 @@ const CampaignSelectorModal: React.FC<CampaignSelectorModalProps> = ({ visible, 
                             <Ionicons name="close" size={24} color={currentTheme.text} />
                         </TouchableOpacity>
                     </View>
+                    <View style={[styles.separator, { backgroundColor: currentTheme.border }]} />
 
                     <FlatList
                         data={campaigns}
@@ -82,16 +83,16 @@ const CampaignSelectorModal: React.FC<CampaignSelectorModalProps> = ({ visible, 
                             <TouchableOpacity
                                 style={[
                                     styles.campaignItem,
-                                    { backgroundColor: selectedCampaignId === 'all' ? currentTheme.primary + '20' : 'transparent' }
+                                    { backgroundColor: !selectedCampaignId ? currentTheme.primary + '20' : 'transparent' }
                                 ]}
                                 onPress={handleShowAll}
                             >
                                 <View style={styles.campaignContent}>
                                     <Text style={[styles.campaignName, { color: currentTheme.text }]}>
-                                        Campaign: all
+                                        All Campaigns
                                     </Text>
                                     <Text style={[styles.campaignDescription, { color: currentTheme.noticeText }]}>
-                                        Show all campaigns • {getSortedCombats('all').length} combats • {getSpellbooksByCampaign('all').length} spellbooks
+                                        Show all campaigns • {getSortedCombats(undefined).length} combats • {getSpellbooksByCampaign(undefined).length} spellbooks
                                     </Text>
                                 </View>
                                 {selectedCampaignId === 'all' && (
@@ -107,8 +108,8 @@ const CampaignSelectorModal: React.FC<CampaignSelectorModalProps> = ({ visible, 
                             </View>
                         }
                     />
-                </View>
-            </View>
+                </TouchableOpacity>
+            </TouchableOpacity>
         </Modal>
     );
 };
@@ -169,6 +170,10 @@ const styles = StyleSheet.create({
     emptyText: {
         fontSize: 16,
         textAlign: 'center',
+    },
+    separator: {
+        height: 1,
+        marginBottom: 0,
     },
 });
 

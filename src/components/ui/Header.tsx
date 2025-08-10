@@ -24,21 +24,11 @@ const Header: React.FC = () => {
             <SafeAreaView style={{ backgroundColor: currentTheme.background, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 10 }} edges={['top']}>
                 <Image source={require('../../../assets/images/logo_lg.png')} style={[styles.logo, { height: 30, width: 30 }]} />
                 
-                {selectedCampaignId && selectedCampaignId !== 'all' ? (
-                    <TouchableOpacity onPress={handleCampaignPress} style={styles.campaignContainer}>
-                        <Text style={[styles.campaignText, { color: currentTheme.text }]}>
-                            {selectedCampaign?.name}
-                        </Text>
-                    </TouchableOpacity>
-                ) : selectedCampaignId === 'all' ? (
-                    <TouchableOpacity onPress={handleCampaignPress} style={styles.campaignContainer}>
-                        <Text style={[styles.campaignText, { color: currentTheme.text }]}>
-                            Campaign: all
-                        </Text>
-                    </TouchableOpacity>
-                ) : (
-                    <Image source={require('../../../assets/images/name.png')} style={[styles.logo, { height: 16, width: 90 }]} />
-                )}
+                <TouchableOpacity onPress={handleCampaignPress} style={[styles.filterBtn, { borderColor: selectedCampaignId ? currentTheme.primary : currentTheme.text }]}>
+                    <Text style={[styles.filterBtnText, { color: selectedCampaignId ? currentTheme.primary : currentTheme.text }]}>
+                        {selectedCampaignId && selectedCampaign ? selectedCampaign.name : 'All Campaigns'}
+                    </Text>
+                </TouchableOpacity>
             </SafeAreaView>
             
             <CampaignSelectorModal 
@@ -66,18 +56,17 @@ const styles = StyleSheet.create({
     logo: {
         resizeMode: 'contain',
     },
-    campaignContainer: {
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 16,
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-        borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.2)',
+    filterBtn: {
+        borderWidth: 2,
+        borderRadius: 8,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
-    campaignText: {
-        fontSize: 14,
-        fontWeight: '600',
-        textAlign: 'center',
+    filterBtnText: {
+        fontWeight: 'bold',
+        fontSize: 12,
     },
 });
 

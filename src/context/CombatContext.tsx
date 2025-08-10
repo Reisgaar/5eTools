@@ -1045,14 +1045,12 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     
     // Filter combats by campaign if campaignId is provided
     let filteredCombats = combats;
-    if (campaignId === 'all') {
-      // Show all combats when "all" is selected
+    if (!campaignId) {
+      // Show all combats when no campaign is selected (all)
       filteredCombats = combats;
-    } else if (campaignId) {
-      filteredCombats = combats.filter(combat => combat.campaignId === campaignId);
     } else {
-      // If no campaign is selected, show combats without campaign
-      filteredCombats = combats.filter(combat => !combat.campaignId);
+      // Filter by specific campaign
+      filteredCombats = combats.filter(combat => combat.campaignId === campaignId);
     }
     
     console.log('getSortedCombats - Filtered combats:', filteredCombats.length);
