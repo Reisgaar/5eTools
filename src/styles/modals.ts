@@ -183,41 +183,133 @@ export const createModalStyles = (theme: any) => StyleSheet.create({
     flex: 1,
   },
 
-  // Combat Selection Modal Styles
-  combatSelectionModalContent: {
+  // Generic Filter Modal Styles (for non-beast filters)
+  filterModalContent: {
     backgroundColor: theme.card,
     borderRadius: 12,
     padding: 24,
     width: 340,
-    maxWidth: '85%',
+    maxWidth: '90%',
+    maxHeight: '80%',
   },
-  combatSelectionTitle: {
+  filterModalTitle: {
     fontWeight: 'bold',
     fontSize: 18,
     color: theme.text,
     marginBottom: 16,
     textAlign: 'center',
   },
-  quantitySection: {
+  filterClearButton: {
+    borderWidth: 1,
+    borderRadius: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    alignSelf: 'flex-end',
+    marginBottom: 6,
+    minHeight: 24,
+    minWidth: 48,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  filterClearButtonText: {
+    fontWeight: 'bold',
+    fontSize: 12,
+  },
+  filterScrollView: {
+    maxHeight: 300,
+    marginVertical: 10,
+  },
+  filterGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  filterOptionContainer: {
+    width: '33%',
+  },
+  filterOptionContainerHalf: {
+    width: '50%',
+  },
+  filterOptionContainerFull: {
+    width: '100%',
+  },
+  filterOptionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 6,
+    borderRadius: 6,
+    marginBottom: 4,
+  },
+  filterOptionRowSelected: {
+    backgroundColor: theme.primary + '22',
+  },
+  filterCheckbox: {
+    width: 18,
+    height: 18,
+    borderWidth: 2,
+    borderRadius: 4,
+    marginRight: 4,
+  },
+  filterCheckboxSelected: {
+    backgroundColor: theme.primary,
+  },
+  filterOptionText: {
+    color: theme.text,
+    marginLeft: 8,
+    fontSize: 14,
+  },
+  filterApplyButton: {
+    borderRadius: 8,
+    paddingVertical: 10,
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  filterApplyButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+
+  // Generic Selection Modal Styles (for non-beast selections)
+  selectionModalContent: {
+    backgroundColor: theme.card,
+    borderRadius: 12,
+    padding: 24,
+    width: 360,
+    maxWidth: '90%',
+    maxHeight: '85%',
+  },
+  selectionModalTitle: {
+    fontWeight: 'bold',
+    fontSize: 18,
+    color: theme.text,
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  selectionModalContainer: {
+    flex: 1,
+    padding: 16,
+  },
+  selectionSection: {
     marginBottom: 16,
   },
-  quantityRow: {
+  selectionRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-start',
   },
-  quantityTitle: {
+  selectionTitle: {
     color: theme.text,
     marginRight: 8,
     marginBottom: 0,
     fontWeight: 'bold',
   },
-  quantityControls: {
+  selectionControls: {
     flexDirection: 'row',
     alignItems: 'center',
     marginLeft: 16,
   },
-  quantityButton: {
+  selectionButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
@@ -225,7 +317,7 @@ export const createModalStyles = (theme: any) => StyleSheet.create({
     alignItems: 'center',
     backgroundColor: theme.primary,
   },
-  quantityInput: {
+  selectionInput: {
     width: 60,
     height: 40,
     borderWidth: 1,
@@ -236,23 +328,23 @@ export const createModalStyles = (theme: any) => StyleSheet.create({
     color: theme.text,
     borderColor: theme.primary,
   },
-  combatListSection: {
+  selectionListSection: {
     marginBottom: 16,
   },
-  combatListTitle: {
+  selectionListTitle: {
     color: theme.text,
     fontWeight: 'bold',
     marginBottom: 8,
   },
-  combatListEmpty: {
+  selectionListEmpty: {
     color: theme.noticeText,
     textAlign: 'center',
     marginVertical: 8,
   },
-  combatListScroll: {
+  selectionListScroll: {
     maxHeight: 200,
   },
-  combatListItem: {
+  selectionListItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -261,15 +353,15 @@ export const createModalStyles = (theme: any) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: theme.border,
   },
-  combatListItemSelected: {
+  selectionListItemSelected: {
     backgroundColor: theme.primary + '20',
   },
-  combatName: {
+  selectionName: {
     color: theme.text,
     fontWeight: 'bold',
     fontSize: 16,
   },
-  combatCount: {
+  selectionCount: {
     color: theme.noticeText,
     fontSize: 12,
   },

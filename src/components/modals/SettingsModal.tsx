@@ -118,14 +118,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       {/* Status Conditions Section */}
       <View style={styles.section}>
         <Text style={[styles.sectionTitle, { color: theme.text }]}>Status Conditions</Text>
-        <FlatList
-          data={DEFAULT_CONDITIONS}
-          keyExtractor={item => item}
-          numColumns={2}
-          scrollEnabled={false}
-          renderItem={({ item }) => (
+        <View style={styles.conditionsGrid}>
+          {DEFAULT_CONDITIONS.map((item) => (
             <TouchableOpacity
-              style={[ styles.conditionBtn ]}
+              key={item}
+              style={styles.conditionBtn}
               onPress={() => handleToggleCondition(item)}
             >
               <Ionicons
@@ -136,9 +133,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
               />
               <Text style={{ color: theme.text, fontSize: 12 }}>{item}</Text>
             </TouchableOpacity>
-          )}
-          style={{ marginBottom: 16 }}
-        />
+          ))}
+        </View>
         
         {/* Save Button */}
         <TouchableOpacity onPress={handleAccept} style={[styles.saveBtn, { backgroundColor: theme.primary }]}> 
@@ -493,6 +489,11 @@ const styles = StyleSheet.create({
   sectionDescription: {
     fontSize: 12,
     marginBottom: 10,
+  },
+  conditionsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-around',
   },
 });
 

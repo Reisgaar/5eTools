@@ -10,6 +10,7 @@ interface Player {
   race: string;
   class: string;
   campaignId?: string;
+  tokenUrl?: string;
 }
 
 interface PlayerModalProps {
@@ -55,51 +56,50 @@ export default function PlayerModal({
     <BaseModal visible={visible} onClose={onClose} theme={theme} title="Add Players to Combat">
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
             
-            <FlatList
-              data={filteredPlayers}
-              keyExtractor={item => item.name}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  key={item.name}
-                  style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}
-                  onPress={() => onPlayerToggle(item.name)}
-                >
-                  <Ionicons
-                    name={selectedPlayers.includes(item.name) ? 'checkbox' : 'square-outline'}
-                    size={22}
-                    color={theme.primary}
-                    style={{ marginRight: 8 }}
-                  />
-                  <Image
-                    source={{ uri: item.tokenUrl || DEFAULT_PLAYER_TOKEN }}
-                    style={{
-                      width: 32,
-                      height: 32,
-                      borderRadius: 16,
-                      marginRight: 8,
-                      borderWidth: 2,
-                      borderColor: '#22c55a'
-                    }}
-                  />
-                  <View style={{ flex: 1 }}>
-                    <Text style={{ color: theme.text, fontWeight: 'bold' }}>{item.name}</Text>
-                    <Text style={{ color: theme.text, fontSize: 12 }}>
-                      {item.race} - {item.class}
-                    </Text>
-                    {getCampaignName(item.campaignId) && (
-                      <Text style={{ color: theme.noticeText, fontSize: 10 }}>
-                        Campaign: {getCampaignName(item.campaignId)}
-                      </Text>
-                    )}
-                  </View>
-                </TouchableOpacity>
-              )}
-              ListEmptyComponent={
+            <View>
+              {filteredPlayers.length === 0 ? (
                 <Text style={{ color: theme.noticeText, textAlign: 'center' }}>
                   No players found.
                 </Text>
-              }
-            />
+              ) : (
+                filteredPlayers.map((item) => (
+                  <TouchableOpacity
+                    key={item.name}
+                    style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}
+                    onPress={() => onPlayerToggle(item.name)}
+                  >
+                    <Ionicons
+                      name={selectedPlayers.includes(item.name) ? 'checkbox' : 'square-outline'}
+                      size={22}
+                      color={theme.primary}
+                      style={{ marginRight: 8 }}
+                    />
+                    <Image
+                      source={{ uri: item.tokenUrl || DEFAULT_PLAYER_TOKEN }}
+                      style={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: 16,
+                        marginRight: 8,
+                        borderWidth: 2,
+                        borderColor: '#22c55a'
+                      }}
+                    />
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ color: theme.text, fontWeight: 'bold' }}>{item.name}</Text>
+                      <Text style={{ color: theme.text, fontSize: 12 }}>
+                        {item.race} - {item.class}
+                      </Text>
+                      {getCampaignName(item.campaignId) && (
+                        <Text style={{ color: theme.noticeText, fontSize: 10 }}>
+                          Campaign: {getCampaignName(item.campaignId)}
+                        </Text>
+                      )}
+                    </View>
+                  </TouchableOpacity>
+                ))
+              )}
+            </View>
             
             <TouchableOpacity 
               onPress={onAddPlayers} 

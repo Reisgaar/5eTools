@@ -28,17 +28,21 @@ import { books as sourceIdToNameMap } from 'src/constants/books';
 export default function BestiaryScreen() {
     const { currentTheme } = useAppSettings();
     const { simpleBeasts, simpleSpells, isLoading, isInitialized, getFullBeast, getFullSpell } = useData();
-    const { combats, currentCombatId, addCombatantToCombat, createCombat, selectCombat, getSortedCombats } = useCombat();
+    const { addCombatantToCombat, getSortedCombats } = useCombat();
     const { openBeastModal, openSpellModal } = useModal();
     const { selectedCampaignId } = useCampaign();
     const [combatSelectionModalVisible, setCombatSelectionModalVisible] = useState(false);
     const [beastToAdd, setBeastToAdd] = useState<any | null>(null);
-    const [newCombatName, setNewCombatName] = useState('');
     const [quantity, setQuantity] = useState('1');
     const [pageReady, setPageReady] = useState(false);
 
     // Use custom hook for all filter logic - but defer initialization
     const filters = useBestiaryFilters(simpleBeasts, simpleBeasts);
+
+    // Memoize combats to avoid unnecessary recalculations
+    const sortedCombats = React.useMemo(() => {
+        return getSortedCombats(selectedCampaignId);
+    }, [getSortedCombats, selectedCampaignId]);
 
     // Display beasts individually (no grouping)
     const groupedBeasts = React.useMemo(() => {
@@ -94,23 +98,6 @@ export default function BestiaryScreen() {
         setBeastToAdd(null);
         setQuantity('1');
     };
-    const handleCreateNewCombat = () => {
-        if (newCombatName.trim()) {
-            // Use selectedCampaignId if it's not 'all', otherwise don't assign a campaign
-            const campaignId = selectedCampaignId && selectedCampaignId !== 'all' ? selectedCampaignId : undefined;
-            const combatId = createCombat(newCombatName.trim(), campaignId);
-            if (beastToAdd) {
-                const qty = parseInt(quantity, 10) || 1;
-                for (let i = 0; i < qty; i++) {
-                    addCombatantToCombat(beastToAdd, combatId);
-                }
-            }
-            setCombatSelectionModalVisible(false);
-            setBeastToAdd(null);
-            setNewCombatName('');
-            setQuantity('1');
-        }
-    };
     const handleViewBeastDetails = async (beast: any) => {
         openBeastModal(beast);
     };
@@ -128,22 +115,6 @@ export default function BestiaryScreen() {
         }
     };
 
-    function getFullSchool(school: string) {
-        if (!school) return '';
-        const SCHOOL_MAP: Record<string, string> = {
-            A: 'Abjuration',
-            C: 'Conjuration',
-            D: 'Divination',
-            E: 'Enchantment',
-            V: 'Evocation',
-            I: 'Illusion',
-            N: 'Necromancy',
-            T: 'Transmutation',
-        };
-        const key = school.charAt(0).toUpperCase();
-        return SCHOOL_MAP[key] || school;
-    }
-
     return (
         <View style={{ flex: 1, backgroundColor: currentTheme.background, padding: 20, paddingBottom: 0 }}>
             {/* Combat Selection Modal */}
@@ -151,14 +122,11 @@ export default function BestiaryScreen() {
                 visible={combatSelectionModalVisible}
                 onClose={() => setCombatSelectionModalVisible(false)}
                 beastToAdd={beastToAdd}
-                combats={getSortedCombats(selectedCampaignId)}
-                currentCombatId={currentCombatId}
-                newCombatName={newCombatName}
+                combats={sortedCombats}
+                currentCombatId={null} // Removed currentCombatId from props
                 quantity={quantity}
-                onNewCombatNameChange={setNewCombatName}
                 onQuantityChange={setQuantity}
                 onSelectCombat={handleSelectCombat}
-                onCreateNewCombat={handleCreateNewCombat}
                 theme={currentTheme}
             />
             {/* CR Filter Modal */}
@@ -204,7 +172,7 @@ export default function BestiaryScreen() {
                         style={[styles.filterBtn, { borderColor: filters.selectedCRs.length > 0 ? currentTheme.primary : currentTheme.text }]}
                     >
                         <Text style={{ color: filters.selectedCRs.length > 0 ? currentTheme.primary : currentTheme.text, fontWeight: 'bold', fontSize: 12 }}>
-                            {filters.getCRFilterText()}
+                            CR
                         </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
@@ -212,15 +180,27 @@ export default function BestiaryScreen() {
                         style={[styles.filterBtn, { borderColor: filters.selectedTypes.length > 0 ? currentTheme.primary : currentTheme.text }]}
                     >
                         <Text style={{ color: filters.selectedTypes.length > 0 ? currentTheme.primary : currentTheme.text, fontWeight: 'bold', fontSize: 12 }}>
-                            {filters.getTypeFilterText()}
+                            Type
                         </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={filters.openSourceFilterModal}
-                        style={[styles.filterBtn, { borderColor: filters.selectedSources.length > 0 ? currentTheme.primary : currentTheme.text, marginRight: 0 }]}
+                        style={[styles.filterBtn, { borderColor: filters.selectedSources.length > 0 ? currentTheme.primary : currentTheme.text }]}
                     >
                         <Text style={{ color: filters.selectedSources.length > 0 ? currentTheme.primary : currentTheme.text, fontWeight: 'bold', fontSize: 12 }}>
-                            {filters.getSourceFilterText()}
+                            Source
+                        </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => {
+                            filters.setSelectedCRs([]);
+                            filters.setSelectedTypes([]);
+                            filters.setSelectedSources([]);
+                        }}
+                        style={[styles.clearAllBtn, { borderColor: '#ef4444' }]}
+                    >
+                        <Text style={{ color: '#ef4444', fontWeight: 'bold', fontSize: 12 }}>
+                            Clear
                         </Text>
                     </TouchableOpacity>
                     </View>
@@ -232,9 +212,17 @@ export default function BestiaryScreen() {
                 placeholderTextColor={currentTheme.noticeText}
                 value={filters.search}
                 onChangeText={filters.setSearch}
-                autoCorrect={false}
-                autoCapitalize="none"
             />
+            {/* Filter Summary */}
+            {filters.getFilterSummary().length > 0 && (
+                <View style={styles.filterSummaryContainer}>
+                    {filters.getFilterSummary().map((filterLine, index) => (
+                        <Text key={index} style={[styles.filterSummaryText, { color: currentTheme.noticeText }]}>
+                            {filterLine}
+                        </Text>
+                    ))}
+                </View>
+            )}
             {/* Content Area */}
             <View style={{ flex: 1 }}>
                 {/* Loading states */}
@@ -332,5 +320,25 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         paddingVertical: 20,
+    },
+    filterSummaryContainer: {
+        marginTop: 8,
+        paddingHorizontal: 12,
+        paddingVertical: 4,
+        backgroundColor: 'rgba(0,0,0,0.1)',
+        borderRadius: 8,
+    },
+    filterSummaryText: {
+        fontSize: 12,
+        textAlign: 'left',
+    },
+    clearAllBtn: {
+        borderWidth: 2,
+        borderRadius: 8,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        marginLeft: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
 });

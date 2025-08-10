@@ -6,7 +6,7 @@ import { useData } from '../../context/DataContext';
 import { useAppSettings } from '../../context/AppSettingsContext';
 import { ALIGNMENTS, SIZES, STATS } from '../../data/helpers';
 import { renderEntries, parseDiceExpression, rollDice } from '../../utils/replaceTags';
-import { Separator } from '../ui';
+import Separator from '../ui/Separator';
 import { 
     normalizeString, 
     getCreatureSourceForBeast, 
@@ -18,6 +18,7 @@ import {
 import SpellNotFoundModal from '../modals/SpellNotFoundModal';
 import CreatureNotFoundModal from '../modals/CreatureNotFoundModal';
 import SourceSelectionModal from '../modals/SourceSelectionModal';
+import { createBeastStyles } from '../../styles/beastStyles';
 
 interface BeastDetailModalProps {
     visible: boolean;
@@ -26,12 +27,6 @@ interface BeastDetailModalProps {
     theme: any;
     onCreaturePress?: (name: string, source: string) => void;
     onSpellPress?: (name: string, source: string) => void;
-}
-
-function getTokenUrl(beast: any): string | null {
-    if (!beast.hasToken || !beast.source || !beast.name) return null;
-    const encodedName = encodeURIComponent(beast.name);
-    return `https://5e.tools/img/bestiary/tokens/${beast.source}/${encodedName}.webp`;
 }
 
 function getAbilityMod(score: number) {
@@ -86,28 +81,6 @@ function formatAC(ac: any): string {
         return JSON.stringify(ac);
     }
     return String(ac);
-}
-
-// Helper function to extract AC value for combat
-export function extractACValue(ac: any): number {
-    if (!ac) return 0;
-    
-    // Handle array of AC objects
-    if (Array.isArray(ac)) {
-        const firstAC = ac[0];
-        if (typeof firstAC === 'object' && firstAC !== null) {
-            return Number(firstAC.ac || firstAC.value || firstAC.armor || 0);
-        }
-        return Number(firstAC || 0);
-    }
-    
-    // Handle single AC object
-    if (typeof ac === 'object' && ac !== null) {
-        return Number(ac.ac || ac.value || ac.armor || 0);
-    }
-    
-    // Handle simple values
-    return Number(ac) || 0;
 }
 
 function formatHP(hp: any) {
@@ -370,6 +343,8 @@ function formatCR(cr: any) {
 }
 
 const BeastDetailModal: React.FC<BeastDetailModalProps> = ({ visible, beast, onClose, theme, onCreaturePress, onSpellPress }) => {
+    const styles = createBeastStyles(theme);
+    
     // All hooks must be at the top level, before any conditional returns
     const [showFullImage, setShowFullImage] = React.useState(false); // Always start with details view
     const [cachedImageUrl, setCachedImageUrl] = React.useState<string | null>(null);
@@ -433,20 +408,6 @@ const BeastDetailModal: React.FC<BeastDetailModalProps> = ({ visible, beast, onC
         }
     }, [visible, beast]);
 
-    // Get token URL using the new image manager
-    const getTokenUrl = async (beast: any): Promise<string | null> => {
-        if (!beast?.['source'] || !beast?.['name']) return null;
-        
-        try {
-            const imageInfo = await getCachedCreatureImages(beast['source'], beast['name']);
-            return imageInfo.cachedTokenUrl || imageInfo.tokenUrl;
-        } catch (error) {
-            console.error('Error getting token URL:', error);
-            const encodedName = encodeURIComponent(beast['name']);
-            return `https://5e.tools/img/bestiary/tokens/${beast['source']}/${encodedName}.webp`;
-        }
-    };
-
     const handleTokenPress = async () => {
         if (showFullImage) {
             // If we're showing full image, go back to details (token)
@@ -468,8 +429,8 @@ const BeastDetailModal: React.FC<BeastDetailModalProps> = ({ visible, beast, onC
     if (!visible) return null;
     if (!beast) {
         return (
-            <View style={styles.overlay} pointerEvents="auto">
-                <View style={[styles.content, { backgroundColor: theme.card, justifyContent: 'center', alignItems: 'center' }]}> 
+            <View style={styles.beastDetailOverlay} pointerEvents="auto">
+                <View style={[styles.beastDetailContent, { backgroundColor: theme.card, justifyContent: 'center', alignItems: 'center' }]}> 
                     <ActivityIndicator size="large" color={theme.primary} />
                 </View>
             </View>
@@ -679,9 +640,9 @@ const BeastDetailModal: React.FC<BeastDetailModalProps> = ({ visible, beast, onC
     
     return (
         <>
-        <View style={styles.overlay} pointerEvents="auto">
-            <View style={[styles.content, { backgroundColor: theme.card, paddingBottom: 0, paddingTop: 0, paddingLeft: 0, paddingRight: 0, borderWidth: 2, borderColor: theme.primary }]}> 
-                <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
+        <View style={styles.beastDetailOverlay} pointerEvents="auto">
+            <View style={[styles.beastDetailContent, { backgroundColor: theme.card, paddingBottom: 0, paddingTop: 0, paddingLeft: 0, paddingRight: 0, borderWidth: 2, borderColor: theme.primary }]}> 
+                <TouchableOpacity onPress={onClose} style={styles.beastDetailCloseBtn}>
                     <Text style={{ color: theme.primary, fontWeight: 'bold', fontSize: 18 }}>✕</Text>
                 </TouchableOpacity>
 
@@ -697,7 +658,7 @@ const BeastDetailModal: React.FC<BeastDetailModalProps> = ({ visible, beast, onC
                             </TouchableOpacity>
                         )}
                         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-start' }}>
-                            <Text style={[styles.title, { alignSelf: 'flex-start', marginBottom: 0, color: theme.text }]}>{beast['name'] || 'Unknown Beast'}</Text>
+                            <Text style={[styles.beastDetailTitle, { alignSelf: 'flex-start', marginBottom: 0, color: theme.text }]}>{beast['name'] || 'Unknown Beast'}</Text>
                             {/* Size, Type, Alignment */}
                             <Text style={{ color: theme.text, marginBottom: 2, fontSize: 12, fontStyle: 'italic' }}>
                                 {formatSize(beast['size'])} {formatType(beast['type'])}{beast['alignmentPrefix'] ? `, ${beast['alignmentPrefix']}` : ', '}{formatAlignment(beast['alignment'])}
@@ -888,52 +849,5 @@ const BeastDetailModal: React.FC<BeastDetailModalProps> = ({ visible, beast, onC
         </>
     );
 };
-
-const styles = StyleSheet.create({
-    overlay: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0,0,0,0.4)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 1000,
-    },
-    content: {
-        width: '90%',
-        borderRadius: 16,
-        padding: 20,
-        alignItems: 'stretch',
-        elevation: 4,
-        maxHeight: '80%',
-    },
-    closeBtn: {
-        position: 'absolute',
-        top: 10,
-        right: 10,
-        zIndex: 2,
-    },
-    title: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 8,
-        alignSelf: 'center',
-    },
-    row: {
-        flexDirection: 'row',
-        marginBottom: 8,
-        flexWrap: 'wrap',
-    },
-    label: {
-        fontWeight: 'bold',
-        marginRight: 6,
-    },
-    value: {
-        flex: 1,
-        flexWrap: 'wrap',
-    },
-});
 
 export default BeastDetailModal;

@@ -8,7 +8,7 @@ import { useCampaign } from 'src/context/CampaignContext';
 import { useAppSettings } from 'src/context/AppSettingsContext';
 
 // COMPONENTS
-import { CampaignSelectorModal } from 'src/components/modals';
+import CampaignSelectorModal from 'src/components/modals/CampaignSelectorModal';
 
 const Header: React.FC = () => {
     const { selectedCampaign, selectedCampaignId, clearSelectedCampaign } = useCampaign();

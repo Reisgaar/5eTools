@@ -2,6 +2,8 @@
  * Utility functions for beast/monster data processing
  */
 
+import { normalizeString } from './stringUtils';
+
 /**
  * Calculates passive perception from beast data
  * @param beast - Beast object with skills or passive perception
@@ -174,4 +176,26 @@ export function extractSenses(beast: any): string {
     }
     
     return senses;
+}
+
+// Helper function to extract AC value for combat
+export function extractACValue(ac: any): number {
+    if (!ac) return 0;
+    
+    // Handle array of AC objects
+    if (Array.isArray(ac)) {
+        const firstAC = ac[0];
+        if (typeof firstAC === 'object' && firstAC !== null) {
+            return Number(firstAC.ac || firstAC.value || firstAC.armor || 0);
+        }
+        return Number(firstAC || 0);
+    }
+    
+    // Handle single AC object
+    if (typeof ac === 'object' && ac !== null) {
+        return Number(ac.ac || ac.value || ac.armor || 0);
+    }
+    
+    // Handle simple number or string
+    return Number(ac || 0);
 }

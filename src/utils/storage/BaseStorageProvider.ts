@@ -507,11 +507,105 @@ export abstract class BaseStorageProvider implements IStorageProvider {
             await this.regenerateCombatsIndex(allKeys);
             await this.regenerateSpellClassRelationsIndex(allKeys);
             await this.regenerateAvailableClassesIndex(allKeys);
+            
+            // Regenerate filter indexes for better performance
+            await this.regenerateFilterIndexes(allKeys);
 
             console.log('✅ Successfully regenerated all indexes');
         } catch (error) {
             console.error('❌ Error during indexes regeneration:', error);
             throw error;
+        }
+    }
+
+    /**
+     * Regenerate filter indexes (CR, Type, Source) for better performance
+     */
+    private async regenerateFilterIndexes(allKeys: string[]): Promise<void> {
+        console.log('🔄 Regenerating filter indexes...');
+        
+        const beastKeys = allKeys.filter(key => key.startsWith(STORAGE_KEYS.MONSTERS_PREFIX));
+        console.log(`📋 Found ${beastKeys.length} beast files for filter indexing`);
+
+        if (beastKeys.length === 0) {
+            console.log('ℹ️ No beast files found for filter indexing');
+            return;
+        }
+
+        // Create optimized filter indexes
+        const crIndex = new Set<string>();
+        const typeIndex = new Set<string>();
+        const sourceIndex = new Set<string>();
+        
+        for (const key of beastKeys) {
+            try {
+                const beast = await this.loadIndividual(key);
+                if (beast && beast.name) {
+                    // Index CR
+                    if (beast.CR || beast.cr) {
+                        const crValue = typeof beast.CR === 'object' ? 
+                            (beast.CR.cr || beast.CR.value || JSON.stringify(beast.CR)) : 
+                            String(beast.CR || beast.cr);
+                        crIndex.add(crValue);
+                    } else {
+                        crIndex.add('Unknown');
+                    }
+                    
+                    // Index Type
+                    if (beast.type) {
+                        typeIndex.add(beast.type);
+                    } else {
+                        typeIndex.add('Unknown');
+                    }
+                    
+                    // Index Source
+                    if (beast.source) {
+                        sourceIndex.add(beast.source);
+                    } else {
+                        sourceIndex.add('Unknown');
+                    }
+                }
+            } catch (error) {
+                console.error(`❌ Error processing beast for filter indexing from ${key}:`, error);
+            }
+        }
+
+        // Store filter indexes
+        const filterIndexes = {
+            cr: Array.from(crIndex).sort((a, b) => {
+                // Sort CRs: numbers first, then 'Unknown' last
+                if (a === 'Unknown') return 1;
+                if (b === 'Unknown') return -1;
+                
+                // Handle fractions
+                const parseCR = (val: string) => {
+                    if (val.includes('/')) {
+                        const [num, denom] = val.split('/').map(Number);
+                        return denom ? num / denom : 0;
+                    }
+                    const n = parseFloat(val);
+                    return isNaN(n) ? 0 : n;
+                };
+                return parseCR(a) - parseCR(b);
+            }),
+            type: Array.from(typeIndex).sort(),
+            source: Array.from(sourceIndex).sort()
+        };
+
+        // Store the filter indexes
+        await this.storeIndex('filter_indexes', filterIndexes);
+        console.log(`✅ Regenerated filter indexes: ${filterIndexes.cr.length} CRs, ${filterIndexes.type.length} Types, ${filterIndexes.source.length} Sources`);
+    }
+
+    /**
+     * Load filter indexes for optimized filtering
+     */
+    public async loadFilterIndexes(): Promise<{ cr: string[], type: string[], source: string[] } | null> {
+        try {
+            return await this.loadIndex('filter_indexes');
+        } catch (error) {
+            console.log('ℹ️ No filter indexes found, will be generated on next reindex');
+            return null;
         }
     }
 

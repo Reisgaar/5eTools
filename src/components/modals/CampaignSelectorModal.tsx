@@ -92,10 +92,10 @@ const CampaignSelectorModal: React.FC<CampaignSelectorModalProps> = ({ visible, 
                                         All Campaigns
                                     </Text>
                                     <Text style={[styles.campaignDescription, { color: currentTheme.noticeText }]}>
-                                        Show all campaigns • {getSortedCombats(undefined).length} combats • {getSpellbooksByCampaign(undefined).length} spellbooks
+                                        Show all campaigns • {getSortedCombats(null).length} combats • {getSpellbooksByCampaign(undefined).length} spellbooks
                                     </Text>
                                 </View>
-                                {selectedCampaignId === 'all' && (
+                                {!selectedCampaignId && (
                                     <Ionicons name="checkmark-circle" size={20} color={currentTheme.primary} />
                                 )}
                             </TouchableOpacity>

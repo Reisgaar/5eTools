@@ -42,7 +42,7 @@ export default function SettingsScreen() {
 
     const handleRegenerateIndexes = async () => {
         showConfirmModal(
-            'This will regenerate all indexes (beasts, spells, combats, relations, classes) from existing data files. This action cannot be undone.',
+            'This will regenerate all indexes (beasts, spells, combats, relations, classes, filter indexes) from existing data files. This action cannot be undone.',
             async () => {
                 try {
                     await regenerateAllIndexes();
@@ -50,6 +50,23 @@ export default function SettingsScreen() {
                 } catch (error) {
                     console.error('❌ Error regenerating indexes:', error);
                     Alert.alert('Error', 'Failed to regenerate indexes. Please try again.');
+                }
+            }
+        );
+    };
+
+    const handleRegenerateFilterIndexes = async () => {
+        showConfirmModal(
+            'This will regenerate only the filter indexes (CR, Type, Source) for better performance on Android. This action cannot be undone.',
+            async () => {
+                try {
+                    const { getStorage } = await import('src/utils/storage');
+                    const storage = getStorage();
+                    await storage.regenerateAllIndexes(); // This includes filter indexes
+                    Alert.alert('Success', 'Filter indexes have been regenerated successfully.');
+                } catch (error) {
+                    console.error('❌ Error regenerating filter indexes:', error);
+                    Alert.alert('Error', 'Failed to regenerate filter indexes. Please try again.');
                 }
             }
         );
@@ -140,8 +157,14 @@ export default function SettingsScreen() {
                     > 
                         <Text style={[commonStyles.buttonText, { color: 'white' }]}>Regenerate All Indexes</Text>
                     </Pressable>
+                    <Pressable 
+                        onPress={handleRegenerateFilterIndexes} 
+                        style={[commonStyles.button, { backgroundColor: '#4f46e5', marginTop: 8 }]}
+                    > 
+                        <Text style={[commonStyles.buttonText, { color: 'white' }]}>Regenerate Filter Indexes</Text>
+                    </Pressable>
                     <Text style={[styles.settingDescription, { color: currentTheme.noticeText, marginTop: 4 }]}>
-                        Regenerates all indexes (beasts, spells, combats, relations, classes) from existing data files.
+                        Regenerates all indexes (beasts, spells, combats, relations, classes, filter indexes) from existing data files. This improves filter performance on Android.
                     </Text>
                 </View>
 

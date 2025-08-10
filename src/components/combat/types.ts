@@ -83,6 +83,7 @@ export interface Combat {
   createdAt: number;
   combatants: Combatant[];
   isActive?: boolean;
+  campaignId?: string;
 }
 
 export interface CombatSelectionModalProps {
@@ -91,12 +92,9 @@ export interface CombatSelectionModalProps {
   beastToAdd: any | null;
   combats: Combat[];
   currentCombatId: string | null;
-  newCombatName: string;
   quantity: string;
-  onNewCombatNameChange: (name: string) => void;
   onQuantityChange: (quantity: string) => void;
   onSelectCombat: (combatId: string) => void;
-  onCreateNewCombat: () => void;
   theme: any;
 }
 

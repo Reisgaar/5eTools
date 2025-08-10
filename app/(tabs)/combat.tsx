@@ -105,7 +105,7 @@ export default function CombatScreen() {
   };
 
   // Get combats filtered by selected campaign
-  const filteredCombats = getSortedCombats(selectedCampaign?.id || 'all');
+  const filteredCombats = getSortedCombats(selectedCampaign?.id || null);
   
   // Debug logging
   console.log('CombatScreen - selectedCampaign:', selectedCampaign);

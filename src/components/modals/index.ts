@@ -10,7 +10,6 @@ export { default as MaxHPEditModal } from './MaxHPEditModal';
 export { default as CRFilterModal } from './CRFilterModal';
 export { default as TypeFilterModal } from './TypeFilterModal';
 export { default as SourceFilterModal } from './SourceFilterModal';
-export { default as BaseModal } from '../ui/BaseModal';
 export { default as DiceRollModal } from './DiceRollModal';
 export { default as GlobalModals } from './GlobalModals';
 export { default as SpellNotFoundModal } from './SpellNotFoundModal';

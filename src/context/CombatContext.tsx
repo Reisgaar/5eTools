@@ -1,7 +1,6 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { Platform } from 'react-native';
-import { extractACValue } from '../components/beasts/BeastDetailModal';
-import { calculatePassivePerception, calculateInitiativeBonus, extractSpeed, extractSenses } from '../utils/beastUtils';
+import { calculatePassivePerception, calculateInitiativeBonus, extractSpeed, extractSenses, extractACValue } from '../utils/beastUtils';
 import { DEFAULT_CREATURE_TOKEN, DEFAULT_PLAYER_TOKEN } from '../constants/tokens';
 import { deleteCombatFile, loadCombatFromFile, loadCombatsIndexFromFile, storeCombatToFile } from '../utils/fileStorage';
 import { getTokenUrl, getCachedTokenUrl } from '../utils/tokenCache';
@@ -78,7 +77,7 @@ interface CombatContextType {
   updateCombatantConditions: (id: string, conditions: string[]) => void;
   updateCombatantNote: (id: string, note: string) => void;
   setCombatActive: (id: string, active: boolean) => void;
-  getSortedCombats: (campaignId?: string) => Combat[];
+  getSortedCombats: (campaignId?: string | null) => Combat[];
 }
 
 const CombatContext = createContext<CombatContextType | undefined>(undefined);
@@ -205,8 +204,8 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
               name: combatIndex.name,
               file: combatIndex.file,
               id: combatIndex.id,
-              error: error.message,
-              stack: error.stack
+              error: error instanceof Error ? error.message : String(error),
+              stack: error instanceof Error ? error.stack : undefined
             });
             return null;
           }
@@ -227,7 +226,7 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                     return { ...combatant, tokenUrl: cachedUrl };
                   }
                 } catch (error) {
-                  console.error(`Error updating token URL for ${combatant.name}:`, error);
+                  console.error(`Error updating token URL for ${combatant.name}:`, error instanceof Error ? error.message : String(error));
                 }
               }
               return combatant;
@@ -261,7 +260,10 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const groupByName = currentCombat?.groupByName || {};
 
   const createCombat = (name: string, campaignId?: string): string => {
-    const id = `combat-${Date.now()}-${Math.random()}`;
+    // Use a more robust ID generation to avoid duplicates
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substring(2, 15);
+    const id = `combat-${timestamp}-${random}`;
     const newCombat: Combat = {
       id,
       name,
@@ -336,8 +338,14 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       const originalTokenUrl = `https://5e.tools/img/bestiary/tokens/${monster.source}/${encodeURIComponent(monster.name)}.webp`;
       
       try {
-        // Use the new image manager for better caching
-        tokenUrl = await getCachedToken(monster.source, monster.name, originalTokenUrl);
+        const cachedTokenUrl = await getTokenUrl(monster.source, monster.name, originalTokenUrl);
+        // Ensure we have a valid string URL
+        if (cachedTokenUrl && typeof cachedTokenUrl === 'string') {
+          tokenUrl = cachedTokenUrl;
+        } else {
+          console.warn('Invalid token URL received for', monster.name, ':', cachedTokenUrl);
+          tokenUrl = originalTokenUrl; // Fallback to original URL
+        }
       } catch (error) {
         console.error(`Error caching token for ${monster.name}:`, error);
         // Fallback to original URL
@@ -1039,23 +1047,16 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   // Get combats sorted by: started first, then by name (alphabetically)
-  const getSortedCombats = (campaignId?: string): Combat[] => {
-    console.log('getSortedCombats - Total combats:', combats.length);
-    console.log('getSortedCombats - Campaign ID:', campaignId);
-    
+  const getSortedCombats = useCallback((campaignId?: string | null): Combat[] => {
     // Filter combats by campaign if campaignId is provided
     let filteredCombats = combats;
-    if (!campaignId) {
-      // Show all combats when no campaign is selected (all)
-      filteredCombats = combats;
-    } else {
+    if (campaignId) {
       // Filter by specific campaign
       filteredCombats = combats.filter(combat => combat.campaignId === campaignId);
+    } else {
+      // Show all combats when no campaign is selected (null or undefined)
+      filteredCombats = combats;
     }
-    
-    console.log('getSortedCombats - Filtered combats:', filteredCombats.length);
-    console.log('getSortedCombats - All combats:', combats.map(c => ({ id: c.id, name: c.name, campaignId: c.campaignId })));
-    console.log('getSortedCombats - Filtered combats:', filteredCombats.map(c => ({ id: c.id, name: c.name, campaignId: c.campaignId })));
     
     // Ensure all combats have required properties
     const normalizedCombats = filteredCombats.map(combat => ({
@@ -1072,7 +1073,7 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       // Then by name (alphabetically)
       return a.name.localeCompare(b.name);
     });
-  };
+  }, [combats]);
 
   return (
     <CombatContext.Provider value={{ 

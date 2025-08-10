@@ -215,44 +215,40 @@ export default function HomeScreen() {
                     
                     {campaigns.length > 0 ? (
                         <View style={{ borderWidth: 1, borderColor: currentTheme.primary, borderRadius: 8, overflow: 'hidden' }}>
-                            <FlatList
-                                data={campaigns}
-                                keyExtractor={item => item.id}
-                                renderItem={({ item, index }) => (
-                                    <View style={[styles.campaignItem, { 
-                                        borderBottomWidth: index === campaigns.length - 1 ? 0 : 1, 
-                                        borderBottomColor: currentTheme.primary,
-                                        backgroundColor: currentTheme.card
-                                    }]}>
-                                        <View style={styles.campaignContent}>
-                                            <View style={{ flex: 1 }}>
-                                                <Text style={[styles.campaignName, { color: currentTheme.text }]}>
-                                                    {item.name}
+                            {campaigns.map((item, index) => (
+                                <View key={item.id} style={[styles.campaignItem, { 
+                                    borderBottomWidth: index === campaigns.length - 1 ? 0 : 1, 
+                                    borderBottomColor: currentTheme.primary,
+                                    backgroundColor: currentTheme.card
+                                }]}>
+                                    <View style={styles.campaignContent}>
+                                        <View style={{ flex: 1 }}>
+                                            <Text style={[styles.campaignName, { color: currentTheme.text }]}>
+                                                {item.name}
+                                            </Text>
+                                            {item.description && (
+                                                <Text style={[styles.campaignDescription, { color: currentTheme.noticeText }]}>
+                                                    {item.description}
                                                 </Text>
-                                                {item.description && (
-                                                    <Text style={[styles.campaignDescription, { color: currentTheme.noticeText }]}>
-                                                        {item.description}
-                                                    </Text>
-                                                )}
-                                            </View>
-                                        </View>
-                                        <View style={styles.campaignActions}>
-                                            <TouchableOpacity 
-                                                onPress={() => openEditCampaignModal(item)} 
-                                                style={[styles.actionButton, { backgroundColor: currentTheme.primary, marginRight: 8 }]}
-                                            >
-                                                <Ionicons name="pencil" size={16} color="white" />
-                                            </TouchableOpacity>
-                                            <TouchableOpacity 
-                                                onPress={() => handleDeleteCampaign(item.id)}
-                                                style={[styles.actionButton, { backgroundColor: '#dc2626' }]}
-                                            >
-                                                <Ionicons name="trash" size={16} color="white" />
-                                            </TouchableOpacity>
+                                            )}
                                         </View>
                                     </View>
-                                )}
-                            />
+                                    <View style={styles.campaignActions}>
+                                        <TouchableOpacity 
+                                            onPress={() => openEditCampaignModal(item)} 
+                                            style={[styles.actionButton, { backgroundColor: currentTheme.primary, marginRight: 8 }]}
+                                        >
+                                            <Ionicons name="pencil" size={16} color="white" />
+                                        </TouchableOpacity>
+                                        <TouchableOpacity 
+                                            onPress={() => handleDeleteCampaign(item.id)}
+                                            style={[styles.actionButton, { backgroundColor: '#dc2626' }]}
+                                        >
+                                            <Ionicons name="trash" size={16} color="white" />
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                            ))}
                         </View>
                     ) : (
                         <View style={[styles.emptyState, { backgroundColor: currentTheme.card }]}>
@@ -276,40 +272,37 @@ export default function HomeScreen() {
                     
                     {filteredPlayers.length > 0 ? (
                         <View style={{ borderWidth: 1, borderColor: currentTheme.primary, borderRadius: 8, overflow: 'hidden' }}>
-                            <FlatList
-                                data={filteredPlayers}
-                                keyExtractor={item => item.name}
-                                renderItem={({ item, index }) => (
-                                    <View style={[styles.playerItem, { 
-                                        borderBottomWidth: index === filteredPlayers.length - 1 ? 0 : 1, 
-                                        borderBottomColor: currentTheme.primary,
-                                        backgroundColor: currentTheme.card
-                                    }]}>
-                                        <View style={styles.playerContent}>
-                                        <Image
-                                            source={{ uri: item.tokenUrl || DEFAULT_TOKEN_URL }}
-                                            style={{
-                                                width: 40,
-                                                height: 40,
-                                                borderRadius: 20,
-                                                marginRight: 12,
-                                                borderWidth: 2,
-                                                borderColor: '#22c55a'
-                                            }}
-                                        />
-                                        <View style={{ flex: 1 }}>
-                                            <Text style={[styles.playerName, { color: currentTheme.text }]}>
-                                                {item.name}
+                            {filteredPlayers.map((item, index) => (
+                                <View key={item.name} style={[styles.playerItem, { 
+                                    borderBottomWidth: index === filteredPlayers.length - 1 ? 0 : 1, 
+                                    borderBottomColor: currentTheme.primary,
+                                    backgroundColor: currentTheme.card
+                                }]}>
+                                    <View style={styles.playerContent}>
+                                    <Image
+                                        source={{ uri: item.tokenUrl || DEFAULT_TOKEN_URL }}
+                                        style={{
+                                            width: 40,
+                                            height: 40,
+                                            borderRadius: 20,
+                                            marginRight: 12,
+                                            borderWidth: 2,
+                                            borderColor: '#22c55a'
+                                        }}
+                                    />
+                                    <View style={{ flex: 1 }}>
+                                        <Text style={[styles.playerName, { color: currentTheme.text }]}>
+                                            {item.name}
+                                        </Text>
+                                        <Text style={[styles.playerDetails, { color: currentTheme.noticeText }]}>
+                                            {item.race} - {item.class}
+                                        </Text>
+                                        {getCampaignName(item.campaignId) && (
+                                            <Text style={[styles.playerDetails, { color: currentTheme.noticeText, fontSize: 12 }]}>
+                                                Campaign: {getCampaignName(item.campaignId)}
                                             </Text>
-                                            <Text style={[styles.playerDetails, { color: currentTheme.noticeText }]}>
-                                                {item.race} - {item.class}
-                                            </Text>
-                                            {getCampaignName(item.campaignId) && (
-                                                <Text style={[styles.playerDetails, { color: currentTheme.noticeText, fontSize: 12 }]}>
-                                                    Campaign: {getCampaignName(item.campaignId)}
-                                                </Text>
-                                            )}
-                                        </View>
+                                        )}
+                                    </View>
                                     </View>
                                     <View style={styles.playerActions}>
                                         <TouchableOpacity 
@@ -325,14 +318,13 @@ export default function HomeScreen() {
                                             <Ionicons name="trash" size={16} color="white" />
                                         </TouchableOpacity>
                                     </View>
-                                    </View>
-                                )}
-                            />
+                                </View>
+                            ))}
                         </View>
                     ) : (
                         <View style={[styles.emptyState, { backgroundColor: currentTheme.card }]}>
                             <Text style={{ color: currentTheme.noticeText, textAlign: 'center' }}>
-                                No players created. Add your first player character.
+                                No players created. Create your first player to get started.
                             </Text>
                         </View>
                     )}

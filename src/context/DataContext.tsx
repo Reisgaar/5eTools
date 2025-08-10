@@ -473,7 +473,13 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (fullBeast && fullBeast.tokenUrl) {
         try {
           const cachedTokenUrl = await getTokenUrl(source, name, fullBeast.tokenUrl);
-          fullBeast.tokenUrl = cachedTokenUrl;
+          // Ensure we have a valid string URL
+          if (cachedTokenUrl && typeof cachedTokenUrl === 'string') {
+            fullBeast.tokenUrl = cachedTokenUrl;
+          } else {
+            console.warn('Invalid token URL received for', name, ':', cachedTokenUrl);
+            // Keep original URL if caching returns invalid result
+          }
         } catch (error) {
           console.error(`Error caching token for ${name}:`, error);
           // Keep original URL if caching fails
