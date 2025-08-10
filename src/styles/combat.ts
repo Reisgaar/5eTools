@@ -531,13 +531,11 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
     backgroundColor: 'white', // Will be overridden by theme.card
   },
   listCombatNameInput: {
-    flex: 1,
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 8,
     fontSize: 16,
-    marginRight: 8,
     backgroundColor: 'white', // Will be overridden by theme.inputBackground
     color: 'black', // Will be overridden by theme.text
   },

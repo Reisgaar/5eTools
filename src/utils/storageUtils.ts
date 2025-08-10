@@ -25,12 +25,8 @@ export const generateSafeFilename = (name: string, source: string): string => {
  * Generate a safe filename for combats
  */
 export const generateCombatFilename = (id: string, name: string): string => {
-    const safeName = name
-        .toLowerCase()
-        .replace(/[^a-z0-9]/g, '-')
-        .replace(/-+/g, '-')
-        .replace(/^-|-$/g, '');
-    return `${id}-${safeName}.json`;
+    // Only use the ID for the filename to avoid issues with special characters in names
+    return `${id}.json`;
 };
 
 /**
@@ -99,7 +95,7 @@ export const createCombatIndexEntry = (combat: any) => {
         id: combat.id,
         name: combat.name,
         createdAt: combat.createdAt,
-        file: generateCombatFilename(combat.id, combat.name)
+        file: `${combat.id}.json`
     };
 };
 

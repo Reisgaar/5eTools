@@ -5,6 +5,8 @@ export interface StorageKeys {
     COMBATS_INDEX: string;
     SPELLBOOKS: string;
     PLAYERS: string;
+    CAMPAIGNS: string;
+    SELECTED_CAMPAIGN: string;
     MONSTERS_PREFIX: string;
     SPELLS_PREFIX: string;
     COMBATS_PREFIX: string;
@@ -87,6 +89,7 @@ export interface Player {
     passivePerception?: number;
     initiativeBonus?: number;
     tokenUrl?: string;
+    campaignId?: string;
 }
 
 export interface Spellbook {
@@ -139,6 +142,8 @@ export const STORAGE_KEYS: StorageKeys = {
     COMBATS_INDEX: 'dnd_combats_index',
     SPELLBOOKS: 'dnd_spellbooks',
     PLAYERS: 'dnd_players',
+    CAMPAIGNS: 'dnd_campaigns',
+    SELECTED_CAMPAIGN: 'dnd_selected_campaign',
     MONSTERS_PREFIX: 'dnd_monster_',
     SPELLS_PREFIX: 'dnd_spell_',
     COMBATS_PREFIX: 'dnd_combat_',

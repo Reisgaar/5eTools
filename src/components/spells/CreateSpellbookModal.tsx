@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { BaseModal } from '../ui';
 import { commonStyles } from '../../styles/commonStyles';
 import { useSpellbook } from '../../context/SpellbookContext';
+import { useCampaign } from '../../context/CampaignContext';
 
 interface CreateSpellbookModalProps {
     visible: boolean;
@@ -18,8 +20,11 @@ export default function CreateSpellbookModal({
     theme 
 }: CreateSpellbookModalProps) {
     const { createSpellbook } = useSpellbook();
+    const { selectedCampaign, campaigns } = useCampaign();
     const [spellbookName, setSpellbookName] = useState('');
     const [spellbookDescription, setSpellbookDescription] = useState('');
+    const [selectedCampaignId, setSelectedCampaignId] = useState<string | undefined>(selectedCampaign?.id || undefined);
+    const [showCampaignSelector, setShowCampaignSelector] = useState(false);
 
     const handleCreateSpellbook = () => {
         if (!spellbookName.trim()) {
@@ -28,9 +33,10 @@ export default function CreateSpellbookModal({
         }
 
         try {
-            const newSpellbookId = createSpellbook(spellbookName.trim(), spellbookDescription.trim() || undefined);
+            const newSpellbookId = createSpellbook(spellbookName.trim(), spellbookDescription.trim() || undefined, selectedCampaignId);
             setSpellbookName('');
             setSpellbookDescription('');
+            setSelectedCampaignId(selectedCampaign?.id || undefined);
             onClose();
             
             if (onSpellbookCreated) {
@@ -44,7 +50,14 @@ export default function CreateSpellbookModal({
     const handleCancel = () => {
         setSpellbookName('');
         setSpellbookDescription('');
+        setSelectedCampaignId(selectedCampaign?.id || undefined);
         onClose();
+    };
+
+    const getCampaignName = (campaignId?: string) => {
+        if (!campaignId) return 'No campaign';
+        const campaign = campaigns.find(c => c.id === campaignId);
+        return campaign ? campaign.name : 'Unknown campaign';
     };
 
     return (
@@ -64,7 +77,7 @@ export default function CreateSpellbookModal({
                 
                 <Text style={[commonStyles.modalItemDescription, { color: theme.text, marginBottom: 8 }]}>Description (optional)</Text>
                 <TextInput
-                    style={[commonStyles.input, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.card, marginBottom: 24, minHeight: 80 }]}
+                    style={[commonStyles.input, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.card, marginBottom: 16, minHeight: 80 }]}
                     placeholder="Enter description..."
                     placeholderTextColor={theme.noticeText}
                     value={spellbookDescription}
@@ -72,6 +85,43 @@ export default function CreateSpellbookModal({
                     multiline
                     numberOfLines={3}
                 />
+                
+                <Text style={[commonStyles.modalItemDescription, { color: theme.text, marginBottom: 8 }]}>Campaign (optional)</Text>
+                <TouchableOpacity
+                    style={[commonStyles.input, { backgroundColor: theme.inputBackground, borderColor: theme.card, marginBottom: 24, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }]}
+                    onPress={() => setShowCampaignSelector(!showCampaignSelector)}
+                >
+                    <Text style={{ color: theme.text, flex: 1 }}>
+                        {getCampaignName(selectedCampaignId)}
+                    </Text>
+                    <Ionicons name={showCampaignSelector ? "chevron-up" : "chevron-down"} size={20} color={theme.text} />
+                </TouchableOpacity>
+                
+                {showCampaignSelector && (
+                    <ScrollView style={{ maxHeight: 200, marginBottom: 24 }}>
+                        <TouchableOpacity
+                            style={[commonStyles.input, { backgroundColor: theme.inputBackground, borderColor: theme.card, marginBottom: 8, paddingVertical: 12 }]}
+                            onPress={() => {
+                                setSelectedCampaignId(undefined);
+                                setShowCampaignSelector(false);
+                            }}
+                        >
+                            <Text style={{ color: theme.text }}>No campaign</Text>
+                        </TouchableOpacity>
+                        {campaigns.map(campaign => (
+                            <TouchableOpacity
+                                key={campaign.id}
+                                style={[commonStyles.input, { backgroundColor: theme.inputBackground, borderColor: theme.card, marginBottom: 8, paddingVertical: 12 }]}
+                                onPress={() => {
+                                    setSelectedCampaignId(campaign.id);
+                                    setShowCampaignSelector(false);
+                                }}
+                            >
+                                <Text style={{ color: theme.text }}>{campaign.name}</Text>
+                            </TouchableOpacity>
+                        ))}
+                    </ScrollView>
+                )}
                 
                 <View style={{ flexDirection: 'row', gap: 12 }}>
                     <TouchableOpacity

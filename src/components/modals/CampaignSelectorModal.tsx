@@ -4,43 +4,39 @@ import { Modal, View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react
 import { Ionicons } from '@expo/vector-icons';
 
 // CONTEXTS
-import { useSpellbook } from 'src/context/SpellbookContext';
 import { useCampaign } from 'src/context/CampaignContext';
 import { useAppSettings } from 'src/context/AppSettingsContext';
+import { useCombat } from 'src/context/CombatContext';
+import { useSpellbook } from 'src/context/SpellbookContext';
 
-interface SpellbookSelectorModalProps {
+interface CampaignSelectorModalProps {
     visible: boolean;
     onClose: () => void;
-    onSelectSpellbook: (spellbookId: string | null) => void;
-    onCreateSpellbook: () => void;
 }
 
-const SpellbookSelectorModal: React.FC<SpellbookSelectorModalProps> = ({ 
-    visible, 
-    onClose, 
-    onSelectSpellbook,
-    onCreateSpellbook 
-}) => {
-    const { spellbooks, currentSpellbookId, selectSpellbook, clearSpellbookSelection, getSpellbooksByCampaign } = useSpellbook();
-    const { selectedCampaignId } = useCampaign();
+const CampaignSelectorModal: React.FC<CampaignSelectorModalProps> = ({ visible, onClose }) => {
+    const { campaigns, selectedCampaignId, selectCampaign, clearSelectedCampaign } = useCampaign();
     const { currentTheme } = useAppSettings();
+    const { getSortedCombats, clearCurrentCombat } = useCombat();
+    const { getSpellbooksByCampaign } = useSpellbook();
 
-    // Get spellbooks filtered by selected campaign
-    const filteredSpellbooks = getSpellbooksByCampaign(selectedCampaignId === 'all' ? undefined : selectedCampaignId || undefined);
-
-    const handleSelectSpellbook = (spellbookId: string | null) => {
-        if (spellbookId) {
-            selectSpellbook(spellbookId);
+    const handleSelectCampaign = (campaignId: string | null) => {
+        // Clear current combat when changing campaign
+        clearCurrentCombat();
+        
+        if (campaignId) {
+            selectCampaign(campaignId);
         } else {
-            clearSpellbookSelection();
+            clearSelectedCampaign();
         }
-        onSelectSpellbook(spellbookId);
         onClose();
     };
 
-    const handleClearFilter = () => {
-        clearSpellbookSelection();
-        onSelectSpellbook(null);
+    const handleShowAll = () => {
+        // Clear current combat when changing campaign
+        clearCurrentCombat();
+        
+        clearSelectedCampaign();
         onClose();
     };
 
@@ -50,7 +46,7 @@ const SpellbookSelectorModal: React.FC<SpellbookSelectorModalProps> = ({
                 <View style={[styles.modalContent, { backgroundColor: currentTheme.card }]}>
                     <View style={styles.modalHeader}>
                         <Text style={[styles.modalTitle, { color: currentTheme.text }]}>
-                            Select Spellbook
+                            Select Campaign
                         </Text>
                         <TouchableOpacity onPress={onClose} style={styles.closeButton}>
                             <Ionicons name="close" size={24} color={currentTheme.text} />
@@ -58,26 +54,26 @@ const SpellbookSelectorModal: React.FC<SpellbookSelectorModalProps> = ({
                     </View>
 
                     <FlatList
-                        data={filteredSpellbooks}
+                        data={campaigns}
                         keyExtractor={item => item.id}
                         renderItem={({ item }) => (
                             <TouchableOpacity
                                 style={[
-                                    styles.spellbookItem,
-                                    { backgroundColor: currentSpellbookId === item.id ? currentTheme.primary + '20' : 'transparent' }
+                                    styles.campaignItem,
+                                    { backgroundColor: selectedCampaignId === item.id ? currentTheme.primary + '20' : 'transparent' }
                                 ]}
-                                onPress={() => handleSelectSpellbook(item.id)}
+                                onPress={() => handleSelectCampaign(item.id)}
                             >
-                                <View style={styles.spellbookContent}>
-                                    <Text style={[styles.spellbookName, { color: currentTheme.text }]}>
+                                <View style={styles.campaignContent}>
+                                    <Text style={[styles.campaignName, { color: currentTheme.text }]}>
                                         {item.name}
                                     </Text>
-                                    <Text style={[styles.spellbookDescription, { color: currentTheme.noticeText }]}>
+                                    <Text style={[styles.campaignDescription, { color: currentTheme.noticeText }]}>
                                         {item.description && `${item.description} • `}
-                                        {item.spells.length} spells
+                                        {getSortedCombats(item.id).length} combats • {getSpellbooksByCampaign(item.id).length} spellbooks
                                     </Text>
                                 </View>
-                                {currentSpellbookId === item.id && (
+                                {selectedCampaignId === item.id && (
                                     <Ionicons name="checkmark-circle" size={20} color={currentTheme.primary} />
                                 )}
                             </TouchableOpacity>
@@ -85,20 +81,20 @@ const SpellbookSelectorModal: React.FC<SpellbookSelectorModalProps> = ({
                         ListHeaderComponent={
                             <TouchableOpacity
                                 style={[
-                                    styles.spellbookItem,
-                                    { backgroundColor: currentSpellbookId === null ? currentTheme.primary + '20' : 'transparent' }
+                                    styles.campaignItem,
+                                    { backgroundColor: selectedCampaignId === 'all' ? currentTheme.primary + '20' : 'transparent' }
                                 ]}
-                                onPress={handleClearFilter}
+                                onPress={handleShowAll}
                             >
-                                <View style={styles.spellbookContent}>
-                                    <Text style={[styles.spellbookName, { color: currentTheme.text }]}>
-                                        All Spells
+                                <View style={styles.campaignContent}>
+                                    <Text style={[styles.campaignName, { color: currentTheme.text }]}>
+                                        Campaign: all
                                     </Text>
-                                    <Text style={[styles.spellbookDescription, { color: currentTheme.noticeText }]}>
-                                        Show all spells without filter
+                                    <Text style={[styles.campaignDescription, { color: currentTheme.noticeText }]}>
+                                        Show all campaigns • {getSortedCombats('all').length} combats • {getSpellbooksByCampaign('all').length} spellbooks
                                     </Text>
                                 </View>
-                                {currentSpellbookId === null && (
+                                {selectedCampaignId === 'all' && (
                                     <Ionicons name="checkmark-circle" size={20} color={currentTheme.primary} />
                                 )}
                             </TouchableOpacity>
@@ -106,21 +102,11 @@ const SpellbookSelectorModal: React.FC<SpellbookSelectorModalProps> = ({
                         ListEmptyComponent={
                             <View style={styles.emptyState}>
                                 <Text style={[styles.emptyText, { color: currentTheme.noticeText }]}>
-                                    No spellbooks available
+                                    No campaigns available
                                 </Text>
                             </View>
                         }
                     />
-
-                    <TouchableOpacity
-                        onPress={onCreateSpellbook}
-                        style={[styles.createButton, { backgroundColor: currentTheme.primary }]}
-                    >
-                        <Ionicons name="add" size={20} color="white" style={{ marginRight: 8 }} />
-                        <Text style={[styles.createButtonText, { color: 'white' }]}>
-                            Create New Spellbook
-                        </Text>
-                    </TouchableOpacity>
                 </View>
             </View>
         </Modal>
@@ -157,7 +143,7 @@ const styles = StyleSheet.create({
     closeButton: {
         padding: 4,
     },
-    spellbookItem: {
+    campaignItem: {
         flexDirection: 'row',
         alignItems: 'center',
         paddingVertical: 16,
@@ -165,15 +151,15 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: '#eee',
     },
-    spellbookContent: {
+    campaignContent: {
         flex: 1,
     },
-    spellbookName: {
+    campaignName: {
         fontSize: 16,
         fontWeight: '600',
         marginBottom: 4,
     },
-    spellbookDescription: {
+    campaignDescription: {
         fontSize: 14,
     },
     emptyState: {
@@ -184,19 +170,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         textAlign: 'center',
     },
-    createButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 16,
-        paddingHorizontal: 20,
-        margin: 20,
-        borderRadius: 8,
-    },
-    createButtonText: {
-        fontSize: 16,
-        fontWeight: '600',
-    },
 });
 
-export default SpellbookSelectorModal;
+export default CampaignSelectorModal;

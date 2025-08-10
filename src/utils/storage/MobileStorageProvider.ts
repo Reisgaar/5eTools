@@ -26,6 +26,8 @@ export class MobileStorageProvider extends BaseStorageProvider {
             'COMBATS_INDEX': COMBATS_INDEX_FILE,
             'PLAYERS': PLAYERS_FILE,
             'SPELLBOOKS': SPELLBOOKS_FILE,
+            'CAMPAIGNS': `${DATA_DIR}campaigns.json`,
+            'SELECTED_CAMPAIGN': `${DATA_DIR}selected_campaign.json`,
             'SPELL_CLASS_RELATIONS_INDEX': `${DATA_DIR}spell_class_relations_index.json`,
             'AVAILABLE_CLASSES_INDEX': `${DATA_DIR}available_classes_index.json`
         };

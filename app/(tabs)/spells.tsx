@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppSettings } from 'src/context/AppSettingsContext';
+import { useCampaign } from 'src/context/CampaignContext';
 import { useData } from 'src/context/DataContext';
 import { useModal } from 'src/context/ModalContext';
 import { useSpellbook } from 'src/context/SpellbookContext';
@@ -45,10 +46,11 @@ function formatComponents(components: any) {
 }
 
 export default function SpellsScreen() {
+    const { selectedCampaign } = useCampaign();
     const { simpleBeasts, simpleSpells, spells, spellSourceLookup, availableClasses, isLoading, isInitialized, getFullBeast, getFullSpell } = useData();
     const { currentTheme: theme } = useAppSettings();
     const { openBeastModal, openSpellModal } = useModal();
-    const { spellbooks, currentSpellbookId, getCurrentSpellbook, addSpellToSpellbook, removeSpellFromSpellbook, isSpellInSpellbook, selectSpellbook } = useSpellbook();
+    const { spellbooks, currentSpellbookId, getCurrentSpellbook, getSpellbooksByCampaign, addSpellToSpellbook, removeSpellFromSpellbook, isSpellInSpellbook, selectSpellbook, clearSpellbookSelection } = useSpellbook();
     const [selectedLevels, setSelectedLevels] = useState<number[]>([]); // multi-select
     const [pageReady, setPageReady] = useState(false);
     const [addToSpellbookModalVisible, setAddToSpellbookModalVisible] = useState(false);
@@ -62,10 +64,12 @@ export default function SpellsScreen() {
         spell: any;
         spellbookName: string;
     } | null>(null);
-    const [viewMode, setViewMode] = useState<'all' | 'spellbook'>('all'); // 'all' or 'spellbook'
     
     // Use the new spell filters hook
     const filters = useSpellFilters(simpleSpells, spells, spellSourceLookup, availableClasses);
+
+    // Get spellbooks filtered by selected campaign
+    const filteredSpellbooks = getSpellbooksByCampaign(selectedCampaign?.id || 'all');
 
     // Defer heavy computations to after navigation
     useEffect(() => {
@@ -78,13 +82,16 @@ export default function SpellsScreen() {
         }
     }, [simpleSpells.length]);
 
-    // Handle spellbook availability
+    // Handle campaign changes - deselect spellbook if it doesn't belong to selected campaign
     useEffect(() => {
-        // If we're in spellbook mode but no spellbooks exist, switch to "all" mode
-        if (viewMode === 'spellbook' && spellbooks.length === 0) {
-            setViewMode('all');
+        if (currentSpellbookId) {
+            const currentSpellbook = getCurrentSpellbook();
+            const selectedCampaignId = selectedCampaign?.id || 'all';
+            if (currentSpellbook && currentSpellbook.campaignId !== selectedCampaignId) {
+                clearSpellbookSelection();
+            }
         }
-    }, [spellbooks.length, viewMode]);
+    }, [currentSpellbookId, selectedCampaign?.id]);
 
     // Multi-select level filter logic
     const allSelected = selectedLevels.length === ALL_LEVEL_VALUES.length;
@@ -127,8 +134,8 @@ export default function SpellsScreen() {
         
         let result = filters.filteredSpells;
         
-        // Apply spellbook filter if in spellbook view mode
-        if (viewMode === 'spellbook' && currentSpellbookId) {
+        // Apply spellbook filter if a spellbook is selected
+        if (currentSpellbookId) {
             const currentSpellbook = getCurrentSpellbook();
             if (currentSpellbook) {
                 result = result.filter((spell: any) => {
@@ -144,23 +151,23 @@ export default function SpellsScreen() {
         
         // Sort alphabetically by name
         return result.slice().sort((a: any, b: any) => a.name.localeCompare(b.name));
-    }, [filters.filteredSpells, selectedLevels, pageReady, viewMode, currentSpellbookId, spellbooks]);
+    }, [filters.filteredSpells, selectedLevels, pageReady, currentSpellbookId]);
 
     const selectedSpellFullSchool = ''; // No longer needed as modal handles display
 
     const handleAddToSpellbook = (spell: any) => {
-        if (viewMode === 'all') {
-            // In "all spells" mode, show modal to select which spellbook
-            setSelectedSpellForSpellbook(spell);
-            setAddToSpellbookModalVisible(true);
-        } else if (viewMode === 'spellbook' && currentSpellbookId) {
-            // In "spellbook" mode, show confirmation before removing
+        if (currentSpellbookId) {
+            // If a spellbook is selected, show confirmation before removing
             const currentSpellbook = getCurrentSpellbook();
             setPendingSpellRemoval({
                 spell,
                 spellbookName: currentSpellbook?.name || 'Unknown'
             });
             setConfirmRemoveModalVisible(true);
+        } else {
+            // If no spellbook is selected, show modal to select which spellbook
+            setSelectedSpellForSpellbook(spell);
+            setAddToSpellbookModalVisible(true);
         }
     };
 
@@ -188,10 +195,10 @@ export default function SpellsScreen() {
                 </TouchableOpacity>
                 <TouchableOpacity
                     onPress={() => handleAddToSpellbook(spell)}
-                    style={[commonStyles.itemActionButton, { backgroundColor: viewMode === 'spellbook' && isInCurrentSpellbook ? '#dc2626' : theme.primary }]}
+                    style={[commonStyles.itemActionButton, { backgroundColor: currentSpellbookId && isInCurrentSpellbook ? '#dc2626' : theme.primary }]}
                 >
                     <Ionicons 
-                        name={viewMode === 'spellbook' && isInCurrentSpellbook ? "remove" : "add"} 
+                        name={currentSpellbookId && isInCurrentSpellbook ? "remove" : "add"} 
                         size={16} 
                         color="white" 
                     />
@@ -205,58 +212,6 @@ export default function SpellsScreen() {
             <View style={commonStyles.header}>
                 <Text style={[commonStyles.title, { color: theme.text }]}>Spells</Text>
             </View>
-            
-            {/* View Mode Selector */}
-            <View style={commonStyles.viewModeSelector}>
-                <TouchableOpacity
-                    style={[commonStyles.viewModeButton, { backgroundColor: viewMode === 'all' ? theme.primary : theme.card }]}
-                    onPress={() => setViewMode('all')}
-                >
-                    <Text style={[commonStyles.viewModeText, { color: viewMode === 'all' ? 'white' : theme.text }]}>
-                        All Spells
-                    </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={[commonStyles.viewModeButton, { backgroundColor: viewMode === 'spellbook' ? theme.primary : theme.card }]}
-                    onPress={() => {
-                        if (spellbooks.length === 0) {
-                            // If no spellbooks exist, show create modal
-                            setCreateSpellbookModalVisible(true);
-                        } else {
-                            // If spellbooks exist, switch to spellbook view
-                            setViewMode('spellbook');
-                        }
-                    }}
-                >
-                    <Text style={[commonStyles.viewModeText, { color: viewMode === 'spellbook' ? 'white' : theme.text }]}>
-                        Spellbook
-                    </Text>
-                </TouchableOpacity>
-            </View>
-            
-            {/* Current Spellbook Info */}
-            {viewMode === 'spellbook' && (
-                <View style={[commonStyles.currentSelectionInfo, { backgroundColor: theme.card, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }]}>
-                    <TouchableOpacity 
-                        style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}
-                        onPress={() => setSpellbookSelectorModalVisible(true)}
-                    >
-                        <Ionicons name="book" size={20} color={theme.primary} style={{ marginRight: 8 }} />
-                        <Text style={[commonStyles.currentSelectionText, { color: theme.text, flex: 1 }]}>
-                            {currentSpellbookId ? 
-                                `${getCurrentSpellbook()?.name || 'Unknown'} (${getCurrentSpellbook()?.spells.length || 0} spells)` :
-                                'Select a spellbook'
-                            }
-                        </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        onPress={() => setCreateSpellbookModalVisible(true)}
-                        style={[commonStyles.headerButton, { backgroundColor: theme.primary, marginLeft: 8 }]}
-                    >
-                        <Ionicons name="add" size={20} color="white" />
-                    </TouchableOpacity>
-                </View>
-            )}
             
             <TextInput
                 style={[commonStyles.input, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.card }]}
@@ -272,15 +227,27 @@ export default function SpellsScreen() {
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 8 }}>
                 <TouchableOpacity
                     onPress={filters.openSchoolFilterModal}
-                    style={[styles.filterBtn, { borderColor: theme.primary }]}
+                    style={[styles.filterBtn, { borderColor: filters.selectedSchools.length > 0 ? theme.primary : theme.text }]}
                 >
-                    <Text style={{ color: theme.primary, fontWeight: 'bold', fontSize: 12 }}>School</Text>
+                    <Text style={{ color: filters.selectedSchools.length > 0 ? theme.primary : theme.text, fontWeight: 'bold', fontSize: 12 }}>
+                        {filters.getSchoolFilterText()}
+                    </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     onPress={filters.openClassFilterModal}
-                    style={[styles.filterBtn, { borderColor: theme.primary }]}
+                    style={[styles.filterBtn, { borderColor: filters.selectedClasses.length > 0 ? theme.primary : theme.text }]}
                 >
-                    <Text style={{ color: theme.primary, fontWeight: 'bold', fontSize: 12 }}>Class</Text>
+                    <Text style={{ color: filters.selectedClasses.length > 0 ? theme.primary : theme.text, fontWeight: 'bold', fontSize: 12 }}>
+                        {filters.getClassFilterText()}
+                    </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={() => setSpellbookSelectorModalVisible(true)}
+                    style={[styles.filterBtn, { borderColor: currentSpellbookId ? theme.primary : theme.text }]}
+                >
+                    <Text style={{ color: currentSpellbookId ? theme.primary : theme.text, fontWeight: 'bold', fontSize: 12 }}>
+                        {currentSpellbookId ? getCurrentSpellbook()?.name || 'Spellbook' : 'Spellbook'}
+                    </Text>
                 </TouchableOpacity>
             </View>
             
@@ -358,16 +325,12 @@ export default function SpellsScreen() {
                 visible={spellbookSelectorModalVisible}
                 onClose={() => setSpellbookSelectorModalVisible(false)}
                 onSelectSpellbook={(spellbookId) => {
-                    selectSpellbook(spellbookId);
                     setSpellbookSelectorModalVisible(false);
                 }}
-                onSpellbookDeleted={(deletedSpellbookId) => {
-                    // If the deleted spellbook was the current one, switch back to "all" mode
-                    if (deletedSpellbookId === currentSpellbookId) {
-                        setViewMode('all');
-                    }
+                onCreateSpellbook={() => {
+                    setSpellbookSelectorModalVisible(false);
+                    setCreateSpellbookModalVisible(true);
                 }}
-                theme={theme}
             />
             
             {/* Create Spellbook Modal */}
@@ -375,12 +338,7 @@ export default function SpellsScreen() {
                 visible={createSpellbookModalVisible}
                 onClose={() => setCreateSpellbookModalVisible(false)}
                 onSpellbookCreated={(spellbookId) => {
-                    selectSpellbook(spellbookId);
                     setCreateSpellbookModalVisible(false);
-                    // If this is the first spellbook, switch to spellbook view
-                    if (spellbooks.length === 0) {
-                        setViewMode('spellbook');
-                    }
                 }}
                 theme={theme}
             />
@@ -440,5 +398,6 @@ const styles = StyleSheet.create({
         marginHorizontal: 4,
     },
 });
+
 
 

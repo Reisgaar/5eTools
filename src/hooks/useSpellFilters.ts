@@ -155,6 +155,21 @@ export function useSpellFilters(simpleSpells: any[], spells: any[], spellSourceL
         }, 200);
     };
 
+    // Helper functions to get display text for selected filters
+    const getSchoolFilterText = () => {
+        if (selectedSchools.length === 0) return 'School';
+        if (selectedSchools.length === 1) return `School: ${selectedSchools[0]}`;
+        if (selectedSchools.length <= 3) return `School: ${selectedSchools.join(', ')}`;
+        return `School: ${selectedSchools.length} selected`;
+    };
+
+    const getClassFilterText = () => {
+        if (selectedClasses.length === 0) return 'Class';
+        if (selectedClasses.length === 1) return `Class: ${selectedClasses[0]}`;
+        if (selectedClasses.length <= 3) return `Class: ${selectedClasses.join(', ')}`;
+        return `Class: ${selectedClasses.length} selected`;
+    };
+
     return {
         search,
         setSearch,
@@ -175,6 +190,8 @@ export function useSpellFilters(simpleSpells: any[], spells: any[], spellSourceL
         schoolOptions,
         classOptions,
         filteredSpells,
+        getSchoolFilterText,
+        getClassFilterText,
         openSchoolFilterModal,
         openClassFilterModal,
         togglePendingSchool,

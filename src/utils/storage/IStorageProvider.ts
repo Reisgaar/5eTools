@@ -62,4 +62,8 @@ export interface IStorageProvider {
     
     // Platform-specific operations
     ensureDataDirectory(): Promise<void>;
+    
+    // Regeneration operations
+    regenerateAllIndexes(): Promise<void>;
+    regenerateCombatFiles(): Promise<void>;
 }

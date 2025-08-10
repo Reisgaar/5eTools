@@ -39,6 +39,7 @@ export interface Combat {
   turnIndex?: number;
   started?: boolean;
   isActive?: boolean; // Marks if this combat is currently active/in progress
+  campaignId?: string; // Campaign this combat belongs to
 }
 
 interface CombatContextType {
@@ -47,7 +48,7 @@ interface CombatContextType {
   currentCombat: Combat | null;
   combatants: Combatant[];
   groupByName: { [nameOrigin: string]: boolean };
-  createCombat: (name: string) => string;
+  createCombat: (name: string, campaignId?: string) => string;
   selectCombat: (id: string) => void;
   clearCurrentCombat: () => void;
   deleteCombat: (id: string) => void;
@@ -77,7 +78,7 @@ interface CombatContextType {
   updateCombatantConditions: (id: string, conditions: string[]) => void;
   updateCombatantNote: (id: string, note: string) => void;
   setCombatActive: (id: string, active: boolean) => void;
-  getSortedCombats: () => Combat[];
+  getSortedCombats: (campaignId?: string) => Combat[];
 }
 
 const CombatContext = createContext<CombatContextType | undefined>(undefined);
@@ -182,26 +183,39 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       
       if (combatIndexes && combatIndexes.length > 0) {
         console.log('Total loaded combat indexes:', combatIndexes.length);
+        console.log('📁 Combat index files to load:', combatIndexes.map(ci => ({ name: ci.name, file: ci.file, id: ci.id })));
         
         // Load full combat data for each combat
-        const loadedCombats = await Promise.all(combatIndexes.map(async (combatIndex) => {
+        console.log(`🔄 Starting to load ${combatIndexes.length} combats...`);
+        const loadedCombats = await Promise.all(combatIndexes.map(async (combatIndex, index) => {
+          console.log(`🔄 [${index + 1}/${combatIndexes.length}] Processing: ${combatIndex.name} (${combatIndex.file})`);
           try {
+            console.log(`Attempting to load combat from file: ${combatIndex.file}`);
             const fullCombat = await loadCombatFromFile(combatIndex.file);
             if (fullCombat) {
-              console.log(`Loaded full combat ${fullCombat.name} with ${fullCombat.combatants?.length || 0} combatants`);
+              console.log(`✅ Successfully loaded combat: ${fullCombat.name} (ID: ${fullCombat.id}) with ${fullCombat.combatants?.length || 0} combatants`);
               return fullCombat;
             } else {
-              console.warn(`Failed to load full combat for ${combatIndex.name}`);
+              console.warn(`❌ Failed to load full combat for ${combatIndex.name} from file: ${combatIndex.file} - loadCombatFromFile returned null/undefined`);
               return null;
             }
           } catch (error) {
-            console.error(`Error loading combat ${combatIndex.name}:`, error);
+            console.error(`❌ Error loading combat ${combatIndex.name} from file ${combatIndex.file}:`, error);
+            console.error(`❌ Error details:`, {
+              name: combatIndex.name,
+              file: combatIndex.file,
+              id: combatIndex.id,
+              error: error.message,
+              stack: error.stack
+            });
             return null;
           }
         }));
         
         // Filter out null values and update token URLs
         const validCombats = loadedCombats.filter(combat => combat !== null);
+        console.log(`📊 Loaded ${loadedCombats.length} combats, ${validCombats.length} are valid (not null)`);
+        console.log('📋 Valid combats:', validCombats.map(c => ({ id: c.id, name: c.name, campaignId: c.campaignId })));
         const updatedCombats = await Promise.all(validCombats.map(async (combat) => {
           if (combat.combatants && combat.combatants.length > 0) {
             const updatedCombatants = await Promise.all(combat.combatants.map(async (combatant: Combatant) => {
@@ -246,7 +260,7 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const combatants = currentCombat?.combatants || [];
   const groupByName = currentCombat?.groupByName || {};
 
-  const createCombat = (name: string): string => {
+  const createCombat = (name: string, campaignId?: string): string => {
     const id = `combat-${Date.now()}-${Math.random()}`;
     const newCombat: Combat = {
       id,
@@ -254,9 +268,9 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       createdAt: Date.now(),
       combatants: [],
       groupByName: {}, // All names will be grouped by default as they are added
+      campaignId, // Add campaign ID if provided
     };
     setCombats(prev => [...prev, newCombat]);
-    setCurrentCombatId(id);
     // Save immediately
     storeCombatToFile(newCombat);
     return id;
@@ -1024,22 +1038,41 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     })));
   };
 
-  // Get combats sorted by: active first, then by creation date (newest first)
-  const getSortedCombats = (): Combat[] => {
+  // Get combats sorted by: started first, then by name (alphabetically)
+  const getSortedCombats = (campaignId?: string): Combat[] => {
+    console.log('getSortedCombats - Total combats:', combats.length);
+    console.log('getSortedCombats - Campaign ID:', campaignId);
+    
+    // Filter combats by campaign if campaignId is provided
+    let filteredCombats = combats;
+    if (campaignId === 'all') {
+      // Show all combats when "all" is selected
+      filteredCombats = combats;
+    } else if (campaignId) {
+      filteredCombats = combats.filter(combat => combat.campaignId === campaignId);
+    } else {
+      // If no campaign is selected, show combats without campaign
+      filteredCombats = combats.filter(combat => !combat.campaignId);
+    }
+    
+    console.log('getSortedCombats - Filtered combats:', filteredCombats.length);
+    console.log('getSortedCombats - All combats:', combats.map(c => ({ id: c.id, name: c.name, campaignId: c.campaignId })));
+    console.log('getSortedCombats - Filtered combats:', filteredCombats.map(c => ({ id: c.id, name: c.name, campaignId: c.campaignId })));
+    
     // Ensure all combats have required properties
-    const normalizedCombats = combats.map(combat => ({
+    const normalizedCombats = filteredCombats.map(combat => ({
       ...combat,
       combatants: combat.combatants || [],
       groupByName: combat.groupByName || {},
-      isActive: combat.isActive || false
+      started: combat.started || false
     }));
     
     return normalizedCombats.sort((a, b) => {
-      // Active combats first
-      if (a.isActive && !b.isActive) return -1;
-      if (!a.isActive && b.isActive) return 1;
-      // Then by creation date (newest first)
-      return b.createdAt - a.createdAt;
+      // Started combats first
+      if (a.started && !b.started) return -1;
+      if (!a.started && b.started) return 1;
+      // Then by name (alphabetically)
+      return a.name.localeCompare(b.name);
     });
   };
 

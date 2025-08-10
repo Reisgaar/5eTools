@@ -72,11 +72,8 @@ export interface CombatControlsProps {
 export interface CombatListProps {
   combats: Combat[];
   currentCombatId: string | null;
-  newCombatName: string;
-  onNewCombatNameChange: (name: string) => void;
   onSelectCombat: (combatId: string) => void;
   onCreateCombat: () => void;
-  onSetCombatActive: (combatId: string, active: boolean) => void;
   theme: any;
 }
 

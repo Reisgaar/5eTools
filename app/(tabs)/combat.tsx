@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 import { CombatContent, CombatList } from 'src/components/combat';
+import CreateCombatModal from 'src/components/combat/CreateCombatModal';
 import { useAppSettings } from 'src/context/AppSettingsContext';
+import { useCampaign } from 'src/context/CampaignContext';
 import { useCombat } from 'src/context/CombatContext';
 import { useData } from 'src/context/DataContext';
 import { useModal } from 'src/context/ModalContext';
 
 export default function CombatScreen() {
+  const { selectedCampaign } = useCampaign();
   const { 
     combats,
     currentCombatId,
@@ -38,7 +41,8 @@ export default function CombatScreen() {
   const { currentTheme } = useAppSettings();
   const { getFullBeast } = useData();
   const { openBeastModal, openSpellModal } = useModal();
-  const [newCombatName, setNewCombatName] = useState('');
+  const [createCombatModalVisible, setCreateCombatModalVisible] = useState(false);
+  
   // Sync local state with context combatants if needed
   React.useEffect(() => {
     // setCombatantsState(combatants); // This line is removed as per the edit hint
@@ -66,10 +70,11 @@ export default function CombatScreen() {
   };
 
   const handleCreateCombat = () => {
-    if (newCombatName.trim()) {
-      createCombat(newCombatName.trim());
-      setNewCombatName('');
-    }
+    setCreateCombatModalVisible(true);
+  };
+
+  const handleCreateCombatWithName = (name: string, campaignId?: string) => {
+    createCombat(name, campaignId);
   };
 
   const handleDeleteCombat = (combatId: string) => {
@@ -98,6 +103,13 @@ export default function CombatScreen() {
   const handleSetCombatActive = (combatId: string, active: boolean) => {
     setCombatActive(combatId, active);
   };
+
+  // Get combats filtered by selected campaign
+  const filteredCombats = getSortedCombats(selectedCampaign?.id || 'all');
+  
+  // Debug logging
+  console.log('CombatScreen - selectedCampaign:', selectedCampaign);
+  console.log('CombatScreen - filteredCombats count:', filteredCombats.length);
 
     return (
         <View style={{ flex: 1, backgroundColor: currentTheme.background }}>
@@ -140,17 +152,22 @@ export default function CombatScreen() {
               ) : (
                   // Show combat list when no combat is selected
                   <CombatList
-                  combats={getSortedCombats()}
+                  combats={filteredCombats}
                   currentCombatId={currentCombatId}
-                  newCombatName={newCombatName}
-                  onNewCombatNameChange={setNewCombatName}
                   onSelectCombat={handleSelectCombat}
                   onCreateCombat={handleCreateCombat}
-                  onSetCombatActive={handleSetCombatActive}
                   theme={currentTheme}
                   />
               )}
             </View>
+
+            {/* Create Combat Modal */}
+            <CreateCombatModal
+                visible={createCombatModalVisible}
+                onClose={() => setCreateCombatModalVisible(false)}
+                onCreateCombat={handleCreateCombatWithName}
+                theme={currentTheme}
+            />
         </View>
     );
 }

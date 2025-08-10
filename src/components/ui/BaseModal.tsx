@@ -9,9 +9,12 @@ interface BaseModalProps {
     children: React.ReactNode;
     theme: any;
     title?: string;
+    width?: number | string;
+    height?: number | string;
+    maxHeight?: number | string;
 }
 
-export default function BaseModal({ visible, onClose, children, theme, title }: BaseModalProps) {
+export default function BaseModal({ visible, onClose, children, theme, title, width, height, maxHeight }: BaseModalProps) {
     return (
         <Modal
             visible={visible}
@@ -25,7 +28,13 @@ export default function BaseModal({ visible, onClose, children, theme, title }: 
                 onPress={onClose}
             >
                 <TouchableOpacity 
-                    style={[commonStyles.modalContent, { backgroundColor: theme.background }]}
+                    style={[
+                        commonStyles.modalContent, 
+                        { backgroundColor: theme.background },
+                        width && { width },
+                        height && { height },
+                        maxHeight && { maxHeight }
+                    ]}
                     activeOpacity={1}
                     onPress={(e) => e.stopPropagation()}
                 >

@@ -17,6 +17,7 @@ import { useAppSettings } from 'src/context/AppSettingsContext';
 import { useCombat } from 'src/context/CombatContext';
 import { useData } from 'src/context/DataContext';
 import { useModal } from 'src/context/ModalContext';
+import { useCampaign } from 'src/context/CampaignContext';
 
 // HOOKS
 import { useBestiaryFilters } from 'src/hooks/useBestiaryFilters';
@@ -29,6 +30,7 @@ export default function BestiaryScreen() {
     const { simpleBeasts, simpleSpells, isLoading, isInitialized, getFullBeast, getFullSpell } = useData();
     const { combats, currentCombatId, addCombatantToCombat, createCombat, selectCombat, getSortedCombats } = useCombat();
     const { openBeastModal, openSpellModal } = useModal();
+    const { selectedCampaignId } = useCampaign();
     const [combatSelectionModalVisible, setCombatSelectionModalVisible] = useState(false);
     const [beastToAdd, setBeastToAdd] = useState<any | null>(null);
     const [newCombatName, setNewCombatName] = useState('');
@@ -94,7 +96,9 @@ export default function BestiaryScreen() {
     };
     const handleCreateNewCombat = () => {
         if (newCombatName.trim()) {
-            const combatId = createCombat(newCombatName.trim());
+            // Use selectedCampaignId if it's not 'all', otherwise don't assign a campaign
+            const campaignId = selectedCampaignId && selectedCampaignId !== 'all' ? selectedCampaignId : undefined;
+            const combatId = createCombat(newCombatName.trim(), campaignId);
             if (beastToAdd) {
                 const qty = parseInt(quantity, 10) || 1;
                 for (let i = 0; i < qty; i++) {
@@ -147,7 +151,7 @@ export default function BestiaryScreen() {
                 visible={combatSelectionModalVisible}
                 onClose={() => setCombatSelectionModalVisible(false)}
                 beastToAdd={beastToAdd}
-                combats={getSortedCombats()}
+                combats={getSortedCombats(selectedCampaignId)}
                 currentCombatId={currentCombatId}
                 newCombatName={newCombatName}
                 quantity={quantity}
@@ -197,21 +201,27 @@ export default function BestiaryScreen() {
                 <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                     <TouchableOpacity
                         onPress={filters.openCRFilterModal}
-                        style={[styles.filterBtn, { borderColor: currentTheme.primary }]}
+                        style={[styles.filterBtn, { borderColor: filters.selectedCRs.length > 0 ? currentTheme.primary : currentTheme.text }]}
                     >
-                        <Text style={{ color: currentTheme.primary, fontWeight: 'bold', fontSize: 12 }}>CR</Text>
+                        <Text style={{ color: filters.selectedCRs.length > 0 ? currentTheme.primary : currentTheme.text, fontWeight: 'bold', fontSize: 12 }}>
+                            {filters.getCRFilterText()}
+                        </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={filters.openTypeFilterModal}
-                        style={[styles.filterBtn, { borderColor: currentTheme.primary }]}
+                        style={[styles.filterBtn, { borderColor: filters.selectedTypes.length > 0 ? currentTheme.primary : currentTheme.text }]}
                     >
-                        <Text style={{ color: currentTheme.primary, fontWeight: 'bold', fontSize: 12 }}>Type</Text>
+                        <Text style={{ color: filters.selectedTypes.length > 0 ? currentTheme.primary : currentTheme.text, fontWeight: 'bold', fontSize: 12 }}>
+                            {filters.getTypeFilterText()}
+                        </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={filters.openSourceFilterModal}
-                        style={[styles.filterBtn, { borderColor: currentTheme.primary, marginRight: 0 }]}
+                        style={[styles.filterBtn, { borderColor: filters.selectedSources.length > 0 ? currentTheme.primary : currentTheme.text, marginRight: 0 }]}
                     >
-                        <Text style={{ color: currentTheme.primary, fontWeight: 'bold', fontSize: 12 }}>Source</Text>
+                        <Text style={{ color: filters.selectedSources.length > 0 ? currentTheme.primary : currentTheme.text, fontWeight: 'bold', fontSize: 12 }}>
+                            {filters.getSourceFilterText()}
+                        </Text>
                     </TouchableOpacity>
                     </View>
             </View>

@@ -83,8 +83,6 @@ export abstract class BaseStorageProvider implements IStorageProvider {
     }
     
     public async storeCombatIndex(combat: Combat): Promise<void> {
-        const filename = generateCombatFilename(combat.id, combat.name);
-        
         // Store individual combat
         await this.storeIndividual(`${STORAGE_KEYS.COMBATS_PREFIX}${combat.id}`, combat);
         
@@ -193,17 +191,17 @@ export abstract class BaseStorageProvider implements IStorageProvider {
     }
     
     public async loadCombat(filename: string): Promise<Combat | null> {
-        // Remove .json extension and extract the combat ID
-        // Filename format: combat-1754675833566-0.9178056674399327-t3st.json
-        // We need to extract: combat-1754675833566-0.9178056674399327
-        const withoutExtension = filename.replace('.json', '');
-        const parts = withoutExtension.split('-');
-        
-        // The combat ID is everything except the last part (the safe name)
-        // So we join all parts except the last one
-        const combatId = parts.slice(0, -1).join('-');
+        // Remove .json extension to get the combat ID
+        // Filename format: combat-1754675833566-0.9178056674399327.json
+        const combatId = filename.replace('.json', '');
         const key = `${STORAGE_KEYS.COMBATS_PREFIX}${combatId}`;
-        return await this.loadIndividual(key);
+        
+        try {
+            return await this.loadIndividual(key);
+        } catch (error) {
+            console.error(`❌ Error loading combat with key ${key} from filename ${filename}:`, error);
+            return null;
+        }
     }
     
     // Batch operations
@@ -425,5 +423,352 @@ export abstract class BaseStorageProvider implements IStorageProvider {
     
     protected getPlatformName(): 'web' | 'mobile' {
         return this.constructor.name.includes('Web') ? 'web' : 'mobile';
+    }
+
+    // Campaign methods
+    public async saveCampaigns(campaigns: any[]): Promise<void> {
+        await this.storeIndex(STORAGE_KEYS.CAMPAIGNS, { campaigns });
+    }
+
+    public async loadCampaigns(): Promise<any[]> {
+        const data = await this.loadIndex(STORAGE_KEYS.CAMPAIGNS);
+        return data?.campaigns || [];
+    }
+
+    public async createCampaign(name: string, description?: string): Promise<string> {
+        const id = `campaign_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        const now = new Date().toISOString();
+        
+        const newCampaign = {
+            id,
+            name,
+            description,
+            createdAt: now,
+            updatedAt: now,
+        };
+
+        const existingCampaigns = await this.loadCampaigns();
+        const updatedCampaigns = [...existingCampaigns, newCampaign];
+        await this.saveCampaigns(updatedCampaigns);
+        
+        return id;
+    }
+
+    public async deleteCampaign(id: string): Promise<void> {
+        const existingCampaigns = await this.loadCampaigns();
+        const updatedCampaigns = existingCampaigns.filter(campaign => campaign.id !== id);
+        await this.saveCampaigns(updatedCampaigns);
+    }
+
+    public async updateCampaign(id: string, name: string, description?: string): Promise<void> {
+        const existingCampaigns = await this.loadCampaigns();
+        const updatedCampaigns = existingCampaigns.map(campaign => {
+            if (campaign.id === id) {
+                return {
+                    ...campaign,
+                    name,
+                    description,
+                    updatedAt: new Date().toISOString(),
+                };
+            }
+            return campaign;
+        });
+        await this.saveCampaigns(updatedCampaigns);
+    }
+
+    public async saveSelectedCampaign(campaignId: string | null): Promise<void> {
+        await this.storeIndex(STORAGE_KEYS.SELECTED_CAMPAIGN, { campaignId });
+    }
+
+    public async loadSelectedCampaign(): Promise<string | null> {
+        const data = await this.loadIndex(STORAGE_KEYS.SELECTED_CAMPAIGN);
+        return data?.campaignId || null;
+    }
+
+    /**
+     * Regenerate all indexes from existing data files
+     * This recreates all indexes (beasts, spells, combats, relations, classes) without loading JSON files
+     */
+    public async regenerateAllIndexes(): Promise<void> {
+        console.log('🔄 Starting regeneration of all indexes...');
+        
+        try {
+            const allKeys = await this.getAllKeys();
+            console.log(`📋 Found ${allKeys.length} total keys`);
+
+            if (allKeys.length === 0) {
+                console.log('ℹ️ No data files found to regenerate indexes from');
+                return;
+            }
+
+            // Regenerate each index type
+            await this.regenerateBeastsIndex(allKeys);
+            await this.regenerateSpellsIndex(allKeys);
+            await this.regenerateCombatsIndex(allKeys);
+            await this.regenerateSpellClassRelationsIndex(allKeys);
+            await this.regenerateAvailableClassesIndex(allKeys);
+
+            console.log('✅ Successfully regenerated all indexes');
+        } catch (error) {
+            console.error('❌ Error during indexes regeneration:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Regenerate beasts index from existing beast files
+     */
+    private async regenerateBeastsIndex(allKeys: string[]): Promise<void> {
+        console.log('🔄 Regenerating beasts index...');
+        
+        const beastKeys = allKeys.filter(key => key.startsWith(STORAGE_KEYS.MONSTERS_PREFIX));
+        console.log(`📋 Found ${beastKeys.length} beast files`);
+
+        if (beastKeys.length === 0) {
+            console.log('ℹ️ No beast files found');
+            return;
+        }
+
+        const beastsIndex: BeastIndex[] = [];
+        
+        for (const key of beastKeys) {
+            try {
+                const beast = await this.loadIndividual(key);
+                if (beast && beast.name) {
+                    const filename = key.replace(STORAGE_KEYS.MONSTERS_PREFIX, '') + '.json';
+                    beastsIndex.push({
+                        id: beast.id || beast.name,
+                        name: beast.name,
+                        cr: beast.CR || beast.cr || 'unknown',
+                        type: beast.type || 'unknown',
+                        source: beast.source || 'unknown',
+                        ac: beast.AC || beast.ac || 'unknown',
+                        size: beast.size || 'unknown',
+                        alignment: beast.alignment || 'unknown',
+                        file: filename
+                    });
+                }
+            } catch (error) {
+                console.error(`❌ Error loading beast from ${key}:`, error);
+            }
+        }
+
+        // Clear and recreate index
+        await this.deleteIndex(STORAGE_KEYS.BEASTS_INDEX);
+        await this.storeIndex(STORAGE_KEYS.BEASTS_INDEX, { monsters: beastsIndex });
+        console.log(`✅ Regenerated beasts index with ${beastsIndex.length} entries`);
+    }
+
+    /**
+     * Regenerate spells index from existing spell files
+     */
+    private async regenerateSpellsIndex(allKeys: string[]): Promise<void> {
+        console.log('🔄 Regenerating spells index...');
+        
+        const spellKeys = allKeys.filter(key => key.startsWith(STORAGE_KEYS.SPELLS_PREFIX));
+        console.log(`📋 Found ${spellKeys.length} spell files`);
+
+        if (spellKeys.length === 0) {
+            console.log('ℹ️ No spell files found');
+            return;
+        }
+
+        const spellsIndex: SpellIndex[] = [];
+        
+        for (const key of spellKeys) {
+            try {
+                const spell = await this.loadIndividual(key);
+                if (spell && spell.name) {
+                    const filename = key.replace(STORAGE_KEYS.SPELLS_PREFIX, '') + '.json';
+                    spellsIndex.push({
+                        id: spell.id || spell.name,
+                        name: spell.name,
+                        level: spell.level || 0,
+                        school: spell.school || 'unknown',
+                        source: spell.source || 'unknown',
+                        availableClasses: spell.availableClasses || spell.classes || [],
+                        ritual: spell.meta?.ritual || false,
+                        concentration: spell.concentration || false,
+                        file: filename
+                    });
+                }
+            } catch (error) {
+                console.error(`❌ Error loading spell from ${key}:`, error);
+            }
+        }
+
+        // Clear and recreate index
+        await this.deleteIndex(STORAGE_KEYS.SPELLS_INDEX);
+        await this.storeIndex(STORAGE_KEYS.SPELLS_INDEX, { spells: spellsIndex });
+        console.log(`✅ Regenerated spells index with ${spellsIndex.length} entries`);
+    }
+
+    /**
+     * Regenerate combats index from existing combat files
+     */
+    private async regenerateCombatsIndex(allKeys: string[]): Promise<void> {
+        console.log('🔄 Regenerating combats index...');
+        
+        const combatKeys = allKeys.filter(key => key.startsWith(STORAGE_KEYS.COMBATS_PREFIX));
+        console.log(`📋 Found ${combatKeys.length} combat files`);
+
+        if (combatKeys.length === 0) {
+            console.log('ℹ️ No combat files found');
+            return;
+        }
+
+        const combatsIndex: CombatIndex[] = [];
+        
+        for (const key of combatKeys) {
+            try {
+                const combat = await this.loadIndividual(key);
+                if (combat && combat.name) {
+                    const filename = key.replace(STORAGE_KEYS.COMBATS_PREFIX, '') + '.json';
+                    combatsIndex.push({
+                        name: combat.name,
+                        file: filename,
+                        id: combat.id,
+                        createdAt: combat.createdAt || Date.now()
+                    });
+                }
+            } catch (error) {
+                console.error(`❌ Error loading combat from ${key}:`, error);
+            }
+        }
+
+        // Clear and recreate index
+        await this.deleteIndex(STORAGE_KEYS.COMBATS_INDEX);
+        await this.storeIndex(STORAGE_KEYS.COMBATS_INDEX, { combats: combatsIndex });
+        console.log(`✅ Regenerated combats index with ${combatsIndex.length} entries`);
+    }
+
+    /**
+     * Regenerate spell class relations index from existing spell files
+     */
+    private async regenerateSpellClassRelationsIndex(allKeys: string[]): Promise<void> {
+        console.log('🔄 Regenerating spell class relations index...');
+        
+        const spellKeys = allKeys.filter(key => key.startsWith(STORAGE_KEYS.SPELLS_PREFIX));
+        
+        if (spellKeys.length === 0) {
+            console.log('ℹ️ No spell files found for relations');
+            return;
+        }
+
+        const relations: SpellClassRelationIndex[] = [];
+        
+        for (const key of spellKeys) {
+            try {
+                const spell = await this.loadIndividual(key);
+                if (spell && spell.availableClasses) {
+                    for (const className of spell.availableClasses) {
+                        relations.push({
+                            spellName: spell.name,
+                            source: spell.source || 'unknown',
+                            className: className,
+                            book: spell.source || 'unknown'
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error(`❌ Error loading spell from ${key}:`, error);
+            }
+        }
+
+        // Clear and recreate index
+        await this.deleteIndex(STORAGE_KEYS.SPELL_CLASS_RELATIONS_INDEX);
+        await this.storeIndex(STORAGE_KEYS.SPELL_CLASS_RELATIONS_INDEX, { relations });
+        console.log(`✅ Regenerated spell class relations index with ${relations.length} relations`);
+    }
+
+    /**
+     * Regenerate available classes index from existing spell files
+     */
+    private async regenerateAvailableClassesIndex(allKeys: string[]): Promise<void> {
+        console.log('🔄 Regenerating available classes index...');
+        
+        const spellKeys = allKeys.filter(key => key.startsWith(STORAGE_KEYS.SPELLS_PREFIX));
+        
+        if (spellKeys.length === 0) {
+            console.log('ℹ️ No spell files found for classes');
+            return;
+        }
+
+        const classesSet = new Set<string>();
+        
+        for (const key of spellKeys) {
+            try {
+                const spell = await this.loadIndividual(key);
+                if (spell && spell.availableClasses) {
+                    for (const className of spell.availableClasses) {
+                        classesSet.add(className);
+                    }
+                }
+            } catch (error) {
+                console.error(`❌ Error loading spell from ${key}:`, error);
+            }
+        }
+
+        const classes = Array.from(classesSet).sort();
+
+        // Clear and recreate index
+        await this.deleteIndex(STORAGE_KEYS.AVAILABLE_CLASSES_INDEX);
+        await this.storeIndex(STORAGE_KEYS.AVAILABLE_CLASSES_INDEX, { classes });
+        console.log(`✅ Regenerated available classes index with ${classes.length} classes`);
+    }
+
+    /**
+     * Regenerate all combat files and indexes to fix filename issues
+     * This will update all existing combats to use the new filename format
+     */
+    public async regenerateCombatFiles(): Promise<void> {
+        console.log('🔄 Starting combat files regeneration...');
+        
+        try {
+            // Load existing combats index
+            const existingIndex = await this.loadIndex(STORAGE_KEYS.COMBATS_INDEX);
+            if (!existingIndex || !existingIndex.combats || existingIndex.combats.length === 0) {
+                console.log('ℹ️ No existing combats found to regenerate');
+                return;
+            }
+
+            console.log(`📋 Found ${existingIndex.combats.length} combats to regenerate`);
+            
+            // Load all existing combats
+            const combats: Combat[] = [];
+            for (const combatIndex of existingIndex.combats) {
+                try {
+                    const combat = await this.loadCombat(combatIndex.file);
+                    if (combat) {
+                        combats.push(combat);
+                        console.log(`✅ Loaded combat: ${combat.name} (${combat.id})`);
+                    } else {
+                        console.warn(`⚠️ Failed to load combat from ${combatIndex.file}`);
+                    }
+                } catch (error) {
+                    console.error(`❌ Error loading combat ${combatIndex.file}:`, error);
+                }
+            }
+
+            if (combats.length === 0) {
+                console.log('ℹ️ No valid combats found to regenerate');
+                return;
+            }
+
+            // Clear existing combat index
+            await this.deleteIndex(STORAGE_KEYS.COMBATS_INDEX);
+            console.log('🗑️ Cleared existing combat index');
+
+            // Store each combat with the new filename format
+            for (const combat of combats) {
+                await this.storeCombatIndex(combat);
+                console.log(`💾 Regenerated combat: ${combat.name} (${combat.id})`);
+            }
+
+            console.log(`✅ Successfully regenerated ${combats.length} combat files`);
+        } catch (error) {
+            console.error('❌ Error during combat files regeneration:', error);
+            throw error;
+        }
     }
 }

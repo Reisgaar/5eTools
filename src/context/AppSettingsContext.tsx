@@ -20,7 +20,7 @@ const AppSettingsContext = createContext<AppSettings | undefined>(undefined);
 
 // Provides theme and app settings context to the application.
 export const AppSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [themeName, setThemeName] = useState<ThemeType>('dark');
+    const [themeName, setThemeName] = useState<ThemeType>('light');
     const [useAdvancedDiceRoll, setUseAdvancedDiceRollState] = useState<boolean>(true);
 
     const currentTheme = themeName === 'dark' ? darkTheme : lightTheme;
@@ -31,7 +31,7 @@ export const AppSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ c
             if (savedTheme === 'light' || savedTheme === 'dark') {
                 setThemeName(savedTheme);
             } else {
-                const systemTheme = Appearance.getColorScheme() ?? 'dark';
+                const systemTheme = Appearance.getColorScheme() ?? 'light';
                 setThemeName(systemTheme);
             }
 

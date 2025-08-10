@@ -3,11 +3,13 @@ import { Dimensions, FlatList, ScrollView, Text, TouchableOpacity, View, Image }
 import { Ionicons } from '@expo/vector-icons';
 import { BaseModal } from '../ui';
 import { DEFAULT_PLAYER_TOKEN } from '../../constants/tokens';
+import { useCampaign } from '../../context/CampaignContext';
 
 interface Player {
   name: string;
   race: string;
   class: string;
+  campaignId?: string;
 }
 
 interface PlayerModalProps {
@@ -29,12 +31,32 @@ export default function PlayerModal({
   onPlayerToggle,
   theme
 }: PlayerModalProps) {
+  const { selectedCampaign, campaigns } = useCampaign();
+
+  // Filter players by selected campaign
+  const filteredPlayers = React.useMemo(() => {
+    const selectedCampaignId = selectedCampaign?.id || 'all';
+    if (selectedCampaignId === 'all') {
+      // Show all players when "all" is selected
+      return allPlayers;
+    } else {
+      // Show only players from the selected campaign
+      return allPlayers.filter(player => player.campaignId === selectedCampaignId);
+    }
+  }, [allPlayers, selectedCampaign?.id]);
+
+  // Helper function to get campaign name
+  const getCampaignName = (campaignId?: string) => {
+    if (!campaignId) return null;
+    const campaign = campaigns.find(c => c.id === campaignId);
+    return campaign ? campaign.name : null;
+  };
   return (
     <BaseModal visible={visible} onClose={onClose} theme={theme} title="Add Players to Combat">
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
             
             <FlatList
-              data={allPlayers}
+              data={filteredPlayers}
               keyExtractor={item => item.name}
               renderItem={({ item }) => (
                 <TouchableOpacity
@@ -64,6 +86,11 @@ export default function PlayerModal({
                     <Text style={{ color: theme.text, fontSize: 12 }}>
                       {item.race} - {item.class}
                     </Text>
+                    {getCampaignName(item.campaignId) && (
+                      <Text style={{ color: theme.noticeText, fontSize: 10 }}>
+                        Campaign: {getCampaignName(item.campaignId)}
+                      </Text>
+                    )}
                   </View>
                 </TouchableOpacity>
               )}

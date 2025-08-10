@@ -60,7 +60,19 @@ export const loadSpellFromFile = async (filename: string): Promise<any | null> =
 };
 
 export const loadCombatFromFile = async (filename: string): Promise<any | null> => {
-    return await storage.loadCombat(filename);
+    try {
+        console.log(`🔍 loadCombatFromFile: Attempting to load ${filename}`);
+        const result = await storage.loadCombat(filename);
+        if (result) {
+            console.log(`✅ loadCombatFromFile: Successfully loaded ${filename}`, { id: result.id, name: result.name });
+        } else {
+            console.warn(`❌ loadCombatFromFile: storage.loadCombat returned null/undefined for ${filename}`);
+        }
+        return result;
+    } catch (error) {
+        console.error(`❌ loadCombatFromFile: Error loading ${filename}:`, error);
+        throw error;
+    }
 };
 
 export const loadMonstersFromFiles = async (filenames: string[]): Promise<any[]> => {
@@ -134,4 +146,41 @@ export const createSpellbook = async (name: string, description?: string): Promi
 
 export const deleteSpellbook = async (id: string): Promise<void> => {
     await storage.deleteSpellbook(id);
+};
+
+// Campaign storage functions
+export const loadCampaignsFromFile = async (): Promise<any[]> => {
+    return await storage.loadCampaigns();
+};
+
+export const saveCampaignsToFile = async (campaigns: any[]): Promise<void> => {
+    await storage.saveCampaigns(campaigns);
+};
+
+export const createCampaign = async (name: string, description?: string): Promise<string> => {
+    return await storage.createCampaign(name, description);
+};
+
+export const deleteCampaign = async (id: string): Promise<void> => {
+    await storage.deleteCampaign(id);
+};
+
+export const updateCampaign = async (id: string, name: string, description?: string): Promise<void> => {
+    await storage.updateCampaign(id, name, description);
+};
+
+export const saveSelectedCampaignToFile = async (campaignId: string | null): Promise<void> => {
+    await storage.saveSelectedCampaign(campaignId);
+};
+
+export const loadSelectedCampaignFromFile = async (): Promise<string | null> => {
+    return await storage.loadSelectedCampaign();
+};
+
+export const regenerateCombatFiles = async (): Promise<void> => {
+    await storage.regenerateCombatFiles();
+};
+
+export const regenerateAllIndexes = async (): Promise<void> => {
+    await storage.regenerateAllIndexes();
 }; 

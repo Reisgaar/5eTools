@@ -162,6 +162,28 @@ export function useBestiaryFilters(simpleBeasts: any[], beasts: any[]) {
         }, 200);
     };
 
+    // Helper functions to get display text for selected filters
+    const getCRFilterText = () => {
+        if (selectedCRs.length === 0) return 'CR';
+        if (selectedCRs.length === 1) return `CR: ${selectedCRs[0]}`;
+        if (selectedCRs.length <= 3) return `CR: ${selectedCRs.join(', ')}`;
+        return `CR: ${selectedCRs.length} selected`;
+    };
+
+    const getTypeFilterText = () => {
+        if (selectedTypes.length === 0) return 'Type';
+        if (selectedTypes.length === 1) return `Type: ${selectedTypes[0]}`;
+        if (selectedTypes.length <= 3) return `Type: ${selectedTypes.join(', ')}`;
+        return `Type: ${selectedTypes.length} selected`;
+    };
+
+    const getSourceFilterText = () => {
+        if (selectedSources.length === 0) return 'Source';
+        if (selectedSources.length === 1) return `Source: ${selectedSources[0]}`;
+        if (selectedSources.length <= 3) return `Source: ${selectedSources.join(', ')}`;
+        return `Source: ${selectedSources.length} selected`;
+    };
+
     return {
         search,
         setSearch,
@@ -189,6 +211,9 @@ export function useBestiaryFilters(simpleBeasts: any[], beasts: any[]) {
         typeOptions,
         sourceOptions,
         filteredBeasts,
+        getCRFilterText,
+        getTypeFilterText,
+        getSourceFilterText,
         openCRFilterModal,
         openTypeFilterModal,
         openSourceFilterModal,

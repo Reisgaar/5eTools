@@ -3,6 +3,7 @@ import { View, Text, TextInput, FlatList } from 'react-native';
 import { BaseModal } from '../ui';
 import { commonStyles } from '../../styles/commonStyles';
 import { useSpellbook } from '../../context/SpellbookContext';
+import { useCampaign } from '../../context/CampaignContext';
 import SpellbookItem from './SpellbookItem';
 import { useSpellbookSearch } from './useSpellbookSearch';
 import ConfirmModal from '../modals/ConfirmModal';
@@ -20,8 +21,10 @@ export default function AddToSpellbookModal({
     spell, 
     theme 
 }: AddToSpellbookModalProps) {
-    const { spellbooks, addSpellToSpellbook, removeSpellFromSpellbook, isSpellInSpellbook } = useSpellbook();
-    const { searchQuery, setSearchQuery, filteredSpellbooks } = useSpellbookSearch(spellbooks);
+    const { spellbooks, getSpellbooksByCampaign, addSpellToSpellbook, removeSpellFromSpellbook, isSpellInSpellbook } = useSpellbook();
+    const { selectedCampaign } = useCampaign();
+    const filteredSpellbooks = getSpellbooksByCampaign(selectedCampaign?.id || 'all');
+    const { searchQuery, setSearchQuery, filteredSpellbooks: searchedSpellbooks } = useSpellbookSearch(filteredSpellbooks);
     
     // Confirm modal state
     const [confirmModalVisible, setConfirmModalVisible] = useState(false);
@@ -97,13 +100,13 @@ export default function AddToSpellbookModal({
                 {/* Spellbooks List */}
                 <View style={commonStyles.spellbooksSection}>
                     <Text style={[commonStyles.sectionTitle, { color: theme.text }]}>Select Spellbooks</Text>
-                    {filteredSpellbooks.length === 0 ? (
+                    {searchedSpellbooks.length === 0 ? (
                         <Text style={[commonStyles.emptyText, { color: theme.noticeText }]}>
                             {searchQuery.trim() ? 'No spellbooks found matching your search.' : 'No spellbooks available. Create one first!'}
                         </Text>
                     ) : (
                         <FlatList
-                            data={filteredSpellbooks}
+                            data={searchedSpellbooks}
                             renderItem={renderSpellbookItem}
                             keyExtractor={(item) => item.id}
                             showsVerticalScrollIndicator={false}

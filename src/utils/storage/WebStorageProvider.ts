@@ -15,6 +15,8 @@ export class WebStorageProvider extends BaseStorageProvider {
             'COMBATS_INDEX': STORAGE_KEYS.COMBATS_INDEX,
             'PLAYERS': STORAGE_KEYS.PLAYERS,
             'SPELLBOOKS': STORAGE_KEYS.SPELLBOOKS,
+            'CAMPAIGNS': STORAGE_KEYS.CAMPAIGNS,
+            'SELECTED_CAMPAIGN': STORAGE_KEYS.SELECTED_CAMPAIGN,
             'MONSTERS_PREFIX': STORAGE_KEYS.MONSTERS_PREFIX,
             'SPELLS_PREFIX': STORAGE_KEYS.SPELLS_PREFIX,
             'COMBATS_PREFIX': STORAGE_KEYS.COMBATS_PREFIX,
@@ -59,7 +61,16 @@ export class WebStorageProvider extends BaseStorageProvider {
     
     // Utility operations
     protected async getAllKeys(): Promise<string[]> {
-        return await keys();
+        const allKeys = await keys();
+        // Filter to only include our data keys (monsters, spells, combats)
+        const dataKeys = allKeys.filter((key: any) => 
+            typeof key === 'string' && (
+                key.startsWith(STORAGE_KEYS.MONSTERS_PREFIX) ||
+                key.startsWith(STORAGE_KEYS.SPELLS_PREFIX) ||
+                key.startsWith(STORAGE_KEYS.COMBATS_PREFIX)
+            )
+        );
+        return dataKeys as string[];
     }
     
     protected async clearAll(): Promise<void> {
