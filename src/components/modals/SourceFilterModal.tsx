@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Modal, ScrollView, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -11,63 +11,8 @@ interface SourceFilterModalProps {
   onClear: () => void;
   onApply: () => void;
   theme: any;
-  sourceIdToNameMap: Record<string, string>;
+  sourceIdToNameMap?: Record<string, string>;
 }
-
-// Function to get source acronym
-const getSourceAcronym = (sourceName: string): string => {
-  const acronymMap: { [key: string]: string } = {
-    "Player's Handbook": "PHB",
-    "Dungeon Master's Guide": "DMG",
-    "Monster Manual": "MM",
-    "Volo's Guide to Monsters": "VGtM",
-    "Mordenkainen's Tome of Foes": "MToF",
-    "Tasha's Cauldron of Everything": "TCoE",
-    "Xanathar's Guide to Everything": "XGtE",
-    "Fizban's Treasury of Dragons": "FToD",
-    "Mordenkainen Presents: Monsters of the Multiverse": "MPMM",
-    "The Wild Beyond the Witchlight": "WBtW",
-    "Van Richten's Guide to Ravenloft": "VRGtR",
-    "Strixhaven: A Curriculum of Chaos": "SACoC",
-    "Candlekeep Mysteries": "CM",
-    "Icewind Dale: Rime of the Frostmaiden": "IDRotF",
-    "Explorer's Guide to Wildemount": "EGtW",
-    "Eberron: Rising from the Last War": "ERftLW",
-    "Acquisitions Incorporated": "AI",
-    "Guildmasters' Guide to Ravnica": "GGtR",
-    "Mythic Odysseys of Theros": "MOoT",
-    "Theros: Beyond Death": "TBD",
-    "Baldur's Gate: Descent into Avernus": "BGDiA",
-    "Dragon Heist": "DH",
-    "Dungeon of the Mad Mage": "DotMM",
-    "Ghosts of Saltmarsh": "GoS",
-    "Princes of the Apocalypse": "PotA",
-    "Out of the Abyss": "OotA",
-    "Curse of Strahd": "CoS",
-    "Storm King's Thunder": "SKT",
-    "Tales from the Yawning Portal": "TftYP",
-    "Tomb of Annihilation": "ToA",
-    "Hoard of the Dragon Queen": "HotDQ",
-    "The Rise of Tiamat": "RoT",
-    "Lost Mine of Phandelver": "LMoP",
-    "Tyranny of Dragons": "ToD",
-    "Elemental Evil Player's Companion": "EEPC",
-    "Sword Coast Adventurer's Guide": "SCAG",
-    "Unearthed Arcana": "UA",
-    "Adventure League": "AL",
-    "Homebrew": "HB",
-    "Critical Role": "CR",
-    "D&D Beyond": "DDB",
-    "Dungeon Master's Guild": "DMG",
-    "Kobold Press": "KP",
-    "Green Ronin": "GR",
-    "Paizo": "PZ",
-    "Wizards of the Coast": "WotC",
-    "Other": "OTH"
-  };
-  
-  return acronymMap[sourceName] || sourceName.substring(0, 3).toUpperCase();
-};
 
 export default function SourceFilterModal({
   visible,
@@ -80,6 +25,57 @@ export default function SourceFilterModal({
   theme,
   sourceIdToNameMap
 }: SourceFilterModalProps) {
+  // Pre-compute selected state for better performance
+  const selectedSet = useMemo(() => new Set(selectedSources), [selectedSources]);
+
+  // Function to get source acronym (e.g., "Player's Handbook" -> "PHB")
+  const getSourceAcronym = (sourceName: string): string => {
+    const acronyms: Record<string, string> = {
+      "player's handbook": "PHB",
+      "monster manual": "MM",
+      "dungeon master's guide": "DMG",
+      "volo's guide to monsters": "VGtM",
+      "mordenkainen's tome of foes": "MToF",
+      "tasha's cauldron of everything": "TCoE",
+      "xanathar's guide to everything": "XGtE",
+      "fizban's treasury of dragons": "FToD",
+      "mordenkainen presents: monsters of the multiverse": "MPMM",
+      "the wild beyond the witchlight": "WBtW",
+      "van richten's guide to ravenloft": "VRGtR",
+      "strixhaven: a curriculum of chaos": "SACoC",
+      "candlekeep mysteries": "CM",
+      "tales from the yawning portal": "TftYP",
+      "ghosts of saltmarsh": "GoS",
+      "princes of the apocalypse": "PotA",
+      "out of the abyss": "OotA",
+      "curse of strahd": "CoS",
+      "storm king's thunder": "SKT",
+      "tomb of annihilation": "ToA",
+      "waterdeep: dragon heist": "WDH",
+      "waterdeep: dungeon of the mad mage": "WDMM",
+      "baldur's gate: descent into avernus": "BGDIA",
+      "icewind dale: rime of the frostmaiden": "IDRotF",
+      "theros": "Theros",
+      "ravnica": "Ravnica",
+      "eberron": "Eberron",
+      "acquisitions incorporated": "AI",
+      "explorer's guide to wildemount": "EGtW",
+      "mythic odysseys of theros": "MOoT",
+      "guildmasters' guide to ravnica": "GGtR",
+      "wayfinder's guide to eberron": "WGtE",
+      "rising from the last war": "RftLW",
+      "eberron: rising from the last war": "ERftLW",
+      "unearthed arcana": "UA",
+      "adventure league": "AL",
+      "dungeon masters guild": "DMG",
+      "homebrew": "Homebrew",
+      "custom": "Custom"
+    };
+    
+    const normalizedName = sourceName.toLowerCase().trim();
+    return acronyms[normalizedName] || sourceName;
+  };
+
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={onClose}>
@@ -104,42 +100,37 @@ export default function SourceFilterModal({
             
             <ScrollView style={styles.scrollView}>
               <View style={styles.optionsGrid}> 
-                {sourceOptions
-                  .filter(source => source !== '[object Object]')
-                  .map(source => ({
-                    id: source,
-                    name: sourceIdToNameMap[source.toUpperCase()] ? sourceIdToNameMap[source.toUpperCase()] : source.toUpperCase()
-                  }))
-                  .sort((a, b) => a.name.localeCompare(b.name))
-                  .map(({ id, name }) => {
-                    const acronym = getSourceAcronym(name);
-                    return (
-                      <View key={id} style={styles.optionContainerFull}>
-                        <TouchableOpacity
-                          style={[
-                            styles.optionRow, 
-                            { borderColor: theme.border },
-                            selectedSources.includes(id) && { backgroundColor: theme.primary + '20' }
-                          ]}
-                          onPress={() => onToggleSource(id)}
-                        >
-                          <View style={[
-                            styles.checkbox, 
-                            { borderColor: theme.primary },
-                            selectedSources.includes(id) && { backgroundColor: theme.primary }
-                          ]} />
-                          <View style={styles.optionTextContainer}>
-                            <Text style={[styles.optionText, { color: theme.text }]}>
-                              {name}
-                            </Text>
-                            <Text style={[styles.optionAcronym, { color: theme.noticeText }]}>
-                              ({acronym})
-                            </Text>
-                          </View>
-                        </TouchableOpacity>
-                      </View>
-                    );
-                  })}
+                {sourceOptions.map(source => {
+                  const isSelected = selectedSet.has(source);
+                  const displayName = sourceIdToNameMap && sourceIdToNameMap[source] ? sourceIdToNameMap[source] : source;
+                  const acronym = getSourceAcronym(displayName);
+                  return (
+                    <View key={source} style={styles.optionContainer}>
+                      <TouchableOpacity
+                        style={[
+                          styles.optionRow, 
+                          { borderColor: theme.border },
+                          isSelected && { backgroundColor: theme.primary + '20' }
+                        ]}
+                        onPress={() => onToggleSource(source)}
+                      >
+                        <View style={[
+                          styles.checkbox, 
+                          { borderColor: theme.primary },
+                          isSelected && { backgroundColor: theme.primary }
+                        ]} />
+                        <View style={styles.optionTextContainer}>
+                          <Text style={[styles.optionText, { color: theme.text }]}>
+                            {displayName}
+                          </Text>
+                          <Text style={[styles.optionAcronym, { color: theme.noticeText }]}>
+                            ({acronym})
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+                    </View>
+                  );
+                })}
               </View>
             </ScrollView>
             
@@ -218,8 +209,9 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
   },
-  optionContainerFull: {
-    width: '100%',
+  optionContainer: {
+    width: '48%', // Adjust as needed for 2 columns
+    marginBottom: 8,
   },
   optionRow: {
     flexDirection: 'row',

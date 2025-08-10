@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Modal, ScrollView, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -25,6 +25,15 @@ export default function CRFilterModal({
   theme,
   sourceIdToNameMap
 }: CRFilterModalProps) {
+  // Pre-compute selected state for better performance
+  const selectedSet = useMemo(() => new Set(selectedCRs), [selectedCRs]);
+  
+  // Pre-compute filtered options
+  const filteredOptions = useMemo(() => 
+    crOptions.filter(cr => cr !== '[object Object]'), 
+    [crOptions]
+  );
+
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={onClose}>
@@ -49,27 +58,30 @@ export default function CRFilterModal({
             
             <ScrollView style={styles.scrollView}>
               <View style={styles.optionsGrid}> 
-                {crOptions.filter(cr => cr !== '[object Object]').map(cr => (
-                  <View key={String(cr)} style={styles.optionContainer}>
-                    <TouchableOpacity
-                      style={[
-                        styles.optionRow, 
-                        { borderColor: theme.border },
-                        selectedCRs.includes(cr) && { backgroundColor: theme.primary + '20' }
-                      ]}
-                      onPress={() => onToggleCR(cr)}
-                    >
-                      <View style={[
-                        styles.checkbox, 
-                        { borderColor: theme.primary },
-                        selectedCRs.includes(cr) && { backgroundColor: theme.primary }
-                      ]} />
-                      <Text style={[styles.optionText, { color: theme.text }]}>
-                        {sourceIdToNameMap && sourceIdToNameMap[cr] ? sourceIdToNameMap[cr] : (cr === 'Unknown' ? 'Unknown' : cr)}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                ))}
+                {filteredOptions.map(cr => {
+                  const isSelected = selectedSet.has(cr);
+                  return (
+                    <View key={String(cr)} style={styles.optionContainer}>
+                      <TouchableOpacity
+                        style={[
+                          styles.optionRow, 
+                          { borderColor: theme.border },
+                          isSelected && { backgroundColor: theme.primary + '20' }
+                        ]}
+                        onPress={() => onToggleCR(cr)}
+                      >
+                        <View style={[
+                          styles.checkbox, 
+                          { borderColor: theme.primary },
+                          isSelected && { backgroundColor: theme.primary }
+                        ]} />
+                        <Text style={[styles.optionText, { color: theme.text }]}>
+                          {sourceIdToNameMap && sourceIdToNameMap[cr] ? sourceIdToNameMap[cr] : (cr === 'Unknown' ? 'Unknown' : cr)}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  );
+                })}
               </View>
             </ScrollView>
             

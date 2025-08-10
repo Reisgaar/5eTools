@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Modal, ScrollView, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -13,10 +13,6 @@ interface TypeFilterModalProps {
   theme: any;
 }
 
-function capitalize(str: string) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
 export default function TypeFilterModal({
   visible,
   onClose,
@@ -27,6 +23,9 @@ export default function TypeFilterModal({
   onApply,
   theme
 }: TypeFilterModalProps) {
+  // Pre-compute selected state for better performance
+  const selectedSet = useMemo(() => new Set(selectedTypes), [selectedTypes]);
+
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={onClose}>
@@ -51,25 +50,30 @@ export default function TypeFilterModal({
             
             <ScrollView style={styles.scrollView}>
               <View style={styles.optionsGrid}> 
-                {typeOptions.filter(type => type !== '[object Object]').map(type => (
-                  <View key={type} style={styles.optionContainerHalf}>
-                    <TouchableOpacity
-                      style={[
-                        styles.optionRow, 
-                        { borderColor: theme.border },
-                        selectedTypes.includes(type) && { backgroundColor: theme.primary + '20' }
-                      ]}
-                      onPress={() => onToggleType(type)}
-                    >
-                      <View style={[
-                        styles.checkbox, 
-                        { borderColor: theme.primary },
-                        selectedTypes.includes(type) && { backgroundColor: theme.primary }
-                      ]} />
-                      <Text style={[styles.optionText, { color: theme.text }]}>{capitalize(type)}</Text>
-                    </TouchableOpacity>
-                  </View>
-                ))}
+                {typeOptions.map(type => {
+                  const isSelected = selectedSet.has(type);
+                  return (
+                    <View key={type} style={styles.optionContainer}>
+                      <TouchableOpacity
+                        style={[
+                          styles.optionRow, 
+                          { borderColor: theme.border },
+                          isSelected && { backgroundColor: theme.primary + '20' }
+                        ]}
+                        onPress={() => onToggleType(type)}
+                      >
+                        <View style={[
+                          styles.checkbox, 
+                          { borderColor: theme.primary },
+                          isSelected && { backgroundColor: theme.primary }
+                        ]} />
+                        <Text style={[styles.optionText, { color: theme.text }]}>
+                          {type}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  );
+                })}
               </View>
             </ScrollView>
             
@@ -148,7 +152,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
   },
-  optionContainerHalf: {
+  optionContainer: {
     width: '50%',
   },
   optionRow: {

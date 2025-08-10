@@ -13,7 +13,6 @@ export function useBestiaryFilters(simpleBeasts: any[], beasts: any[]) {
     const [pendingCRs, setPendingCRs] = useState<string[]>([]);
     const [pendingTypes, setPendingTypes] = useState<string[]>([]);
     const [pendingSources, setPendingSources] = useState<string[]>([]);
-    const [filterApplying, setFilterApplying] = useState(false);
     const [filterModalVisible, setFilterModalVisible] = useState(false);
     const [typeFilterModalVisible, setTypeFilterModalVisible] = useState(false);
     const [sourceFilterModalVisible, setSourceFilterModalVisible] = useState(false);
@@ -178,11 +177,7 @@ export function useBestiaryFilters(simpleBeasts: any[], beasts: any[]) {
 
     const applyCRFilter = useCallback(() => {
         setFilterModalVisible(false);
-        setFilterApplying(true);
-        setTimeout(() => {
-            setSelectedCRs(pendingCRs);
-            setFilterApplying(false);
-        }, 200);
+        setSelectedCRs(pendingCRs);
     }, [pendingCRs]);
 
     // Type Filter Modal handlers
@@ -202,11 +197,7 @@ export function useBestiaryFilters(simpleBeasts: any[], beasts: any[]) {
 
     const applyTypeFilter = useCallback(() => {
         setTypeFilterModalVisible(false);
-        setFilterApplying(true);
-        setTimeout(() => {
-            setSelectedTypes(pendingTypes);
-            setFilterApplying(false);
-        }, 200);
+        setSelectedTypes(pendingTypes);
     }, [pendingTypes]);
 
     // Source Filter Modal handlers
@@ -226,11 +217,7 @@ export function useBestiaryFilters(simpleBeasts: any[], beasts: any[]) {
 
     const applySourceFilter = useCallback(() => {
         setSourceFilterModalVisible(false);
-        setFilterApplying(true);
-        setTimeout(() => {
-            setSelectedSources(pendingSources);
-            setFilterApplying(false);
-        }, 200);
+        setSelectedSources(pendingSources);
     }, [pendingSources]);
 
     // Helper functions to get display text for selected filters - optimized with useCallback
@@ -362,8 +349,6 @@ export function useBestiaryFilters(simpleBeasts: any[], beasts: any[]) {
         setPendingTypes,
         pendingSources,
         setPendingSources,
-        filterApplying,
-        setFilterApplying,
         filterModalVisible,
         setFilterModalVisible,
         typeFilterModalVisible,
