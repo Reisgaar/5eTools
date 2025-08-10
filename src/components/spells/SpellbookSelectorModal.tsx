@@ -26,7 +26,7 @@ const SpellbookSelectorModal: React.FC<SpellbookSelectorModalProps> = ({
     const { currentTheme } = useAppSettings();
 
     // Get spellbooks filtered by selected campaign
-    const filteredSpellbooks = getSpellbooksByCampaign(selectedCampaignId === 'all' ? undefined : selectedCampaignId || undefined);
+    const filteredSpellbooks = getSpellbooksByCampaign(selectedCampaignId);
 
     const handleSelectSpellbook = (spellbookId: string | null) => {
         if (spellbookId) {

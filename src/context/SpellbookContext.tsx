@@ -22,7 +22,7 @@ interface SpellbookContextType {
   removeSpellFromSpellbook: (spellbookId: string, spellName: string, spellSource: string) => void;
   isSpellInSpellbook: (spellbookId: string, spellName: string, spellSource: string) => boolean;
   getCurrentSpellbook: () => Spellbook | null;
-  getSpellbooksByCampaign: (campaignId?: string) => Spellbook[];
+  getSpellbooksByCampaign: (campaignId?: string | null) => Spellbook[];
   loadSpellbooks: () => Promise<void>;
 }
 
@@ -150,15 +150,13 @@ export const SpellbookProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     return spellbooks.find(sb => sb.id === currentSpellbookId) || null;
   };
 
-  const getSpellbooksByCampaign = (campaignId?: string): Spellbook[] => {
-    if (campaignId === 'all') {
-      // Show all spellbooks when "all" is selected
+  const getSpellbooksByCampaign = (campaignId?: string | null): Spellbook[] => {
+    if (!campaignId) {
+      // If no campaign is selected (null/undefined), show all spellbooks
       return spellbooks;
-    } else if (campaignId) {
-      return spellbooks.filter(spellbook => spellbook.campaignId === campaignId);
     } else {
-      // If no campaign is selected, show spellbooks without campaign
-      return spellbooks.filter(spellbook => !spellbook.campaignId);
+      // Show spellbooks for the specific campaign
+      return spellbooks.filter(spellbook => spellbook.campaignId === campaignId);
     }
   };
 

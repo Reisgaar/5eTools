@@ -23,7 +23,7 @@ export default function AddToSpellbookModal({
 }: AddToSpellbookModalProps) {
     const { spellbooks, getSpellbooksByCampaign, addSpellToSpellbook, removeSpellFromSpellbook, isSpellInSpellbook } = useSpellbook();
     const { selectedCampaign } = useCampaign();
-    const filteredSpellbooks = getSpellbooksByCampaign(selectedCampaign?.id || 'all');
+    const filteredSpellbooks = getSpellbooksByCampaign(selectedCampaign?.id);
     const { searchQuery, setSearchQuery, filteredSpellbooks: searchedSpellbooks } = useSpellbookSearch(filteredSpellbooks);
     
     // Confirm modal state

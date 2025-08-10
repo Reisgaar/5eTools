@@ -11,6 +11,7 @@ import { AddToSpellbookModal, SpellbookSelectorModal, CreateSpellbookModal } fro
 import { ConfirmModal, SchoolFilterModal, ClassFilterModal } from 'src/components/modals';
 import { commonStyles } from 'src/styles/commonStyles';
 import { useSpellFilters } from 'src/hooks/useSpellFilters';
+import { normalizeString, equalsNormalized } from 'src/utils/stringUtils';
 
 const LEVELS = [
     { label: 'C', value: 0 },
@@ -65,11 +66,11 @@ export default function SpellsScreen() {
         spellbookName: string;
     } | null>(null);
     
-    // Use the new spell filters hook
+    // Use the spell filters hook for UI state management
     const filters = useSpellFilters(simpleSpells, spells, spellSourceLookup, availableClasses);
 
     // Get spellbooks filtered by selected campaign
-    const filteredSpellbooks = getSpellbooksByCampaign(selectedCampaign?.id || 'all');
+    const filteredSpellbooks = getSpellbooksByCampaign(selectedCampaign?.id);
 
     // Defer heavy computations to after navigation
     useEffect(() => {
@@ -86,7 +87,7 @@ export default function SpellsScreen() {
     useEffect(() => {
         if (currentSpellbookId) {
             const currentSpellbook = getCurrentSpellbook();
-            const selectedCampaignId = selectedCampaign?.id || 'all';
+            const selectedCampaignId = selectedCampaign?.id;
             if (currentSpellbook && currentSpellbook.campaignId !== selectedCampaignId) {
                 clearSpellbookSelection();
             }
@@ -132,26 +133,65 @@ export default function SpellsScreen() {
     const filteredSpells = useMemo(() => {
         if (!pageReady) return [];
         
-        let result = filters.filteredSpells;
+        let result: any[];
         
-        // Apply spellbook filter if a spellbook is selected
+        // Get base spell list based on whether a spellbook is selected
         if (currentSpellbookId) {
             const currentSpellbook = getCurrentSpellbook();
             if (currentSpellbook) {
-                result = result.filter((spell: any) => {
+                if (currentSpellbook.spells.length === 0) {
+                    console.log('Spellbook is empty');
+                    return [];
+                }
+                
+                // Get only the spells that are in the spellbook
+                result = simpleSpells.filter((spell: any) => {
                     const spellId = `${spell.name}-${spell.source}`;
                     return currentSpellbook.spells.includes(spellId);
                 });
+                
+                console.log(`Working with spellbook "${currentSpellbook.name}" - ${result.length} spells found`);
+            } else {
+                console.log('Current spellbook not found');
+                return [];
             }
+        } else {
+            // No spellbook selected, work with all spells
+            result = simpleSpells;
+            console.log(`Working with all spells - ${result.length} total spells`);
         }
         
+        // Apply search and filter filters to the base spell list
+        result = result.filter((spell: any) => {
+            // Search filter
+            const matchesName = filters.search === '' || spell.name.toLowerCase().includes(filters.search.toLowerCase());
+            
+            // School filter
+            const spellSchool = getFullSchool(spell.school);
+            const matchesSchool = filters.selectedSchools.length === 0 || filters.selectedSchools.includes(spellSchool);
+            
+            // Class filter
+            let matchesClass = true;
+            if (filters.selectedClasses.length > 0) {
+                const spellClasses = spell.availableClasses || [];
+                matchesClass = filters.selectedClasses.some(selectedClass => 
+                    spellClasses.includes(selectedClass)
+                );
+            }
+            
+            return matchesName && matchesSchool && matchesClass;
+        });
+        
+        // Apply level filter
         if (!noneSelected && !allSelected) {
             result = result.filter(spell => selectedLevels.includes(Number(spell.level)));
         }
         
         // Sort alphabetically by name
-        return result.slice().sort((a: any, b: any) => a.name.localeCompare(b.name));
-    }, [filters.filteredSpells, selectedLevels, pageReady, currentSpellbookId]);
+        const sortedResult = result.slice().sort((a: any, b: any) => a.name.localeCompare(b.name));
+        console.log(`Final filtered spells: ${sortedResult.length}`);
+        return sortedResult;
+    }, [simpleSpells, filters.search, filters.selectedSchools, filters.selectedClasses, selectedLevels, pageReady, currentSpellbookId]);
 
     const selectedSpellFullSchool = ''; // No longer needed as modal handles display
 
