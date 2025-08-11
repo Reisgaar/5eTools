@@ -35,7 +35,7 @@ export default function SpellbookItem({
                     <Text style={[commonStyles.modalItemDescription, { color: theme.noticeText }]}>{spellbook.description}</Text>
                 )}
                 <Text style={[commonStyles.modalItemStats, { color: theme.noticeText }]}>
-                    {spellbook.spellsIndex.length} spells • Created {new Date(spellbook.createdAt).toLocaleDateString()}
+                    {(spellbook.spellsIndex || []).length} spells • Created {new Date(spellbook.createdAt).toLocaleDateString()}
                 </Text>
             </TouchableOpacity>
             <View style={{ flexDirection: 'row' as const, alignItems: 'center' as const }}>

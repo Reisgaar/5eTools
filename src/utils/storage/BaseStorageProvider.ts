@@ -288,6 +288,11 @@ export abstract class BaseStorageProvider implements IStorageProvider {
         const spellbooks = await this.loadSpellbooks();
         const spellbook = spellbooks.find(sb => sb.id === spellbookId);
         if (spellbook) {
+            // Ensure spellsIndex exists
+            if (!spellbook.spellsIndex) {
+                spellbook.spellsIndex = [];
+            }
+            
             const spellExists = spellbook.spellsIndex.some(s => s.name === spellName && s.source === spellSource);
             if (!spellExists) {
                 const newSpellIndex = {
@@ -309,6 +314,11 @@ export abstract class BaseStorageProvider implements IStorageProvider {
         const spellbooks = await this.loadSpellbooks();
         const spellbook = spellbooks.find(sb => sb.id === spellbookId);
         if (spellbook) {
+            // Ensure spellsIndex exists
+            if (!spellbook.spellsIndex) {
+                spellbook.spellsIndex = [];
+            }
+            
             spellbook.spellsIndex = spellbook.spellsIndex.filter(s => !(s.name === spellName && s.source === spellSource));
             await this.saveSpellbooks(spellbooks);
         }

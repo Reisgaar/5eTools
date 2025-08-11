@@ -76,7 +76,7 @@ const SpellbookSelectorModal: React.FC<SpellbookSelectorModalProps> = ({
                                     </Text>
                                     <Text style={[styles.spellbookDescription, { color: currentTheme.noticeText }]}>
                                         {item.description && `${item.description} • `}
-                                        {item.spellsIndex.length} spells
+                                        {(item.spellsIndex || []).length} spells
                                     </Text>
                                 </View>
                                 {currentSpellbookId === item.id && (

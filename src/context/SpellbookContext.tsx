@@ -32,11 +32,18 @@ export const SpellbookProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const loadSpellbooks = async () => {
     try {
       const loadedSpellbooks = await loadSpellbooksFromFile();
-      setSpellbooks(loadedSpellbooks);
+      
+      // Ensure all spellbooks have a valid spellsIndex array
+      const validatedSpellbooks = loadedSpellbooks.map(spellbook => ({
+        ...spellbook,
+        spellsIndex: spellbook.spellsIndex || []
+      }));
+      
+      setSpellbooks(validatedSpellbooks);
       
       // Select the first spellbook if none is selected
-      if (loadedSpellbooks.length > 0 && !currentSpellbookId) {
-        setCurrentSpellbookId(loadedSpellbooks[0].id);
+      if (validatedSpellbooks.length > 0 && !currentSpellbookId) {
+        setCurrentSpellbookId(validatedSpellbooks[0].id);
       }
     } catch (error) {
       console.error('Error loading spellbooks:', error);
@@ -92,8 +99,11 @@ export const SpellbookProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setSpellbooks(prev => {
       const updated = prev.map(spellbook => {
         if (spellbook.id === spellbookId) {
+          // Ensure spellsIndex exists
+          const spellsIndex = spellbook.spellsIndex || [];
+          
           // Check if spell already exists in spellsIndex
-          const spellExists = spellbook.spellsIndex.some(spell => 
+          const spellExists = spellsIndex.some(spell => 
             spell.name === spellName && spell.source === spellSource
           );
           
@@ -110,7 +120,7 @@ export const SpellbookProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             
             return {
               ...spellbook,
-              spellsIndex: [...spellbook.spellsIndex, newSpellIndex],
+              spellsIndex: [...spellsIndex, newSpellIndex],
               updatedAt: new Date().toISOString(),
             };
           }
@@ -127,9 +137,10 @@ export const SpellbookProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setSpellbooks(prev => {
       const updated = prev.map(spellbook => {
         if (spellbook.id === spellbookId) {
+          const spellsIndex = spellbook.spellsIndex || [];
           return {
             ...spellbook,
-            spellsIndex: spellbook.spellsIndex.filter(spell => 
+            spellsIndex: spellsIndex.filter(spell => 
               !(spell.name === spellName && spell.source === spellSource)
             ),
             updatedAt: new Date().toISOString(),
@@ -147,7 +158,8 @@ export const SpellbookProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const spellbook = spellbooks.find(sb => sb.id === spellbookId);
     if (!spellbook) return false;
     
-    return spellbook.spellsIndex.some(spell => 
+    const spellsIndex = spellbook.spellsIndex || [];
+    return spellsIndex.some(spell => 
       spell.name === spellName && spell.source === spellSource
     );
   };
@@ -169,7 +181,7 @@ export const SpellbookProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const getSpellbookSpells = (spellbookId: string): SpellbookSpell[] => {
     const spellbook = spellbooks.find(sb => sb.id === spellbookId);
     if (!spellbook) return [];
-    return spellbook.spellsIndex;
+    return spellbook.spellsIndex || [];
   };
 
   return (
