@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { loadCampaignsFromFile, saveCampaignsToFile, createCampaign, deleteCampaign, updateCampaign, saveSelectedCampaignToFile, loadSelectedCampaignFromFile } from '../utils/fileStorage';
+import { loadCampaignsFromFile, saveCampaignsToFile, createCampaign, deleteCampaign, updateCampaign } from '../utils/fileStorage';
 
 export interface Campaign {
   id: string;
@@ -27,10 +27,9 @@ export const CampaignProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(null);
 
-  // Load campaigns and selected campaign on mount
+  // Load campaigns on mount
   useEffect(() => {
     loadCampaigns();
-    loadSelectedCampaign();
   }, []);
 
   const loadCampaigns = async () => {
@@ -42,24 +41,7 @@ export const CampaignProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   };
 
-  const loadSelectedCampaign = async () => {
-    try {
-      const savedCampaignId = await loadSelectedCampaignFromFile();
-      if (savedCampaignId) {
-        setSelectedCampaignId(savedCampaignId);
-      }
-    } catch (error) {
-      console.error('Error loading selected campaign:', error);
-    }
-  };
 
-  const saveSelectedCampaign = async (campaignId: string | null) => {
-    try {
-      await saveSelectedCampaignToFile(campaignId);
-    } catch (error) {
-      console.error('Error saving selected campaign:', error);
-    }
-  };
 
   const createCampaign = (name: string, description?: string): string => {
     const id = `campaign_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -74,7 +56,6 @@ export const CampaignProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
 
     setCampaigns(prev => [...prev, newCampaign]);
-    setSelectedCampaignId(id);
     
     // Save to storage
     saveCampaignsToFile([...campaigns, newCampaign]);
@@ -98,7 +79,6 @@ export const CampaignProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const selectCampaign = (id: string | null) => {
     setSelectedCampaignId(id);
-    saveSelectedCampaign(id);
     
     // Clear current combat when changing campaign
     // We need to import useCombat here, but since this is a context provider,
@@ -126,7 +106,6 @@ export const CampaignProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const clearSelectedCampaign = () => {
     setSelectedCampaignId(null);
-    saveSelectedCampaign(null);
   };
 
   const selectedCampaign = campaigns.find(c => c.id === selectedCampaignId) || null;

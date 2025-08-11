@@ -512,14 +512,7 @@ export abstract class BaseStorageProvider implements IStorageProvider {
         await this.saveCampaigns(updatedCampaigns);
     }
 
-    public async saveSelectedCampaign(campaignId: string | null): Promise<void> {
-        await this.storeIndex(STORAGE_KEYS.SELECTED_CAMPAIGN, { campaignId });
-    }
 
-    public async loadSelectedCampaign(): Promise<string | null> {
-        const data = await this.loadIndex(STORAGE_KEYS.SELECTED_CAMPAIGN);
-        return data?.campaignId || null;
-    }
 
     /**
      * Regenerate all indexes from existing data files

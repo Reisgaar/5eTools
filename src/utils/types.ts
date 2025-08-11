@@ -6,7 +6,7 @@ export interface StorageKeys {
     SPELLBOOKS: string;
     PLAYERS: string;
     CAMPAIGNS: string;
-    SELECTED_CAMPAIGN: string;
+
     MONSTERS_PREFIX: string;
     SPELLS_PREFIX: string;
     COMBATS_PREFIX: string;
@@ -155,7 +155,7 @@ export const STORAGE_KEYS: StorageKeys = {
     SPELLBOOKS: 'dnd_spellbooks',
     PLAYERS: 'dnd_players',
     CAMPAIGNS: 'dnd_campaigns',
-    SELECTED_CAMPAIGN: 'dnd_selected_campaign',
+
     MONSTERS_PREFIX: 'dnd_monster_',
     SPELLS_PREFIX: 'dnd_spell_',
     COMBATS_PREFIX: 'dnd_combat_',

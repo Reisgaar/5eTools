@@ -40,11 +40,6 @@ export const SpellbookProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       }));
       
       setSpellbooks(validatedSpellbooks);
-      
-      // Select the first spellbook if none is selected
-      if (validatedSpellbooks.length > 0 && !currentSpellbookId) {
-        setCurrentSpellbookId(validatedSpellbooks[0].id);
-      }
     } catch (error) {
       console.error('Error loading spellbooks:', error);
     }
@@ -65,7 +60,6 @@ export const SpellbookProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     };
 
     setSpellbooks(prev => [...prev, newSpellbook]);
-    setCurrentSpellbookId(id);
     
     // Save to storage
     saveSpellbooksToFile([...spellbooks, newSpellbook]);
@@ -78,9 +72,9 @@ export const SpellbookProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       const updated = prev.filter(spellbook => spellbook.id !== id);
       saveSpellbooksToFile(updated);
       
-      // If we deleted the current spellbook, select another one
+      // If we deleted the current spellbook, clear selection
       if (currentSpellbookId === id) {
-        setCurrentSpellbookId(updated.length > 0 ? updated[0].id : null);
+        setCurrentSpellbookId(null);
       }
       
       return updated;

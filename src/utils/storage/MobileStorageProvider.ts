@@ -31,7 +31,7 @@ export class MobileStorageProvider extends BaseStorageProvider {
             'PLAYERS': PLAYERS_FILE,
             'SPELLBOOKS': SPELLBOOKS_FILE,
             'CAMPAIGNS': `${DATA_DIR}campaigns.json`,
-            'SELECTED_CAMPAIGN': `${DATA_DIR}selected_campaign.json`,
+    
             'SPELL_CLASS_RELATIONS_INDEX': `${DATA_DIR}spell_class_relations_index.json`,
             'AVAILABLE_CLASSES_INDEX': `${DATA_DIR}available_classes_index.json`
         };
@@ -301,7 +301,7 @@ export class MobileStorageProvider extends BaseStorageProvider {
             { legacy: `${LEGACY_DATA_DIR}players.json`, new: PLAYERS_FILE },
             { legacy: `${LEGACY_DATA_DIR}spellbooks.json`, new: SPELLBOOKS_FILE },
             { legacy: `${LEGACY_DATA_DIR}campaigns.json`, new: `${DATA_DIR}campaigns.json` },
-            { legacy: `${LEGACY_DATA_DIR}selected_campaign.json`, new: `${DATA_DIR}selected_campaign.json` },
+    
             { legacy: `${LEGACY_DATA_DIR}spell_class_relations_index.json`, new: `${DATA_DIR}spell_class_relations_index.json` },
             { legacy: `${LEGACY_DATA_DIR}available_classes_index.json`, new: `${DATA_DIR}available_classes_index.json` }
         ];

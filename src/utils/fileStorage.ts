@@ -169,13 +169,7 @@ export const updateCampaign = async (id: string, name: string, description?: str
     await storage.updateCampaign(id, name, description);
 };
 
-export const saveSelectedCampaignToFile = async (campaignId: string | null): Promise<void> => {
-    await storage.saveSelectedCampaign(campaignId);
-};
 
-export const loadSelectedCampaignFromFile = async (): Promise<string | null> => {
-    return await storage.loadSelectedCampaign();
-};
 
 export const regenerateCombatFiles = async (): Promise<void> => {
     await storage.regenerateCombatFiles();

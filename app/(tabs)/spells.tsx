@@ -338,6 +338,11 @@ export default function SpellsScreen() {
                 visible={spellbookSelectorModalVisible}
                 onClose={() => setSpellbookSelectorModalVisible(false)}
                 onSelectSpellbook={(spellbookId) => {
+                    if (spellbookId) {
+                        selectSpellbook(spellbookId);
+                    } else {
+                        clearSpellbookSelection();
+                    }
                     setSpellbookSelectorModalVisible(false);
                 }}
                 onCreateSpellbook={() => {

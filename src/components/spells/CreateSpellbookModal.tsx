@@ -63,12 +63,7 @@ export default function CreateSpellbookModal({
         }
     };
 
-    const handleCancel = () => {
-        setSpellbookName('');
-        setSpellbookDescription('');
-        setSelectedCampaignId(selectedCampaign?.id || undefined);
-        onClose();
-    };
+
 
     const getCampaignName = (campaignId?: string) => {
         if (!campaignId) return 'No campaign selected';
@@ -79,7 +74,7 @@ export default function CreateSpellbookModal({
     return (
         <BaseModal 
             visible={visible} 
-            onClose={handleCancel} 
+            onClose={onClose} 
             theme={theme} 
             title="Create New Spellbook"
             width={Platform.OS === 'web' ? 450 : '90%'}
@@ -149,21 +144,13 @@ export default function CreateSpellbookModal({
             </View>
             
             <View style={styles.modalSection}>
-                <View style={{ flexDirection: 'row', gap: 12 }}>
-                    <TouchableOpacity
-                        onPress={handleCancel}
-                        style={[styles.modalButton, styles.modalButtonSecondary, { flex: 1 }]}
-                    >
-                        <Text style={[styles.modalButtonText, styles.modalButtonTextSecondary]}>Cancel</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        onPress={handleCreateSpellbook}
-                        style={[styles.modalButton, styles.modalButtonPrimary, { flex: 1 }]}
-                        disabled={!spellbookName.trim()}
-                    >
-                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>Create</Text>
-                    </TouchableOpacity>
-                </View>
+                <TouchableOpacity
+                    onPress={handleCreateSpellbook}
+                    style={[styles.modalButton, styles.modalButtonPrimary]}
+                    disabled={!spellbookName.trim()}
+                >
+                    <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>Create</Text>
+                </TouchableOpacity>
             </View>
         </BaseModal>
     );
