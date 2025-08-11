@@ -1,4 +1,11 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
+
+// Function to calculate z-index based on modal stack depth
+export const getModalZIndex = (stackDepth: number = 0): number => {
+  const baseZIndex = 1000;
+  const increment = 100;
+  return baseZIndex + (stackDepth * increment);
+};
 
 export const createModalStyles = (theme: any) => StyleSheet.create({
   // Base Modal Styles
@@ -10,16 +17,30 @@ export const createModalStyles = (theme: any) => StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  // Generic Header Separator - can be used across all modals
+  modalHeaderSeparator: {
+    height: 1,
+    marginHorizontal: 16,
+    marginBottom: 16,
   },
   modalContent: {
     backgroundColor: theme.card,
     borderRadius: 12,
-    padding: 24,
-    width: 320,
-    maxWidth: '90%',
+    padding: 20,
+    marginHorizontal: 20,
+    width: '90%',
+    maxWidth: 400,
+    maxHeight: '80%',
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    zIndex: 1000, // Ensure it appears above other content
   },
   modalTitle: {
     fontWeight: 'bold',
@@ -389,12 +410,14 @@ export const createModalStyles = (theme: any) => StyleSheet.create({
     borderRadius: 12,
     width: '90%',
     maxWidth: 400,
-    maxHeight: '85%',
+    maxHeight: '90%', // Increased from 85% to 90%
+    minHeight: Platform.OS === 'web' ? 500 : 700, // Increased for mobile
     elevation: 6,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
+    zIndex: 1000, // Ensure it appears above other modals
   },
   beastDetailHeader: {
     flexDirection: 'row',
@@ -433,5 +456,71 @@ export const createModalStyles = (theme: any) => StyleSheet.create({
   },
   beastDetailBody: {
     paddingHorizontal: 20,
+    flex: 1,
+  },
+  // Beast detail content styles
+  beastDetailContent: {
+    paddingTop: 5,
+  },
+  beastDetailText: {
+    color: theme.text,
+    marginBottom: 6,
+    fontSize: 12,
+  },
+  beastDetailBoldText: {
+    fontWeight: 'bold',
+  },
+  beastDetailStatsContainer: {
+    flexDirection: 'row',
+    marginVertical: 6,
+    justifyContent: 'space-between',
+  },
+  beastDetailStatButton: {
+    alignItems: 'center',
+    flex: 1,
+    marginHorizontal: 2,
+    backgroundColor: theme.primary,
+    borderRadius: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 2,
+  },
+  beastDetailStatText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 12,
+  },
+  beastDetailStatValue: {
+    color: 'white',
+    fontSize: 12,
+  },
+  beastDetailImageContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  beastDetailImageLoadingContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 400,
+  },
+  beastDetailImage: {
+    width: '100%',
+    height: 400,
+    maxHeight: 500,
+    resizeMode: 'contain',
+  },
+  beastDetailSourceText: {
+    color: theme.noticeText,
+    fontStyle: 'italic',
+    marginTop: 8,
+    marginBottom: 18,
+    textAlign: 'right',
+    fontSize: 10,
+  },
+  beastDetailFooter: {
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    alignItems: 'flex-end',
   },
 });

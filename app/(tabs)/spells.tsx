@@ -8,7 +8,7 @@ import { useData } from 'src/context/DataContext';
 import { useModal } from 'src/context/ModalContext';
 import { useSpellbook } from 'src/context/SpellbookContext';
 import { AddToSpellbookModal, SpellbookSelectorModal, CreateSpellbookModal } from 'src/components/spells';
-import { ConfirmModal, SchoolFilterModal, ClassFilterModal } from 'src/components/modals';
+import { SchoolFilterModal, ClassFilterModal, OtherFilterModal, ConfirmModal } from 'src/components/modals';
 import { commonStyles } from 'src/styles/commonStyles';
 import { useSpellFilters } from 'src/hooks/useSpellFilters';
 import { normalizeString, equalsNormalized } from 'src/utils/stringUtils';
@@ -51,20 +51,15 @@ export default function SpellsScreen() {
     const { simpleBeasts, simpleSpells, spells, spellSourceLookup, availableClasses, isLoading, isInitialized, getFullBeast, getFullSpell } = useData();
     const { currentTheme: theme } = useAppSettings();
     const { openBeastModal, openSpellModal } = useModal();
-    const { spellbooks, currentSpellbookId, getCurrentSpellbook, getSpellbooksByCampaign, addSpellToSpellbook, removeSpellFromSpellbook, isSpellInSpellbook, selectSpellbook, clearSpellbookSelection } = useSpellbook();
+    const { spellbooks, currentSpellbookId, getCurrentSpellbook, getSpellbooksByCampaign, addSpellToSpellbook, removeSpellFromSpellbook, isSpellInSpellbook, selectSpellbook, clearSpellbookSelection, getSpellbookSpells } = useSpellbook();
     const [selectedLevels, setSelectedLevels] = useState<number[]>([]); // multi-select
     const [pageReady, setPageReady] = useState(false);
     const [addToSpellbookModalVisible, setAddToSpellbookModalVisible] = useState(false);
     const [spellbookSelectorModalVisible, setSpellbookSelectorModalVisible] = useState(false);
     const [createSpellbookModalVisible, setCreateSpellbookModalVisible] = useState(false);
     const [selectedSpellForSpellbook, setSelectedSpellForSpellbook] = useState<any>(null);
-    
-    // Confirm modal state for removing spells from spellbook
-    const [confirmRemoveModalVisible, setConfirmRemoveModalVisible] = useState(false);
-    const [pendingSpellRemoval, setPendingSpellRemoval] = useState<{
-        spell: any;
-        spellbookName: string;
-    } | null>(null);
+    const [confirmModalVisible, setConfirmModalVisible] = useState(false);
+    const [spellToRemove, setSpellToRemove] = useState<any>(null);
     
     // Use the spell filters hook for UI state management
     const filters = useSpellFilters(simpleSpells, spells, spellSourceLookup, availableClasses);
@@ -83,39 +78,49 @@ export default function SpellsScreen() {
         }
     }, [simpleSpells.length]);
 
-    // Handle campaign changes - deselect spellbook if it doesn't belong to selected campaign
+    // Handle campaign changes - only clear spellbook if there's an actual campaign mismatch
     useEffect(() => {
-        if (currentSpellbookId) {
+        if (currentSpellbookId && selectedCampaign?.id) {
             const currentSpellbook = getCurrentSpellbook();
-            const selectedCampaignId = selectedCampaign?.id;
-            if (currentSpellbook && currentSpellbook.campaignId !== selectedCampaignId) {
+            if (currentSpellbook && currentSpellbook.campaignId && currentSpellbook.campaignId !== selectedCampaign.id) {
                 clearSpellbookSelection();
             }
         }
-    }, [currentSpellbookId, selectedCampaign?.id]);
+    }, [currentSpellbookId, selectedCampaign?.id, getCurrentSpellbook, clearSpellbookSelection]);
 
     // Multi-select level filter logic
     const allSelected = selectedLevels.length === ALL_LEVEL_VALUES.length;
     const noneSelected = selectedLevels.length === 0;
 
-    function handleLevelPress(value: number | 'all') {
-        if (value === 'all') {
-            if (allSelected || noneSelected) {
-                // Unselect all levels, keep 'All' visually selected
-                setSelectedLevels([]);
-            } else {
-                // Select all levels
-                setSelectedLevels([...ALL_LEVEL_VALUES]);
-            }
+    // Filter spells by selected levels - show all if none or all are selected
+    const filteredSpells = useMemo(() => {
+        let baseSpells;
+        
+        // If a spellbook is selected, use its spells
+        if (currentSpellbookId) {
+            const spellbookSpells = getSpellbookSpells(currentSpellbookId);
+            baseSpells = spellbookSpells;
         } else {
-            let newLevels;
-            if (selectedLevels.includes(value)) {
-                newLevels = selectedLevels.filter(lvl => lvl !== value);
-            } else {
-                newLevels = [...selectedLevels, value];
-            }
-            setSelectedLevels(newLevels);
+            // Otherwise use all spells from the filter hook
+            baseSpells = filters.filteredSpells;
         }
+        
+        // Apply level filter
+        const levelFiltered = noneSelected || allSelected 
+            ? baseSpells 
+            : baseSpells.filter(spell => selectedLevels.includes(spell.level));
+        
+        return levelFiltered;
+    }, [filters.filteredSpells, selectedLevels, noneSelected, allSelected, currentSpellbookId, getSpellbookSpells]);
+
+    function handleLevelPress(value: number) {
+        let newLevels;
+        if (selectedLevels.includes(value)) {
+            newLevels = selectedLevels.filter(lvl => lvl !== value);
+        } else {
+            newLevels = [...selectedLevels, value];
+        }
+        setSelectedLevels(newLevels);
     }
 
     const handleCreaturePress = async (name: string, source: string) => {
@@ -129,81 +134,13 @@ export default function SpellsScreen() {
         openSpellModal(spell);
     };
 
-    // Filtered and sorted spells - only compute when page is ready
-    const filteredSpells = useMemo(() => {
-        if (!pageReady) return [];
-        
-        let result: any[];
-        
-        // Get base spell list based on whether a spellbook is selected
-        if (currentSpellbookId) {
-            const currentSpellbook = getCurrentSpellbook();
-            if (currentSpellbook) {
-                if (currentSpellbook.spells.length === 0) {
-                    console.log('Spellbook is empty');
-                    return [];
-                }
-                
-                // Get only the spells that are in the spellbook
-                result = simpleSpells.filter((spell: any) => {
-                    const spellId = `${spell.name}-${spell.source}`;
-                    return currentSpellbook.spells.includes(spellId);
-                });
-                
-                console.log(`Working with spellbook "${currentSpellbook.name}" - ${result.length} spells found`);
-            } else {
-                console.log('Current spellbook not found');
-                return [];
-            }
-        } else {
-            // No spellbook selected, work with all spells
-            result = simpleSpells;
-            console.log(`Working with all spells - ${result.length} total spells`);
-        }
-        
-        // Apply search and filter filters to the base spell list
-        result = result.filter((spell: any) => {
-            // Search filter
-            const matchesName = filters.search === '' || spell.name.toLowerCase().includes(filters.search.toLowerCase());
-            
-            // School filter
-            const spellSchool = getFullSchool(spell.school);
-            const matchesSchool = filters.selectedSchools.length === 0 || filters.selectedSchools.includes(spellSchool);
-            
-            // Class filter
-            let matchesClass = true;
-            if (filters.selectedClasses.length > 0) {
-                const spellClasses = spell.availableClasses || [];
-                matchesClass = filters.selectedClasses.some(selectedClass => 
-                    spellClasses.includes(selectedClass)
-                );
-            }
-            
-            return matchesName && matchesSchool && matchesClass;
-        });
-        
-        // Apply level filter
-        if (!noneSelected && !allSelected) {
-            result = result.filter(spell => selectedLevels.includes(Number(spell.level)));
-        }
-        
-        // Sort alphabetically by name
-        const sortedResult = result.slice().sort((a: any, b: any) => a.name.localeCompare(b.name));
-        console.log(`Final filtered spells: ${sortedResult.length}`);
-        return sortedResult;
-    }, [simpleSpells, filters.search, filters.selectedSchools, filters.selectedClasses, selectedLevels, pageReady, currentSpellbookId]);
-
     const selectedSpellFullSchool = ''; // No longer needed as modal handles display
 
     const handleAddToSpellbook = (spell: any) => {
         if (currentSpellbookId) {
-            // If a spellbook is selected, show confirmation before removing
-            const currentSpellbook = getCurrentSpellbook();
-            setPendingSpellRemoval({
-                spell,
-                spellbookName: currentSpellbook?.name || 'Unknown'
-            });
-            setConfirmRemoveModalVisible(true);
+            // If a spellbook is selected, ask for confirmation before removing
+            setSpellToRemove(spell);
+            setConfirmModalVisible(true);
         } else {
             // If no spellbook is selected, show modal to select which spellbook
             setSelectedSpellForSpellbook(spell);
@@ -211,15 +148,17 @@ export default function SpellsScreen() {
         }
     };
 
-    const handleConfirmSpellRemoval = () => {
-        if (pendingSpellRemoval && currentSpellbookId) {
-            removeSpellFromSpellbook(currentSpellbookId, pendingSpellRemoval.spell.name, pendingSpellRemoval.spell.source);
-            setPendingSpellRemoval(null);
-            setConfirmRemoveModalVisible(false);
+    const handleConfirmRemoveSpell = () => {
+        if (spellToRemove && currentSpellbookId) {
+            removeSpellFromSpellbook(currentSpellbookId, spellToRemove.name, spellToRemove.source);
         }
+        setConfirmModalVisible(false);
+        setSpellToRemove(null);
     };
 
-    const renderSpellItem = ({ item: spell, index }: { item: any, index: number }) => {
+    const renderSpellItem = ({ item }: { item: any }) => {
+        const spell = item;
+        const isRitual = spell.ritual === true;
         const isInCurrentSpellbook = currentSpellbookId ? isSpellInSpellbook(currentSpellbookId, spell.name, spell.source) : false;
         
         return (
@@ -229,16 +168,22 @@ export default function SpellsScreen() {
                     onPress={() => handleSpellPress(spell)}
                 >
                     <Text style={[commonStyles.itemName, { color: theme.text }]}>
-                        <Text style={{ fontWeight: 'bold' }}>{spell.level === 0 ? 'C' : spell.level} - {spell.name}</Text>
-                        <Text style={{ fontStyle: 'italic', fontWeight: 'normal' }}> - {getFullSchool(spell.school)} ({spell.source || spell._source || 'Unknown'})</Text>
+                        <Text style={{ fontWeight: 'bold' }}>
+                            {spell.name}
+                            {isRitual && ' (R)'}
+                        </Text>
+                        <Text style={{ fontStyle: 'italic', fontWeight: 'normal' }}>{'\n'}{spell.level === 0 ? 'C' : spell.level} - {getFullSchool(spell.school)} ({spell.source || spell._source || 'Unknown'})</Text>
                     </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     onPress={() => handleAddToSpellbook(spell)}
-                    style={[commonStyles.itemActionButton, { backgroundColor: currentSpellbookId && isInCurrentSpellbook ? '#dc2626' : theme.primary }]}
+                    style={[styles.spellbookButton, { 
+                        backgroundColor: currentSpellbookId ? '#dc2626' : theme.primary,
+                        borderColor: currentSpellbookId ? '#dc2626' : theme.primary
+                    }]}
                 >
                     <Ionicons 
-                        name={currentSpellbookId && isInCurrentSpellbook ? "remove" : "add"} 
+                        name={currentSpellbookId ? "remove" : "add"} 
                         size={16} 
                         color="white" 
                     />
@@ -248,69 +193,97 @@ export default function SpellsScreen() {
     };
 
     return (
-        <View style={[commonStyles.container, { flex: 1, backgroundColor: theme.background, paddingBottom: 0 }]}>
-            <View style={commonStyles.header}>
+        <View style={[commonStyles.container, { flex: 1, backgroundColor: theme.background, paddingBottom: 0, paddingHorizontal: 8 }]}>
+            <View style={[commonStyles.header, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
                 <Text style={[commonStyles.title, { color: theme.text }]}>Spells</Text>
-            </View>
-            
-            <TextInput
-                style={[commonStyles.input, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.card }]}
-                placeholder="Search by name..."
-                value={filters.search}
-                onChangeText={filters.setSearch}
-                autoCorrect={false}
-                autoCapitalize="none"
-                placeholderTextColor={theme.noticeText}
-            />
-            
-            {/* Filter Buttons */}
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 8 }}>
-                <TouchableOpacity
-                    onPress={filters.openSchoolFilterModal}
-                    style={[styles.filterBtn, { borderColor: filters.selectedSchools.length > 0 ? theme.primary : theme.text }]}
-                >
-                    <Text style={{ color: filters.selectedSchools.length > 0 ? theme.primary : theme.text, fontWeight: 'bold', fontSize: 12 }}>
-                        {filters.getSchoolFilterText()}
-                    </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    onPress={filters.openClassFilterModal}
-                    style={[styles.filterBtn, { borderColor: filters.selectedClasses.length > 0 ? theme.primary : theme.text }]}
-                >
-                    <Text style={{ color: filters.selectedClasses.length > 0 ? theme.primary : theme.text, fontWeight: 'bold', fontSize: 12 }}>
-                        {filters.getClassFilterText()}
-                    </Text>
-                </TouchableOpacity>
                 <TouchableOpacity
                     onPress={() => setSpellbookSelectorModalVisible(true)}
                     style={[styles.filterBtn, { borderColor: currentSpellbookId ? theme.primary : theme.text }]}
                 >
-                    <Text style={{ color: currentSpellbookId ? theme.primary : theme.text, fontWeight: 'bold', fontSize: 12 }}>
+                    <Text style={{ color: currentSpellbookId ? theme.primary : theme.text, fontWeight: 'bold', fontSize: 11 }}>
                         {currentSpellbookId ? getCurrentSpellbook()?.name || 'Spellbook' : 'Spellbook'}
                     </Text>
                 </TouchableOpacity>
             </View>
             
-            {/* Level Filter Bar */}
-            <View style={[commonStyles.levelBar, { paddingVertical: 4, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }]}>
-                {/* All button */}
+            {/* Filter Buttons - All in one line */}
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
                 <TouchableOpacity
-                    key="all"
-                    style={[commonStyles.levelBtn, (allSelected || noneSelected) && { backgroundColor: theme.primary, borderColor: theme.primary }]}
-                    onPress={() => handleLevelPress('all')}
+                    onPress={filters.openSchoolFilterModal}
+                    style={[styles.filterBtn, { borderColor: filters.selectedSchools.length > 0 ? theme.primary : theme.text, flex: 1, marginRight: 4 }]}
                 >
-                    <Text style={[commonStyles.levelBtnText, { color: theme.text}, (allSelected || noneSelected) && { color: 'white', fontWeight: 'bold' }, { fontSize: 12 } ]}>All</Text>
+                    <Text style={{ color: filters.selectedSchools.length > 0 ? theme.primary : theme.text, fontWeight: 'bold', fontSize: 11 }}>
+                        School
+                    </Text>
                 </TouchableOpacity>
-                {LEVELS.map(lvl => (
+                <TouchableOpacity
+                    onPress={filters.openClassFilterModal}
+                    style={[styles.filterBtn, { borderColor: filters.selectedClasses.length > 0 ? theme.primary : theme.text, flex: 1, marginHorizontal: 2 }]}
+                >
+                    <Text style={{ color: filters.selectedClasses.length > 0 ? theme.primary : theme.text, fontWeight: 'bold', fontSize: 11 }}>
+                        Class
+                    </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={filters.openOtherFilterModal}
+                    style={[styles.filterBtn, { borderColor: filters.selectedOthers.length > 0 ? theme.primary : theme.text, flex: 1, marginHorizontal: 2 }]}
+                >
+                    <Text style={{ color: filters.selectedOthers.length > 0 ? theme.primary : theme.text, fontWeight: 'bold', fontSize: 11 }}>
+                        Other
+                    </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={filters.clearAllFilters}
+                    style={[styles.filterBtn, { borderColor: '#ef4444', flex: 1, marginLeft: 4 }]}
+                >
+                    <Text style={{ color: '#ef4444', fontWeight: 'bold', fontSize: 11 }}>Clear</Text>
+                </TouchableOpacity>
+            </View>
+            
+            {/* Search Input with Clear Button */}
+            <View style={{ flexDirection: 'row', marginBottom: 8 }}>
+                <TextInput
+                    style={[commonStyles.input, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.card, flex: 1, marginRight: 8 }]}
+                    placeholder="Search by name..."
+                    value={filters.search}
+                    onChangeText={filters.setSearch}
+                    autoCorrect={false}
+                    autoCapitalize="none"
+                    placeholderTextColor={theme.noticeText}
+                />
+            </View>
+            
+            {/* Level Filter Bar */}
+            <View style={styles.levelFilterContainer}>
+                {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((level) => (
                     <TouchableOpacity
-                        key={lvl.value}
-                        style={[commonStyles.levelBtn, { backgroundColor: theme.card, borderColor: theme.text }, selectedLevels.includes(lvl.value) && { backgroundColor: theme.primary, borderColor: theme.primary }]}
-                        onPress={() => handleLevelPress(lvl.value)}
+                        key={level}
+                        style={[
+                            styles.levelButton,
+                            { backgroundColor: selectedLevels.includes(level) ? theme.primary : 'transparent', borderColor: theme.border }
+                        ]}
+                        onPress={() => handleLevelPress(level)}
                     >
-                        <Text style={[commonStyles.levelBtnText, { color: theme.text }, selectedLevels.includes(lvl.value) && { color: 'white', fontWeight: 'bold' }]}>{lvl.label}</Text>
+                        <Text style={[
+                            styles.levelButtonText,
+                            { color: selectedLevels.includes(level) ? 'white' : theme.text }
+                        ]}>
+                            {level === 0 ? 'C' : level}
+                        </Text>
                     </TouchableOpacity>
                 ))}
             </View>
+            
+            {/* Applied Filters Text */}
+            {filters.hasActiveFilters && (
+                <View style={styles.filterSummaryContainer}>
+                    {filters.getFilterSummary().map((filterLine, index) => (
+                        <Text key={index} style={[styles.filterSummaryText, { color: theme.noticeText }]}>
+                            {filterLine}
+                        </Text>
+                    ))}
+                </View>
+            )}
             
             {/* Content Area */}
             <View style={{ flex: 1 }}>
@@ -383,19 +356,17 @@ export default function SpellsScreen() {
                 theme={theme}
             />
             
-            {/* Confirm Remove Spell Modal */}
-            <ConfirmModal
-                visible={confirmRemoveModalVisible}
-                onClose={() => {
-                    setConfirmRemoveModalVisible(false);
-                    setPendingSpellRemoval(null);
-                }}
-                onConfirm={handleConfirmSpellRemoval}
-                title="Remove Spell"
-                message={`Are you sure you want to remove "${pendingSpellRemoval?.spell.name}" from "${pendingSpellRemoval?.spellbookName}"?`}
-                confirmText="Remove"
-                cancelText="Cancel"
+            {/* Other Filter Modal */}
+            <OtherFilterModal
+                visible={filters.otherFilterModalVisible}
+                onClose={() => filters.setOtherFilterModalVisible(false)}
                 theme={theme}
+                options={filters.otherOptions}
+                selectedOptions={filters.pendingOthers}
+                onToggleOption={filters.togglePendingOther}
+                onSelectAll={filters.selectAllPendingOthers}
+                onApply={filters.applyOtherFilter}
+                isApplying={filters.filterApplying}
             />
             
             {/* School Filter Modal */}
@@ -421,6 +392,16 @@ export default function SpellsScreen() {
                 onApply={filters.applyClassFilter}
                 theme={theme}
             />
+
+            {/* Confirm Remove Spell Modal */}
+            <ConfirmModal
+                visible={confirmModalVisible}
+                onClose={() => setConfirmModalVisible(false)}
+                onConfirm={handleConfirmRemoveSpell}
+                title="Remove Spell"
+                message={`Are you sure you want to remove "${spellToRemove?.name}" from the spellbook?`}
+                theme={theme}
+            />
         </View>
     );
 }
@@ -434,8 +415,48 @@ const styles = StyleSheet.create({
         minHeight: 32,
         justifyContent: 'center',
         alignItems: 'center',
-        flex: 1,
         marginHorizontal: 4,
+    },
+    levelFilterContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        marginBottom: 8,
+        gap: 6,
+        paddingHorizontal: 4,
+    },
+    levelButton: {
+        borderWidth: 1,
+        borderRadius: 6,
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        minHeight: 32,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginHorizontal: 1,
+        flex: 1,
+        maxWidth: '9%',
+    },
+    levelButtonText: {
+        fontSize: 13,
+        fontWeight: 'bold',
+    },
+    filterSummaryContainer: {
+        paddingVertical: 4,
+    },
+    filterSummaryText: {
+        fontSize: 12,
+        fontStyle: 'italic',
+    },
+    spellbookButton: {
+        borderWidth: 1,
+        borderRadius: 6,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        minHeight: 28,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginHorizontal: 2,
     },
 });
 

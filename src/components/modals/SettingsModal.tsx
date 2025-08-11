@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View, ScrollView, TextInput } from 'react-native';
 import { conditions as DEFAULT_CONDITIONS } from 'src/constants/conditions';
 import { BaseModal } from '../ui';
+import { createBaseModalStyles } from '../../styles/baseModalStyles';
 
 interface SettingsModalProps {
   visible: boolean;
@@ -45,6 +46,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   currentColor,
   currentNote = '',
   creatureName = 'Creature',
+  combatantNumber,
   theme
 }) => {
   const [selectedConditions, setSelectedConditions] = useState<string[]>(currentConditions);

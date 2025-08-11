@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { BaseModal } from '../ui';
+import { createBaseModalStyles } from '../../styles/baseModalStyles';
 
 interface HPEditModalProps {
     visible: boolean;
@@ -26,6 +27,7 @@ export default function HPEditModal({
     theme
 }: HPEditModalProps) {
     const [currentHp, setCurrentHp] = useState(initialCurrentHp);
+    const styles = createBaseModalStyles(theme);
 
     // Update local value when initial value changes
     useEffect(() => {
@@ -57,7 +59,7 @@ export default function HPEditModal({
         <BaseModal visible={visible} onClose={handleCancel} theme={theme} title={modalTitle}>
             {/* Creature Name */}
             <View style={styles.creatureNameContainer}>
-                <Text style={[styles.creatureName, { color: theme.text }]}>
+                <Text style={[styles.modalText, { fontStyle: 'italic', textAlign: 'center' }]}>
                     #{combatantNumber} {creatureName}
                 </Text>
             </View>
@@ -103,44 +105,44 @@ export default function HPEditModal({
                 {/* Decrement Buttons - Left Column */}
                 <View style={styles.buttonColumn}>
                     <TouchableOpacity
-                        style={[styles.button, { backgroundColor: theme.primary }]}
+                        style={[styles.modalButton, styles.modalButtonPrimary]}
                         onPress={() => handleDecrement(10)}
                     >
-                        <Text style={styles.buttonText}>-10</Text>
+                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-10</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                        style={[styles.button, { backgroundColor: theme.primary }]}
+                        style={[styles.modalButton, styles.modalButtonPrimary]}
                         onPress={() => handleDecrement(5)}
                     >
-                        <Text style={styles.buttonText}>-5</Text>
+                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-5</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                        style={[styles.button, { backgroundColor: theme.primary }]}
+                        style={[styles.modalButton, styles.modalButtonPrimary]}
                         onPress={() => handleDecrement(1)}
                     >
-                        <Text style={styles.buttonText}>-1</Text>
+                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-1</Text>
                     </TouchableOpacity>
                 </View>
 
                 {/* Increment Buttons - Right Column */}
                 <View style={styles.buttonColumn}>
                     <TouchableOpacity
-                        style={[styles.button, { backgroundColor: theme.primary }]}
+                        style={[styles.modalButton, styles.modalButtonPrimary]}
                         onPress={() => handleIncrement(10)}
                     >
-                        <Text style={styles.buttonText}>+10</Text>
+                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>+10</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                        style={[styles.button, { backgroundColor: theme.primary }]}
+                        style={[styles.modalButton, styles.modalButtonPrimary]}
                         onPress={() => handleIncrement(5)}
                     >
-                        <Text style={styles.buttonText}>+5</Text>
+                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>+5</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                        style={[styles.button, { backgroundColor: theme.primary }]}
+                        style={[styles.modalButton, styles.modalButtonPrimary]}
                         onPress={() => handleIncrement(1)}
                     >
-                        <Text style={styles.buttonText}>+1</Text>
+                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>+1</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -148,10 +150,10 @@ export default function HPEditModal({
             {/* Action Button */}
             <View style={styles.actionContainer}>
                 <TouchableOpacity
-                    style={[styles.actionButton, { backgroundColor: theme.primary }]}
+                    style={[styles.modalButton, styles.modalButtonPrimary]}
                     onPress={handleAccept}
                 >
-                    <Text style={[styles.actionButtonText, { color: 'white' }]}>Accept</Text>
+                    <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>Accept</Text>
                 </TouchableOpacity>
             </View>
         </BaseModal>
@@ -162,11 +164,6 @@ const styles = StyleSheet.create({
     creatureNameContainer: {
         alignItems: 'center',
         marginBottom: 16,
-    },
-    creatureName: {
-        fontSize: 14,
-        fontStyle: 'italic',
-        textAlign: 'center',
     },
     hpDisplayContainer: {
         flexDirection: 'row',
@@ -212,27 +209,7 @@ const styles = StyleSheet.create({
         flex: 1,
         gap: 8,
     },
-    button: {
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        borderRadius: 8,
-        alignItems: 'center',
-    },
-    buttonText: {
-        color: 'white',
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
     actionContainer: {
         width: '100%',
-    },
-    actionButton: {
-        paddingVertical: 12,
-        borderRadius: 8,
-        alignItems: 'center',
-    },
-    actionButtonText: {
-        fontSize: 16,
-        fontWeight: 'bold',
     },
 });

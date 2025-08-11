@@ -29,11 +29,13 @@ interface ModalContextType {
   selectedBeast: any | null;
   openBeastModal: (beast: any, fromModal?: boolean) => void;
   closeBeastModal: () => void;
+  beastStackDepth: number;
 
   spellModalVisible: boolean;
   selectedSpell: any | null;
   openSpellModal: (spell: any, fromModal?: boolean) => void;
   closeSpellModal: () => void;
+  spellStackDepth: number;
 
   diceModalState: DiceModalState;
   openDiceModal: (state: Omit<DiceModalState, 'visible'>) => void;
@@ -154,10 +156,12 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
         selectedBeast,
         openBeastModal,
         closeBeastModal,
+        beastStackDepth: beastStack.length,
         spellModalVisible,
         selectedSpell,
         openSpellModal,
         closeSpellModal,
+        spellStackDepth: spellStack.length,
         diceModalState,
         openDiceModal,
         closeDiceModal,

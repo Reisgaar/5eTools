@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View, ScrollView, TextInput } from 'react-native';
 import { conditions as DEFAULT_CONDITIONS } from 'src/constants/conditions';
 import { BaseModal } from '../ui';
+import { createBaseModalStyles } from '../../styles/baseModalStyles';
 
 interface SettingsModalProps {
   visible: boolean;
@@ -28,12 +29,14 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   currentConditions = [],
   currentNote = '',
   creatureName = 'Creature',
+  combatantNumber,
   theme
 }) => {
   const [selectedConditions, setSelectedConditions] = useState<string[]>(currentConditions);
   const [noteText, setNoteText] = useState(currentNote);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('status');
+  const styles = createBaseModalStyles(theme);
   
   React.useEffect(() => {
     setSelectedConditions(currentConditions);
@@ -78,13 +81,15 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     setShowDeleteConfirmation(false);
   };
 
+  const modalSubtitle = creatureName 
+    ? `${combatantNumber ? `#${combatantNumber} ` : ''}${creatureName}`
+    : undefined;
+
   const renderStatusTab = () => (
     <ScrollView style={styles.tabContent} showsVerticalScrollIndicator={false}>
-      <Text style={[styles.subtitle, { color: theme.text }]}>{creatureName}</Text>
-      
       {/* Status Conditions Section */}
       <View style={styles.section}>
-        <Text style={[styles.sectionTitle, { color: theme.text }]}>Status Conditions</Text>
+        <Text style={styles.modalSectionTitle}>Status Conditions</Text>
         <View style={styles.conditionsGrid}>
           {DEFAULT_CONDITIONS.map((item) => (
             <TouchableOpacity
@@ -98,14 +103,14 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                 color={theme.text}
                 style={{ marginRight: 6 }}
               />
-              <Text style={{ color: theme.text, fontSize: 12 }}>{item}</Text>
+              <Text style={[styles.modalText, { fontSize: 12 }]}>{item}</Text>
             </TouchableOpacity>
           ))}
         </View>
         
         {/* Save Button */}
-        <TouchableOpacity onPress={handleAccept} style={[styles.saveBtn, { backgroundColor: theme.primary }]}> 
-          <Text style={{ color: theme.buttonText || 'white', textAlign: 'center', fontWeight: 'bold' }}>Save Conditions</Text>
+        <TouchableOpacity onPress={handleAccept} style={[styles.modalButton, styles.modalButtonPrimary]}> 
+          <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>Save Conditions</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -113,17 +118,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
   const renderNotesTab = () => (
     <View style={styles.tabContent}>
-      <Text style={[styles.subtitle, { color: theme.text }]}>{creatureName}</Text>
-      
       {/* Notes Section */}
       <View style={styles.section}>
-        <Text style={[styles.sectionTitle, { color: theme.text }]}>Notes</Text>
+        <Text style={styles.modalSectionTitle}>Notes</Text>
         <TextInput
-          style={[styles.noteInput, { 
-            backgroundColor: theme.inputBackground, 
-            color: theme.text, 
-            borderColor: theme.border 
-          }]}
+          style={[styles.modalInput, { minHeight: 80, textAlignVertical: 'top' }]}
           placeholder="Add notes about this creature..."
           placeholderTextColor={theme.noticeText}
           value={noteText}
@@ -134,8 +133,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         />
         
         {/* Save Button */}
-        <TouchableOpacity onPress={handleNoteAccept} style={[styles.saveBtn, { backgroundColor: theme.primary }]}> 
-          <Text style={{ color: theme.buttonText || 'white', textAlign: 'center', fontWeight: 'bold' }}>Save Note</Text>
+        <TouchableOpacity onPress={handleNoteAccept} style={[styles.modalButton, styles.modalButtonPrimary]}> 
+          <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>Save Note</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -143,30 +142,28 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
   const renderDeleteTab = () => (
     <View style={styles.tabContent}>
-      <Text style={[styles.subtitle, { color: theme.text }]}>{creatureName}</Text>
-      
       {/* Combat Management Section */}
       <View style={[styles.section, styles.dangerSection]}>
-        <Text style={[styles.sectionTitle, { color: '#f44336' }]}>Combat Management</Text>
-        <Text style={[styles.dangerText, { color: theme.noticeText }]}>
+        <Text style={[styles.modalSectionTitle, { color: '#f44336' }]}>Combat Management</Text>
+        <Text style={styles.modalNoticeText}>
           Remove this creature from the combat tracker permanently.
         </Text>
         
         {!showDeleteConfirmation ? (
-          <TouchableOpacity onPress={handleDeleteClick} style={[styles.deleteBtn, { backgroundColor: '#f44336' }]}> 
-            <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold' }}>Remove from Combat</Text>
+          <TouchableOpacity onPress={handleDeleteClick} style={[styles.modalButton, { backgroundColor: '#f44336' }]}> 
+            <Text style={[styles.modalButtonText, { color: 'white' }]}>Remove from Combat</Text>
           </TouchableOpacity>
         ) : (
           <View style={styles.confirmationContainer}>
-            <Text style={[styles.confirmationText, { color: theme.text }]}>
+            <Text style={[styles.modalText, { textAlign: 'center', marginBottom: 12, fontWeight: '500' }]}>
               Are you sure you want to remove "{creatureName}" from combat?
             </Text>
             <View style={styles.confirmationButtons}>
-              <TouchableOpacity onPress={handleCancelDelete} style={[styles.confirmationBtn, { backgroundColor: theme.card, borderColor: theme.primary }]}> 
-                <Text style={{ color: theme.text, textAlign: 'center', fontWeight: 'bold' }}>Cancel</Text>
+              <TouchableOpacity onPress={handleCancelDelete} style={[styles.modalButton, styles.modalButtonSecondary]}> 
+                <Text style={[styles.modalButtonText, styles.modalButtonTextSecondary]}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={handleDelete} style={[styles.confirmationBtn, { backgroundColor: '#f44336' }]}> 
-                <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold' }}>Confirm Delete</Text>
+              <TouchableOpacity onPress={handleDelete} style={[styles.modalButton, { backgroundColor: '#f44336' }]}> 
+                <Text style={[styles.modalButtonText, { color: 'white' }]}>Confirm Delete</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -176,7 +173,14 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   );
 
   return (
-    <BaseModal visible={visible} onClose={onClose} theme={theme} title="Creature Settings">
+    <BaseModal 
+      visible={visible} 
+      onClose={onClose} 
+      theme={theme} 
+      title="Creature Settings"
+      subtitle={modalSubtitle}
+      scrollable={true}
+    >
       {/* Tab Navigation */}
       <View style={styles.tabContainer}>
         <TouchableOpacity
@@ -259,11 +263,6 @@ const styles = StyleSheet.create({
     flex: 1,
     maxHeight: 400,
   },
-  subtitle: {
-    fontSize: 14,
-    marginBottom: 16,
-    fontStyle: 'italic',
-  },
   section: {
     marginBottom: 24,
     paddingBottom: 16,
@@ -274,16 +273,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0,
     marginBottom: 0,
   },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 12,
-  },
-  dangerText: {
-    fontSize: 12,
-    marginBottom: 12,
-    fontStyle: 'italic',
-  },
   conditionBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -291,44 +280,12 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
   },
-  saveBtn: {
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  deleteBtn: {
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
   confirmationContainer: {
     marginTop: 8,
-  },
-  confirmationText: {
-    fontSize: 14,
-    textAlign: 'center',
-    marginBottom: 12,
-    fontWeight: '500',
   },
   confirmationButtons: {
     flexDirection: 'row',
     gap: 8,
-  },
-  confirmationBtn: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 6,
-    borderWidth: 1,
-    alignItems: 'center',
-  },
-  noteInput: {
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 14,
-    minHeight: 80,
-    textAlignVertical: 'top',
-    marginBottom: 16,
   },
   conditionsGrid: {
     flexDirection: 'row',

@@ -5,6 +5,8 @@ import { Ionicons } from '@expo/vector-icons';
 
 // STYLES
 import { modalStyles } from 'src/styles/modalStyles';
+import { useModal } from '../../context/ModalContext';
+import { getModalZIndex } from '../../styles/modals';
 
 interface ConfirmModalProps {
     visible: boolean;
@@ -27,10 +29,14 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
     cancelText = 'Cancel',
     theme 
 }) => {
+    const { beastStackDepth, spellStackDepth } = useModal();
+    const maxStackDepth = Math.max(beastStackDepth, spellStackDepth);
+    const dynamicZIndex = getModalZIndex(maxStackDepth + 1); // Confirm modals should be above other modals
+    
     return (
         <Modal visible={visible} animationType="slide" transparent>
-            <TouchableOpacity style={modalStyles.modalOverlay} activeOpacity={1} onPress={onClose}>
-                <TouchableOpacity style={[modalStyles.modalContent, { backgroundColor: theme.card }]} activeOpacity={1} onPress={() => {}}>
+            <TouchableOpacity style={[modalStyles.modalOverlay, { zIndex: dynamicZIndex }]} activeOpacity={1} onPress={onClose}>
+                <TouchableOpacity style={[modalStyles.modalContent, { backgroundColor: theme.card, zIndex: dynamicZIndex }]} activeOpacity={1} onPress={() => {}}>
                     <View style={modalStyles.modalHeader}>
                         <Text style={[modalStyles.modalTitle, { color: theme.text }]}>
                             {title}

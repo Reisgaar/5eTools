@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { BaseModal } from '../ui';
+import { createBaseModalStyles } from '../../styles/baseModalStyles';
 
 interface ValueEditModalProps {
     visible: boolean;
@@ -30,6 +31,7 @@ export default function ValueEditModal({
     isGroup = false
 }: ValueEditModalProps) {
     const [value, setValue] = useState(initialValue);
+    const styles = createBaseModalStyles(theme);
 
     // Update local value when initialValue changes
     useEffect(() => {
@@ -66,129 +68,115 @@ export default function ValueEditModal({
         ? `${title} (Bonus: ${initiativeBonus >= 0 ? '+' : ''}${initiativeBonus})` 
         : title;
 
+    const modalSubtitle = creatureName 
+        ? `${!isGroup && combatantNumber ? `#${combatantNumber} ` : ''}${creatureName}`
+        : undefined;
+
     return (
         <BaseModal 
             visible={visible} 
             onClose={handleCancel} 
             theme={theme} 
             title={modalTitle}
+            subtitle={modalSubtitle}
         >
-            
-            {/* Creature Name */}
-            {creatureName && (
-                <View style={styles.creatureNameContainer}>
-                    <Text style={[styles.creatureName, { color: theme.text }]}>
-                        {!isGroup && combatantNumber ? `#${combatantNumber} ` : ''}{creatureName}
-                    </Text>
-                </View>
-            )}
-                    
             {/* Value Display and Input */}
             <View style={styles.valueContainer}>
-                        <TextInput
-                            style={[styles.valueInput, { 
-                                backgroundColor: theme.inputBackground, 
-                                color: theme.text, 
-                                borderColor: theme.primary 
-                            }]}
-                            value={String(value)}
-                            onChangeText={(text) => {
-                                const num = parseInt(text, 10);
-                                if (!isNaN(num)) {
-                                    setValue(Math.max(0, num));
-                                } else if (text === '') {
-                                    setValue(0);
-                                }
-                            }}
-                            keyboardType="numeric"
-                            textAlign="center"
-                        />
-                    </View>
+                <TextInput
+                    style={[styles.valueInput, { 
+                        backgroundColor: theme.inputBackground, 
+                        color: theme.text, 
+                        borderColor: theme.primary 
+                    }]}
+                    value={String(value)}
+                    onChangeText={(text) => {
+                        const num = parseInt(text, 10);
+                        if (!isNaN(num)) {
+                            setValue(Math.max(0, num));
+                        } else if (text === '') {
+                            setValue(0);
+                        }
+                    }}
+                    keyboardType="numeric"
+                    textAlign="center"
+                />
+            </View>
 
-                    {/* Increment/Decrement Buttons */}
-                    <View style={styles.buttonContainer}>
-                        {/* Decrement Buttons - Left Column */}
-                        <View style={styles.buttonColumn}>
-                            <TouchableOpacity
-                                style={[styles.button, { backgroundColor: theme.primary }]}
-                                onPress={() => handleDecrement(10)}
-                            >
-                                <Text style={styles.buttonText}>-10</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[styles.button, { backgroundColor: theme.primary }]}
-                                onPress={() => handleDecrement(5)}
-                            >
-                                <Text style={styles.buttonText}>-5</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[styles.button, { backgroundColor: theme.primary }]}
-                                onPress={() => handleDecrement(1)}
-                            >
-                                <Text style={styles.buttonText}>-1</Text>
-                            </TouchableOpacity>
-                        </View>
+            {/* Increment/Decrement Buttons */}
+            <View style={styles.buttonContainer}>
+                {/* Decrement Buttons - Left Column */}
+                <View style={styles.buttonColumn}>
+                    <TouchableOpacity
+                        style={[styles.modalButton, styles.modalButtonPrimary]}
+                        onPress={() => handleDecrement(10)}
+                    >
+                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-10</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[styles.modalButton, styles.modalButtonPrimary]}
+                        onPress={() => handleDecrement(5)}
+                    >
+                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-5</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[styles.modalButton, styles.modalButtonPrimary]}
+                        onPress={() => handleDecrement(1)}
+                    >
+                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-1</Text>
+                    </TouchableOpacity>
+                </View>
 
-                        {/* Increment Buttons - Right Column */}
-                        <View style={styles.buttonColumn}>
-                            <TouchableOpacity
-                                style={[styles.button, { backgroundColor: theme.primary }]}
-                                onPress={() => handleIncrement(10)}
-                            >
-                                <Text style={styles.buttonText}>+10</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[styles.button, { backgroundColor: theme.primary }]}
-                                onPress={() => handleIncrement(5)}
-                            >
-                                <Text style={styles.buttonText}>+5</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[styles.button, { backgroundColor: theme.primary }]}
-                                onPress={() => handleIncrement(1)}
-                            >
-                                <Text style={styles.buttonText}>+1</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
+                {/* Increment Buttons - Right Column */}
+                <View style={styles.buttonColumn}>
+                    <TouchableOpacity
+                        style={[styles.modalButton, styles.modalButtonPrimary]}
+                        onPress={() => handleIncrement(10)}
+                    >
+                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>+10</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[styles.modalButton, styles.modalButtonPrimary]}
+                        onPress={() => handleIncrement(5)}
+                    >
+                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>+5</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[styles.modalButton, styles.modalButtonPrimary]}
+                        onPress={() => handleIncrement(1)}
+                    >
+                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>+1</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
 
-                    {/* Roll Initiative Button - Only for initiative */}
-                    {isInitiative && (
-                        <View style={styles.rollButtonContainer}>
-                            <TouchableOpacity
-                                style={[styles.rollButton, { backgroundColor: '#4CAF50' }]}
-                                onPress={handleRollInitiative}
-                            >
-                                <Text style={styles.rollButtonText}>
-                                    Roll Initiative (1d20{initiativeBonus >= 0 ? '+' : ''}{initiativeBonus})
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-                    )}
+            {/* Roll Initiative Button - Only for initiative */}
+            {isInitiative && (
+                <View style={styles.rollButtonContainer}>
+                    <TouchableOpacity
+                        style={[styles.modalButton, { backgroundColor: '#4CAF50' }]}
+                        onPress={handleRollInitiative}
+                    >
+                        <Text style={[styles.modalButtonText, { color: 'white' }]}>
+                            Roll Initiative (1d20{initiativeBonus >= 0 ? '+' : ''}{initiativeBonus})
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+            )}
 
-                    {/* Action Buttons */}
-                    <View style={styles.actionRow}>
-                        <TouchableOpacity
-                            style={[styles.actionButton, { backgroundColor: theme.primary }]}
-                            onPress={handleAccept}
-                        >
-                            <Text style={[styles.actionButtonText, { color: 'white' }]}>Accept</Text>
-                        </TouchableOpacity>
-                    </View>
+            {/* Action Buttons */}
+            <View style={styles.actionRow}>
+                <TouchableOpacity
+                    style={[styles.modalButton, styles.modalButtonPrimary]}
+                    onPress={handleAccept}
+                >
+                    <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>Accept</Text>
+                </TouchableOpacity>
+            </View>
         </BaseModal>
     );
 }
 
 const styles = StyleSheet.create({
-    creatureNameContainer: {
-        alignItems: 'center',
-        marginBottom: 16,
-    },
-    creatureName: {
-        fontSize: 14,
-        fontStyle: 'italic',
-        textAlign: 'center',
-    },
     valueContainer: {
         marginBottom: 24,
         width: '100%',
@@ -213,47 +201,14 @@ const styles = StyleSheet.create({
         flex: 1,
         gap: 8,
     },
-    button: {
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        borderRadius: 8,
-        alignItems: 'center',
-    },
-    buttonText: {
-        color: 'white',
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
     actionRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         width: '100%',
         gap: 12,
     },
-    actionButton: {
-        flex: 1,
-        paddingVertical: 12,
-        borderRadius: 8,
-        borderWidth: 2,
-        alignItems: 'center',
-    },
-    actionButtonText: {
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
     rollButtonContainer: {
         marginBottom: 16,
         width: '100%',
-    },
-    rollButton: {
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        borderRadius: 8,
-        alignItems: 'center',
-    },
-    rollButtonText: {
-        color: 'white',
-        fontSize: 16,
-        fontWeight: 'bold',
     },
 }); 

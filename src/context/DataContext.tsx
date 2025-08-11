@@ -80,7 +80,7 @@ interface DataContextType {
   beasts: Beast[];
   simpleBeasts: { name: string; CR: string | number; type: string; source: string; ac: any; passivePerception: number }[];
   spells: Spell[];
-  simpleSpells: { name: string; level: number; school: string; source: string; availableClasses: string[] }[];
+  simpleSpells: { name: string; level: number; school: string; source: string; availableClasses: string[]; ritual: boolean; concentration: boolean }[];
   spellSourceLookup: SpellSourceLookup;
   availableClasses: string[];
   spellClassRelations: SpellClassRelation[];
@@ -152,13 +152,15 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Derived simpleSpells from index with available classes
   const simpleSpells = React.useMemo(() => {
     const seen = new Set();
-    return spellsIndex.map(({ name, level, school, source, availableClasses }) => {
+    return spellsIndex.map(({ name, level, school, source, availableClasses, ritual, concentration }) => {
       return {
         name,
         level,
         school,
         source: source || 'Unknown',
-        availableClasses: availableClasses || []
+        availableClasses: availableClasses || [],
+        ritual: ritual || false,
+        concentration: concentration || false
       };
     }).filter(({ name, level, school, source }) => {
       const key = `${name}||${level}||${school}||${source}`;
@@ -507,6 +509,13 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // Load the full spell data from file
       const fullSpell = await loadSpellFromFile(spellIndex.file);
+      
+      // Add processed properties for consistency
+      if (fullSpell) {
+        fullSpell.ritual = spellIndex.ritual;
+        fullSpell.concentration = spellIndex.concentration;
+      }
+      
       return fullSpell;
     } catch (error) {
       console.error('Error loading full spell:', error);

@@ -54,13 +54,16 @@ export function useSpellFilters(simpleSpells: any[], spells: any[], spellSourceL
     const [search, setSearch] = useState('');
     const [selectedSchools, setSelectedSchools] = useState<string[]>([]);
     const [selectedClasses, setSelectedClasses] = useState<string[]>([]);
+    const [selectedOthers, setSelectedOthers] = useState<string[]>([]); // For ritual, concentration, etc.
     
     // Pending (modal) filter states
     const [pendingSchools, setPendingSchools] = useState<string[]>([]);
     const [pendingClasses, setPendingClasses] = useState<string[]>([]);
+    const [pendingOthers, setPendingOthers] = useState<string[]>([]);
     const [filterApplying, setFilterApplying] = useState(false);
     const [schoolFilterModalVisible, setSchoolFilterModalVisible] = useState(false);
     const [classFilterModalVisible, setClassFilterModalVisible] = useState(false);
+    const [otherFilterModalVisible, setOtherFilterModalVisible] = useState(false);
 
     // Get unique schools for filter modal
     const schoolOptions = useMemo(() => {
@@ -73,6 +76,25 @@ export function useSpellFilters(simpleSpells: any[], spells: any[], spellSourceL
         // Use the available classes from the context, which are already processed and sorted
         return availableClasses;
     }, [availableClasses]);
+
+    // Get other filter options
+    const otherOptions = useMemo(() => {
+        return [
+            { label: 'Ritual', value: 'ritual' },
+            { label: 'Concentration', value: 'concentration' }
+        ];
+    }, []);
+
+    // Clear all filters
+    const clearAllFilters = () => {
+        setSearch('');
+        setSelectedSchools([]);
+        setSelectedClasses([]);
+        setSelectedOthers([]);
+    };
+
+    // Check if any filters are active
+    const hasActiveFilters = search !== '' || selectedSchools.length > 0 || selectedClasses.length > 0 || selectedOthers.length > 0;
 
     // Filtered list
     const filteredSpells = useMemo(() => {
@@ -91,20 +113,41 @@ export function useSpellFilters(simpleSpells: any[], spells: any[], spellSourceL
                     spellClasses.includes(selectedClass)
                 );
             }
+
+            // For other filters (ritual, concentration)
+            let matchesOthers = true;
+            if (selectedOthers.length > 0) {
+                matchesOthers = selectedOthers.every(filterType => {
+                    switch (filterType) {
+                        case 'ritual':
+                            return spell.ritual === true;
+                        case 'concentration':
+                            return spell.concentration === true;
+                        default:
+                            return true;
+                    }
+                });
+            }
             
-            return matchesName && matchesSchool && matchesClass;
+            return matchesName && matchesSchool && matchesClass && matchesOthers;
         });
-    }, [simpleSpells, spells, spellSourceLookup, search, selectedSchools, selectedClasses]);
+    }, [simpleSpells, spells, spellSourceLookup, search, selectedSchools, selectedClasses, selectedOthers]);
 
     // Modal handlers
+    // Modal handlers
     const openSchoolFilterModal = () => {
-        setPendingSchools(selectedSchools);
+        setPendingSchools([...selectedSchools]);
         setSchoolFilterModalVisible(true);
     };
-    
+
     const openClassFilterModal = () => {
-        setPendingClasses(selectedClasses);
+        setPendingClasses([...selectedClasses]);
         setClassFilterModalVisible(true);
+    };
+
+    const openOtherFilterModal = () => {
+        setPendingOthers([...selectedOthers]);
+        setOtherFilterModalVisible(true);
     };
 
     // School Filter Modal handlers
@@ -155,6 +198,30 @@ export function useSpellFilters(simpleSpells: any[], spells: any[], spellSourceL
         }, 200);
     };
 
+    // Other Filter Modal handlers
+    const togglePendingOther = (otherType: string) => {
+        setPendingOthers(prev =>
+            prev.includes(otherType) ? prev.filter(o => o !== otherType) : [...prev, otherType]
+        );
+    };
+    
+    const selectAllPendingOthers = () => {
+        if (pendingOthers.length < otherOptions.length) {
+            setPendingOthers(otherOptions.map(o => o.value));
+        } else {
+            setPendingOthers([]);
+        }
+    };
+    
+    const applyOtherFilter = () => {
+        setOtherFilterModalVisible(false);
+        setFilterApplying(true);
+        setTimeout(() => {
+            setSelectedOthers(pendingOthers);
+            setFilterApplying(false);
+        }, 200);
+    };
+
     // Helper functions to get display text for selected filters
     const getSchoolFilterText = () => {
         if (selectedSchools.length === 0) return 'School';
@@ -170,6 +237,50 @@ export function useSpellFilters(simpleSpells: any[], spells: any[], spellSourceL
         return `Class: ${selectedClasses.length} selected`;
     };
 
+    // Function to get other filter text
+    const getOtherFilterText = () => {
+        if (selectedOthers.length === 0) return 'Other';
+        if (selectedOthers.length === 1) {
+            const option = otherOptions.find(o => o.value === selectedOthers[0]);
+            return `Other: ${option?.label || selectedOthers[0]}`;
+        }
+        if (selectedOthers.length <= 2) {
+            const labels = selectedOthers.map(value => {
+                const option = otherOptions.find(o => o.value === value);
+                return option?.label || value;
+            });
+            return `Other: ${labels.join(', ')}`;
+        }
+        return `Other: ${selectedOthers.length} selected`;
+    };
+
+    // Function to generate filter summary
+    const getFilterSummary = (): string[] => {
+        const summary: string[] = [];
+        
+        if (search) {
+            summary.push(`Search: "${search}"`);
+        }
+        
+        if (selectedSchools.length > 0) {
+            summary.push(`School: ${selectedSchools.join(', ')}`);
+        }
+        
+        if (selectedClasses.length > 0) {
+            summary.push(`Class: ${selectedClasses.join(', ')}`);
+        }
+        
+        if (selectedOthers.length > 0) {
+            const labels = selectedOthers.map(value => {
+                const option = otherOptions.find(o => o.value === value);
+                return option?.label || value;
+            });
+            summary.push(`Type: ${labels.join(', ')}`);
+        }
+        
+        return summary;
+    };
+
     return {
         search,
         setSearch,
@@ -177,29 +288,44 @@ export function useSpellFilters(simpleSpells: any[], spells: any[], spellSourceL
         setSelectedSchools,
         selectedClasses,
         setSelectedClasses,
+        selectedOthers,
+        setSelectedOthers,
         pendingSchools,
         setPendingSchools,
         pendingClasses,
         setPendingClasses,
+        pendingOthers,
+        setPendingOthers,
         filterApplying,
         setFilterApplying,
         schoolFilterModalVisible,
         setSchoolFilterModalVisible,
         classFilterModalVisible,
         setClassFilterModalVisible,
+        otherFilterModalVisible,
+        setOtherFilterModalVisible,
         schoolOptions,
         classOptions,
+        otherOptions,
         filteredSpells,
-        getSchoolFilterText,
-        getClassFilterText,
         openSchoolFilterModal,
         openClassFilterModal,
+        openOtherFilterModal,
         togglePendingSchool,
         selectAllPendingSchools,
         applySchoolFilter,
         togglePendingClass,
         selectAllPendingClasses,
         applyClassFilter,
-        getFullSchool
+        togglePendingOther,
+        selectAllPendingOthers,
+        applyOtherFilter,
+        getSchoolFilterText,
+        getClassFilterText,
+        getOtherFilterText,
+        getFullSchool,
+        clearAllFilters,
+        hasActiveFilters,
+        getFilterSummary
     };
 }

@@ -4,11 +4,32 @@ import { STORAGE_KEYS } from './types';
 // Platform detection
 export const isWeb = typeof window !== 'undefined' && window.document;
 
-// File paths for mobile
-export const DATA_DIR = `${FileSystem.documentDirectory}dnd_data/`;
+// Storage version for migration management
+export const STORAGE_VERSION = '1.0.0';
+
+// Persistent data directory strategy for mobile
+// Using documentDirectory for maximum persistence across app updates
+export const getPersistentDataDir = (): string => {
+    if (isWeb) {
+        return '/dnd_data/'; // Web doesn't use file paths
+    }
+    
+    // For mobile, use a versioned directory structure
+    // This ensures data persists across app updates
+    return `${FileSystem.documentDirectory}dnd_data_v${STORAGE_VERSION.replace(/\./g, '_')}/`;
+};
+
+// File paths for mobile with persistent strategy
+export const DATA_DIR = getPersistentDataDir();
 export const MONSTERS_DIR = `${DATA_DIR}monsters/`;
 export const SPELLS_DIR = `${DATA_DIR}spells/`;
 export const COMBATS_DIR = `${DATA_DIR}combats/`;
+
+// Legacy paths for migration (old versions)
+export const LEGACY_DATA_DIR = `${FileSystem.documentDirectory}dnd_data/`;
+export const LEGACY_MONSTERS_DIR = `${LEGACY_DATA_DIR}monsters/`;
+export const LEGACY_SPELLS_DIR = `${LEGACY_DATA_DIR}spells/`;
+export const LEGACY_COMBATS_DIR = `${LEGACY_DATA_DIR}combats/`;
 
 // Index files for mobile
 export const BEASTS_INDEX_FILE = `${DATA_DIR}beasts_index.json`;
@@ -29,7 +50,8 @@ export const DEBUG_CONFIG = {
 
 // Storage limits and configuration
 export const STORAGE_CONFIG = {
-    WEB_LOCAL_STORAGE_LIMIT: 5 * 1024 * 1024, // 5MB
+    WEB_LOCAL_STORAGE_LIMIT: 5 * 1024 * 1024, // 5MB for localStorage (app data)
+    WEB_INDEXEDDB_LIMIT: 50 * 1024 * 1024, // 50MB for IndexedDB (image cache)
     TOKEN_CACHE_MAX_SIZE: 50 * 1024 * 1024, // 50MB
     IMAGE_CACHE_MAX_SIZE: 100 * 1024 * 1024, // 100MB
     WARNING_THRESHOLD: 80, // 80% usage triggers warning

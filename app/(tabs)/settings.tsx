@@ -22,22 +22,43 @@ export default function SettingsScreen() {
     const { simpleBeasts, simpleSpells, isLoading, isInitialized, reloadData, clearData } = useData();
     const router = useRouter();
 
-    const handleReload = async () => {
-        await reloadData();
-    };
-
-    const handleClear = async () => {
-        setConfirmMessage('This will clear all data (beasts, spells, combats, players, spellbooks, campaigns). This action cannot be undone.');
-        setConfirmAction(async () => {
-            await clearData();
-        });
-        setConfirmModalVisible(true);
-    };
+    // Storage management state
+    const [storageModalVisible, setStorageModalVisible] = React.useState(false);
+    const [confirmModalVisible, setConfirmModalVisible] = React.useState(false);
+    const [confirmAction, setConfirmAction] = React.useState<(() => Promise<void>) | null>(null);
+    const [confirmMessage, setConfirmMessage] = React.useState('');
 
     const showConfirmModal = (message: string, action: () => Promise<void>) => {
         setConfirmMessage(message);
         setConfirmAction(() => action);
         setConfirmModalVisible(true);
+    };
+
+    const handleReload = async () => {
+        try {
+            await reloadData();
+            // After reloading data, regenerate all indexes for better performance
+            await regenerateAllIndexes();
+            Alert.alert('Success', 'Data loaded and indexes regenerated successfully.');
+        } catch (error) {
+            console.error('❌ Error during data reload:', error);
+            Alert.alert('Error', 'Failed to reload data. Please try again.');
+        }
+    };
+
+    const handleClear = async () => {
+        showConfirmModal(
+            'This will clear all data (beasts, spells, combats, players, spellbooks, campaigns). This action cannot be undone.',
+            async () => {
+                try {
+                    await clearData();
+                    Alert.alert('Success', 'All data has been cleared successfully.');
+                } catch (error) {
+                    console.error('❌ Error clearing data:', error);
+                    Alert.alert('Error', 'Failed to clear data. Please try again.');
+                }
+            }
+        );
     };
 
     const handleRegenerateIndexes = async () => {
@@ -54,34 +75,6 @@ export default function SettingsScreen() {
             }
         );
     };
-
-    const handleRegenerateFilterIndexes = async () => {
-        showConfirmModal(
-            'This will regenerate only the filter indexes (CR, Type, Source) for better performance on Android. This action cannot be undone.',
-            async () => {
-                try {
-                    const { getStorage } = await import('src/utils/storage');
-                    const storage = getStorage();
-                    await storage.regenerateAllIndexes(); // This includes filter indexes
-                    Alert.alert('Success', 'Filter indexes have been regenerated successfully.');
-                } catch (error) {
-                    console.error('❌ Error regenerating filter indexes:', error);
-                    Alert.alert('Error', 'Failed to regenerate filter indexes. Please try again.');
-                }
-            }
-        );
-    };
-
-    
-    // Storage management state
-    const [storageModalVisible, setStorageModalVisible] = React.useState(false);
-    const [confirmModalVisible, setConfirmModalVisible] = React.useState(false);
-    const [confirmAction, setConfirmAction] = React.useState<(() => Promise<void>) | null>(null);
-    const [confirmMessage, setConfirmMessage] = React.useState('');
-
-
-
-
 
     return (
         <View style={{ flex: 1, backgroundColor: currentTheme.background }}>
@@ -157,12 +150,6 @@ export default function SettingsScreen() {
                     > 
                         <Text style={[commonStyles.buttonText, { color: 'white' }]}>Regenerate All Indexes</Text>
                     </Pressable>
-                    <Pressable 
-                        onPress={handleRegenerateFilterIndexes} 
-                        style={[commonStyles.button, { backgroundColor: '#4f46e5', marginTop: 8 }]}
-                    > 
-                        <Text style={[commonStyles.buttonText, { color: 'white' }]}>Regenerate Filter Indexes</Text>
-                    </Pressable>
                     <Text style={[styles.settingDescription, { color: currentTheme.noticeText, marginTop: 4 }]}>
                         Regenerates all indexes (beasts, spells, combats, relations, classes, filter indexes) from existing data files. This improves filter performance on Android.
                     </Text>
@@ -212,17 +199,43 @@ export default function SettingsScreen() {
                         </TouchableOpacity>
                     </View>
                     
-                    {/* Data Status */}
-                    {isInitialized && !isLoading && (simpleBeasts.length > 0 || simpleSpells.length > 0) && (
-                        <View style={{ backgroundColor: currentTheme.confirmButtonBackground, padding: 12, borderRadius: 8, alignItems: 'center', marginTop: 12 }}>
-                            <Text style={{ color: 'white', fontWeight: '600', textAlign: 'center' }}>
-                                ✓ Data loaded successfully
-                            </Text>
-                            <Text style={{ color: 'white', fontSize: 12, marginTop: 4, textAlign: 'center' }}>
-                                {simpleBeasts.length} beasts, {simpleSpells.length} spells
-                            </Text>
-                        </View>
-                    )}
+                    {/* Data Status - Fixed height container to prevent layout shift */}
+                    <View style={{ 
+                        height: 60, 
+                        marginTop: 12,
+                        justifyContent: 'center',
+                        alignItems: 'center'
+                    }}>
+                        {isInitialized && !isLoading && (simpleBeasts.length > 0 || simpleSpells.length > 0) ? (
+                            <View style={{ 
+                                backgroundColor: currentTheme.confirmButtonBackground, 
+                                padding: 12, 
+                                borderRadius: 8, 
+                                alignItems: 'center',
+                                width: '100%'
+                            }}>
+                                <Text style={{ color: 'white', fontWeight: '600', textAlign: 'center' }}>
+                                    ✓ Data loaded successfully
+                                </Text>
+                                <Text style={{ color: 'white', fontSize: 12, marginTop: 4, textAlign: 'center' }}>
+                                    {simpleBeasts.length} beasts, {simpleSpells.length} spells
+                                </Text>
+                            </View>
+                        ) : isLoading ? (
+                            <View style={{ 
+                                backgroundColor: currentTheme.innerBackground, 
+                                padding: 12, 
+                                borderRadius: 8, 
+                                alignItems: 'center',
+                                width: '100%'
+                            }}>
+                                <ActivityIndicator size="small" color={currentTheme.primary} />
+                                <Text style={{ color: currentTheme.noticeText, fontSize: 12, marginTop: 4 }}>
+                                    Loading data...
+                                </Text>
+                            </View>
+                        ) : null}
+                    </View>
                 </View>
                 
                 {/* Storage Management Modal */}

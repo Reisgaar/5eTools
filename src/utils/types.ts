@@ -77,6 +77,9 @@ export interface Spell {
         [key: string]: any;
     };
     availableClasses?: string[];
+    // Processed properties for consistency with SpellIndex
+    ritual?: boolean;
+    concentration?: boolean;
     [key: string]: any;
 }
 
@@ -92,15 +95,24 @@ export interface Player {
     campaignId?: string;
 }
 
+export interface SpellbookSpell {
+    name: string;
+    source: string;
+    level: number;
+    school: string;
+    ritual: boolean;
+    concentration: boolean;
+    availableClasses: string[];
+}
+
 export interface Spellbook {
     id: string;
     name: string;
     description?: string;
-    spells: Array<{
-        name: string;
-        source: string;
-    }>;
-    createdAt: number;
+    spellsIndex: SpellbookSpell[]; // Index of spell details for filtering and display
+    createdAt: string;
+    updatedAt: string;
+    campaignId?: string; // Campaign this spellbook belongs to
 }
 
 export interface Combat {

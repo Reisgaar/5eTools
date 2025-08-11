@@ -2,6 +2,7 @@ import React from 'react';
 import { Dimensions, FlatList, ScrollView, Text, TouchableOpacity, View, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { BaseModal } from '../ui';
+import { createBaseModalStyles } from '../../styles/baseModalStyles';
 import { DEFAULT_PLAYER_TOKEN } from '../../constants/tokens';
 import { useCampaign } from '../../context/CampaignContext';
 
@@ -33,6 +34,7 @@ export default function PlayerModal({
   theme
 }: PlayerModalProps) {
   const { selectedCampaign, campaigns } = useCampaign();
+  const styles = createBaseModalStyles(theme);
 
   // Filter players by selected campaign
   const filteredPlayers = React.useMemo(() => {
@@ -52,68 +54,67 @@ export default function PlayerModal({
     const campaign = campaigns.find(c => c.id === campaignId);
     return campaign ? campaign.name : null;
   };
+  
   return (
-    <BaseModal visible={visible} onClose={onClose} theme={theme} title="Add Players to Combat">
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
-            
-            <View>
-              {filteredPlayers.length === 0 ? (
-                <Text style={{ color: theme.noticeText, textAlign: 'center' }}>
-                  No players found.
+    <BaseModal 
+      visible={visible} 
+      onClose={onClose} 
+      theme={theme} 
+      title="Add Players to Combat"
+      scrollable={true}
+    >
+      {filteredPlayers.length === 0 ? (
+        <Text style={styles.modalNoticeText}>
+          No players found.
+        </Text>
+      ) : (
+        filteredPlayers.map((item) => (
+          <TouchableOpacity
+            key={item.name}
+            style={[
+              styles.modalListItem,
+              { marginBottom: 8, borderRadius: 8 }
+            ]}
+            onPress={() => onPlayerToggle(item.name)}
+          >
+            <Ionicons
+              name={selectedPlayers.includes(item.name) ? 'checkbox' : 'square-outline'}
+              size={22}
+              color={theme.primary}
+              style={{ marginRight: 12 }}
+            />
+            <Image
+              source={{ uri: item.tokenUrl || DEFAULT_PLAYER_TOKEN }}
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: 16,
+                marginRight: 12,
+                borderWidth: 2,
+                borderColor: '#22c55a'
+              }}
+            />
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.modalListItemText, { fontWeight: 'bold' }]}>{item.name}</Text>
+              <Text style={styles.modalListItemSubtext}>
+                {item.race} - {item.class}
+              </Text>
+              {getCampaignName(item.campaignId) && (
+                <Text style={styles.modalNoticeText}>
+                  Campaign: {getCampaignName(item.campaignId)}
                 </Text>
-              ) : (
-                filteredPlayers.map((item) => (
-                  <TouchableOpacity
-                    key={item.name}
-                    style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}
-                    onPress={() => onPlayerToggle(item.name)}
-                  >
-                    <Ionicons
-                      name={selectedPlayers.includes(item.name) ? 'checkbox' : 'square-outline'}
-                      size={22}
-                      color={theme.primary}
-                      style={{ marginRight: 8 }}
-                    />
-                    <Image
-                      source={{ uri: item.tokenUrl || DEFAULT_PLAYER_TOKEN }}
-                      style={{
-                        width: 32,
-                        height: 32,
-                        borderRadius: 16,
-                        marginRight: 8,
-                        borderWidth: 2,
-                        borderColor: '#22c55a'
-                      }}
-                    />
-                    <View style={{ flex: 1 }}>
-                      <Text style={{ color: theme.text, fontWeight: 'bold' }}>{item.name}</Text>
-                      <Text style={{ color: theme.text, fontSize: 12 }}>
-                        {item.race} - {item.class}
-                      </Text>
-                      {getCampaignName(item.campaignId) && (
-                        <Text style={{ color: theme.noticeText, fontSize: 10 }}>
-                          Campaign: {getCampaignName(item.campaignId)}
-                        </Text>
-                      )}
-                    </View>
-                  </TouchableOpacity>
-                ))
               )}
             </View>
-            
-            <TouchableOpacity 
-              onPress={onAddPlayers} 
-              style={{ 
-                backgroundColor: theme.primary, 
-                borderRadius: 8, 
-                padding: 12,
-                alignItems: 'center',
-                marginTop: 16
-              }}
-            > 
-              <Text style={{ color: theme.buttonText || 'white', textAlign: 'center', fontWeight: 'bold' }}>Add</Text>
-            </TouchableOpacity>
-          </ScrollView>
+          </TouchableOpacity>
+        ))
+      )}
+      
+      <TouchableOpacity 
+        onPress={onAddPlayers} 
+        style={[styles.modalButton, styles.modalButtonPrimary, { marginTop: 16 }]}
+      > 
+        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>Add</Text>
+      </TouchableOpacity>
     </BaseModal>
   );
 }

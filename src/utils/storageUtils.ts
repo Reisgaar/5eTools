@@ -34,9 +34,16 @@ export const generateCombatFilename = (id: string, name: string): string => {
  */
 export const processSpellData = (spell: Spell): SpellProcessingData => {
     // Extract concentration from duration
-    const concentration = spell.duration && Array.isArray(spell.duration) && spell.duration.length > 0 
-        ? spell.duration[0].concentration || false 
-        : false;
+    let concentration = false;
+    if (spell.duration) {
+        if (Array.isArray(spell.duration)) {
+            concentration = spell.duration.some(d => d && d.concentration === true);
+        } else if (typeof spell.duration === 'object') {
+            concentration = spell.duration.concentration === true;
+        } else {
+            concentration = String(spell.duration).toLowerCase().includes('concentration');
+        }
+    }
     
     // Extract ritual from meta
     const ritual = spell.meta && spell.meta.ritual || false;

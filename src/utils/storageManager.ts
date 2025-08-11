@@ -56,7 +56,20 @@ export const getStorageUsage = async (): Promise<StorageUsage> => {
             (dataStats.beastsIndexSize || 0) + (dataStats.spellsIndexSize || 0);
         
         // Estimate available storage (rough approximation)
-        const totalAvailable = isWeb ? STORAGE_CONFIG.WEB_LOCAL_STORAGE_LIMIT : 0;
+        let totalAvailable = 0;
+        if (isWeb) {
+            // For web, use the appropriate limit based on what we're storing
+            if (imageCacheSize > 0) {
+                // If we have image cache, use IndexedDB limit
+                totalAvailable = STORAGE_CONFIG.WEB_INDEXEDDB_LIMIT;
+            } else {
+                // Otherwise use localStorage limit
+                totalAvailable = STORAGE_CONFIG.WEB_LOCAL_STORAGE_LIMIT;
+            }
+        } else {
+            // For mobile, estimate available space (this is approximate)
+            totalAvailable = 100 * 1024 * 1024; // 100MB estimate for mobile
+        }
         
         return {
             totalUsed,
@@ -161,13 +174,28 @@ export const getStorageSummary = async (): Promise<{
         const usage = await getStorageUsage();
         const { isFull, percentage, warning } = await isStorageGettingFull();
         
-        const summary = `Storage Usage: ${formatBytes(usage.totalUsed)} / ${formatBytes(usage.totalAvailable)} (${percentage.toFixed(1)}%)`;
+        let summary: string;
+        if (isWeb) {
+            if (usage.imageCache.size > 0) {
+                summary = `Storage Usage: ${formatBytes(usage.totalUsed)} / ${formatBytes(usage.totalAvailable)} (${percentage.toFixed(1)}%) - Using IndexedDB`;
+            } else {
+                summary = `Storage Usage: ${formatBytes(usage.totalUsed)} / ${formatBytes(usage.totalAvailable)} (${percentage.toFixed(1)}%) - Using localStorage`;
+            }
+        } else {
+            summary = `Storage Usage: ${formatBytes(usage.totalUsed)} / ${formatBytes(usage.totalAvailable)} (${percentage.toFixed(1)}%) - Mobile storage`;
+        }
         
         const details = [
             `Token Cache: ${usage.tokenCache.entries} entries (${formatBytes(usage.tokenCache.size)})`,
             `Image Cache: ${usage.imageCache.entries} entries (${formatBytes(usage.imageCache.size)})`,
             `Data Storage: ${usage.dataStorage.beasts} beasts, ${usage.dataStorage.spells} spells`,
         ];
+        
+        if (isWeb) {
+            details.push(`Platform: Web (${usage.imageCache.size > 0 ? 'IndexedDB + localStorage' : 'localStorage only'})`);
+        } else {
+            details.push('Platform: Mobile (File System)');
+        }
         
         if (warning) {
             details.push(`⚠️ ${warning}`);

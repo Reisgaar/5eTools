@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View } from 'react-native';
+import { Text, TouchableOpacity, View, Pressable } from 'react-native';
 
 // Helper for splitting and replacing tags in a string
 export function replaceTags(
@@ -79,7 +79,26 @@ export function replaceTags(
             case 'dice':
                 if (onDamagePress) {
                     nodes.push(
-                        <Text key={key++} style={rollStyle} onPress={() => onDamagePress(params[0])}>{params[0]}</Text>
+                        <TouchableOpacity 
+                            key={key++} 
+                            onPressIn={() => {
+                                console.log('🎲 Dice button pressed:', params[0]);
+                                onDamagePress(params[0]);
+                            }}
+                            activeOpacity={0.7}
+                            style={{ 
+                                paddingVertical: 1, 
+                                paddingHorizontal: 3,
+                                marginHorizontal: 1,
+                                borderRadius: 2,
+                                minHeight: 16,
+                                zIndex: 1,
+                                alignSelf: 'baseline',
+                                justifyContent: 'center'
+                            }}
+                        >
+                            <Text style={rollStyle}>{params[0]}</Text>
+                        </TouchableOpacity>
                     );
                 } else {
                     nodes.push(
@@ -95,7 +114,26 @@ export function replaceTags(
             case 'hit':
                 if (onHitPress) {
                     nodes.push(
-                        <Text key={key++} style={rollStyle} onPress={() => onHitPress(params[0])}>{`+${params[0]}`}</Text>
+                        <TouchableOpacity 
+                            key={key++} 
+                            onPressIn={() => {
+                                console.log('⚔️ Hit button pressed:', params[0]);
+                                onHitPress(params[0]);
+                            }}
+                            activeOpacity={0.7}
+                            style={{ 
+                                paddingVertical: 1, 
+                                paddingHorizontal: 3,
+                                marginHorizontal: 1,
+                                borderRadius: 2,
+                                minHeight: 16,
+                                zIndex: 1,
+                                alignSelf: 'baseline',
+                                justifyContent: 'center'
+                            }}
+                        >
+                            <Text style={rollStyle}>{`+${params[0]}`}</Text>
+                        </TouchableOpacity>
                     );
                 } else {
                     nodes.push(
@@ -117,27 +155,73 @@ export function replaceTags(
                 break;
             case 'creature':
                 // Clickable link to bestiary
-                nodes.push(
-                    <Text
-                        key={key++}
-                        style={{ fontStyle: 'italic', textDecorationLine: 'underline', color: '#4a90e2' }}
-                        onPress={onCreaturePress ? () => onCreaturePress(params[0], params[1]) : undefined}
-                    >
-                        {params[0]}
-                    </Text>
-                );
+                if (onCreaturePress) {
+                    nodes.push(
+                        <TouchableOpacity
+                            key={key++}
+                            onPressIn={() => {
+                                console.log('🐉 Creature button pressed:', params[0], params[1]);
+                                onCreaturePress(params[0], params[1]);
+                            }}
+                            activeOpacity={0.7}
+                            style={{ 
+                                paddingVertical: 0, 
+                                paddingHorizontal: 1,
+                                marginHorizontal: 1,
+                                borderRadius: 1,
+                                minHeight: 14,
+                                zIndex: 1,
+                                alignSelf: 'baseline',
+                                justifyContent: 'center'
+                            }}
+                        >
+                            <Text style={{ fontStyle: 'italic', textDecorationLine: 'underline', color: '#4a90e2' }}>
+                                {params[0]}
+                            </Text>
+                        </TouchableOpacity>
+                    );
+                } else {
+                    nodes.push(
+                        <Text key={key++} style={{ fontStyle: 'italic', textDecorationLine: 'underline', color: '#4a90e2' }}>
+                            {params[0]}
+                        </Text>
+                    );
+                }
                 break;
             case 'spell':
                 // Clickable link to spellbook
-                nodes.push(
-                    <Text
-                        key={key++}
-                        style={{ fontStyle: 'italic', textDecorationLine: 'underline', color: '#4a90e2' }}
-                        onPress={onSpellPress ? () => onSpellPress(params[0], params[1]) : undefined}
-                    >
-                        {params[0]}
-                    </Text>
-                );
+                if (onSpellPress) {
+                    nodes.push(
+                        <TouchableOpacity
+                            key={key++}
+                            onPressIn={() => {
+                                console.log('✨ Spell button pressed:', params[0], params[1]);
+                                onSpellPress(params[0], params[1]);
+                            }}
+                            activeOpacity={0.7}
+                            style={{ 
+                                paddingVertical: 0, 
+                                paddingHorizontal: 1,
+                                marginHorizontal: 1,
+                                borderRadius: 1,
+                                minHeight: 14,
+                                zIndex: 1,
+                                alignSelf: 'baseline',
+                                justifyContent: 'center'
+                            }}
+                        >
+                            <Text style={{ fontStyle: 'italic', textDecorationLine: 'underline', color: '#4a90e2' }}>
+                                {params[0]}
+                            </Text>
+                        </TouchableOpacity>
+                    );
+                } else {
+                    nodes.push(
+                        <Text key={key++} style={{ fontStyle: 'italic', textDecorationLine: 'underline', color: '#4a90e2' }}>
+                            {params[0]}
+                        </Text>
+                    );
+                }
                 break;
             default:
                 // Fallback: just show the first param in italic

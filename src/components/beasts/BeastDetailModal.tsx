@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActivityIndicator, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, Pressable, Platform } from 'react-native';
 import { getCachedCreatureImages, getBestCreatureImage } from '../../utils/imageManager';
 import { useModal } from '../../context/ModalContext';
 import { useData } from '../../context/DataContext';
@@ -18,7 +18,7 @@ import {
 import SpellNotFoundModal from '../modals/SpellNotFoundModal';
 import CreatureNotFoundModal from '../modals/CreatureNotFoundModal';
 import SourceSelectionModal from '../modals/SourceSelectionModal';
-import { createModalStyles } from '../../styles/modals';
+import { createModalStyles, getModalZIndex } from '../../styles/modals';
 
 interface BeastDetailModalProps {
     visible: boolean;
@@ -343,46 +343,65 @@ function formatCR(cr: any) {
 }
 
 const BeastDetailModal: React.FC<BeastDetailModalProps> = ({ visible, beast, onClose, theme, onCreaturePress, onSpellPress }) => {
-    const styles = createModalStyles(theme);
+    const { currentTheme } = useAppSettings();
+    const { simpleBeasts, simpleSpells, availableClasses, spellClassRelations, isInitialized } = useData();
+    const { beastStackDepth, openSpellModal, openBeastModal, openDiceModal, openAdvancedDiceModal } = useModal();
+    const { useAdvancedDiceRoll } = useAppSettings();
+    const styles = createModalStyles(currentTheme);
+    const dynamicZIndex = getModalZIndex(beastStackDepth);
     
     // All hooks must be at the top level, before any conditional returns
-    const [showFullImage, setShowFullImage] = React.useState(false); // Always start with details view
     const [cachedImageUrl, setCachedImageUrl] = React.useState<string | null>(null);
     const [fullImageUrl, setFullImageUrl] = React.useState<string | null>(null);
     const [isLoadingImage, setIsLoadingImage] = React.useState(false);
     const [imageFailed, setImageFailed] = React.useState(false);
-    const { openSpellModal, openBeastModal, openDiceModal, openAdvancedDiceModal } = useModal();
-    const { simpleSpells, simpleBeasts } = useData();
-    const { useAdvancedDiceRoll } = useAppSettings();
+    const [showFullImage, setShowFullImage] = React.useState(false);
     
-    // Modal states
+    // Modal state
     const [spellNotFoundVisible, setSpellNotFoundVisible] = React.useState(false);
+    const [spellNotFoundName, setSpellNotFoundName] = React.useState<string>('');
     const [creatureNotFoundVisible, setCreatureNotFoundVisible] = React.useState(false);
+    const [creatureNotFoundName, setCreatureNotFoundName] = React.useState<string>('');
     const [sourceSelectionVisible, setSourceSelectionVisible] = React.useState(false);
-    const [spellNotFoundName, setSpellNotFoundName] = React.useState('');
-    const [creatureNotFoundName, setCreatureNotFoundName] = React.useState('');
-    const [sourceSelectionData, setSourceSelectionData] = React.useState<{
-        title: string;
-        message: string;
-        options: Array<{ name: string; source: string; data: any }>;
-        onSelect: (option: any) => void;
-    }>({ title: '', message: '', options: [], onSelect: () => {} });
+    const [sourceSelectionData, setSourceSelectionData] = React.useState({
+        title: '',
+        message: '',
+        options: [] as any[],
+        onSelect: (option: any) => {}
+    });
 
     // Load cached images when beast changes
+    const loadingRef = React.useRef<string | null>(null);
+    const lastBeastRef = React.useRef<string | null>(null);
+    
     React.useEffect(() => {
         if (beast && beast['source'] && beast['name']) {
+            const beastKey = `${beast['source']}/${beast['name']}`;
+            
+            // Prevent multiple loads for the same beast
+            if (lastBeastRef.current === beastKey) {
+                return;
+            }
+            
+            // Prevent multiple simultaneous loads
+            if (loadingRef.current === beastKey) {
+                return;
+            }
+            
+            lastBeastRef.current = beastKey;
+            loadingRef.current = beastKey;
             setIsLoadingImage(true);
             setImageFailed(false); // Reset failure state
             
             // Use the new image manager - always load token for header
             getCachedCreatureImages(beast['source'], beast['name'])
                 .then(imageInfo => {
-                    console.log(`Images loaded for ${beast['name']}:`, imageInfo);
                     // Always use token for display in header
                     setCachedImageUrl(imageInfo.cachedTokenUrl || imageInfo.tokenUrl);
                     // Store full image URL separately
                     setFullImageUrl(imageInfo.cachedFullImageUrl || imageInfo.fullImageUrl);
                     setIsLoadingImage(false);
+                    loadingRef.current = null;
                 })
                 .catch(error => {
                     console.error('Error loading cached images:', error);
@@ -392,14 +411,17 @@ const BeastDetailModal: React.FC<BeastDetailModalProps> = ({ visible, beast, onC
                     setCachedImageUrl(fallbackUrl);
                     setFullImageUrl(null);
                     setIsLoadingImage(false);
+                    loadingRef.current = null;
                 });
         } else {
             setCachedImageUrl(null);
             setFullImageUrl(null);
             setIsLoadingImage(false);
             setImageFailed(false);
+            loadingRef.current = null;
+            lastBeastRef.current = null;
         }
-    }, [beast]);
+    }, [beast?.['source'], beast?.['name']]); // Only depend on source and name, not the entire beast object
 
     // Reset to details view when modal opens
     React.useEffect(() => {
@@ -425,16 +447,14 @@ const BeastDetailModal: React.FC<BeastDetailModalProps> = ({ visible, beast, onC
         }
     };
     
-    // Early returns after all hooks
-    if (!visible) return null;
     if (!beast) {
         return (
             <Modal visible={visible} animationType="slide" transparent>
-                <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={onClose}>
-                    <TouchableOpacity style={[styles.beastDetailModalContent, { justifyContent: 'center', alignItems: 'center' }]} activeOpacity={1} onPress={() => {}}> 
+                <View style={styles.modalOverlay}>
+                    <View style={[styles.beastDetailModalContent, { justifyContent: 'center', alignItems: 'center' }]}> 
                         <ActivityIndicator size="large" color={theme.primary} />
-                    </TouchableOpacity>
-                </TouchableOpacity>
+                    </View>
+                </View>
             </Modal>
         );
     }
@@ -564,7 +584,9 @@ const BeastDetailModal: React.FC<BeastDetailModalProps> = ({ visible, beast, onC
         } else {
             // Use simple dice roll
             const parsed = parseDiceExpression(expr);
-            if (!parsed) return;
+            if (!parsed) {
+                return;
+            }
             const { numDice, diceType, modifier } = parsed;
             const { result, breakdown } = rollDice(numDice, diceType, modifier);
             openDiceModal({
@@ -602,7 +624,9 @@ const BeastDetailModal: React.FC<BeastDetailModalProps> = ({ visible, beast, onC
     }
     
     function handleSaveRoll(statKey: string, statLabel: string) {
-        if (!beast) return;
+        if (!beast) {
+            return;
+        }
         // Get save bonus from beast.save if present, else use ability mod
         let bonus = 0;
         if (beast['save'] && beast['save'][statKey] !== undefined) {
@@ -638,13 +662,21 @@ const BeastDetailModal: React.FC<BeastDetailModalProps> = ({ visible, beast, onC
     }
     
     // Debug: Info cargada de la criatura
-    console.log(`Info cargada de la criatura "${beast?.['name']}"`);
+    // console.log(`Info cargada de la criatura "${beast?.['name']}"`);
     
     return (
         <>
         <Modal visible={visible} animationType="slide" transparent>
-            <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={onClose}>
-                <TouchableOpacity style={styles.beastDetailModalContent} activeOpacity={1} onPress={() => {}}> 
+            <View 
+                style={styles.modalOverlay}
+                onStartShouldSetResponder={() => true}
+                onResponderGrant={() => onClose()}
+            >
+                <View 
+                    style={[styles.beastDetailModalContent, { zIndex: dynamicZIndex }]}
+                    onStartShouldSetResponder={() => true}
+                    onResponderGrant={(e) => e.stopPropagation()}
+                > 
                 <View style={styles.beastDetailHeader}>
                     <View style={styles.beastDetailHeaderContent}>
                         {(cachedImageUrl) && (
@@ -665,25 +697,26 @@ const BeastDetailModal: React.FC<BeastDetailModalProps> = ({ visible, beast, onC
                             </Text>
                         </View>
                     </View>
-                    <TouchableOpacity onPress={onClose} style={styles.beastDetailCloseButton}>
+                    <TouchableOpacity onPress={() => {
+                        onClose();
+                    }} style={styles.beastDetailCloseButton}>
                         <Text style={{ color: theme.text, fontWeight: 'bold', fontSize: 18 }}>✕</Text>
                     </TouchableOpacity>
                 </View>
                 <View style={[styles.beastDetailSeparator, { backgroundColor: theme.border }]} />
 
-
                     {showFullImage && (fullImageUrl)
                         ? (
-                            <View style={{ justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+                            <View style={styles.beastDetailImageContainer}>
                                 {isLoadingImage ? (
-                                    <View style={{ justifyContent: 'center', alignItems: 'center', height: 400 }}>
+                                    <View style={styles.beastDetailImageLoadingContainer}>
                                         <ActivityIndicator size="large" color={theme.primary} />
                                         <Text style={{ color: theme.text, marginTop: 10 }}>Loading image...</Text>
                                     </View>
                                 ) : (
                                     <Image 
                                         source={{ uri: imageFailed ? (cachedImageUrl || '') : (fullImageUrl || '') }} 
-                                        style={{ width: '100%', height: 400, maxHeight: 500, resizeMode: 'contain' }}
+                                        style={styles.beastDetailImage}
                                         onError={() => {
                                             console.log(`Failed to load full image for ${beast['name']}`);
                                             // If full image fails, show token instead
@@ -696,68 +729,197 @@ const BeastDetailModal: React.FC<BeastDetailModalProps> = ({ visible, beast, onC
                         : (
                             <>
                                 <View style={styles.beastDetailBody}>
-                                    <ScrollView style={{ maxHeight: 500 }}>
-                                        <View style={{ height: 5 }}></View>
+                                    {Platform.OS === 'web' ? (
+                                        <ScrollView 
+                                            style={{ flex: 1 }}
+                                            contentContainerStyle={{ paddingBottom: 20, flexGrow: 1 }}
+                                            showsVerticalScrollIndicator={true}
+                                            nestedScrollEnabled={true}
+                                            scrollEventThrottle={16}
+                                            bounces={false}
+                                            alwaysBounceVertical={false}
+                                        >
+                                            <View style={styles.beastDetailContent}>
                                         {/* AC, Initiative, HP, Speed */}
                                         <Separator title='Basics'/>
-                                        <Text style={{ color: theme.text, marginBottom: 6, fontSize: 12 }}><Text style={{ fontWeight: 'bold' }}>AC</Text> {formatAC(beast['ac'])}</Text>
-                                        <Text style={{ color: theme.text, marginBottom: 6, fontSize: 12 }}><Text style={{ fontWeight: 'bold' }}>Initiative</Text> {getAbilityMod(beast['dex'])} ({beast['dex']})</Text>
-                                        <Text style={{ color: theme.text, marginBottom: 6, fontSize: 12 }}><Text style={{ fontWeight: 'bold' }}>HP</Text> {formatHP(beast['hp'])}</Text>
-                                        <Text style={{ color: theme.text, marginBottom: 6, fontSize: 12 }}><Text style={{ fontWeight: 'bold' }}>Speed</Text> {formatSpeed(beast['speed'])}</Text>
-
+                                                <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>AC</Text> {formatAC(beast['ac'])}</Text>
+                                                <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>Initiative</Text> {getAbilityMod(beast['dex'])} ({beast['dex']})</Text>
+                                                <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>HP</Text> {formatHP(beast['hp'])}</Text>
+                                                <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>Speed</Text> {formatSpeed(beast['speed'])}</Text>
 
                                         {/* Ability Scores */}
                                         <Separator title='Stats and Salvations'/>
-                                        <View style={{ flexDirection: 'row', marginVertical: 6, justifyContent: 'space-between' }}>
+                                                <View style={styles.beastDetailStatsContainer}>
                                             {STATS.map(({ key, label }) => (
                                                 <TouchableOpacity
                                                     key={key}
-                                                    style={{
-                                                        alignItems: 'center',
-                                                        flex: 1,
-                                                        marginHorizontal: 2,
-                                                        backgroundColor: theme.primary,
-                                                        borderRadius: 8,
-                                                        paddingVertical: 6,
-                                                        paddingHorizontal: 2,
-                                                    }}
+                                                            style={styles.beastDetailStatButton}
                                                     activeOpacity={0.7}
-                                                    onPress={() => handleSaveRoll(key, label)}
-                                                >
-                                                    <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 12 }}>{label}</Text>
-                                                    <Text style={{ color: 'white', fontSize: 12 }}>{beast[key]}</Text>
-                                                    <Text style={{ color: 'white', fontSize: 12 }}>{getAbilityMod(beast[key])}</Text>
+                                                            onPressIn={() => {
+                                                                console.log('📊 Stat button pressed:', key, label);
+                                                                handleSaveRoll(key, label);
+                                                            }}
+                                                        >
+                                                            <Text style={styles.beastDetailStatText}>{label}</Text>
+                                                            <Text style={styles.beastDetailStatValue}>{beast[key]}</Text>
+                                                            <Text style={styles.beastDetailStatValue}>{getAbilityMod(beast[key])}</Text>
                                                 </TouchableOpacity>
                                             ))}
                                         </View>
-                                        {beast['save'] && (
-                                            <Text style={{ color: theme.text, marginTop: 4, marginBottom: 2 }}><Text style={{ fontWeight: 'bold' }}>Saving Throws:</Text> {formatSaves(beast['save'])}</Text>
-                                        )}
 
-                                        {/* Senses, Languages, CR */}
+                                                {/* Skills and Abilities */}
                                         <Separator title='Skills and Abilities'/>
                                         {beast['skill'] && (
-                                            <Text style={{ color: theme.text, marginBottom: 6, fontSize: 12 }}><Text style={{ fontWeight: 'bold' }}>Skills:</Text> {formatSkills(beast['skill'])}</Text>
+                                                    <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>Skills:</Text> {formatSkills(beast['skill'])}</Text>
                                         )}
                                         {beast['resist'] && (
-                                            <Text style={{ color: theme.text, marginBottom: 6, fontSize: 12 }}><Text style={{ fontWeight: 'bold' }}>Damage Resistances:</Text> {formatArray(beast['resist'])}</Text>
+                                                    <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>Damage Resistances:</Text> {formatArray(beast['resist'])}</Text>
                                         )}
                                         {beast['immune'] && (
-                                            <Text style={{ color: theme.text, marginBottom: 6, fontSize: 12 }}><Text style={{ fontWeight: 'bold' }}>Damage Immunities:</Text> {formatImmunities(beast['immune'])}</Text>
+                                                    <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>Damage Immunities:</Text> {formatImmunities(beast['immune'])}</Text>
                                         )}
                                         {beast['conditionImmune'] && (
-                                            <Text style={{ color: theme.text, marginBottom: 6, fontSize: 12 }}><Text style={{ fontWeight: 'bold' }}>Condition Immunities:</Text> {formatConditionImmunities(beast['conditionImmune'])}</Text>
+                                                    <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>Condition Immunities:</Text> {formatConditionImmunities(beast['conditionImmune'])}</Text>
                                         )}
                                         {beast['senses'] && (
-                                            <Text style={{ color: theme.text, marginBottom: 6, fontSize: 12 }}><Text style={{ fontWeight: 'bold' }}>Senses:</Text> {formatSenses(beast['senses'], beast['passive'])}</Text>
+                                                    <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>Senses:</Text> {formatSenses(beast['senses'], beast['passive'])}</Text>
                                         )}
                                         {beast['languages'] && (
-                                            <Text style={{ color: theme.text, marginBottom: 6, fontSize: 12 }}><Text style={{ fontWeight: 'bold' }}>Languages:</Text> {formatArray(beast['languages'])}</Text>
+                                                    <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>Languages:</Text> {formatArray(beast['languages'])}</Text>
                                         )}
                                         {beast['cr'] && (
-                                            <Text style={{ color: theme.text, marginBottom: 6, fontSize: 12 }}><Text style={{ fontWeight: 'bold' }}>CR:</Text> {formatCR(beast['cr'])}</Text>
-                                        )}
-                                
+                                                    <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>CR:</Text> {formatCR(beast['cr'])}</Text>
+                                                )}
+                                        
+                                                {/* Traits, Actions, Bonus Actions, Spellcasting */}
+                                                {beast['trait'] && (
+                                                    <>
+                                                        <Separator title='Traits'/>
+                                                        {renderEntries(beast['trait'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress)}
+                                                    </>
+                                                )}
+                                                {beast['spellcasting'] && (
+                                                    <>
+                                                        <Separator title='Spellcasting'/>
+                                                        {formatSpellcasting(beast['spellcasting'], theme, handleCreaturePressLocal, handleSpellPressLocal, handleDamagePress, handleHitPress)}
+                                                    </>
+                                                )}
+                                                {beast['action'] && (
+                                                    <>
+                                                        <Separator title='Actions'/>
+                                                        {renderEntries(beast['action'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress)}
+                                                    </>
+                                                )}
+                                                {beast['bonus'] && (
+                                                    <>
+                                                        <Separator title='Bonus Actions'/>
+                                                        {renderEntries(beast['bonus'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress)}
+                                                    </>
+                                                )}
+                                                {beast['reaction'] && (
+                                                    <>
+                                                        <Separator title='Reactions'/>
+                                                        {renderEntries(beast['reaction'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress)}
+                                                    </>
+                                                )}
+                                                {beast['lair'] && (
+                                                    <>
+                                                        <Separator title='Lair Actions'/>
+                                                        {renderEntries(beast['lair'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress)}
+                                                    </>
+                                                )}
+                                                {beast['legendary'] && (
+                                                    <>
+                                                        <Separator title='Legendary Actions'/>
+                                                        {beast['legendaryHeader'] && (
+                                                            <Text style={{ color: theme.text, marginBottom: 8, fontStyle: 'italic' }}>
+                                                                {beast['legendaryHeader'].map((header: string, i: number) => (
+                                                                    <Text key={i}>{header}{i < beast['legendaryHeader'].length - 1 ? '\n' : ''}</Text>
+                                                                ))}
+                                                            </Text>
+                                                        )}
+                                                        {renderEntries(beast['legendary'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress)}
+                                                    </>
+                                                )}
+                                                {beast['mythic'] && (
+                                                    <>
+                                                        <Separator title='Mythic Actions'/>
+                                                        {renderEntries(beast['mythic'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress)}
+                                                    </>
+                                                )}
+                                            </View>
+                                        </ScrollView>
+                                    ) : (
+                                        <View style={{ flex: 1 }}>
+                                            <ScrollView 
+                                                style={{ flex: 1 }}
+                                                contentContainerStyle={{ paddingBottom: 20, flexGrow: 1 }}
+                                                showsVerticalScrollIndicator={true}
+                                                nestedScrollEnabled={true}
+                                                scrollEventThrottle={16}
+                                                bounces={false}
+                                                alwaysBounceVertical={false}
+                                                onStartShouldSetResponder={() => false}
+                                                onMoveShouldSetResponder={() => true}
+                                                onResponderGrant={() => {}}
+                                                onResponderMove={() => {}}
+                                                onResponderRelease={() => {}}
+                                            >
+                                                <View 
+                                                    style={styles.beastDetailContent}
+                                                    onStartShouldSetResponder={() => true}
+                                                    onMoveShouldSetResponder={() => false}
+                                                >
+                                                    {/* AC, Initiative, HP, Speed */}
+                                                    <Separator title='Basics'/>
+                                                    <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>AC</Text> {formatAC(beast['ac'])}</Text>
+                                                    <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>Initiative</Text> {getAbilityMod(beast['dex'])} ({beast['dex']})</Text>
+                                                    <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>HP</Text> {formatHP(beast['hp'])}</Text>
+                                                    <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>Speed</Text> {formatSpeed(beast['speed'])}</Text>
+
+                                                    {/* Ability Scores */}
+                                                    <Separator title='Stats and Salvations'/>
+                                                    <View style={styles.beastDetailStatsContainer}>
+                                                        {STATS.map(({ key, label }) => (
+                                                            <TouchableOpacity
+                                                                key={key}
+                                                                style={styles.beastDetailStatButton}
+                                                                activeOpacity={0.7}
+                                                                onPressIn={() => {
+                                                                    console.log('📊 Stat button pressed:', key, label);
+                                                                    handleSaveRoll(key, label);
+                                                                }}
+                                                            >
+                                                                <Text style={styles.beastDetailStatText}>{label}</Text>
+                                                                <Text style={styles.beastDetailStatValue}>{beast[key]}</Text>
+                                                                <Text style={styles.beastDetailStatValue}>{getAbilityMod(beast[key])}</Text>
+                                                            </TouchableOpacity>
+                                                        ))}
+                                                    </View>
+
+                                                    {/* Skills and Abilities */}
+                                                    <Separator title='Skills and Abilities'/>
+                                                    {beast['skill'] && (
+                                                        <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>Skills:</Text> {formatSkills(beast['skill'])}</Text>
+                                                    )}
+                                                    {beast['resist'] && (
+                                                        <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>Damage Resistances:</Text> {formatArray(beast['resist'])}</Text>
+                                                    )}
+                                                    {beast['immune'] && (
+                                                        <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>Damage Immunities:</Text> {formatImmunities(beast['immune'])}</Text>
+                                                    )}
+                                                    {beast['conditionImmune'] && (
+                                                        <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>Condition Immunities:</Text> {formatConditionImmunities(beast['conditionImmune'])}</Text>
+                                                    )}
+                                                    {beast['senses'] && (
+                                                        <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>Senses:</Text> {formatSenses(beast['senses'], beast['passive'])}</Text>
+                                                    )}
+                                                    {beast['languages'] && (
+                                                        <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>Languages:</Text> {formatArray(beast['languages'])}</Text>
+                                                    )}
+                                                    {beast['cr'] && (
+                                                        <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>CR:</Text> {formatCR(beast['cr'])}</Text>
+                                                    )}
 
                                         {/* Traits, Actions, Bonus Actions, Spellcasting */}
                                         {beast['trait'] && (
@@ -815,31 +977,41 @@ const BeastDetailModal: React.FC<BeastDetailModalProps> = ({ visible, beast, onC
                                                 {renderEntries(beast['mythic'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress)}
                                             </>
                                         )}
-                                        {/* Source */}
-                                        <Text style={{ color: theme.noticeText, fontStyle: 'italic', marginTop: 8, marginBottom: 18, textAlign: 'right', fontSize: 10 }}>
+                                                </View>
+                                            </ScrollView>
+                                        </View>
+                                    )}
+                                </View>
+                                
+                                {/* Source Footer */}
+                                <View style={[styles.beastDetailFooter, { borderTopColor: theme.border }]}>
+                                    <Text style={styles.beastDetailSourceText}>
                                             Source: {beast['source']}{beast['page'] ? `, page ${beast['page']}` : ''}{beast['otherSources'] && beast['otherSources'].length > 0 ? `. Also found in ${formatArray(beast['otherSources'].map((s: any) => s.source))}` : ''}
                                         </Text>
-                                    </ScrollView>
                                 </View>
                             </>
                         )
                     }
-                </TouchableOpacity>
-            </TouchableOpacity>
+                </View>
+            </View>
         </Modal>
             
             {/* Modals */}
             <SpellNotFoundModal
               visible={spellNotFoundVisible}
               spellName={spellNotFoundName}
-              onClose={() => setSpellNotFoundVisible(false)}
+              onClose={() => {
+                setSpellNotFoundVisible(false);
+              }}
               theme={theme}
             />
             
             <CreatureNotFoundModal
               visible={creatureNotFoundVisible}
               creatureName={creatureNotFoundName}
-              onClose={() => setCreatureNotFoundVisible(false)}
+              onClose={() => {
+                setCreatureNotFoundVisible(false);
+              }}
               theme={theme}
             />
             
@@ -849,7 +1021,9 @@ const BeastDetailModal: React.FC<BeastDetailModalProps> = ({ visible, beast, onC
               message={sourceSelectionData.message}
               options={sourceSelectionData.options}
               onSelect={sourceSelectionData.onSelect}
-              onClose={() => setSourceSelectionVisible(false)}
+              onClose={() => {
+                setSourceSelectionVisible(false);
+              }}
               theme={theme}
             />
         </>

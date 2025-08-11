@@ -40,6 +40,8 @@ export default function SourceSelectionModal({
             <Text style={[styles.title, { color: theme.text }]}>{title}</Text>
           </View>
           
+          <View style={[styles.separator, { backgroundColor: theme.border }]} />
+          
           <View style={styles.content}>
             <Text style={[styles.message, { color: theme.text }]}>
               {message}
@@ -135,5 +137,9 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  separator: {
+    height: 1,
+    marginVertical: 16,
   },
 });

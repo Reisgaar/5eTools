@@ -29,6 +29,8 @@ export default function CreatureNotFoundModal({
             <Text style={[styles.title, { color: theme.text }]}>Creature Not Found</Text>
           </View>
           
+          <View style={[styles.separator, { backgroundColor: theme.border }]} />
+          
           <View style={styles.content}>
             <Text style={[styles.message, { color: theme.text }]}>
               The creature "{creatureName}" could not be found in the available sources.
@@ -95,5 +97,9 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  separator: {
+    height: 1,
+    marginVertical: 16,
   },
 });

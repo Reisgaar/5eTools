@@ -57,6 +57,8 @@ const SpellbookSelectorModal: React.FC<SpellbookSelectorModalProps> = ({
                         </TouchableOpacity>
                     </View>
 
+                    <View style={[styles.separator, { backgroundColor: currentTheme.border }]} />
+
                     <FlatList
                         data={filteredSpellbooks}
                         keyExtractor={item => item.id}
@@ -74,7 +76,7 @@ const SpellbookSelectorModal: React.FC<SpellbookSelectorModalProps> = ({
                                     </Text>
                                     <Text style={[styles.spellbookDescription, { color: currentTheme.noticeText }]}>
                                         {item.description && `${item.description} • `}
-                                        {item.spells.length} spells
+                                        {item.spellsIndex.length} spells
                                     </Text>
                                 </View>
                                 {currentSpellbookId === item.id && (
@@ -196,6 +198,10 @@ const styles = StyleSheet.create({
     createButtonText: {
         fontSize: 16,
         fontWeight: '600',
+    },
+    separator: {
+        height: 1,
+        marginVertical: 10,
     },
 });
 

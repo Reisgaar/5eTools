@@ -51,6 +51,8 @@ const CreateCombatModal: React.FC<CreateCombatModalProps> = ({
                         </TouchableOpacity>
                     </View>
 
+                    <View style={[styles.separator, { backgroundColor: theme.border }]} />
+
                     <View style={styles.modalBody}>
                         <Text style={[styles.fieldLabel, { color: theme.text }]}>Combat Name *</Text>
                         <TextInput
@@ -151,6 +153,10 @@ const styles = StyleSheet.create({
     buttonText: {
         fontSize: 16,
         fontWeight: '600',
+    },
+    separator: {
+        height: 1,
+        marginVertical: 10,
     },
 });
 

@@ -41,14 +41,14 @@ export default function HomeScreen() {
     const [confirmTitle, setConfirmTitle] = React.useState('');
     const [confirmMessage, setConfirmMessage] = React.useState('');
 
-    // Load players on mount
+    // Load players on mount and when campaign changes
     React.useEffect(() => {
         (async () => {
             const { loadPlayersList } = await import('src/utils/fileStorage');
             const list = await loadPlayersList();
             setPlayers(list);
         })();
-    }, []);
+    }, [selectedCampaign?.id]); // Reload players when campaign changes
 
     // Filter players by selected campaign
     const filteredPlayers = React.useMemo(() => {

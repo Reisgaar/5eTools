@@ -7,7 +7,8 @@ import {
     createSpellIndexEntry, 
     createBeastIndexEntry, 
     createCombatIndexEntry,
-    logSpellProcessing 
+    logSpellProcessing,
+    processSpellData
 } from '../storageUtils';
 
 /**
@@ -33,6 +34,9 @@ export abstract class BaseStorageProvider implements IStorageProvider {
     public async storeBeastsIndex(beasts: Beast[]): Promise<void> {
         console.log('storeBeastsIndex called with', beasts.length, 'beasts');
         
+        // Ensure data directory exists before writing
+        await this.ensureDataDirectory();
+        
         // Clear existing index first
         await this.deleteIndex(STORAGE_KEYS.BEASTS_INDEX);
         console.log('Cleared existing beasts index');
@@ -56,6 +60,9 @@ export abstract class BaseStorageProvider implements IStorageProvider {
     public async storeSpellsIndex(spells: Spell[]): Promise<void> {
         console.log('storeSpellsIndex called with', spells.length, 'spells');
         console.log('Sample spell availableClasses:', spells[0]?.availableClasses);
+        
+        // Ensure data directory exists before writing
+        await this.ensureDataDirectory();
         
         // Clear existing index first
         await this.deleteIndex(STORAGE_KEYS.SPELLS_INDEX);
@@ -83,6 +90,9 @@ export abstract class BaseStorageProvider implements IStorageProvider {
     }
     
     public async storeCombatIndex(combat: Combat): Promise<void> {
+        // Ensure data directory exists before writing
+        await this.ensureDataDirectory();
+        
         // Store individual combat
         await this.storeIndividual(`${STORAGE_KEYS.COMBATS_PREFIX}${combat.id}`, combat);
         
@@ -105,6 +115,9 @@ export abstract class BaseStorageProvider implements IStorageProvider {
     public async storeSpellClassRelationsIndex(relations: SpellClassRelationIndex[]): Promise<void> {
         console.log('storeSpellClassRelationsIndex called with', relations.length, 'relations');
         
+        // Ensure data directory exists before writing
+        await this.ensureDataDirectory();
+        
         // Clear existing index first
         await this.deleteIndex(STORAGE_KEYS.SPELL_CLASS_RELATIONS_INDEX);
         console.log('Cleared existing spell-class relations index');
@@ -121,6 +134,9 @@ export abstract class BaseStorageProvider implements IStorageProvider {
     
     public async storeAvailableClassesIndex(classes: string[]): Promise<void> {
         console.log('storeAvailableClassesIndex called with', classes.length, 'classes');
+        
+        // Ensure data directory exists before writing
+        await this.ensureDataDirectory();
         
         // Clear existing index first
         await this.deleteIndex(STORAGE_KEYS.AVAILABLE_CLASSES_INDEX);
@@ -268,13 +284,22 @@ export abstract class BaseStorageProvider implements IStorageProvider {
         return data || [];
     }
     
-    public async addSpellToSpellbook(spellbookId: string, spellName: string, spellSource: string): Promise<void> {
+    public async addSpellToSpellbook(spellbookId: string, spellName: string, spellSource: string, spellDetails?: any): Promise<void> {
         const spellbooks = await this.loadSpellbooks();
         const spellbook = spellbooks.find(sb => sb.id === spellbookId);
         if (spellbook) {
-            const spellExists = spellbook.spells.some(s => s.name === spellName && s.source === spellSource);
+            const spellExists = spellbook.spellsIndex.some(s => s.name === spellName && s.source === spellSource);
             if (!spellExists) {
-                spellbook.spells.push({ name: spellName, source: spellSource });
+                const newSpellIndex = {
+                    name: spellName,
+                    source: spellSource,
+                    level: spellDetails?.level || 0,
+                    school: spellDetails?.school || '',
+                    ritual: spellDetails?.ritual || false,
+                    concentration: spellDetails?.concentration || false,
+                    availableClasses: spellDetails?.availableClasses || []
+                };
+                spellbook.spellsIndex.push(newSpellIndex);
                 await this.saveSpellbooks(spellbooks);
             }
         }
@@ -284,7 +309,7 @@ export abstract class BaseStorageProvider implements IStorageProvider {
         const spellbooks = await this.loadSpellbooks();
         const spellbook = spellbooks.find(sb => sb.id === spellbookId);
         if (spellbook) {
-            spellbook.spells = spellbook.spells.filter(s => !(s.name === spellName && s.source === spellSource));
+            spellbook.spellsIndex = spellbook.spellsIndex.filter(s => !(s.name === spellName && s.source === spellSource));
             await this.saveSpellbooks(spellbooks);
         }
     }
@@ -295,8 +320,9 @@ export abstract class BaseStorageProvider implements IStorageProvider {
             id: `spellbook_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
             name,
             description,
-            spells: [],
-            createdAt: Date.now()
+            spellsIndex: [],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
         };
         spellbooks.push(newSpellbook);
         await this.saveSpellbooks(spellbooks);
@@ -493,6 +519,9 @@ export abstract class BaseStorageProvider implements IStorageProvider {
         console.log('🔄 Starting regeneration of all indexes...');
         
         try {
+            // Ensure data directory exists before regenerating indexes
+            await this.ensureDataDirectory();
+            
             const allKeys = await this.getAllKeys();
             console.log(`📋 Found ${allKeys.length} total keys`);
 
@@ -674,15 +703,19 @@ export abstract class BaseStorageProvider implements IStorageProvider {
                 const spell = await this.loadIndividual(key);
                 if (spell && spell.name) {
                     const filename = key.replace(STORAGE_KEYS.SPELLS_PREFIX, '') + '.json';
+                    
+                    // Use processSpellData to properly extract ritual and concentration
+                    const { concentration, ritual, availableClasses } = processSpellData(spell);
+                    
                     spellsIndex.push({
                         id: spell.id || spell.name,
                         name: spell.name,
                         level: spell.level || 0,
                         school: spell.school || 'unknown',
                         source: spell.source || 'unknown',
-                        availableClasses: spell.availableClasses || spell.classes || [],
-                        ritual: spell.meta?.ritual || false,
-                        concentration: spell.concentration || false,
+                        availableClasses: availableClasses,
+                        ritual: ritual,
+                        concentration: concentration,
                         file: filename
                     });
                 }

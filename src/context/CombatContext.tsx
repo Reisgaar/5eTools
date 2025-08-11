@@ -78,6 +78,7 @@ interface CombatContextType {
   updateCombatantNote: (id: string, note: string) => void;
   setCombatActive: (id: string, active: boolean) => void;
   getSortedCombats: (campaignId?: string | null) => Combat[];
+  reloadCombats: () => Promise<void>;
 }
 
 const CombatContext = createContext<CombatContextType | undefined>(undefined);
@@ -1075,6 +1076,71 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     });
   }, [combats]);
 
+  // Reload combats from storage
+  const reloadCombats = async (): Promise<void> => {
+    setLoading(true);
+    try {
+      console.log('Reloading combats from storage...');
+      const combatIndexes = await loadCombatsIndexFromFile();
+      console.log('Reloaded combat indexes:', combatIndexes);
+      
+      if (combatIndexes && combatIndexes.length > 0) {
+        console.log('Total reloaded combat indexes:', combatIndexes.length);
+        
+        // Load full combat data for each combat
+        const loadedCombats = await Promise.all(combatIndexes.map(async (combatIndex, index) => {
+          try {
+            const fullCombat = await loadCombatFromFile(combatIndex.file);
+            if (fullCombat) {
+              console.log(`✅ Successfully reloaded combat: ${fullCombat.name} (ID: ${fullCombat.id})`);
+              return fullCombat;
+            } else {
+              console.warn(`❌ Failed to reload full combat for ${combatIndex.name}`);
+              return null;
+            }
+          } catch (error) {
+            console.error(`❌ Error reloading combat ${combatIndex.name}:`, error);
+            return null;
+          }
+        }));
+        
+        // Filter out null values and update token URLs
+        const validCombats = loadedCombats.filter(combat => combat !== null);
+        const updatedCombats = await Promise.all(validCombats.map(async (combat) => {
+          if (combat.combatants && combat.combatants.length > 0) {
+            const updatedCombatants = await Promise.all(combat.combatants.map(async (combatant: Combatant) => {
+              if (combatant.tokenUrl && combatant.tokenUrl.startsWith('http')) {
+                try {
+                  const cachedUrl = await getCachedTokenUrl(combatant.source, combatant.name);
+                  if (cachedUrl) {
+                    return { ...combatant, tokenUrl: cachedUrl };
+                  }
+                } catch (error) {
+                  console.error(`Error updating token URL for ${combatant.name}:`, error);
+                }
+              }
+              return combatant;
+            }));
+            return { ...combat, combatants: updatedCombatants };
+          }
+          return combat;
+        }));
+        
+        setCombats(updatedCombats);
+        // Clear current combat when reloading
+        setCurrentCombatId(null);
+      } else {
+        console.log('No combats found during reload');
+        setCombats([]);
+        setCurrentCombatId(null);
+      }
+    } catch (error) {
+      console.error('Error reloading combats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <CombatContext.Provider value={{ 
       combats,
@@ -1113,6 +1179,7 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       updateCombatantNote,
       setCombatActive,
       getSortedCombats,
+      reloadCombats,
     }}>
       {children}
     </CombatContext.Provider>

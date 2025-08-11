@@ -1,20 +1,127 @@
 import React from 'react';
-import { Modal, View, TouchableOpacity, Text } from 'react-native';
+import { Modal, View, Text, TouchableOpacity, Pressable, ScrollView, Image, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { commonStyles } from '../../styles/commonStyles';
+import { createBaseModalStyles } from '../../styles/baseModalStyles';
 
 interface BaseModalProps {
     visible: boolean;
     onClose: () => void;
     children: React.ReactNode;
     theme: any;
+    
+    // Header configuration
     title?: string;
+    subtitle?: string;
+    tokenUrl?: string;
+    
+    // Layout configuration
     width?: number | string;
     height?: number | string;
     maxHeight?: number | string;
+    maxWidth?: number | string;
+    
+    // Z-index for modal stacking
+    zIndex?: number;
+    
+    // Footer configuration
+    showFooter?: boolean;
+    footerContent?: React.ReactNode;
+    
+    // Scroll configuration
+    scrollable?: boolean;
+    scrollContentStyle?: any;
+    
+    // Interaction handlers
+    onCreaturePress?: (name: string, source: string) => void;
+    onSpellPress?: (name: string, source: string) => void;
 }
 
-export default function BaseModal({ visible, onClose, children, theme, title, width, height, maxHeight }: BaseModalProps) {
+export default function BaseModal({ 
+    visible, 
+    onClose, 
+    children, 
+    theme,
+    title,
+    subtitle,
+    tokenUrl,
+    width,
+    height,
+    maxHeight,
+    maxWidth,
+    zIndex = 1000,
+    showFooter = false,
+    footerContent,
+    scrollable = false,
+    scrollContentStyle,
+    onCreaturePress,
+    onSpellPress
+}: BaseModalProps) {
+    const styles = createBaseModalStyles(theme);
+    
+    const modalContent = (
+        <View style={[
+            styles.modalContent,
+            { zIndex },
+            ...(width ? [{ width: width as any }] : []),
+            ...(height ? [{ height: height as any }] : []),
+            ...(maxHeight ? [{ maxHeight: maxHeight as any }] : []),
+            ...(maxWidth ? [{ maxWidth: maxWidth as any }] : [])
+        ]}>
+            {/* Header */}
+            <View style={styles.modalHeader}>
+                <View style={styles.modalHeaderContent}>
+                    {tokenUrl && (
+                        <Image 
+                            source={{ uri: tokenUrl }} 
+                            style={styles.modalToken}
+                            resizeMode="contain"
+                        />
+                    )}
+                    <View style={styles.modalHeaderInfo}>
+                        {title && (
+                            <Text style={styles.modalTitle}>{title}</Text>
+                        )}
+                        {subtitle && (
+                            <Text style={styles.modalSubtitle}>{subtitle}</Text>
+                        )}
+                    </View>
+                </View>
+                <TouchableOpacity onPress={onClose} style={styles.modalCloseButton}>
+                    <Text style={styles.modalCloseText}>✕</Text>
+                </TouchableOpacity>
+            </View>
+            
+            {/* Separator */}
+            <View style={styles.modalSeparator} />
+            
+            {/* Content */}
+            {scrollable ? (
+                <ScrollView 
+                    style={styles.modalScrollView}
+                    contentContainerStyle={[styles.modalScrollContent, scrollContentStyle]}
+                    showsVerticalScrollIndicator={true}
+                    nestedScrollEnabled={true}
+                    scrollEventThrottle={16}
+                    bounces={false}
+                    alwaysBounceVertical={false}
+                >
+                    {children}
+                </ScrollView>
+            ) : (
+                <View style={styles.modalBody}>
+                    {children}
+                </View>
+            )}
+            
+            {/* Footer */}
+            {showFooter && (
+                <View style={styles.modalFooter}>
+                    {footerContent}
+                </View>
+            )}
+        </View>
+    );
+    
     return (
         <Modal
             visible={visible}
@@ -22,43 +129,19 @@ export default function BaseModal({ visible, onClose, children, theme, title, wi
             transparent={true}
             onRequestClose={onClose}
         >
-            <TouchableOpacity 
-                style={[commonStyles.modalOverlay, { backgroundColor: 'rgba(0,0,0,0.6)' }]}
-                activeOpacity={1}
-                onPress={onClose}
+            <View 
+                style={[styles.modalOverlay, { zIndex: zIndex - 1 }]} 
+                onStartShouldSetResponder={() => true}
+                onResponderGrant={() => onClose()}
             >
-                <TouchableOpacity 
-                    style={[
-                        commonStyles.modalContent, 
-                        { backgroundColor: theme.background },
-                        width && { width },
-                        height && { height },
-                        maxHeight && { maxHeight }
-                    ]}
-                    activeOpacity={1}
-                    onPress={(e) => e.stopPropagation()}
+                <View 
+                    style={styles.modalContainer}
+                    onStartShouldSetResponder={() => true}
+                    onResponderGrant={(e) => e.stopPropagation()}
                 >
-                    {/* Header with close button */}
-                    <View style={commonStyles.modalHeader}>
-                        {title && title.trim() !== '' && (
-                            <View style={{ flex: 1 }}>
-                                <Text style={[commonStyles.modalTitle, { color: theme.text }]}>
-                                    {title}
-                                </Text>
-                            </View>
-                        )}
-                        <TouchableOpacity onPress={onClose} style={commonStyles.modalCloseButton}>
-                            <Ionicons name="close" size={24} color={theme.text} />
-                        </TouchableOpacity>
-                    </View>
-                    
-                    {/* Separator line */}
-                    <View style={[commonStyles.modalSeparator, { backgroundColor: theme.primary }]} />
-                    
-                    {/* Content */}
-                    {children}
-                </TouchableOpacity>
-            </TouchableOpacity>
+                    {modalContent}
+                </View>
+            </View>
         </Modal>
     );
 }

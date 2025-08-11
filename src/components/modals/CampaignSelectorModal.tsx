@@ -17,12 +17,17 @@ interface CampaignSelectorModalProps {
 const CampaignSelectorModal: React.FC<CampaignSelectorModalProps> = ({ visible, onClose }) => {
     const { campaigns, selectedCampaignId, selectCampaign, clearSelectedCampaign } = useCampaign();
     const { currentTheme } = useAppSettings();
-    const { getSortedCombats, clearCurrentCombat } = useCombat();
-    const { getSpellbooksByCampaign } = useSpellbook();
+    const { getSortedCombats, reloadCombats } = useCombat();
+    const { getSpellbooksByCampaign, clearSpellbookSelection } = useSpellbook();
 
-    const handleSelectCampaign = (campaignId: string | null) => {
-        // Clear current combat when changing campaign
-        clearCurrentCombat();
+    const handleSelectCampaign = async (campaignId: string | null) => {
+        // 1. Combats - Reload combats when changing campaign
+        await reloadCombats();
+        
+        // 2. Spells - Deselect spellbook if exists
+        clearSpellbookSelection();
+        
+        // 3. Home - Reload players (this will be handled by the Home component's useEffect)
         
         if (campaignId) {
             selectCampaign(campaignId);
@@ -32,9 +37,14 @@ const CampaignSelectorModal: React.FC<CampaignSelectorModalProps> = ({ visible, 
         onClose();
     };
 
-    const handleShowAll = () => {
-        // Clear current combat when changing campaign
-        clearCurrentCombat();
+    const handleShowAll = async () => {
+        // 1. Combats - Reload combats when changing campaign
+        await reloadCombats();
+        
+        // 2. Spells - Deselect spellbook if exists
+        clearSpellbookSelection();
+        
+        // 3. Home - Reload players (this will be handled by the Home component's useEffect)
         
         clearSelectedCampaign();
         onClose();

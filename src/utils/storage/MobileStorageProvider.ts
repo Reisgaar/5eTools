@@ -6,6 +6,10 @@ import {
     MONSTERS_DIR, 
     SPELLS_DIR, 
     COMBATS_DIR,
+    LEGACY_DATA_DIR,
+    LEGACY_MONSTERS_DIR,
+    LEGACY_SPELLS_DIR,
+    LEGACY_COMBATS_DIR,
     BEASTS_INDEX_FILE,
     SPELLS_INDEX_FILE,
     COMBATS_INDEX_FILE,
@@ -14,7 +18,7 @@ import {
 } from '../constants';
 
 /**
- * Mobile storage provider using expo-file-system
+ * Mobile storage provider using expo-file-system with persistent data strategy
  */
 export class MobileStorageProvider extends BaseStorageProvider {
     
@@ -61,8 +65,7 @@ export class MobileStorageProvider extends BaseStorageProvider {
         try {
             await FileSystem.deleteAsync(filePath, { idempotent: true });
         } catch (error) {
-            // File might not exist, which is fine
-            console.log(`No existing index to clear: ${key}`);
+            console.warn(`Error deleting index ${key}:`, error);
         }
     }
     
@@ -134,16 +137,15 @@ export class MobileStorageProvider extends BaseStorageProvider {
         try {
             await FileSystem.deleteAsync(filePath, { idempotent: true });
         } catch (error) {
-            // File might not exist, which is fine
+            console.warn(`Error deleting individual file ${key}:`, error);
         }
     }
     
-    // Utility operations
     protected async getAllKeys(): Promise<string[]> {
         try {
             const allFiles: string[] = [];
             
-            // Get all files from each directory
+            // Get files from all directories
             const [monsterFiles, spellFiles, combatFiles] = await Promise.all([
                 this.getFilesInDirectory(MONSTERS_DIR),
                 this.getFilesInDirectory(SPELLS_DIR),
@@ -197,7 +199,7 @@ export class MobileStorageProvider extends BaseStorageProvider {
         }
     }
     
-    // Platform-specific operations
+    // Platform-specific operations with migration support
     public async ensureDataDirectory(): Promise<void> {
         const dirs = [DATA_DIR, MONSTERS_DIR, SPELLS_DIR, COMBATS_DIR];
         
@@ -206,6 +208,138 @@ export class MobileStorageProvider extends BaseStorageProvider {
             if (!dirInfo.exists) {
                 await FileSystem.makeDirectoryAsync(dir, { intermediates: true });
             }
+        }
+        
+        // Check for and migrate legacy data
+        await this.migrateLegacyData();
+    }
+    
+    /**
+     * Migrate data from legacy directories to new persistent structure
+     */
+    private async migrateLegacyData(): Promise<void> {
+        try {
+            console.log('🔍 Checking for legacy data to migrate...');
+            
+            // Check if legacy directories exist
+            const legacyDirs = [LEGACY_DATA_DIR, LEGACY_MONSTERS_DIR, LEGACY_SPELLS_DIR, LEGACY_COMBATS_DIR];
+            const legacyExists = await Promise.all(
+                legacyDirs.map(dir => FileSystem.getInfoAsync(dir))
+            );
+            
+            const hasLegacyData = legacyExists.some(info => info.exists);
+            
+            if (!hasLegacyData) {
+                console.log('✅ No legacy data found to migrate');
+                return;
+            }
+            
+            console.log('🔄 Found legacy data, starting migration...');
+            
+            // Migrate monsters
+            if (legacyExists[2].exists) { // LEGACY_MONSTERS_DIR
+                await this.migrateDirectory(LEGACY_MONSTERS_DIR, MONSTERS_DIR, 'monsters');
+            }
+            
+            // Migrate spells
+            if (legacyExists[3].exists) { // LEGACY_SPELLS_DIR
+                await this.migrateDirectory(LEGACY_SPELLS_DIR, SPELLS_DIR, 'spells');
+            }
+            
+            // Migrate combats
+            if (legacyExists[4]) { // LEGACY_COMBATS_DIR
+                await this.migrateDirectory(LEGACY_COMBATS_DIR, COMBATS_DIR, 'combats');
+            }
+            
+            // Migrate index files
+            await this.migrateIndexFiles();
+            
+            console.log('✅ Legacy data migration completed successfully');
+            
+            // Clean up legacy directories after successful migration
+            await this.cleanupLegacyDirectories();
+            
+        } catch (error) {
+            console.error('❌ Error during legacy data migration:', error);
+            // Don't throw - migration failure shouldn't break the app
+        }
+    }
+    
+    /**
+     * Migrate files from one directory to another
+     */
+    private async migrateDirectory(fromDir: string, toDir: string, type: string): Promise<void> {
+        try {
+            const files = await FileSystem.readDirectoryAsync(fromDir);
+            console.log(`📁 Migrating ${files.length} ${type} files from ${fromDir} to ${toDir}`);
+            
+            for (const file of files) {
+                const sourcePath = `${fromDir}${file}`;
+                const destPath = `${toDir}${file}`;
+                
+                try {
+                    const content = await FileSystem.readAsStringAsync(sourcePath);
+                    await FileSystem.writeAsStringAsync(destPath, content);
+                    console.log(`✅ Migrated ${file}`);
+                } catch (error) {
+                    console.warn(`⚠️ Failed to migrate ${file}:`, error);
+                }
+            }
+        } catch (error) {
+            console.error(`❌ Error migrating ${type} directory:`, error);
+        }
+    }
+    
+    /**
+     * Migrate index files from legacy location
+     */
+    private async migrateIndexFiles(): Promise<void> {
+        const indexFiles = [
+            { legacy: `${LEGACY_DATA_DIR}beasts_index.json`, new: BEASTS_INDEX_FILE },
+            { legacy: `${LEGACY_DATA_DIR}spells_index.json`, new: SPELLS_INDEX_FILE },
+            { legacy: `${LEGACY_DATA_DIR}combats_index.json`, new: COMBATS_INDEX_FILE },
+            { legacy: `${LEGACY_DATA_DIR}players.json`, new: PLAYERS_FILE },
+            { legacy: `${LEGACY_DATA_DIR}spellbooks.json`, new: SPELLBOOKS_FILE },
+            { legacy: `${LEGACY_DATA_DIR}campaigns.json`, new: `${DATA_DIR}campaigns.json` },
+            { legacy: `${LEGACY_DATA_DIR}selected_campaign.json`, new: `${DATA_DIR}selected_campaign.json` },
+            { legacy: `${LEGACY_DATA_DIR}spell_class_relations_index.json`, new: `${DATA_DIR}spell_class_relations_index.json` },
+            { legacy: `${LEGACY_DATA_DIR}available_classes_index.json`, new: `${DATA_DIR}available_classes_index.json` }
+        ];
+        
+        for (const file of indexFiles) {
+            try {
+                const legacyInfo = await FileSystem.getInfoAsync(file.legacy);
+                if (legacyInfo.exists) {
+                    const content = await FileSystem.readAsStringAsync(file.legacy);
+                    await FileSystem.writeAsStringAsync(file.new, content);
+                    console.log(`✅ Migrated index file: ${file.legacy} -> ${file.new}`);
+                }
+            } catch (error) {
+                console.warn(`⚠️ Failed to migrate index file ${file.legacy}:`, error);
+            }
+        }
+    }
+    
+    /**
+     * Clean up legacy directories after successful migration
+     */
+    private async cleanupLegacyDirectories(): Promise<void> {
+        try {
+            const legacyDirs = [LEGACY_MONSTERS_DIR, LEGACY_SPELLS_DIR, LEGACY_COMBATS_DIR, LEGACY_DATA_DIR];
+            
+            for (const dir of legacyDirs) {
+                try {
+                    const dirInfo = await FileSystem.getInfoAsync(dir);
+                    if (dirInfo.exists) {
+                        await FileSystem.deleteAsync(dir, { idempotent: true });
+                        console.log(`🗑️ Cleaned up legacy directory: ${dir}`);
+                    }
+                } catch (error) {
+                    console.warn(`⚠️ Failed to clean up legacy directory ${dir}:`, error);
+                }
+            }
+        } catch (error) {
+            console.error('❌ Error during legacy cleanup:', error);
         }
     }
     

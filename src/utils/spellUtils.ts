@@ -28,78 +28,172 @@ export function getFullSchool(school: string): string {
 }
 
 /**
- * Formats spell components for display
+ * Detects and formats monetary values in text
  */
-export function formatComponents(components: any): string {
+function formatMonetaryValues(text: string): string {
+    if (!text) return text;
+    
+    // Patterns for monetary values
+    const monetaryPatterns = [
+        // Gold pieces: 50 gp, 100 gold pieces, 25 GP, etc.
+        /(\d+)\s*(?:gp|gold\s*pieces?|gold|GPP?)/gi,
+        // Silver pieces: 10 sp, 50 silver pieces, 25 SP, etc.
+        /(\d+)\s*(?:sp|silver\s*pieces?|silver|CS)/gi,
+        // Copper pieces: 100 cp, 50 copper pieces, 25 CP, etc.
+        /(\d+)\s*(?:cp|copper\s*pieces?|copper)/gi,
+        // Electrum pieces: 25 ep, 50 electrum pieces, 25 EP, etc.
+        /(\d+)\s*(?:ep|electrum\s*pieces?|electrum|GE)/gi,
+        // Platinum pieces: 10 pp, 50 platinum pieces, 25 PP, etc.
+        /(\d+)\s*(?:pp|platinum\s*pieces?|platinum)/gi,
+        // Generic cost patterns: "costs 50 gold", "worth 25 silver", etc.
+        /(?:costs?|worth|value\s*of)\s*(\d+)\s*(?:gp|gold|sp|silver|cp|copper|ep|electrum|pp|platinum)/gi
+    ];
+    
+    let formattedText = text;
+    
+    monetaryPatterns.forEach(pattern => {
+        formattedText = formattedText.replace(pattern, (match, amount) => {
+            // Extract the original currency type from the match
+            const currencyMatch = match.match(/(?:gp|gold\s*pieces?|gold|GPP?|sp|silver\s*pieces?|silver|CS|cp|copper\s*pieces?|copper|ep|electrum\s*pieces?|electrum|GE|pp|platinum\s*pieces?|platinum)/i);
+            const currency = currencyMatch ? currencyMatch[0] : '';
+            
+            // Return the formatted version with bold amount
+            return match.replace(amount, `**${amount}**`);
+        });
+    });
+    
+    return formattedText;
+}
+
+/**
+ * Formats spell components for display with tag processing
+ */
+export function formatComponents(components: any, theme?: any, onCreaturePress?: (name: string, source: string) => void, onSpellPress?: (name: string, source: string) => void): any {
     if (!components) return '';
-    if (Array.isArray(components)) return components.join(', ');
-    if (typeof components === 'object') {
+    
+    let baseText = '';
+    
+    if (Array.isArray(components)) {
+        baseText = components.join(', ');
+    } else if (typeof components === 'object') {
         let arr = [];
         if (components.v) arr.push('V');
         if (components.s) arr.push('S');
-        if (components.m) arr.push(`M (${components.m.text})`);
-        return arr.join(', ');
+        if (components.m) {
+            // Format monetary values in material components
+            const materialText = formatMonetaryValues(components.m.text);
+            arr.push(`M (${materialText})`);
+        }
+        if (components.r) {
+            arr.push('R');
+        }
+        baseText = arr.join(', ');
+    } else {
+        baseText = String(components);
     }
-    return String(components);
+    
+    // If we have theme and handlers, process tags
+    if (theme && (onCreaturePress || onSpellPress)) {
+        const { renderEntries } = require('./replaceTags');
+        return renderEntries(baseText, 0, theme, onCreaturePress, onSpellPress);
+    }
+    
+    return baseText;
 }
 
 /**
- * Formats spell range for display
+ * Formats spell range for display with tag processing
  */
-export function formatRange(range: any): string {
+export function formatRange(range: any, theme?: any, onCreaturePress?: (name: string, source: string) => void, onSpellPress?: (name: string, source: string) => void): any {
     if (!range) return '';
-    if (typeof range === 'string') return range;
-    if (typeof range === 'object') {
+    
+    let baseText = '';
+    
+    if (typeof range === 'string') {
+        baseText = range;
+    } else if (typeof range === 'object') {
         if (range.distance) {
             if (typeof range.distance === 'object') {
                 if (range.distance.amount && range.distance.type) {
-                    return `${range.distance.amount} ${range.distance.type}`;
-                }
-                if (range.distance.type) {
-                    return range.distance.type;
+                    baseText = `${range.distance.amount} ${range.distance.type}`;
+                } else if (range.distance.type) {
+                    baseText = range.distance.type;
                 }
             } else {
-                return String(range.distance);
+                baseText = String(range.distance);
             }
+        } else if (range.type) {
+            baseText = range.type;
+        } else {
+            baseText = JSON.stringify(range);
         }
-        if (range.type) return range.type;
-        return JSON.stringify(range);
+    } else {
+        baseText = String(range);
     }
-    return String(range);
+    
+    // If we have theme and handlers, process tags
+    if (theme && (onCreaturePress || onSpellPress)) {
+        const { renderEntries } = require('./replaceTags');
+        return renderEntries(baseText, 0, theme, onCreaturePress, onSpellPress);
+    }
+    
+    return baseText;
 }
 
 /**
- * Formats spell casting time for display
+ * Formats spell casting time for display with tag processing
  */
-export function formatTime(time: any): string {
+export function formatTime(time: any, theme?: any, onCreaturePress?: (name: string, source: string) => void, onSpellPress?: (name: string, source: string) => void, isRitual?: boolean): any {
     if (!time) return '';
-    if (typeof time === 'string') return time;
-    if (Array.isArray(time)) {
-        return time.map(t => {
+    
+    let baseText = '';
+    
+    if (typeof time === 'string') {
+        baseText = time;
+    } else if (Array.isArray(time)) {
+        baseText = time.map(t => {
             if (typeof t === 'string') return t;
             let s = '';
             if (t.number && t.unit) s += `${t.number} ${t.unit}`;
             if (t.condition) s += ` (${t.condition})`;
             return s.trim();
         }).join(', ');
-    }
-    if (typeof time === 'object') {
+    } else if (typeof time === 'object') {
         let s = '';
         if (time.number && time.unit) s += `${time.number} ${time.unit}`;
         if (time.condition) s += ` (${time.condition})`;
-        return s.trim();
+        baseText = s.trim();
+    } else {
+        baseText = String(time);
     }
-    return String(time);
+    
+    // Add ritual information if applicable
+    if (isRitual) {
+        baseText += ' (ritual)';
+    }
+    
+    // If we have theme and handlers, process tags
+    if (theme && (onCreaturePress || onSpellPress)) {
+        const { renderEntries } = require('./replaceTags');
+        return renderEntries(baseText, 0, theme, onCreaturePress, onSpellPress);
+    }
+    
+    return baseText;
 }
 
 /**
- * Formats spell duration for display
+ * Formats spell duration for display with tag processing and concentration info
  */
-export function formatDuration(duration: any): string {
+export function formatDuration(duration: any, theme?: any, onCreaturePress?: (name: string, source: string) => void, onSpellPress?: (name: string, source: string) => void, isConcentration?: boolean): any {
     if (!duration) return '';
-    if (typeof duration === 'string') return duration;
-    if (Array.isArray(duration)) {
-        return duration.map(d => {
+    
+    let baseText = '';
+    
+    if (typeof duration === 'string') {
+        baseText = duration;
+    } else if (Array.isArray(duration)) {
+        baseText = duration.map(d => {
+            if (!d) return '';
             if (typeof d === 'string') return d;
             if (d.type && d.duration) {
                 if (typeof d.duration === 'object' && d.duration.amount && d.duration.type) {
@@ -109,19 +203,35 @@ export function formatDuration(duration: any): string {
             }
             if (d.type) return d.type;
             return JSON.stringify(d);
-        }).join(', ');
-    }
-    if (typeof duration === 'object') {
+        }).filter(Boolean).join(', ');
+    } else if (typeof duration === 'object') {
         if (duration.type && duration.duration) {
             if (typeof duration.duration === 'object' && duration.duration.amount && duration.duration.type) {
-                return `${duration.duration.amount} ${duration.duration.type} (${duration.type})`;
+                baseText = `${duration.duration.amount} ${duration.duration.type} (${duration.type})`;
+            } else {
+                baseText = `${duration.duration} (${duration.type})`;
             }
-            return `${duration.duration} (${duration.type})`;
+        } else if (duration.type) {
+            baseText = duration.type;
+        } else {
+            baseText = JSON.stringify(duration);
         }
-        if (duration.type) return duration.type;
-        return JSON.stringify(duration);
+    } else {
+        baseText = String(duration);
     }
-    return String(duration);
+    
+    // Add concentration information if applicable
+    if (isConcentration) {
+        baseText += ' (concentration)';
+    }
+    
+    // If we have theme and handlers, process tags
+    if (theme && (onCreaturePress || onSpellPress)) {
+        const { renderEntries } = require('./replaceTags');
+        return renderEntries(baseText, 0, theme, onCreaturePress, onSpellPress);
+    }
+    
+    return baseText;
 }
 
 /**

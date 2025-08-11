@@ -45,17 +45,9 @@ export const getCachedToken = async (source: string, name: string, originalUrl: 
 // Get cached full image URL, cache if not available
 export const getCachedFullImage = async (source: string, name: string, originalUrl: string): Promise<string> => {
     try {
-        // First check if we have it cached
+        // Use getCachedLargeImageUrl which handles caching internally
         const cachedUrl = await getCachedLargeImageUrl(source, name, originalUrl);
-        if (cachedUrl && cachedUrl !== originalUrl) {
-            console.log(`Using cached full image for ${source}/${name}`);
-            return cachedUrl;
-        }
-        
-        // If not cached, cache it and return original URL for now
-        console.log(`Caching full image for ${source}/${name}`);
-        await cacheLargeImage(source, name, originalUrl);
-        return originalUrl;
+        return cachedUrl;
     } catch (error) {
         console.error('Error getting cached full image:', error);
         return originalUrl;
@@ -113,10 +105,7 @@ export const getBestCreatureImage = async (source: string, name: string): Promis
             };
         }
         
-        // If nothing is cached, start caching full image and return token for now
-        console.log(`Starting to cache full image for ${source}/${name}`);
-        cacheLargeImage(source, name, urls.fullImageUrl);
-        
+        // If nothing is cached, return token for now (caching will happen in background)
         return {
             url: urls.tokenUrl,
             type: 'token',

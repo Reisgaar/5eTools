@@ -19,3 +19,4 @@ export { StorageManagementModal } from './StorageManagementModal';
 export { default as SchoolFilterModal } from './SchoolFilterModal';
 export { default as ClassFilterModal } from './ClassFilterModal';
 export { default as AdvancedDiceRollModal } from './AdvancedDiceRollModal';
+export { default as OtherFilterModal } from './OtherFilterModal';

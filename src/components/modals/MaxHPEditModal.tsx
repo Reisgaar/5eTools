@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { BaseModal } from '../ui';
+import { createBaseModalStyles } from '../../styles/baseModalStyles';
 
 interface MaxHPEditModalProps {
     visible: boolean;
@@ -24,6 +25,7 @@ export default function MaxHPEditModal({
     theme
 }: MaxHPEditModalProps) {
     const [maxHp, setMaxHp] = useState(initialMaxHp);
+    const styles = createBaseModalStyles(theme);
 
     // Update local value when initial value changes
     useEffect(() => {
@@ -49,13 +51,20 @@ export default function MaxHPEditModal({
     };
 
     // Create title with current HP info
-    const modalTitle = `Edit Max HP - #${combatantNumber} ${creatureName} (Current: ${currentHp})`;
+    const modalTitle = `Edit Max HP - #${combatantNumber} ${creatureName}`;
+    const modalSubtitle = `Current: ${currentHp}`;
 
     return (
-        <BaseModal visible={visible} onClose={handleCancel} theme={theme} title={modalTitle}>
+        <BaseModal 
+            visible={visible} 
+            onClose={handleCancel} 
+            theme={theme} 
+            title={modalTitle}
+            subtitle={modalSubtitle}
+        >
             {/* Max HP Display */}
             <View style={styles.maxHpContainer}>
-                <Text style={[styles.label, { color: theme.text }]}>Max HP:</Text>
+                <Text style={[styles.modalText, { fontWeight: 'bold' }]}>Max HP:</Text>
                 <TextInput
                     style={[styles.maxHpInput, { 
                         backgroundColor: theme.inputBackground, 
@@ -76,56 +85,49 @@ export default function MaxHPEditModal({
                 />
             </View>
 
-            {/* Current HP Info */}
-            <View style={styles.currentHpInfo}>
-                <Text style={[styles.infoText, { color: theme.text }]}>
-                    Current HP: {currentHp}
-                </Text>
-            </View>
-
             {/* Max HP Adjustment Buttons */}
             <View style={styles.buttonContainer}>
                 {/* Decrement Buttons - Left Column */}
                 <View style={styles.buttonColumn}>
                     <TouchableOpacity
-                        style={[styles.button, { backgroundColor: theme.primary }]}
+                        style={[styles.modalButton, styles.modalButtonPrimary]}
                         onPress={() => handleDecrement(10)}
                     >
-                        <Text style={styles.buttonText}>-10</Text>
+                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-10</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                        style={[styles.button, { backgroundColor: theme.primary }]}
+                        style={[styles.modalButton, styles.modalButtonPrimary]}
                         onPress={() => handleDecrement(5)}
                     >
-                        <Text style={styles.buttonText}>-5</Text>
+                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-5</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                        style={[styles.button, { backgroundColor: theme.primary }]}
+                        style={[styles.modalButton, styles.modalButtonPrimary]}
                         onPress={() => handleDecrement(1)}
                     >
-                        <Text style={styles.buttonText}>-1</Text>
+                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-1</Text>
                     </TouchableOpacity>
                 </View>
 
                 {/* Increment Buttons - Right Column */}
                 <View style={styles.buttonColumn}>
                     <TouchableOpacity
-                        style={[styles.button, { backgroundColor: theme.primary }]}
+                        style={[styles.modalButton, styles.modalButtonPrimary]}
                         onPress={() => handleIncrement(10)}
                     >
-                        <Text style={styles.buttonText}>+10</Text>
+                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>+10</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                        style={[styles.button, { backgroundColor: theme.primary }]}
+                        style={[styles.modalButton, styles.modalButtonPrimary]}
                         onPress={() => handleIncrement(5)}
                     >
-                        <Text style={styles.buttonText}>+5</Text>
+                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>+5</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                        style={[styles.button, { backgroundColor: theme.primary }]}
+                        style={[styles.modalButton, styles.modalButtonPrimary]}
                         onPress={() => handleIncrement(1)}
                     >
-                        <Text style={styles.buttonText}>+1</Text>
+                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>+1</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -133,10 +135,10 @@ export default function MaxHPEditModal({
             {/* Action Button */}
             <View style={styles.actionContainer}>
                 <TouchableOpacity
-                    style={[styles.actionButton, { backgroundColor: theme.primary }]}
+                    style={[styles.modalButton, styles.modalButtonPrimary]}
                     onPress={handleAccept}
                 >
-                    <Text style={[styles.actionButtonText, { color: 'white' }]}>Accept</Text>
+                    <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>Accept</Text>
                 </TouchableOpacity>
             </View>
         </BaseModal>
@@ -151,10 +153,6 @@ const styles = StyleSheet.create({
         marginBottom: 16,
         gap: 12,
     },
-    label: {
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
     maxHpInput: {
         borderWidth: 2,
         borderRadius: 8,
@@ -164,14 +162,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         textAlign: 'center',
         minWidth: 80,
-    },
-    currentHpInfo: {
-        alignItems: 'center',
-        marginBottom: 24,
-    },
-    infoText: {
-        fontSize: 14,
-        fontStyle: 'italic',
     },
     buttonContainer: {
         flexDirection: 'row',
@@ -183,27 +173,7 @@ const styles = StyleSheet.create({
         flex: 1,
         gap: 8,
     },
-    button: {
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        borderRadius: 8,
-        alignItems: 'center',
-    },
-    buttonText: {
-        color: 'white',
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
     actionContainer: {
         width: '100%',
-    },
-    actionButton: {
-        paddingVertical: 12,
-        borderRadius: 8,
-        alignItems: 'center',
-    },
-    actionButtonText: {
-        fontSize: 16,
-        fontWeight: 'bold',
     },
 });

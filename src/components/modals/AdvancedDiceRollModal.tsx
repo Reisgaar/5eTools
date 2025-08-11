@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, Switch, StyleSheet } from 'react-native';
 import BaseModal from '../ui/BaseModal';
 import { rollDice, parseDiceExpression } from '../../utils/replaceTags';
+import { useModal } from '../../context/ModalContext';
+import { getModalZIndex } from '../../styles/modals';
+import { createBaseModalStyles } from '../../styles/baseModalStyles';
 
 interface AdvancedDiceRollModalProps {
     visible: boolean;
@@ -29,6 +32,11 @@ export default function AdvancedDiceRollModal({
     d20Config, 
     damageConfig 
 }: AdvancedDiceRollModalProps) {
+    const { beastStackDepth, spellStackDepth } = useModal();
+    const maxStackDepth = Math.max(beastStackDepth, spellStackDepth);
+    const dynamicZIndex = getModalZIndex(maxStackDepth + 1); // Dice modals should be above other modals
+    const unifiedStyles = createBaseModalStyles(theme);
+    
     const [advantageType, setAdvantageType] = useState<AdvantageType>('normal');
     const [situationalBonus, setSituationalBonus] = useState('');
     const [isCritical, setIsCritical] = useState(false);
@@ -159,22 +167,22 @@ export default function AdvancedDiceRollModal({
         const totalBonus = d20Config.bonus + situationalBonusNum;
 
         return (
-            <View style={styles.section}>
-                <Text style={[styles.sectionTitle, { color: theme.text }]}>Roll Configuration</Text>
+            <View style={unifiedStyles.section}>
+                <Text style={[unifiedStyles.sectionTitle, { color: theme.text }]}>Roll Configuration</Text>
                 
                 {/* Advantage/Disadvantage Switch */}
-                <View style={styles.switchRow}>
-                    <Text style={[styles.switchLabel, { color: theme.text }]}>Advantage/Disadvantage:</Text>
-                    <View style={styles.switchContainer}>
+                <View style={unifiedStyles.switchRow}>
+                    <Text style={[unifiedStyles.switchLabel, { color: theme.text }]}>Advantage/Disadvantage:</Text>
+                    <View style={unifiedStyles.switchContainer}>
                         <TouchableOpacity 
                             style={[
-                                styles.switchOption, 
+                                unifiedStyles.switchOption, 
                                 advantageType === 'disadvantage' && { backgroundColor: theme.primary }
                             ]}
                             onPress={() => setAdvantageType('disadvantage')}
                         >
                             <Text style={[
-                                styles.switchOptionText, 
+                                unifiedStyles.switchOptionText, 
                                 { color: advantageType === 'disadvantage' ? theme.buttonText || 'white' : theme.text }
                             ]}>
                                 Dis
@@ -182,13 +190,13 @@ export default function AdvancedDiceRollModal({
                         </TouchableOpacity>
                         <TouchableOpacity 
                             style={[
-                                styles.switchOption, 
+                                unifiedStyles.switchOption, 
                                 advantageType === 'normal' && { backgroundColor: theme.primary }
                             ]}
                             onPress={() => setAdvantageType('normal')}
                         >
                             <Text style={[
-                                styles.switchOptionText, 
+                                unifiedStyles.switchOptionText, 
                                 { color: advantageType === 'normal' ? theme.buttonText || 'white' : theme.text }
                             ]}>
                                 Normal
@@ -196,13 +204,13 @@ export default function AdvancedDiceRollModal({
                         </TouchableOpacity>
                         <TouchableOpacity 
                             style={[
-                                styles.switchOption, 
+                                unifiedStyles.switchOption, 
                                 advantageType === 'advantage' && { backgroundColor: theme.primary }
                             ]}
                             onPress={() => setAdvantageType('advantage')}
                         >
                             <Text style={[
-                                styles.switchOptionText, 
+                                unifiedStyles.switchOptionText, 
                                 { color: advantageType === 'advantage' ? theme.buttonText || 'white' : theme.text }
                             ]}>
                                 Adv
@@ -212,10 +220,10 @@ export default function AdvancedDiceRollModal({
                 </View>
                 
                 {/* Situational Bonus */}
-                <View style={styles.inputRow}>
-                    <Text style={[styles.inputLabel, { color: theme.text }]}>Situational Bonus:</Text>
+                <View style={unifiedStyles.inputRow}>
+                    <Text style={[unifiedStyles.inputLabel, { color: theme.text }]}>Situational Bonus:</Text>
                     <TextInput
-                        style={[styles.textInput, { 
+                        style={[unifiedStyles.textInput, { 
                             backgroundColor: theme.card, 
                             color: theme.text, 
                             borderColor: theme.primary 
@@ -234,12 +242,12 @@ export default function AdvancedDiceRollModal({
                 </View>
                 
                 {/* Base Bonus Display */}
-                <View style={styles.bonusDisplay}>
-                    <Text style={[styles.bonusText, { color: theme.text }]}>
+                <View style={unifiedStyles.bonusDisplay}>
+                    <Text style={[unifiedStyles.bonusText, { color: theme.text }]}>
                         Base Bonus: {d20Config.bonus >= 0 ? '+' : ''}{d20Config.bonus}
                     </Text>
                     {situationalBonus && (
-                        <Text style={[styles.bonusText, { color: theme.text }]}>
+                        <Text style={[unifiedStyles.bonusText, { color: theme.text }]}>
                             Total Bonus: {totalBonus >= 0 ? '+' : ''}{totalBonus}
                         </Text>
                     )}
@@ -249,12 +257,12 @@ export default function AdvancedDiceRollModal({
     };
 
     const renderDamageConfig = () => (
-        <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>Damage Configuration</Text>
+        <View style={unifiedStyles.section}>
+            <Text style={[unifiedStyles.sectionTitle, { color: theme.text }]}>Damage Configuration</Text>
             
             {/* Critical Hit */}
-            <View style={styles.switchRow}>
-                <Text style={[styles.switchLabel, { color: theme.text }]}>Critical Hit:</Text>
+            <View style={unifiedStyles.switchRow}>
+                <Text style={[unifiedStyles.switchLabel, { color: theme.text }]}>Critical Hit:</Text>
                 <Switch
                     value={isCritical}
                     onValueChange={setIsCritical}
@@ -264,8 +272,8 @@ export default function AdvancedDiceRollModal({
             </View>
             
             {/* Repeat 1s */}
-            <View style={styles.switchRow}>
-                <Text style={[styles.switchLabel, { color: theme.text }]}>Repeat 1s:</Text>
+            <View style={unifiedStyles.switchRow}>
+                <Text style={[unifiedStyles.switchLabel, { color: theme.text }]}>Repeat 1s:</Text>
                 <Switch
                     value={repeatOnes}
                     onValueChange={setRepeatOnes}
@@ -275,8 +283,8 @@ export default function AdvancedDiceRollModal({
             </View>
             
             {/* Repeat 2s */}
-            <View style={styles.switchRow}>
-                <Text style={[styles.switchLabel, { color: theme.text }]}>Repeat 2s:</Text>
+            <View style={unifiedStyles.switchRow}>
+                <Text style={[unifiedStyles.switchLabel, { color: theme.text }]}>Repeat 2s:</Text>
                 <Switch
                     value={repeatTwos}
                     onValueChange={setRepeatTwos}
@@ -286,8 +294,8 @@ export default function AdvancedDiceRollModal({
             </View>
             
             {/* Expression Display */}
-            <View style={styles.expressionDisplay}>
-                <Text style={[styles.expressionText, { color: theme.text }]}>
+            <View style={unifiedStyles.expressionDisplay}>
+                <Text style={[unifiedStyles.expressionText, { color: theme.text }]}>
                     Expression: {damageConfig.expression}
                 </Text>
             </View>
@@ -298,15 +306,15 @@ export default function AdvancedDiceRollModal({
         if (!result) return null;
         
         return (
-            <View style={styles.resultSection}>
-                <Text style={[styles.resultTitle, { color: theme.text }]}>Roll Result</Text>
-                <Text style={[styles.resultTotal, { color: theme.success || '#4ade80' }]}>
+            <View style={unifiedStyles.resultSection}>
+                <Text style={[unifiedStyles.resultTitle, { color: theme.text }]}>Roll Result</Text>
+                <Text style={[unifiedStyles.resultTotal, { color: theme.success || '#4ade80' }]}>
                     Total: {result.total}
                 </Text>
-                <Text style={[styles.resultRolls, { color: theme.text }]}>
+                <Text style={[unifiedStyles.resultRolls, { color: theme.text }]}>
                     Rolls: {result.rolls.join(', ')}
                 </Text>
-                <Text style={[styles.resultExpression, { color: theme.text }]}>
+                <Text style={[unifiedStyles.resultExpression, { color: theme.text }]}>
                     {result.expression}
                 </Text>
             </View>
@@ -319,19 +327,20 @@ export default function AdvancedDiceRollModal({
             onClose={handleClose}
             theme={theme}
             title={getTitle()}
+            zIndex={dynamicZIndex}
         >
-            <View style={styles.container}>
+            <View style={unifiedStyles.container}>
                 {d20Config && renderD20Config()}
                 {damageConfig && renderDamageConfig()}
                 
                 {renderResult()}
                 
-                <View style={styles.buttonContainer}>
+                <View style={unifiedStyles.buttonContainer}>
                     <TouchableOpacity
-                        style={[styles.rollButton, { backgroundColor: theme.primary }]}
+                        style={[unifiedStyles.rollButton, { backgroundColor: theme.primary }]}
                         onPress={handleRoll}
                     >
-                        <Text style={[styles.rollButtonText, { color: theme.buttonText || 'white' }]}>
+                        <Text style={[unifiedStyles.rollButtonText, { color: theme.buttonText || 'white' }]}>
                             Roll Dice
                         </Text>
                     </TouchableOpacity>

@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { BaseModal } from '../ui';
+import { createBaseModalStyles } from '../../styles/baseModalStyles';
 
 interface ColorPickerModalProps {
     visible: boolean;
@@ -32,6 +33,7 @@ export default function ColorPickerModal({
     theme
 }: ColorPickerModalProps) {
     const [selectedColor, setSelectedColor] = useState<string | undefined>(currentColor);
+    const styles = createBaseModalStyles(theme);
 
     const handleSelectColor = (color: string) => {
         setSelectedColor(color);
@@ -49,49 +51,48 @@ export default function ColorPickerModal({
 
     return (
         <BaseModal visible={visible} onClose={onClose} theme={theme} title="Select Color">
-                    
-                    {/* Color Grid */}
-                    <View style={styles.colorGrid}>
-                        {COLORS.map((color) => (
-                            <TouchableOpacity
-                                key={color}
-                                style={[
-                                    styles.colorOption,
-                                    { backgroundColor: color },
-                                    selectedColor === color && styles.selectedColor
-                                ]}
-                                onPress={() => handleSelectColor(color)}
-                            >
-                                {selectedColor === color && (
-                                    <Ionicons name="checkmark" size={20} color={color.includes('255, 255, 255') ? '#000' : '#fff'} />
-                                )}
-                            </TouchableOpacity>
-                        ))}
-                    </View>
+            {/* Color Grid */}
+            <View style={styles.colorGrid}>
+                {COLORS.map((color) => (
+                    <TouchableOpacity
+                        key={color}
+                        style={[
+                            styles.colorOption,
+                            { backgroundColor: color },
+                            selectedColor === color && styles.selectedColor
+                        ]}
+                        onPress={() => handleSelectColor(color)}
+                    >
+                        {selectedColor === color && (
+                            <Ionicons name="checkmark" size={20} color={color.includes('255, 255, 255') ? '#000' : '#fff'} />
+                        )}
+                    </TouchableOpacity>
+                ))}
+            </View>
 
-                    {/* Current Selection */}
-                    {selectedColor && (
-                        <View style={styles.currentSelection}>
-                            <Text style={[styles.currentText, { color: theme.text }]}>Selected:</Text>
-                            <View style={[styles.currentColor, { backgroundColor: selectedColor }]} />
-                        </View>
-                    )}
+            {/* Current Selection */}
+            {selectedColor && (
+                <View style={styles.currentSelection}>
+                    <Text style={[styles.currentText, { color: theme.text }]}>Selected:</Text>
+                    <View style={[styles.currentColor, { backgroundColor: selectedColor }]} />
+                </View>
+            )}
 
-                    {/* Action Buttons */}
-                    <View style={styles.actionRow}>
-                        <TouchableOpacity
-                            style={[styles.actionButton, { borderColor: theme.primary }]}
-                            onPress={handleClear}
-                        >
-                            <Text style={[styles.actionButtonText, { color: theme.primary }]}>Clear</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.actionButton, { backgroundColor: theme.primary }]}
-                            onPress={handleAccept}
-                        >
-                            <Text style={[styles.actionButtonText, { color: 'white' }]}>Accept</Text>
-                        </TouchableOpacity>
-                    </View>
+            {/* Action Buttons */}
+            <View style={styles.actionRow}>
+                <TouchableOpacity
+                    style={[styles.modalButton, styles.modalButtonSecondary, { flex: 1, marginRight: 8 }]}
+                    onPress={handleClear}
+                >
+                    <Text style={[styles.modalButtonText, styles.modalButtonTextSecondary]}>Clear</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={[styles.modalButton, styles.modalButtonPrimary, { flex: 1, marginLeft: 8 }]}
+                    onPress={handleAccept}
+                >
+                    <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>Accept</Text>
+                </TouchableOpacity>
+            </View>
         </BaseModal>
     );
 }
@@ -138,17 +139,5 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         width: '100%',
-        gap: 8,
-    },
-    actionButton: {
-        flex: 1,
-        paddingVertical: 12,
-        borderRadius: 8,
-        borderWidth: 2,
-        alignItems: 'center',
-    },
-    actionButtonText: {
-        fontSize: 16,
-        fontWeight: 'bold',
     },
 }); 

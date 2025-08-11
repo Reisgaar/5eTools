@@ -1,15 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { loadSpellbooksFromFile, saveSpellbooksToFile, addSpellToSpellbook, removeSpellFromSpellbook, createSpellbook, deleteSpellbook } from '../utils/fileStorage';
-
-interface Spellbook {
-  id: string;
-  name: string;
-  description?: string;
-  spells: string[]; // Array of spell IDs (name-source combinations)
-  createdAt: string;
-  updatedAt: string;
-  campaignId?: string; // Campaign this spellbook belongs to
-}
+import { Spellbook, SpellbookSpell } from '../utils/types';
 
 interface SpellbookContextType {
   spellbooks: Spellbook[];
@@ -18,11 +9,12 @@ interface SpellbookContextType {
   deleteSpellbook: (id: string) => void;
   selectSpellbook: (id: string) => void;
   clearSpellbookSelection: () => void;
-  addSpellToSpellbook: (spellbookId: string, spellName: string, spellSource: string) => void;
+  addSpellToSpellbook: (spellbookId: string, spellName: string, spellSource: string, spellDetails?: any) => void;
   removeSpellFromSpellbook: (spellbookId: string, spellName: string, spellSource: string) => void;
   isSpellInSpellbook: (spellbookId: string, spellName: string, spellSource: string) => boolean;
   getCurrentSpellbook: () => Spellbook | null;
   getSpellbooksByCampaign: (campaignId?: string | null) => Spellbook[];
+  getSpellbookSpells: (spellbookId: string) => SpellbookSpell[];
   loadSpellbooks: () => Promise<void>;
 }
 
@@ -59,7 +51,7 @@ export const SpellbookProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       id,
       name,
       description,
-      spells: [],
+      spellsIndex: [],
       createdAt: now,
       updatedAt: now,
       campaignId, // Add campaign ID if provided
@@ -96,16 +88,29 @@ export const SpellbookProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setCurrentSpellbookId(null);
   };
 
-  const addSpellToSpellbook = (spellbookId: string, spellName: string, spellSource: string) => {
-    const spellId = `${spellName}-${spellSource}`;
-    
+  const addSpellToSpellbook = (spellbookId: string, spellName: string, spellSource: string, spellDetails?: any) => {
     setSpellbooks(prev => {
       const updated = prev.map(spellbook => {
         if (spellbook.id === spellbookId) {
-          if (!spellbook.spells.includes(spellId)) {
+          // Check if spell already exists in spellsIndex
+          const spellExists = spellbook.spellsIndex.some(spell => 
+            spell.name === spellName && spell.source === spellSource
+          );
+          
+          if (!spellExists) {
+            const newSpellIndex: SpellbookSpell = {
+              name: spellName,
+              source: spellSource,
+              level: spellDetails?.level || 0,
+              school: spellDetails?.school || '',
+              ritual: spellDetails?.ritual || false,
+              concentration: spellDetails?.concentration || false,
+              availableClasses: spellDetails?.availableClasses || []
+            };
+            
             return {
               ...spellbook,
-              spells: [...spellbook.spells, spellId],
+              spellsIndex: [...spellbook.spellsIndex, newSpellIndex],
               updatedAt: new Date().toISOString(),
             };
           }
@@ -119,14 +124,14 @@ export const SpellbookProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const removeSpellFromSpellbook = (spellbookId: string, spellName: string, spellSource: string) => {
-    const spellId = `${spellName}-${spellSource}`;
-    
     setSpellbooks(prev => {
       const updated = prev.map(spellbook => {
         if (spellbook.id === spellbookId) {
           return {
             ...spellbook,
-            spells: spellbook.spells.filter(spell => spell !== spellId),
+            spellsIndex: spellbook.spellsIndex.filter(spell => 
+              !(spell.name === spellName && spell.source === spellSource)
+            ),
             updatedAt: new Date().toISOString(),
           };
         }
@@ -142,8 +147,9 @@ export const SpellbookProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const spellbook = spellbooks.find(sb => sb.id === spellbookId);
     if (!spellbook) return false;
     
-    const spellId = `${spellName}-${spellSource}`;
-    return spellbook.spells.includes(spellId);
+    return spellbook.spellsIndex.some(spell => 
+      spell.name === spellName && spell.source === spellSource
+    );
   };
 
   const getCurrentSpellbook = (): Spellbook | null => {
@@ -160,6 +166,12 @@ export const SpellbookProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   };
 
+  const getSpellbookSpells = (spellbookId: string): SpellbookSpell[] => {
+    const spellbook = spellbooks.find(sb => sb.id === spellbookId);
+    if (!spellbook) return [];
+    return spellbook.spellsIndex;
+  };
+
   return (
     <SpellbookContext.Provider
       value={{
@@ -174,6 +186,7 @@ export const SpellbookProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         isSpellInSpellbook,
         getCurrentSpellbook,
         getSpellbooksByCampaign,
+        getSpellbookSpells,
         loadSpellbooks,
       }}
     >

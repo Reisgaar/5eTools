@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, FlatList } from 'react-native';
+import { View, Text, TextInput, FlatList, Platform } from 'react-native';
 import { BaseModal } from '../ui';
-import { commonStyles } from '../../styles/commonStyles';
+import { createBaseModalStyles } from '../../styles/baseModalStyles';
 import { useSpellbook } from '../../context/SpellbookContext';
 import { useCampaign } from '../../context/CampaignContext';
 import SpellbookItem from './SpellbookItem';
@@ -25,6 +25,7 @@ export default function AddToSpellbookModal({
     const { selectedCampaign } = useCampaign();
     const filteredSpellbooks = getSpellbooksByCampaign(selectedCampaign?.id);
     const { searchQuery, setSearchQuery, filteredSpellbooks: searchedSpellbooks } = useSpellbookSearch(filteredSpellbooks);
+    const styles = createBaseModalStyles(theme);
     
     // Confirm modal state
     const [confirmModalVisible, setConfirmModalVisible] = useState(false);
@@ -47,8 +48,14 @@ export default function AddToSpellbookModal({
             });
             setConfirmModalVisible(true);
         } else {
-            // Add spell directly
-            addSpellToSpellbook(spellbookId, spell.name, spell.source);
+            // Add spell with details
+            addSpellToSpellbook(spellbookId, spell.name, spell.source, {
+                level: spell.level,
+                school: spell.school,
+                ritual: spell.ritual,
+                concentration: spell.concentration,
+                availableClasses: spell.availableClasses
+            });
         }
     };
 
@@ -77,31 +84,33 @@ export default function AddToSpellbookModal({
 
     return (
         <>
-            <BaseModal visible={visible} onClose={onClose} theme={theme} title="Add to Spellbook">
-                {/* Spell Info */}
-                {spell && (
-                    <View style={[commonStyles.section, { backgroundColor: theme.card, marginBottom: 16 }]}>
-                        <Text style={[commonStyles.modalItemName, { color: theme.text }]}>{spell.name}</Text>
-                        <Text style={[commonStyles.modalItemDescription, { color: theme.noticeText }]}>
-                            Level {spell.level === 0 ? 'Cantrip' : spell.level} • {spell.school} • {spell.source}
-                        </Text>
-                    </View>
-                )}
-
+            <BaseModal 
+                visible={visible} 
+                onClose={onClose} 
+                theme={theme} 
+                title="Add to Spellbook"
+                subtitle={spell ? `Level ${spell.level === 0 ? 'Cantrip' : spell.level} • ${spell.school} • ${spell.source}` : undefined}
+                width={Platform.OS === 'web' ? 450 : '90%'}
+                maxHeight="80%"
+                scrollable={true}
+            >
                 {/* Search */}
-                <TextInput
-                    style={[commonStyles.input, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.card, marginBottom: 16 }]}
-                    placeholder="Search spellbooks..."
-                    placeholderTextColor={theme.noticeText}
-                    value={searchQuery}
-                    onChangeText={setSearchQuery}
-                />
+                <View style={styles.modalSection}>
+                    <Text style={styles.modalSectionTitle}>Search Spellbooks</Text>
+                    <TextInput
+                        style={styles.modalInput}
+                        placeholder="Search spellbooks..."
+                        placeholderTextColor={theme.noticeText}
+                        value={searchQuery}
+                        onChangeText={setSearchQuery}
+                    />
+                </View>
 
                 {/* Spellbooks List */}
-                <View style={commonStyles.spellbooksSection}>
-                    <Text style={[commonStyles.sectionTitle, { color: theme.text }]}>Select Spellbooks</Text>
+                <View style={styles.modalSection}>
+                    <Text style={styles.modalSectionTitle}>Select Spellbooks</Text>
                     {searchedSpellbooks.length === 0 ? (
-                        <Text style={[commonStyles.emptyText, { color: theme.noticeText }]}>
+                        <Text style={styles.modalNoticeText}>
                             {searchQuery.trim() ? 'No spellbooks found matching your search.' : 'No spellbooks available. Create one first!'}
                         </Text>
                     ) : (

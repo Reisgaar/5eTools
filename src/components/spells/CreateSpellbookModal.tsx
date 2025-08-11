@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { BaseModal } from '../ui';
-import { commonStyles } from '../../styles/commonStyles';
+import { createBaseModalStyles } from '../../styles/baseModalStyles';
 import { useSpellbook } from '../../context/SpellbookContext';
 import { useCampaign } from '../../context/CampaignContext';
 
@@ -25,6 +25,22 @@ export default function CreateSpellbookModal({
     const [spellbookDescription, setSpellbookDescription] = useState('');
     const [selectedCampaignId, setSelectedCampaignId] = useState<string | undefined>(selectedCampaign?.id || undefined);
     const [showCampaignSelector, setShowCampaignSelector] = useState(false);
+    const styles = createBaseModalStyles(theme);
+
+    // Keep selectedCampaignId synchronized with selectedCampaign
+    useEffect(() => {
+        setSelectedCampaignId(selectedCampaign?.id || undefined);
+    }, [selectedCampaign?.id]);
+
+    // Reset form when modal becomes visible
+    useEffect(() => {
+        if (visible) {
+            setSpellbookName('');
+            setSpellbookDescription('');
+            setSelectedCampaignId(selectedCampaign?.id || undefined);
+            setShowCampaignSelector(false);
+        }
+    }, [visible, selectedCampaign?.id]);
 
     const handleCreateSpellbook = () => {
         if (!spellbookName.trim()) {
@@ -55,19 +71,27 @@ export default function CreateSpellbookModal({
     };
 
     const getCampaignName = (campaignId?: string) => {
-        if (!campaignId) return 'No campaign';
+        if (!campaignId) return 'No campaign selected';
         const campaign = campaigns.find(c => c.id === campaignId);
         return campaign ? campaign.name : 'Unknown campaign';
     };
 
     return (
-        <BaseModal visible={visible} onClose={handleCancel} theme={theme} title="Create New Spellbook">
-            <View style={[commonStyles.section, { backgroundColor: theme.card, marginBottom: 16 }]}>
-                <Text style={[commonStyles.sectionTitle, { color: theme.text, marginBottom: 16 }]}>Spellbook Details</Text>
+        <BaseModal 
+            visible={visible} 
+            onClose={handleCancel} 
+            theme={theme} 
+            title="Create New Spellbook"
+            width={Platform.OS === 'web' ? 450 : '90%'}
+            maxHeight="80%"
+            scrollable={true}
+        >
+            <View style={styles.modalSection}>
+                <Text style={styles.modalSectionTitle}>Spellbook Details</Text>
                 
-                <Text style={[commonStyles.modalItemDescription, { color: theme.text, marginBottom: 8 }]}>Name *</Text>
+                <Text style={[styles.modalText, { marginBottom: 8 }]}>Name *</Text>
                 <TextInput
-                    style={[commonStyles.input, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.card, marginBottom: 16 }]}
+                    style={styles.modalInput}
                     placeholder="Enter spellbook name..."
                     placeholderTextColor={theme.noticeText}
                     value={spellbookName}
@@ -75,9 +99,9 @@ export default function CreateSpellbookModal({
                     autoFocus
                 />
                 
-                <Text style={[commonStyles.modalItemDescription, { color: theme.text, marginBottom: 8 }]}>Description (optional)</Text>
+                <Text style={[styles.modalText, { marginBottom: 8 }]}>Description (optional)</Text>
                 <TextInput
-                    style={[commonStyles.input, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.card, marginBottom: 16, minHeight: 80 }]}
+                    style={[styles.modalInput, { minHeight: 80 }]}
                     placeholder="Enter description..."
                     placeholderTextColor={theme.noticeText}
                     value={spellbookDescription}
@@ -86,12 +110,12 @@ export default function CreateSpellbookModal({
                     numberOfLines={3}
                 />
                 
-                <Text style={[commonStyles.modalItemDescription, { color: theme.text, marginBottom: 8 }]}>Campaign (optional)</Text>
+                <Text style={[styles.modalText, { marginBottom: 8 }]}>Campaign (optional)</Text>
                 <TouchableOpacity
-                    style={[commonStyles.input, { backgroundColor: theme.inputBackground, borderColor: theme.card, marginBottom: 24, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }]}
+                    style={[styles.modalInput, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }]}
                     onPress={() => setShowCampaignSelector(!showCampaignSelector)}
                 >
-                    <Text style={{ color: theme.text, flex: 1 }}>
+                    <Text style={styles.modalText}>
                         {getCampaignName(selectedCampaignId)}
                     </Text>
                     <Ionicons name={showCampaignSelector ? "chevron-up" : "chevron-down"} size={20} color={theme.text} />
@@ -100,42 +124,44 @@ export default function CreateSpellbookModal({
                 {showCampaignSelector && (
                     <ScrollView style={{ maxHeight: 200, marginBottom: 24 }}>
                         <TouchableOpacity
-                            style={[commonStyles.input, { backgroundColor: theme.inputBackground, borderColor: theme.card, marginBottom: 8, paddingVertical: 12 }]}
+                            style={[styles.modalInput, { marginBottom: 8, paddingVertical: 12 }]}
                             onPress={() => {
                                 setSelectedCampaignId(undefined);
                                 setShowCampaignSelector(false);
                             }}
                         >
-                            <Text style={{ color: theme.text }}>No campaign</Text>
+                            <Text style={styles.modalText}>No campaign selected</Text>
                         </TouchableOpacity>
                         {campaigns.map(campaign => (
                             <TouchableOpacity
                                 key={campaign.id}
-                                style={[commonStyles.input, { backgroundColor: theme.inputBackground, borderColor: theme.card, marginBottom: 8, paddingVertical: 12 }]}
+                                style={[styles.modalInput, { marginBottom: 8, paddingVertical: 12 }]}
                                 onPress={() => {
                                     setSelectedCampaignId(campaign.id);
                                     setShowCampaignSelector(false);
                                 }}
                             >
-                                <Text style={{ color: theme.text }}>{campaign.name}</Text>
+                                <Text style={styles.modalText}>{campaign.name}</Text>
                             </TouchableOpacity>
                         ))}
                     </ScrollView>
                 )}
-                
+            </View>
+            
+            <View style={styles.modalSection}>
                 <View style={{ flexDirection: 'row', gap: 12 }}>
                     <TouchableOpacity
                         onPress={handleCancel}
-                        style={[commonStyles.modalActionButton, { backgroundColor: '#6b7280', flex: 1, paddingVertical: 12 }]}
+                        style={[styles.modalButton, styles.modalButtonSecondary, { flex: 1 }]}
                     >
-                        <Text style={{ color: 'white', fontWeight: 'bold', textAlign: 'center' }}>Cancel</Text>
+                        <Text style={[styles.modalButtonText, styles.modalButtonTextSecondary]}>Cancel</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={handleCreateSpellbook}
-                        style={[commonStyles.modalActionButton, { backgroundColor: theme.primary, flex: 1, paddingVertical: 12 }]}
+                        style={[styles.modalButton, styles.modalButtonPrimary, { flex: 1 }]}
                         disabled={!spellbookName.trim()}
                     >
-                        <Text style={{ color: 'white', fontWeight: 'bold', textAlign: 'center' }}>Create</Text>
+                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>Create</Text>
                     </TouchableOpacity>
                 </View>
             </View>
