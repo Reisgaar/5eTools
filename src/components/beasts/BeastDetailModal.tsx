@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { getCachedCreatureImages, getBestCreatureImage } from '../../utils/imageManager';
 import { useModal } from '../../context/ModalContext';
 import { useData } from '../../context/DataContext';
@@ -18,7 +18,7 @@ import {
 import SpellNotFoundModal from '../modals/SpellNotFoundModal';
 import CreatureNotFoundModal from '../modals/CreatureNotFoundModal';
 import SourceSelectionModal from '../modals/SourceSelectionModal';
-import { createBeastStyles } from '../../styles/beastStyles';
+import { createModalStyles } from '../../styles/modals';
 
 interface BeastDetailModalProps {
     visible: boolean;
@@ -343,7 +343,7 @@ function formatCR(cr: any) {
 }
 
 const BeastDetailModal: React.FC<BeastDetailModalProps> = ({ visible, beast, onClose, theme, onCreaturePress, onSpellPress }) => {
-    const styles = createBeastStyles(theme);
+    const styles = createModalStyles(theme);
     
     // All hooks must be at the top level, before any conditional returns
     const [showFullImage, setShowFullImage] = React.useState(false); // Always start with details view
@@ -429,11 +429,13 @@ const BeastDetailModal: React.FC<BeastDetailModalProps> = ({ visible, beast, onC
     if (!visible) return null;
     if (!beast) {
         return (
-            <View style={styles.beastDetailOverlay} pointerEvents="auto">
-                <View style={[styles.beastDetailContent, { backgroundColor: theme.card, justifyContent: 'center', alignItems: 'center' }]}> 
-                    <ActivityIndicator size="large" color={theme.primary} />
-                </View>
-            </View>
+            <Modal visible={visible} animationType="slide" transparent>
+                <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={onClose}>
+                    <TouchableOpacity style={[styles.beastDetailModalContent, { justifyContent: 'center', alignItems: 'center' }]} activeOpacity={1} onPress={() => {}}> 
+                        <ActivityIndicator size="large" color={theme.primary} />
+                    </TouchableOpacity>
+                </TouchableOpacity>
+            </Modal>
         );
     }
 
@@ -640,31 +642,34 @@ const BeastDetailModal: React.FC<BeastDetailModalProps> = ({ visible, beast, onC
     
     return (
         <>
-        <View style={styles.beastDetailOverlay} pointerEvents="auto">
-            <View style={[styles.beastDetailContent, { backgroundColor: theme.card, paddingBottom: 0, paddingTop: 0, paddingLeft: 0, paddingRight: 0, borderWidth: 2, borderColor: theme.primary }]}> 
-                <TouchableOpacity onPress={onClose} style={styles.beastDetailCloseBtn}>
-                    <Text style={{ color: theme.primary, fontWeight: 'bold', fontSize: 18 }}>✕</Text>
-                </TouchableOpacity>
-
-                    {/* Name, Source, Page */}
-                    <View style={{ flexDirection: 'row', paddingTop: 10, paddingLeft: 10, paddingRight: 10, paddingBottom: 5, borderBottomWidth: 2, borderBottomColor: theme.primary }}>
+        <Modal visible={visible} animationType="slide" transparent>
+            <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={onClose}>
+                <TouchableOpacity style={styles.beastDetailModalContent} activeOpacity={1} onPress={() => {}}> 
+                <View style={styles.beastDetailHeader}>
+                    <View style={styles.beastDetailHeaderContent}>
                         {(cachedImageUrl) && (
                             <TouchableOpacity onPress={handleTokenPress} style={{ position: 'relative' }}>
                                 <Image 
                                     source={{ uri: cachedImageUrl }} 
-                                    style={{ width: 50, height: 50, marginRight: 12, borderRadius: 8 }}
+                                    style={{ width: 50, height: 50, borderRadius: 8 }}
                                     resizeMode="cover"
                                 />
                             </TouchableOpacity>
                         )}
-                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-start' }}>
-                            <Text style={[styles.beastDetailTitle, { alignSelf: 'flex-start', marginBottom: 0, color: theme.text }]}>{beast['name'] || 'Unknown Beast'}</Text>
-                            {/* Size, Type, Alignment */}
-                            <Text style={{ color: theme.text, marginBottom: 2, fontSize: 12, fontStyle: 'italic' }}>
+                        <View style={styles.beastDetailHeaderInfo}>
+                            <Text style={styles.beastDetailHeaderTitle}>
+                                {beast['name'] || 'Unknown Beast'}
+                            </Text>
+                            <Text style={styles.beastDetailHeaderSubtitle}>
                                 {formatSize(beast['size'])} {formatType(beast['type'])}{beast['alignmentPrefix'] ? `, ${beast['alignmentPrefix']}` : ', '}{formatAlignment(beast['alignment'])}
                             </Text>
                         </View>
                     </View>
+                    <TouchableOpacity onPress={onClose} style={styles.beastDetailCloseButton}>
+                        <Text style={{ color: theme.text, fontWeight: 'bold', fontSize: 18 }}>✕</Text>
+                    </TouchableOpacity>
+                </View>
+                <View style={[styles.beastDetailSeparator, { backgroundColor: theme.border }]} />
 
 
                     {showFullImage && (fullImageUrl)
@@ -690,7 +695,7 @@ const BeastDetailModal: React.FC<BeastDetailModalProps> = ({ visible, beast, onC
                         )
                         : (
                             <>
-                                <View style={{ paddingLeft: 12, paddingRight: 12 }}>
+                                <View style={styles.beastDetailBody}>
                                     <ScrollView style={{ maxHeight: 500 }}>
                                         <View style={{ height: 5 }}></View>
                                         {/* AC, Initiative, HP, Speed */}
@@ -819,8 +824,9 @@ const BeastDetailModal: React.FC<BeastDetailModalProps> = ({ visible, beast, onC
                             </>
                         )
                     }
-                </View>
-            </View>
+                </TouchableOpacity>
+            </TouchableOpacity>
+        </Modal>
             
             {/* Modals */}
             <SpellNotFoundModal

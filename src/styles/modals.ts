@@ -8,6 +8,12 @@ export const createModalStyles = (theme: any) => StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   modalContent: {
     backgroundColor: theme.card,
     borderRadius: 12,
@@ -375,5 +381,57 @@ export const createModalStyles = (theme: any) => StyleSheet.create({
   cancelButtonText: {
     color: theme.primary,
     fontWeight: 'bold',
+  },
+
+  // Beast Detail Modal Styles (specialized for beasts with token and info)
+  beastDetailModalContent: {
+    backgroundColor: theme.card,
+    borderRadius: 12,
+    width: '90%',
+    maxWidth: 400,
+    maxHeight: '85%',
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  beastDetailHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.border,
+  },
+  beastDetailHeaderContent: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  beastDetailHeaderInfo: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  beastDetailHeaderTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: theme.text,
+    marginBottom: 4,
+  },
+  beastDetailHeaderSubtitle: {
+    fontSize: 12,
+    fontStyle: 'italic',
+    color: theme.text,
+  },
+  beastDetailCloseButton: {
+    padding: 4,
+  },
+  beastDetailSeparator: {
+    height: 1,
+    marginBottom: 0,
+  },
+  beastDetailBody: {
+    paddingHorizontal: 20,
   },
 });

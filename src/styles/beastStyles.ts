@@ -200,14 +200,7 @@ export const createBeastStyles = (theme: any) => {
       color: theme.primary,
     },
 
-    // Beast Detail Modal specific styles
-    beastDetailOverlay: baseBeastStyles.detailOverlay,
-    beastDetailContent: {
-      ...baseBeastStyles.detailContent,
-      backgroundColor: theme.card,
-    },
-    beastDetailCloseBtn: baseBeastStyles.detailCloseBtn,
-    beastDetailTitle: baseBeastStyles.detailTitle,
+    // Beast Detail Modal specific styles (now using centralized modals.ts)
     beastDetailRow: {
       flexDirection: 'row',
       marginBottom: 8,
