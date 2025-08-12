@@ -158,23 +158,22 @@ export default function SettingsScreen() {
                 {/* Data Loading Section */}
                 <View style={{ justifyContent: 'center', marginBottom: 12 }}>
                     <Text style={[styles.sectionTitle, { color: currentTheme.text }]}>Data Loading</Text>
-                    <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
+                    <View style={commonStyles.row}>
                         <TouchableOpacity 
                             onPress={handleReload}
                             disabled={isLoading}
-                            style={{
-                                backgroundColor: currentTheme.primary,
-                                paddingHorizontal: 20,
-                                paddingVertical: 12,
-                                borderRadius: 8,
-                                alignItems: 'center',
-                                opacity: isLoading ? 0.6 : 1,
-                                flex: 1
-                            }}
+                            style={[
+                                commonStyles.button,
+                                { 
+                                    backgroundColor: currentTheme.primary,
+                                    opacity: isLoading ? 0.6 : 1,
+                                    flex: 1
+                                }
+                            ]}
                         >
                             {isLoading
                                 ? ( <ActivityIndicator color="white" size="small" />)
-                                : (<Text style={{ color: 'white', fontWeight: '600' }}>
+                                : (<Text style={[commonStyles.buttonText, { color: 'white' }]}>
                                     {(!isInitialized || (simpleBeasts.length === 0 && simpleSpells.length === 0)) ? 'Load Data' : 'Reload Data'}
                                   </Text>)
                             }
@@ -183,17 +182,16 @@ export default function SettingsScreen() {
                         <TouchableOpacity 
                             onPress={handleClear}
                             disabled={isLoading}
-                            style={{
-                                backgroundColor: '#dc2626',
-                                paddingHorizontal: 20,
-                                paddingVertical: 12,
-                                borderRadius: 8,
-                                alignItems: 'center',
-                                opacity: isLoading ? 0.6 : 1,
-                                flex: 1
-                            }}
+                            style={[
+                                commonStyles.button,
+                                { 
+                                    backgroundColor: '#dc2626',
+                                    opacity: isLoading ? 0.6 : 1,
+                                    flex: 1
+                                }
+                            ]}
                         >
-                            <Text style={{ color: 'white', fontWeight: '600' }}>
+                            <Text style={[commonStyles.buttonText, { color: 'white' }]}>
                                 Clear Data
                             </Text>
                         </TouchableOpacity>

@@ -1,7 +1,7 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, Modal } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { getModalZIndex } from '../../styles/baseModalStyles';
 import { useModal } from '../../context/ModalContext';
-import { getModalZIndex } from '../../styles/modals';
 
 interface DiceRollModalProps {
     visible: boolean;
@@ -21,7 +21,6 @@ const DiceRollModal: React.FC<DiceRollModalProps> = ({ visible, expression, resu
     const dynamicZIndex = getModalZIndex(maxStackDepth + 1); // Dice modals should be above other modals
     
     if (!visible) return null;
-    
     let title = '';
     if (label) {
         title = label;
@@ -32,45 +31,17 @@ const DiceRollModal: React.FC<DiceRollModalProps> = ({ visible, expression, resu
     } else {
         title = 'Damage Roll';
     }
-    
     return (
-        <Modal visible={visible} animationType="slide" transparent>
-            <View 
-                style={[styles.overlay, { zIndex: dynamicZIndex }]} 
-                onStartShouldSetResponder={() => true}
-                onResponderGrant={() => onClose()}
-            >
-                <View 
-                    style={[styles.content, { backgroundColor: theme.card, zIndex: dynamicZIndex }]}
-                    onStartShouldSetResponder={() => true}
-                    onResponderGrant={(e) => e.stopPropagation()}
-                >
-                    {/* Header */}
-                    <View style={styles.header}>
-                        <View style={styles.headerInfo}>
-                            <Text style={[styles.title, { color: theme.text }]}>{`${title}: ${expression}`}</Text>
-                        </View>
-                        <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                            <Text style={{ color: theme.text, fontWeight: 'bold', fontSize: 18 }}>✕</Text>
-                        </TouchableOpacity>
-                    </View>
-                    
-                    <View style={[styles.separator, { backgroundColor: theme.border }]} />
-                    
-                    {/* Content */}
-                    <View style={styles.body}>
-                        <Text style={[styles.result, { color: theme.success || '#4ade80' }]}>{`Total: ${result}`}</Text>
-                        <Text style={[styles.breakdown, { color: theme.text }]}>
-                            Rolls: {breakdown.join(', ')}{modifier ? `  + ${modifier}` : ''}
-                        </Text>
-                        
-                        <TouchableOpacity onPress={onClose} style={[styles.closeBtn, { backgroundColor: theme.primary }]}>
-                            <Text style={[styles.closeText, { color: theme.buttonText || 'white' }]}>Close</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
+        <View style={[styles.overlay, { zIndex: dynamicZIndex }]} pointerEvents="auto">
+            <View style={[styles.content, { backgroundColor: theme.card }]}>
+                <Text style={[styles.title, { color: theme.text }]}>{`${title}: ${expression}`}</Text>
+                <Text style={[styles.result, { color: theme.success || '#4ade80' }]}>{`Total: ${result}`}</Text>
+                <Text style={[styles.breakdown, { color: theme.text }]}>Rolls: {breakdown.join(', ')}{modifier ? `  + ${modifier}` : ''}</Text>
+                <TouchableOpacity onPress={onClose} style={[styles.closeBtn, { backgroundColor: theme.primary }]}>
+                    <Text style={[styles.closeText, { color: theme.buttonText || 'white' }]}>Close</Text>
+                </TouchableOpacity>
             </View>
-        </Modal>
+        </View>
     );
 };
 
@@ -84,7 +55,6 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,0.5)',
         justifyContent: 'center',
         alignItems: 'center',
-        zIndex: 1000, // Ensure it's on top
     },
     content: {
         borderRadius: 12,
@@ -92,51 +62,29 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         minWidth: 260,
     },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 16,
-        width: '100%',
-    },
-    headerInfo: {
-        flex: 1,
-    },
     title: {
         fontSize: 18,
         fontWeight: 'bold',
-    },
-    closeButton: {
-        padding: 4,
-    },
-    separator: {
-        height: 1,
-        width: '100%',
-        marginBottom: 16,
-    },
-    body: {
-        alignItems: 'center',
-        width: '100%',
+        marginBottom: 12,
     },
     result: {
-        fontSize: 24,
+        fontSize: 22,
         fontWeight: 'bold',
         marginBottom: 8,
     },
     breakdown: {
-        fontSize: 16,
+        fontSize: 15,
         marginBottom: 16,
         textAlign: 'center',
     },
     closeBtn: {
-        paddingVertical: 12,
-        paddingHorizontal: 24,
         borderRadius: 8,
-        alignItems: 'center',
+        paddingHorizontal: 24,
+        paddingVertical: 8,
     },
     closeText: {
-        fontSize: 16,
         fontWeight: 'bold',
+        fontSize: 16,
     },
 });
 

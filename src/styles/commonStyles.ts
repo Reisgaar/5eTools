@@ -243,4 +243,35 @@ export const commonStyles = StyleSheet.create({
         fontStyle: 'italic',
         marginTop: 20,
     },
+    
+    // Settings styles
+    row: {
+        flexDirection: 'row',
+        gap: 12,
+        marginTop: 8,
+    },
+    langButton: {
+        flex: 1,
+        paddingHorizontal: 20,
+        paddingVertical: 12,
+        borderRadius: 8,
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: 'rgba(0,0,0,0.1)',
+    },
+    selected: {
+        backgroundColor: 'rgba(0,0,0,0.05)',
+        borderWidth: 2,
+    },
+    button: {
+        paddingHorizontal: 20,
+        paddingVertical: 12,
+        borderRadius: 8,
+        alignItems: 'center',
+        marginTop: 8,
+    },
+    buttonText: {
+        fontWeight: '600',
+        fontSize: 16,
+    },
 });

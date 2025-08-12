@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, View, Text, TouchableOpacity, TextInput, ScrollView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, TouchableOpacity, TextInput } from 'react-native';
 import { useCampaign } from '../../../context/CampaignContext';
 import { useCombat } from '../../../context/CombatContext';
 import { useModal } from '../../../context/ModalContext';
-import { modalStyles } from '../../../styles/modalStyles';
-import { getModalZIndex } from '../../../styles/modals';
+import { createBaseModalStyles, getModalZIndex } from '../../../styles/baseModalStyles';
+import { BaseModal } from '../../ui';
 import CampaignSelector from '../../ui/CampaignSelector';
 import ConfirmModal from '../../modals/ConfirmModal';
 
@@ -32,7 +31,7 @@ const CombatFormModal: React.FC<CombatFormModalProps> = ({
   onCreateCombat,
   theme
 }) => {
-  const { campaigns } = useCampaign();
+  const { campaigns, selectedCampaignId: contextSelectedCampaignId } = useCampaign();
   const { updateCombat, deleteCombat } = useCombat();
   const { beastStackDepth, spellStackDepth } = useModal();
   
@@ -43,14 +42,21 @@ const CombatFormModal: React.FC<CombatFormModalProps> = ({
   
   const maxStackDepth = Math.max(beastStackDepth, spellStackDepth);
   const dynamicZIndex = getModalZIndex(maxStackDepth + 1);
+  const styles = createBaseModalStyles(theme);
 
   useEffect(() => {
     if (visible) {
       setName(initialName);
       setDescription(initialDescription);
-      setSelectedCampaignId(initialCampaignId);
+      
+      // For new combats, use the context's selected campaign if no initial campaign is provided
+      if (mode === 'create' && !initialCampaignId && contextSelectedCampaignId) {
+        setSelectedCampaignId(contextSelectedCampaignId);
+      } else {
+        setSelectedCampaignId(initialCampaignId);
+      }
     }
-  }, [visible, initialName, initialDescription, initialCampaignId]);
+  }, [visible, initialName, initialDescription, initialCampaignId, mode, contextSelectedCampaignId]);
 
   const handleSave = () => {
     if (!name.trim()) return;
@@ -87,103 +93,87 @@ const CombatFormModal: React.FC<CombatFormModalProps> = ({
 
   return (
     <>
-      <Modal visible={visible} animationType="slide" transparent>
-        <TouchableOpacity 
-          style={[modalStyles.modalOverlay, { zIndex: dynamicZIndex }]} 
-          activeOpacity={1} 
-          onPress={onClose}
-        >
-          <TouchableOpacity 
-            style={[modalStyles.modalContent, { backgroundColor: theme.card, zIndex: dynamicZIndex }]} 
-            activeOpacity={1} 
-            onPress={() => {}}
-          >
-            <View style={modalStyles.modalHeader}>
-              <Text style={[modalStyles.modalTitle, { color: theme.text }]}>
-                {title}
-              </Text>
-              <TouchableOpacity onPress={onClose} style={modalStyles.closeButton}>
-                <Ionicons name="close" size={24} color={theme.text} />
-              </TouchableOpacity>
-            </View>
-            
-            <View style={[modalStyles.separator, { backgroundColor: theme.border }]} />
-            
-            <ScrollView style={modalStyles.modalBody} showsVerticalScrollIndicator={false}>
-              {/* Name Input */}
-              <Text style={[modalStyles.fieldLabel, { color: theme.text }]}>Combat Name *</Text>
-              <TextInput
-                style={[
-                  modalStyles.input,
-                  { 
-                    backgroundColor: theme.innerBackground,
-                    color: theme.text,
-                    borderColor: theme.border
-                  }
-                ]}
-                value={name}
-                onChangeText={setName}
-                placeholder="Combat name"
-                placeholderTextColor={theme.textSecondary}
-                autoFocus={!isEditMode}
-              />
+      <BaseModal 
+        visible={visible} 
+        onClose={onClose} 
+        theme={theme} 
+        title={title}
+        scrollable={true}
+        zIndex={dynamicZIndex}
+      >
+        <View style={styles.modalSection}>
+          <Text style={styles.modalSectionTitle}>Combat Details</Text>
+          
+          {/* Name Input */}
+          <Text style={[styles.modalText, { marginBottom: 8 }]}>Combat Name *</Text>
+          <TextInput
+            style={styles.modalInput}
+            value={name}
+            onChangeText={setName}
+            placeholder="Combat name"
+            placeholderTextColor={theme.noticeText}
+            autoFocus={!isEditMode}
+          />
 
-              {/* Description Input */}
-              <Text style={[modalStyles.fieldLabel, { color: theme.text }]}>Description (optional)</Text>
-              <TextInput
-                style={[
-                  modalStyles.input,
-                  { 
-                    backgroundColor: theme.innerBackground,
-                    color: theme.text,
-                    borderColor: theme.border,
-                    height: 80,
-                    textAlignVertical: 'top'
-                  }
-                ]}
-                value={description}
-                onChangeText={setDescription}
-                placeholder="Optional description"
-                placeholderTextColor={theme.textSecondary}
-                multiline
-                numberOfLines={3}
-              />
+          {/* Description Input */}
+          <Text style={[styles.modalText, { marginBottom: 8 }]}>Description (optional)</Text>
+          <TextInput
+            style={[styles.modalInput, { minHeight: 80, textAlignVertical: 'top' }]}
+            value={description}
+            onChangeText={setDescription}
+            placeholder="Optional description"
+            placeholderTextColor={theme.noticeText}
+            multiline
+            numberOfLines={3}
+          />
 
-              {/* Campaign Selection */}
-              <CampaignSelector
-                selectedCampaignId={selectedCampaignId}
-                onCampaignChange={setSelectedCampaignId}
-                theme={theme}
-                label="Campaign (optional)"
-              />
-            </ScrollView>
+          {/* Campaign Selection */}
+          <CampaignSelector
+            selectedCampaignId={selectedCampaignId}
+            onCampaignChange={setSelectedCampaignId}
+            theme={theme}
+            label="Campaign (optional)"
+          />
+          
+          {/* Show info when campaign is auto-selected */}
+          {mode === 'create' && selectedCampaignId === contextSelectedCampaignId && contextSelectedCampaignId && (
+            <Text style={[styles.modalText, { 
+              fontSize: 12, 
+              color: theme.noticeText, 
+              fontStyle: 'italic',
+              marginTop: 4 
+            }]}>
+              Campaign automatically selected from current context
+            </Text>
+          )}
+        </View>
 
-            {/* Action Buttons */}
-            <View style={modalStyles.modalButtons}>
-              {isEditMode && (
-                <TouchableOpacity 
-                  onPress={handleDelete} 
-                  style={[modalStyles.modalButtonDanger, { marginRight: 8 }]}
-                >
-                  <Text style={[modalStyles.modalButtonText, { color: 'white' }]}>
-                    Delete Combat
-                  </Text>
-                </TouchableOpacity>
-              )}
-              
+        {/* Action Buttons */}
+        <View style={styles.modalSection}>
+          <View style={styles.actionRow}>
+            {isEditMode && (
               <TouchableOpacity 
-                onPress={handleSave} 
-                style={[modalStyles.modalButton, { backgroundColor: theme.primary }]}
-                disabled={!name.trim()}
+                onPress={handleDelete} 
+                style={[styles.modalButton, { backgroundColor: theme.danger || '#f44336' }]}
               >
-                <Text style={[modalStyles.modalButtonText, { color: 'white' }]}>
-                  {saveButtonText}
+                <Text style={[styles.modalButtonText, { color: 'white' }]}>
+                  Delete Combat
                 </Text>
               </TouchableOpacity>
-            </View>
-          </TouchableOpacity>
-        </TouchableOpacity>
-      </Modal>
+            )}
+            
+            <TouchableOpacity 
+              onPress={handleSave} 
+              style={[styles.modalButton, styles.modalButtonPrimary]}
+              disabled={!name.trim()}
+            >
+              <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>
+                {saveButtonText}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </BaseModal>
 
       {/* Delete Confirmation Modal */}
       <ConfirmModal

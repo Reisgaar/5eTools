@@ -1,5 +1,12 @@
 import { StyleSheet, Platform } from 'react-native';
 
+// Function to calculate z-index based on modal stack depth
+export const getModalZIndex = (stackDepth: number = 0): number => {
+  const baseZIndex = 1000;
+  const increment = 100;
+  return baseZIndex + (stackDepth * increment);
+};
+
 export const createBaseModalStyles = (theme: any) => StyleSheet.create({
     // Overlay and container
     modalOverlay: {
@@ -9,9 +16,10 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         right: 0,
         bottom: 0,
         backgroundColor: 'rgba(0,0,0,0.6)',
-        justifyContent: 'center',
+        justifyContent: Platform.OS === 'web' ? 'center' : 'flex-start',
         alignItems: 'center',
         zIndex: 1000,
+        paddingTop: Platform.OS === 'web' ? 0 : 40,
     },
     modalContainer: {
         justifyContent: 'center',
@@ -229,10 +237,21 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         marginTop: 2,
     },
     
+    // Checkbox for filter modals
+    checkbox: {
+        width: 20,
+        height: 20,
+        borderWidth: 2,
+        borderRadius: 4,
+        marginRight: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    
     // Action row for modals with multiple buttons
     actionRow: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'center',
         width: '100%',
         gap: Platform.OS === 'web' ? 12 : 8,
         marginTop: 16,
@@ -273,30 +292,36 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
     conditionsGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        justifyContent: 'space-around',
+        justifyContent: 'space-between',
+        paddingHorizontal: Platform.OS === 'web' ? 8 : 4,
     },
     conditionBtn: {
         flexDirection: 'row',
         alignItems: 'center',
         margin: 4,
-        flex: 1,
+        width: '48%',
         minWidth: 0,
+        paddingVertical: 8,
+        paddingHorizontal: 4,
     },
     
     // Color grid styles
     colorGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        justifyContent: 'space-around',
+        justifyContent: 'center',
         marginTop: 16,
+        gap: 8,
     },
     colorOption: {
         width: 40,
         height: 40,
         borderRadius: 20,
-        margin: 5,
+        margin: 4,
         justifyContent: 'center',
         alignItems: 'center',
+        borderWidth: 1,
+        borderColor: 'rgba(0,0,0,0.1)',
     },
     selectedColor: {
         borderWidth: 2,
@@ -354,6 +379,122 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         paddingVertical: 12,
         borderRadius: 8,
         alignItems: 'center',
+    },
+    
+    // Beast Detail Modal specific styles
+    beastDetailModalContent: {
+        backgroundColor: theme.card,
+        borderRadius: 12,
+        marginHorizontal: Platform.OS === 'web' ? 20 : 10,
+        width: Platform.OS === 'web' ? '90%' : '95%',
+        maxWidth: Platform.OS === 'web' ? 500 : '100%',
+        maxHeight: Platform.OS === 'web' ? '90%' : '95%',
+        overflow: 'hidden',
+        alignSelf: 'center',
+        marginTop: Platform.OS === 'web' ? 0 : 20,
+    },
+    beastDetailHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 20,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.border,
+    },
+    beastDetailHeaderContent: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    beastDetailHeaderInfo: {
+        flex: 1,
+        marginLeft: 12,
+    },
+    beastDetailHeaderTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: theme.text,
+        marginBottom: 4,
+    },
+    beastDetailHeaderSubtitle: {
+        fontSize: 14,
+        color: theme.noticeText,
+        fontStyle: 'italic',
+    },
+    beastDetailCloseButton: {
+        padding: 4,
+    },
+    beastDetailSeparator: {
+        height: 1,
+        backgroundColor: theme.border,
+    },
+    beastDetailImageContainer: {
+        alignItems: 'center',
+        padding: 20,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.border,
+    },
+    beastDetailImageLoadingContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: 400,
+    },
+    beastDetailImage: {
+        width: '100%',
+        height: 400,
+        maxHeight: 500,
+        resizeMode: 'contain',
+    },
+    beastDetailBody: {
+        paddingHorizontal: 20,
+        flex: 1,
+    },
+    beastDetailContent: {
+        paddingTop: 5,
+    },
+    beastDetailText: {
+        color: theme.text,
+        marginBottom: 6,
+        fontSize: 12,
+    },
+    beastDetailBoldText: {
+        fontWeight: 'bold',
+    },
+    beastDetailStatsContainer: {
+        flexDirection: 'row',
+        marginVertical: 6,
+        justifyContent: 'space-between',
+    },
+    beastDetailStatButton: {
+        alignItems: 'center',
+        flex: 1,
+        marginHorizontal: 2,
+        backgroundColor: theme.primary,
+        borderRadius: 8,
+        paddingVertical: 6,
+        paddingHorizontal: 2,
+    },
+    beastDetailStatText: {
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: 12,
+    },
+    beastDetailStatValue: {
+        color: 'white',
+        fontSize: 12,
+    },
+    beastDetailSourceText: {
+        color: theme.noticeText,
+        fontStyle: 'italic',
+        marginTop: 8,
+        marginBottom: 18,
+        textAlign: 'right',
+        fontSize: 10,
+    },
+    beastDetailFooter: {
+        paddingHorizontal: 20,
+        paddingVertical: 12,
+        borderTopWidth: 1,
+        alignItems: 'flex-end',
     },
 });
 

@@ -7,7 +7,7 @@ import { useAppSettings } from '../../context/AppSettingsContext';
 import { renderEntries, parseDiceExpression, rollDice } from '../../utils/replaceTags';
 import { Separator } from '../ui';
 import { createSpellStyles } from '../../styles/spellStyles';
-import { getModalZIndex } from '../../styles/modals';
+import { getModalZIndex } from '../../styles/baseModalStyles';
 import { 
   getFullSchool, 
   formatComponents, 

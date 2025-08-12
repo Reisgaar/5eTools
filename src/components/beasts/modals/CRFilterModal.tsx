@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Modal, ScrollView, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useModal } from '../../../context/ModalContext';
-import { getModalZIndex } from '../../../styles/modals';
+import { getModalZIndex } from '../../../styles/baseModalStyles';
 
 interface CRFilterModalProps {
   visible: boolean;

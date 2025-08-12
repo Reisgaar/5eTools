@@ -16,6 +16,10 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
   headerBackButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    padding: 8,
+    minWidth: 44,
+    minHeight: 44,
+    justifyContent: 'center',
   },
   headerTitle: {
     color: theme.text,
@@ -31,12 +35,14 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
     gap: 8,
   },
   headerIconButton: {
-    width: 40,
-    height: 36,
+    width: 44,
+    height: 44,
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 8,
+    minWidth: 44,
+    minHeight: 44,
   },
   headerModal: {
     flex: 1,

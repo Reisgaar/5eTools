@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { BaseModal } from '../../ui';
 import { createBaseModalStyles } from '../../../styles/baseModalStyles';
-import { modalStyles } from '../../../styles/modalStyles';
+
 
 interface MaxHPEditModalProps {
     visible: boolean;
@@ -59,34 +59,46 @@ export default function MaxHPEditModal({
             theme={theme} 
             title={modalTitle}
             subtitle={modalSubtitle}
+            maxHeight="85%"
         >
             {/* Max HP Display */}
-            <View style={modalStyles.maxHpContainer}>
-                <Text style={[styles.modalText, { fontWeight: 'bold' }]}>Max HP:</Text>
-                <TextInput
-                    style={[modalStyles.maxHpInput, { 
-                        backgroundColor: theme.inputBackground, 
-                        color: theme.text, 
-                        borderColor: theme.primary 
-                    }]}
-                    value={String(maxHp)}
-                    onChangeText={(text) => {
-                        const num = parseInt(text, 10);
-                        if (!isNaN(num)) {
-                            setMaxHp(Math.max(1, num));
-                        } else if (text === '') {
-                            setMaxHp(1);
-                        }
-                    }}
-                    keyboardType="numeric"
-                    textAlign="center"
-                />
+            <View style={styles.modalSection}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 20, gap: 12 }}>
+                    <Text style={[styles.modalText, { fontWeight: 'bold' }]}>Max HP:</Text>
+                    <TextInput
+                        style={{ 
+                            borderWidth: 2,
+                            borderRadius: 8,
+                            paddingHorizontal: 16,
+                            paddingVertical: 12,
+                            fontSize: 24,
+                            fontWeight: 'bold',
+                            textAlign: 'center',
+                            minWidth: 80,
+                            backgroundColor: theme.inputBackground, 
+                            color: theme.text, 
+                            borderColor: theme.primary 
+                        }}
+                        value={String(maxHp)}
+                        onChangeText={(text) => {
+                            const num = parseInt(text, 10);
+                            if (!isNaN(num)) {
+                                setMaxHp(Math.max(1, num));
+                            } else if (text === '') {
+                                setMaxHp(1);
+                            }
+                        }}
+                        keyboardType="numeric"
+                        textAlign="center"
+                    />
+                </View>
             </View>
 
             {/* Max HP Adjustment Buttons */}
-            <View style={modalStyles.editButtonContainer}>
-                {/* Decrement Buttons - Left Column */}
-                <View style={modalStyles.buttonColumn}>
+            <View style={styles.modalSection}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginBottom: 20, gap: 12 }}>
+                    {/* Decrement Buttons - Left Column */}
+                    <View style={{ flex: 1, gap: 6 }}>
                     <TouchableOpacity
                         style={[styles.modalButton, styles.modalButtonPrimary]}
                         onPress={() => handleDecrement(10)}
@@ -105,28 +117,29 @@ export default function MaxHPEditModal({
                     >
                         <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-1</Text>
                     </TouchableOpacity>
-                </View>
+                    </View>
 
-                {/* Increment Buttons - Right Column */}
-                <View style={modalStyles.buttonColumn}>
-                    <TouchableOpacity
-                        style={[styles.modalButton, styles.modalButtonPrimary]}
-                        onPress={() => handleIncrement(10)}
-                    >
-                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>+10</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[styles.modalButton, styles.modalButtonPrimary]}
-                        onPress={() => handleIncrement(5)}
-                    >
-                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>+5</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[styles.modalButton, styles.modalButtonPrimary]}
-                        onPress={() => handleIncrement(1)}
-                    >
-                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>+1</Text>
-                    </TouchableOpacity>
+                    {/* Increment Buttons - Right Column */}
+                    <View style={{ flex: 1, gap: 6 }}>
+                        <TouchableOpacity
+                            style={[styles.modalButton, styles.modalButtonPrimary]}
+                            onPress={() => handleIncrement(10)}
+                        >
+                            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>+10</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.modalButton, styles.modalButtonPrimary]}
+                            onPress={() => handleIncrement(5)}
+                        >
+                            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>+5</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.modalButton, styles.modalButtonPrimary]}
+                            onPress={() => handleIncrement(1)}
+                        >
+                            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>+1</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </View>
 

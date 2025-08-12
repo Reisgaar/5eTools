@@ -31,9 +31,7 @@ interface BaseModalProps {
     scrollable?: boolean;
     scrollContentStyle?: any;
     
-    // Interaction handlers
-    onCreaturePress?: (name: string, source: string) => void;
-    onSpellPress?: (name: string, source: string) => void;
+
 }
 
 export default function BaseModal({ 
@@ -52,9 +50,7 @@ export default function BaseModal({
     showFooter = false,
     footerContent,
     scrollable = false,
-    scrollContentStyle,
-    onCreaturePress,
-    onSpellPress
+    scrollContentStyle
 }: BaseModalProps) {
     const styles = createBaseModalStyles(theme);
     

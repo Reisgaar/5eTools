@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { BaseModal } from '../../ui';
 import { createBaseModalStyles } from '../../../styles/baseModalStyles';
 
@@ -50,7 +50,7 @@ export default function ColorPickerModal({
     };
 
     return (
-        <BaseModal visible={visible} onClose={onClose} theme={theme} title="Select Color">
+        <BaseModal visible={visible} onClose={onClose} theme={theme} title="Select Color" maxHeight="75%">
             {/* Color Grid */}
             <View style={styles.colorGrid}>
                 {COLORS.map((color) => (
@@ -64,7 +64,7 @@ export default function ColorPickerModal({
                         onPress={() => handleSelectColor(color)}
                     >
                         {selectedColor === color && (
-                            <Ionicons name="checkmark" size={20} color={color.includes('255, 255, 255') ? '#000' : '#fff'} />
+                            <Ionicons name="checkmark" size={20} color="#000" />
                         )}
                     </TouchableOpacity>
                 ))}
@@ -74,20 +74,20 @@ export default function ColorPickerModal({
             {selectedColor && (
                 <View style={styles.currentSelection}>
                     <Text style={[styles.currentText, { color: theme.text }]}>Selected:</Text>
-                    <View style={[styles.currentColor, { backgroundColor: selectedColor }]} />
+                    <View style={[styles.currentColor, { backgroundColor: selectedColor, borderColor: theme.border }]} />
                 </View>
             )}
 
             {/* Action Buttons */}
             <View style={styles.actionRow}>
                 <TouchableOpacity
-                    style={[styles.modalButton, styles.modalButtonSecondary, { flex: 1, marginRight: 8 }]}
+                    style={[styles.modalButton, styles.modalButtonSecondary]}
                     onPress={handleClear}
                 >
                     <Text style={[styles.modalButtonText, styles.modalButtonTextSecondary]}>Clear</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                    style={[styles.modalButton, styles.modalButtonPrimary, { flex: 1, marginLeft: 8 }]}
+                    style={[styles.modalButton, styles.modalButtonPrimary]}
                     onPress={handleAccept}
                 >
                     <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>Accept</Text>
@@ -97,47 +97,4 @@ export default function ColorPickerModal({
     );
 }
 
-const styles = StyleSheet.create({
-    colorGrid: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        justifyContent: 'center',
-        marginBottom: 20,
-        gap: 8,
-    },
-    colorOption: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderWidth: 2,
-        borderColor: '#666',
-    },
-    selectedColor: {
-        borderWidth: 3,
-        borderColor: '#000',
-    },
-    currentSelection: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 20,
-        gap: 8,
-    },
-    currentText: {
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
-    currentColor: {
-        width: 30,
-        height: 30,
-        borderRadius: 15,
-        borderWidth: 1,
-        borderColor: '#666',
-    },
-    actionRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '100%',
-    },
-}); 
+ 

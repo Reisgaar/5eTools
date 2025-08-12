@@ -18,7 +18,8 @@ import {
 import SpellNotFoundModal from '../spells/modals/SpellNotFoundModal';
 import CreatureNotFoundModal from './modals/CreatureNotFoundModal';
 import SourceSelectionModal from '../spells/modals/SourceSelectionModal';
-import { createModalStyles, getModalZIndex } from '../../styles/modals';
+import { createBaseModalStyles } from '../../styles/baseModalStyles';
+import { getModalZIndex } from '../../styles/baseModalStyles';
 
 interface BeastDetailModalProps {
     visible: boolean;
@@ -347,7 +348,7 @@ const BeastDetailModal: React.FC<BeastDetailModalProps> = ({ visible, beast, onC
     const { simpleBeasts, simpleSpells, availableClasses, spellClassRelations, isInitialized } = useData();
     const { beastStackDepth, openSpellModal, openBeastModal, openDiceModal, openAdvancedDiceModal } = useModal();
     const { useAdvancedDiceRoll } = useAppSettings();
-    const styles = createModalStyles(currentTheme);
+    const styles = createBaseModalStyles(currentTheme);
     const dynamicZIndex = getModalZIndex(beastStackDepth);
     
     // All hooks must be at the top level, before any conditional returns
@@ -667,17 +668,15 @@ const BeastDetailModal: React.FC<BeastDetailModalProps> = ({ visible, beast, onC
     return (
         <>
         <Modal visible={visible} animationType="slide" transparent>
-            <View 
+            <Pressable 
                 style={styles.modalOverlay}
-                onStartShouldSetResponder={() => true}
-                onResponderGrant={() => onClose()}
+                onPress={onClose}
             >
-                <View 
+                <Pressable 
                     style={[styles.beastDetailModalContent, { zIndex: dynamicZIndex }]}
-                    onStartShouldSetResponder={() => true}
-                    onResponderGrant={(e) => e.stopPropagation()}
-                > 
-                <View style={styles.beastDetailHeader}>
+                    onPress={(e) => e.stopPropagation()}
+                >
+                    <View style={styles.beastDetailHeader}>
                     <View style={styles.beastDetailHeaderContent}>
                         {(cachedImageUrl) && (
                             <TouchableOpacity onPress={handleTokenPress} style={{ position: 'relative' }}>
@@ -859,17 +858,8 @@ const BeastDetailModal: React.FC<BeastDetailModalProps> = ({ visible, beast, onC
                                                 scrollEventThrottle={16}
                                                 bounces={false}
                                                 alwaysBounceVertical={false}
-                                                onStartShouldSetResponder={() => false}
-                                                onMoveShouldSetResponder={() => true}
-                                                onResponderGrant={() => {}}
-                                                onResponderMove={() => {}}
-                                                onResponderRelease={() => {}}
                                             >
-                                                <View 
-                                                    style={styles.beastDetailContent}
-                                                    onStartShouldSetResponder={() => true}
-                                                    onMoveShouldSetResponder={() => false}
-                                                >
+                                                <View style={styles.beastDetailContent}>
                                                     {/* AC, Initiative, HP, Speed */}
                                                     <Separator title='Basics'/>
                                                     <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>AC</Text> {formatAC(beast['ac'])}</Text>
@@ -992,8 +982,8 @@ const BeastDetailModal: React.FC<BeastDetailModalProps> = ({ visible, beast, onC
                             </>
                         )
                     }
-                </View>
-            </View>
+                </Pressable>
+            </Pressable>
         </Modal>
             
             {/* Modals */}

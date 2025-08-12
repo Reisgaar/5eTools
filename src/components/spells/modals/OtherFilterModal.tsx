@@ -38,51 +38,60 @@ export default function OtherFilterModal({
             width={350}
             maxHeight="80%"
             scrollable={true}
-        >
-            <View style={unifiedStyles.modalSection}>
-                <View style={unifiedStyles.modalSectionTitle}>
-                    <Text style={unifiedStyles.modalSectionTitleText}>Spell Types</Text>
+            showFooter={true}
+            footerContent={
+                <View style={unifiedStyles.actionRow}>
                     <TouchableOpacity
                         onPress={onSelectAll}
-                        style={unifiedStyles.modalButtonSecondary}
+                        style={[unifiedStyles.modalButton, unifiedStyles.modalButtonSecondary]}
                     >
-                        <Text style={unifiedStyles.modalButtonTextSecondary}>
+                        <Text style={[unifiedStyles.modalButtonText, unifiedStyles.modalButtonTextSecondary]}>
                             {allSelected ? 'Clear All' : 'Select All'}
                         </Text>
                     </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={onApply}
+                        style={[unifiedStyles.modalButton, unifiedStyles.modalButtonPrimary]}
+                        disabled={isApplying}
+                    >
+                        <Text style={[unifiedStyles.modalButtonText, unifiedStyles.modalButtonTextPrimary]}>
+                            {isApplying ? 'Applying...' : 'Apply'}
+                        </Text>
+                    </TouchableOpacity>
                 </View>
-
-                <ScrollView style={{ maxHeight: 300 }}>
-                    {options.map((option) => (
-                        <TouchableOpacity
-                            key={option.value}
-                            style={[
-                                unifiedStyles.modalListItem,
-                                selectedOptions.includes(option.value) && unifiedStyles.modalListItemSelected
-                            ]}
-                            onPress={() => onToggleOption(option.value)}
-                        >
-                            <Text style={[
-                                unifiedStyles.modalListItemText,
-                                selectedOptions.includes(option.value) && { color: theme.primary }
-                            ]}>
-                                {option.label}
-                            </Text>
-                        </TouchableOpacity>
-                    ))}
-                </ScrollView>
-            </View>
-
+            }
+        >
             <View style={unifiedStyles.modalSection}>
-                <TouchableOpacity
-                    onPress={onApply}
-                    style={[unifiedStyles.modalButton, unifiedStyles.modalButtonPrimary]}
-                    disabled={isApplying}
-                >
-                    <Text style={[unifiedStyles.modalButtonText, unifiedStyles.modalButtonTextPrimary]}>
-                        {isApplying ? 'Applying...' : 'Apply Filters'}
-                    </Text>
-                </TouchableOpacity>
+                <Text style={[unifiedStyles.modalText, { marginBottom: 16 }]}>
+                    Select the spell types you want to include in the filter:
+                </Text>
+                
+                {options.map((option) => (
+                    <TouchableOpacity
+                        key={option.value}
+                        style={[
+                            unifiedStyles.modalListItem,
+                            { marginBottom: 8, borderRadius: 8, paddingVertical: 12 },
+                            selectedOptions.includes(option.value) && unifiedStyles.modalListItemSelected
+                        ]}
+                        onPress={() => onToggleOption(option.value)}
+                    >
+                        <View style={[
+                            unifiedStyles.checkbox,
+                            { 
+                                borderColor: theme.primary, 
+                                backgroundColor: selectedOptions.includes(option.value) ? theme.primary : 'transparent'
+                            }
+                        ]}>
+                            {selectedOptions.includes(option.value) && (
+                                <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}>✓</Text>
+                            )}
+                        </View>
+                        <Text style={[unifiedStyles.modalListItemText, { fontSize: 16 }]}>
+                            {option.label}
+                        </Text>
+                    </TouchableOpacity>
+                ))}
             </View>
         </BaseModal>
     );

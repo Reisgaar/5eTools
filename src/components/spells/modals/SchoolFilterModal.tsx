@@ -30,6 +30,9 @@ export default function SchoolFilterModal({
 }: SchoolFilterModalProps) {
   const styles = createBaseModalStyles(theme);
   
+  // Filter out invalid options
+  const validSchoolOptions = schoolOptions.filter(school => school !== '[object Object]');
+  
   return (
     <BaseModal 
       visible={visible} 
@@ -37,45 +40,56 @@ export default function SchoolFilterModal({
       theme={theme} 
       title="Filter by School"
       scrollable={true}
+      showFooter={true}
+      footerContent={
+        <View style={styles.actionRow}>
+          <TouchableOpacity 
+            onPress={onClear} 
+            style={[styles.modalButton, styles.modalButtonSecondary]}
+          > 
+            <Text style={[styles.modalButtonText, styles.modalButtonTextSecondary]}>Clear</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            onPress={onApply} 
+            style={[styles.modalButton, styles.modalButtonPrimary]}
+          > 
+            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>Apply</Text>
+          </TouchableOpacity>
+        </View>
+      }
     >
-      <TouchableOpacity onPress={onClear} style={[styles.modalButton, styles.modalButtonSecondary, { alignSelf: 'flex-end', marginBottom: 16 }]}> 
-        <Text style={[styles.modalButtonText, styles.modalButtonTextSecondary]}>Clear</Text>
-      </TouchableOpacity>
-      
-      <View style={{ flexWrap: 'wrap', justifyContent: 'space-between' }}> 
-        {schoolOptions.filter(school => school !== '[object Object]').map(school => (
-          <View key={school} style={{ width: '100%' }}>
-            <TouchableOpacity
-              style={[
-                styles.modalListItem, 
-                { marginBottom: 4, borderRadius: 6 },
-                selectedSchools.includes(school) && styles.modalListItemSelected
-              ]}
-              onPress={() => onToggleSchool(school)}
-            >
-              <View style={[
-                styles.checkbox, 
-                { borderColor: theme.primary, backgroundColor: selectedSchools.includes(school) ? theme.primary : 'transparent' }
-              ]} />
-              <Text style={styles.modalListItemText}>{capitalize(school)}</Text>
-            </TouchableOpacity>
-          </View>
+      <View style={styles.modalSection}>
+        <Text style={[styles.modalText, { marginBottom: 16 }]}>
+          Select the schools you want to include in the filter:
+        </Text>
+        
+        {validSchoolOptions.map(school => (
+          <TouchableOpacity
+            key={school}
+            style={[
+              styles.modalListItem, 
+              { marginBottom: 8, borderRadius: 8, paddingVertical: 12 },
+              selectedSchools.includes(school) && styles.modalListItemSelected
+            ]}
+            onPress={() => onToggleSchool(school)}
+          >
+            <View style={[
+              styles.checkbox, 
+              { 
+                borderColor: theme.primary, 
+                backgroundColor: selectedSchools.includes(school) ? theme.primary : 'transparent'
+              }
+            ]}>
+              {selectedSchools.includes(school) && (
+                <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}>✓</Text>
+              )}
+            </View>
+            <Text style={[styles.modalListItemText, { fontSize: 16 }]}>{capitalize(school)}</Text>
+          </TouchableOpacity>
         ))}
       </View>
-      
-      <TouchableOpacity onPress={onApply} style={[styles.modalButton, styles.modalButtonPrimary, { marginTop: 20 }]}> 
-        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>Apply</Text>
-      </TouchableOpacity>
     </BaseModal>
   );
 }
 
-const styles = {
-  checkbox: {
-    width: 18,
-    height: 18,
-    borderWidth: 2,
-    borderRadius: 4,
-    marginRight: 12,
-  },
-};
+

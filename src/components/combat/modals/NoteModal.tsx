@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { BaseModal } from '../../ui';
 import { createBaseModalStyles } from '../../../styles/baseModalStyles';
 
@@ -46,6 +46,7 @@ const NoteModal: React.FC<NoteModalProps> = ({
       theme={theme} 
       title={modalTitle}
       subtitle={modalSubtitle}
+      maxHeight="85%"
     >
       {/* Notes Section */}
       <View style={styles.modalSection}>

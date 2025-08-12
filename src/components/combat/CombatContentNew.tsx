@@ -140,11 +140,14 @@ export default function CombatContentNew({
 
   // Load players list
   const loadPlayers = async () => {
+    console.log('🔍 loadPlayers called');
     try {
       const players = await loadPlayersList();
+      console.log('📋 Players loaded:', players.length, 'players');
       setAllPlayers(players);
+      console.log('✅ Players state updated');
     } catch (error) {
-      console.error('Error loading players:', error);
+      console.error('❌ Error loading players:', error);
     }
   };
 
@@ -199,20 +202,32 @@ export default function CombatContentNew({
 
   // Open player modal
   const openPlayerModal = async () => {
-    await loadPlayers();
-    setPlayerModalVisible(true);
+    console.log('🔍 openPlayerModal called');
+    try {
+      await loadPlayers();
+      console.log('✅ Players loaded successfully');
+      setPlayerModalVisible(true);
+      console.log('✅ Player modal set to visible');
+    } catch (error) {
+      console.error('❌ Error in openPlayerModal:', error);
+    }
   };
 
   // Handle adding players to combat
   const handleAddPlayersToCombat = () => {
+    console.log('➕ handleAddPlayersToCombat called with:', selectedPlayers);
     selectedPlayers.forEach(playerName => {
       const player = allPlayers.find(p => p.name === playerName);
       if (player) {
+        console.log('👤 Adding player to combat:', player.name);
         addPlayerCombatant(player);
+      } else {
+        console.log('❌ Player not found:', playerName);
       }
     });
     setSelectedPlayers([]);
     setPlayerModalVisible(false);
+    console.log('✅ Players added, modal closed');
   };
 
   // Handle value editing
@@ -510,7 +525,10 @@ export default function CombatContentNew({
         combatName={combatName}
         onBackToList={onBackToList}
         onRandomizeInitiative={handleRandomizeInitiativeWithConfirm}
-        onOpenPlayerModal={openPlayerModal}
+        onOpenPlayerModal={() => {
+          console.log('🔗 onOpenPlayerModal prop called');
+          openPlayerModal();
+        }}
         onEditCombat={() => setEditCombatModalVisible(true)}
         theme={theme}
       />
@@ -602,13 +620,18 @@ export default function CombatContentNew({
       />
 
       {/* Modals */}
+      {console.log('🎭 PlayerModal render state:', { visible: playerModalVisible, playersCount: allPlayers.length })}
       <PlayerModal
         visible={playerModalVisible}
-        onClose={() => setPlayerModalVisible(false)}
+        onClose={() => {
+          console.log('🚪 PlayerModal closing');
+          setPlayerModalVisible(false);
+        }}
         onAddPlayers={handleAddPlayersToCombat}
         allPlayers={allPlayers}
         selectedPlayers={selectedPlayers}
         onPlayerToggle={(playerName) => {
+          console.log('👤 Player toggle:', playerName);
           setSelectedPlayers(sel => sel.includes(playerName)
             ? sel.filter(n => n !== playerName)
             : [...sel, playerName]);

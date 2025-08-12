@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { BaseModal } from '../../ui';
 import { createBaseModalStyles } from '../../../styles/baseModalStyles';
-import { modalStyles } from '../../../styles/modalStyles';
+
 
 interface ValueEditModalProps {
     visible: boolean;
@@ -77,14 +77,22 @@ export default function ValueEditModal({
             theme={theme} 
             title={modalTitle}
             subtitle={modalSubtitle}
+            maxHeight="85%"
         >
             {/* Value Display and Input */}
-            <View style={modalStyles.valueContainer}>
+            <View style={styles.modalSection}>
                 <TextInput
-                    style={[modalStyles.valueInput, { 
+                    style={[styles.modalInput, { 
                         backgroundColor: theme.inputBackground, 
                         color: theme.text, 
-                        borderColor: theme.primary 
+                        borderColor: theme.primary,
+                        fontSize: 24,
+                        fontWeight: 'bold',
+                        textAlign: 'center',
+                        paddingVertical: 12,
+                        paddingHorizontal: 16,
+                        borderWidth: 2,
+                        borderRadius: 8
                     }]}
                     value={String(value)}
                     onChangeText={(text) => {
@@ -101,9 +109,10 @@ export default function ValueEditModal({
             </View>
 
             {/* Increment/Decrement Buttons */}
-            <View style={modalStyles.editButtonContainer}>
-                {/* Decrement Buttons - Left Column */}
-                <View style={modalStyles.buttonColumn}>
+            <View style={styles.modalSection}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginBottom: 20, gap: 12 }}>
+                    {/* Decrement Buttons - Left Column */}
+                    <View style={{ flex: 1, gap: 6 }}>
                     <TouchableOpacity
                         style={[styles.modalButton, styles.modalButtonPrimary]}
                         onPress={() => handleDecrement(10)}
@@ -122,34 +131,35 @@ export default function ValueEditModal({
                     >
                         <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-1</Text>
                     </TouchableOpacity>
-                </View>
+                    </View>
 
-                {/* Increment Buttons - Right Column */}
-                <View style={modalStyles.buttonColumn}>
-                    <TouchableOpacity
-                        style={[styles.modalButton, styles.modalButtonPrimary]}
-                        onPress={() => handleIncrement(10)}
-                    >
-                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>+10</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[styles.modalButton, styles.modalButtonPrimary]}
-                        onPress={() => handleIncrement(5)}
-                    >
-                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>+5</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[styles.modalButton, styles.modalButtonPrimary]}
-                        onPress={() => handleIncrement(1)}
-                    >
-                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>+1</Text>
-                    </TouchableOpacity>
+                    {/* Increment Buttons - Right Column */}
+                    <View style={{ flex: 1, gap: 6 }}>
+                        <TouchableOpacity
+                            style={[styles.modalButton, styles.modalButtonPrimary]}
+                            onPress={() => handleIncrement(10)}
+                        >
+                            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>+10</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.modalButton, styles.modalButtonPrimary]}
+                            onPress={() => handleIncrement(5)}
+                        >
+                            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>+5</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.modalButton, styles.modalButtonPrimary]}
+                            onPress={() => handleIncrement(1)}
+                        >
+                            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>+1</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </View>
 
             {/* Roll Initiative Button - Only for initiative */}
             {isInitiative && (
-                <View style={modalStyles.rollButtonContainer}>
+                <View style={styles.modalSection}>
                     <TouchableOpacity
                         style={[styles.modalButton, { backgroundColor: theme.success || '#4CAF50' }]}
                         onPress={handleRollInitiative}

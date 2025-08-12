@@ -4,6 +4,7 @@ import { FlatList, StyleSheet, Text, TouchableOpacity, View, ScrollView, TextInp
 import { conditions as DEFAULT_CONDITIONS } from 'src/constants/conditions';
 import { BaseModal } from '../ui';
 import { createBaseModalStyles } from '../../styles/baseModalStyles';
+import { commonStyles } from '../../styles/commonStyles';
 
 interface SettingsModalProps {
   visible: boolean;
@@ -139,8 +140,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         </View>
         
         {/* Save Button */}
-        <TouchableOpacity onPress={handleAccept} style={[styles.saveBtn, { backgroundColor: theme.primary }]}> 
-          <Text style={{ color: theme.buttonText || 'white', textAlign: 'center', fontWeight: 'bold' }}>Save Conditions</Text>
+        <TouchableOpacity onPress={handleAccept} style={[styles.modalButton, styles.modalButtonPrimary]}> 
+          <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>Save Conditions</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -187,16 +188,16 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         {/* Action Buttons */}
         <View style={styles.actionRow}>
           <TouchableOpacity
-            style={[styles.actionButton, { borderColor: theme.primary }]}
+            style={[styles.modalButton, styles.modalButtonSecondary]}
             onPress={handleColorClear}
           >
-            <Text style={[styles.actionButtonText, { color: theme.primary }]}>Clear</Text>
+            <Text style={[styles.modalButtonText, styles.modalButtonTextSecondary]}>Clear</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.actionButton, { backgroundColor: theme.primary }]}
+            style={[styles.modalButton, styles.modalButtonPrimary]}
             onPress={handleColorAccept}
           >
-            <Text style={[styles.actionButtonText, { color: 'white' }]}>Save Color</Text>
+            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>Save Color</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -211,11 +212,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       <View style={styles.section}>
         <Text style={[styles.sectionTitle, { color: theme.text }]}>Notes</Text>
         <TextInput
-          style={[styles.noteInput, { 
-            backgroundColor: theme.inputBackground, 
-            color: theme.text, 
-            borderColor: theme.border 
-          }]}
+          style={[styles.modalInput]}
           placeholder="Add notes about this creature..."
           placeholderTextColor={theme.noticeText}
           value={noteText}
@@ -226,8 +223,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         />
         
         {/* Save Button */}
-        <TouchableOpacity onPress={handleNoteAccept} style={[styles.saveBtn, { backgroundColor: theme.primary }]}> 
-          <Text style={{ color: theme.buttonText || 'white', textAlign: 'center', fontWeight: 'bold' }}>Save Note</Text>
+        <TouchableOpacity onPress={handleNoteAccept} style={[styles.modalButton, styles.modalButtonPrimary]}> 
+          <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>Save Note</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -245,8 +242,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         </Text>
         
         {!showDeleteConfirmation ? (
-          <TouchableOpacity onPress={handleDeleteClick} style={[styles.deleteBtn, { backgroundColor: '#f44336' }]}> 
-            <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold' }}>Remove from Combat</Text>
+          <TouchableOpacity onPress={handleDeleteClick} style={[styles.modalButton, { backgroundColor: '#f44336' }]}> 
+            <Text style={[styles.modalButtonText, { color: 'white' }]}>Remove from Combat</Text>
           </TouchableOpacity>
         ) : (
           <View style={styles.confirmationContainer}>
@@ -254,11 +251,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
               Are you sure you want to remove "{creatureName}" from combat?
             </Text>
             <View style={styles.confirmationButtons}>
-              <TouchableOpacity onPress={handleCancelDelete} style={[styles.confirmationBtn, { backgroundColor: theme.card, borderColor: theme.primary }]}> 
-                <Text style={{ color: theme.text, textAlign: 'center', fontWeight: 'bold' }}>Cancel</Text>
+              <TouchableOpacity onPress={handleCancelDelete} style={[styles.modalButton, styles.modalButtonSecondary]}> 
+                <Text style={[styles.modalButtonText, styles.modalButtonTextSecondary]}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={handleDelete} style={[styles.confirmationBtn, { backgroundColor: '#f44336' }]}> 
-                <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold' }}>Confirm Delete</Text>
+              <TouchableOpacity onPress={handleDelete} style={[styles.modalButton, { backgroundColor: '#f44336' }]}> 
+                <Text style={[styles.modalButtonText, { color: 'white' }]}>Confirm Delete</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -270,7 +267,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   return (
     <BaseModal visible={visible} onClose={onClose} theme={theme} title="Creature Settings">
       {/* Tab Navigation */}
-      <View style={styles.tabContainer}>
+      <View style={[styles.tabContainer, { borderColor: theme.border }]}>
         <TouchableOpacity
           style={[
             styles.tabButton,
@@ -354,7 +351,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.1)',
   },
   tabButton: {
     flex: 1,
@@ -378,7 +374,6 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.1)',
   },
   dangerSection: {
     borderBottomWidth: 0,
@@ -401,17 +396,6 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
   },
-  saveBtn: {
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  deleteBtn: {
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
   confirmationContainer: {
     marginTop: 8,
   },
@@ -425,21 +409,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 8,
   },
-  confirmationBtn: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 6,
-    borderWidth: 1,
-    alignItems: 'center',
-  },
-  noteInput: {
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 14,
-    minHeight: 80,
-    textAlignVertical: 'top',
-    marginBottom: 16,
-  },
+
   colorGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -476,17 +446,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginTop: 10,
-  },
-  actionButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    borderRadius: 6,
-    borderWidth: 1,
-    alignItems: 'center',
-  },
-  actionButtonText: {
-    fontSize: 14,
-    fontWeight: 'bold',
   },
   sectionDescription: {
     fontSize: 12,

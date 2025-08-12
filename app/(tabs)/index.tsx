@@ -9,10 +9,10 @@ import { useCampaign } from 'src/context/CampaignContext';
 
 // STYLES
 import { commonStyles } from 'src/styles/commonStyles';
-import { modalStyles } from 'src/styles/modalStyles';
+import { createBaseModalStyles } from 'src/styles/baseModalStyles';
 
 // COMPONENTS
-import { ImagePicker as PlayerImagePicker } from 'src/components/ui';
+import { ImagePicker as PlayerImagePicker, BaseModal } from 'src/components/ui';
 import CampaignSelector from 'src/components/ui/CampaignSelector';
 import ConfirmModal from 'src/components/modals/ConfirmModal';
 
@@ -332,164 +332,181 @@ export default function HomeScreen() {
             </ScrollView>
 
             {/* Campaign Modal */}
-            <Modal visible={campaignModalVisible} animationType="slide" transparent>
-                <TouchableOpacity style={modalStyles.modalOverlay} activeOpacity={1} onPress={() => { setCampaignModalVisible(false); setEditCampaign(null); }}>
-                    <TouchableOpacity style={[modalStyles.modalContent, { backgroundColor: currentTheme.card }]} activeOpacity={1} onPress={() => {}}>
-                        <View style={modalStyles.modalHeader}>
-                            <Text style={[modalStyles.modalTitle, { color: currentTheme.text }]}>
-                                {editCampaign ? 'Edit Campaign' : 'Create Campaign'}
-                            </Text>
-                            <TouchableOpacity onPress={() => { setCampaignModalVisible(false); setEditCampaign(null); }} style={modalStyles.closeButton}>
-                                <Ionicons name="close" size={24} color={currentTheme.text} />
-                            </TouchableOpacity>
-                        </View>
-                        <View style={[modalStyles.separator, { backgroundColor: currentTheme.border }]} />
-                        
-                        <View style={modalStyles.modalBody}>
-                            <Text style={[modalStyles.fieldLabel, { color: currentTheme.text }]}>Campaign Name</Text>
-                            <TextInput
-                                style={[modalStyles.input, { backgroundColor: currentTheme.innerBackground, color: currentTheme.text, borderColor: currentTheme.border }]}
-                                placeholder="Enter campaign name"
-                                placeholderTextColor={currentTheme.noticeText}
-                                value={campaignForm.name}
-                                onChangeText={text => setCampaignForm(prev => ({ ...prev, name: text }))}
-                            />
+            <BaseModal 
+                visible={campaignModalVisible} 
+                onClose={() => { setCampaignModalVisible(false); setEditCampaign(null); }} 
+                theme={currentTheme} 
+                title={editCampaign ? 'Edit Campaign' : 'Create Campaign'}
+                maxHeight="70%"
+            >
+                {(() => {
+                    const styles = createBaseModalStyles(currentTheme);
+                    return (
+                        <>
+                            <View style={styles.modalSection}>
+                                <Text style={[styles.modalSectionTitle, { color: currentTheme.text }]}>Campaign Name</Text>
+                                <TextInput
+                                    style={[styles.modalInput, { backgroundColor: currentTheme.inputBackground, color: currentTheme.text, borderColor: currentTheme.border }]}
+                                    placeholder="Enter campaign name"
+                                    placeholderTextColor={currentTheme.noticeText}
+                                    value={campaignForm.name}
+                                    onChangeText={text => setCampaignForm(prev => ({ ...prev, name: text }))}
+                                />
+                            </View>
                             
-                            <Text style={[modalStyles.fieldLabel, { color: currentTheme.text }]}>Description (Optional)</Text>
-                            <TextInput
-                                style={[modalStyles.input, { backgroundColor: currentTheme.innerBackground, color: currentTheme.text, borderColor: currentTheme.border }]}
-                                placeholder="Enter campaign description"
-                                placeholderTextColor={currentTheme.noticeText}
-                                value={campaignForm.description}
-                                onChangeText={text => setCampaignForm(prev => ({ ...prev, description: text }))}
-                                multiline
-                                numberOfLines={3}
-                            />
+                            <View style={styles.modalSection}>
+                                <Text style={[styles.modalSectionTitle, { color: currentTheme.text }]}>Description (Optional)</Text>
+                                <TextInput
+                                    style={[styles.modalInput, { backgroundColor: currentTheme.inputBackground, color: currentTheme.text, borderColor: currentTheme.border }]}
+                                    placeholder="Enter campaign description"
+                                    placeholderTextColor={currentTheme.noticeText}
+                                    value={campaignForm.description}
+                                    onChangeText={text => setCampaignForm(prev => ({ ...prev, description: text }))}
+                                    multiline
+                                    numberOfLines={3}
+                                />
+                            </View>
                             
-                            <View style={modalStyles.modalButtons}>
+                            <View style={styles.actionRow}>
                                 <TouchableOpacity 
                                     onPress={handleSaveCampaign} 
-                                    style={[modalStyles.modalButton, { backgroundColor: currentTheme.primary }]}
+                                    style={[styles.modalButton, styles.modalButtonPrimary]}
                                 >
-                                    <Text style={[modalStyles.modalButtonText, { color: 'white' }]}>
+                                    <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>
                                         {editCampaign ? 'Save' : 'Create'}
                                     </Text>
                                 </TouchableOpacity>
                             </View>
-                        </View>
-                    </TouchableOpacity>
-                </TouchableOpacity>
-            </Modal>
+                        </>
+                    );
+                })()}
+            </BaseModal>
 
             {/* Player Modal */}
-            <Modal visible={playerModalVisible} animationType="slide" transparent>
-                <TouchableOpacity style={modalStyles.modalOverlay} activeOpacity={1} onPress={() => { setPlayerModalVisible(false); setEditPlayer(null); }}>
-                    <TouchableOpacity style={[modalStyles.modalContent, { backgroundColor: currentTheme.card }]} activeOpacity={1} onPress={() => {}}>
-                        <View style={modalStyles.modalHeader}>
-                            <Text style={[modalStyles.modalTitle, { color: currentTheme.text }]}>
-                                {editPlayer ? 'Edit Player' : 'Add Player'}
-                            </Text>
-                            <TouchableOpacity onPress={() => { setPlayerModalVisible(false); setEditPlayer(null); }} style={modalStyles.closeButton}>
-                                <Ionicons name="close" size={24} color={currentTheme.text} />
-                            </TouchableOpacity>
-                        </View>
-                        <View style={[modalStyles.separator, { backgroundColor: currentTheme.border }]} />
-                        
-                        <ScrollView showsVerticalScrollIndicator={false} style={modalStyles.modalBody}>
-                            <Text style={[modalStyles.fieldLabel, { color: currentTheme.text }]}>Character Name</Text>
-                            <TextInput
-                                style={[modalStyles.input, { backgroundColor: currentTheme.innerBackground, color: currentTheme.text, borderColor: currentTheme.border }]}
-                                placeholder="Enter character name"
-                                placeholderTextColor={currentTheme.noticeText}
-                                value={playerForm.name}
-                                onChangeText={text => setPlayerForm(prev => ({ ...prev, name: text }))}
-                            />
+            <BaseModal 
+                visible={playerModalVisible} 
+                onClose={() => { setPlayerModalVisible(false); setEditPlayer(null); }} 
+                theme={currentTheme} 
+                title={editPlayer ? 'Edit Player' : 'Add Player'}
+                maxHeight="90%"
+                scrollable={true}
+            >
+                {(() => {
+                    const styles = createBaseModalStyles(currentTheme);
+                    return (
+                        <>
+                            <View style={styles.modalSection}>
+                                <Text style={[styles.modalSectionTitle, { color: currentTheme.text }]}>Character Name</Text>
+                                <TextInput
+                                    style={[styles.modalInput, { backgroundColor: currentTheme.inputBackground, color: currentTheme.text, borderColor: currentTheme.border }]}
+                                    placeholder="Enter character name"
+                                    placeholderTextColor={currentTheme.noticeText}
+                                    value={playerForm.name}
+                                    onChangeText={text => setPlayerForm(prev => ({ ...prev, name: text }))}
+                                />
+                            </View>
                             
-                            <Text style={[modalStyles.fieldLabel, { color: currentTheme.text }]}>Race</Text>
-                            <TextInput
-                                style={[modalStyles.input, { backgroundColor: currentTheme.innerBackground, color: currentTheme.text, borderColor: currentTheme.border }]}
-                                placeholder="e.g., Human, Elf, Dwarf"
-                                placeholderTextColor={currentTheme.noticeText}
-                                value={playerForm.race}
-                                onChangeText={text => setPlayerForm(prev => ({ ...prev, race: text }))}
-                            />
+                            <View style={styles.modalSection}>
+                                <Text style={[styles.modalSectionTitle, { color: currentTheme.text }]}>Race</Text>
+                                <TextInput
+                                    style={[styles.modalInput, { backgroundColor: currentTheme.inputBackground, color: currentTheme.text, borderColor: currentTheme.border }]}
+                                    placeholder="e.g., Human, Elf, Dwarf"
+                                    placeholderTextColor={currentTheme.noticeText}
+                                    value={playerForm.race}
+                                    onChangeText={text => setPlayerForm(prev => ({ ...prev, race: text }))}
+                                />
+                            </View>
                             
-                            <Text style={[modalStyles.fieldLabel, { color: currentTheme.text }]}>Class</Text>
-                            <TextInput
-                                style={[modalStyles.input, { backgroundColor: currentTheme.innerBackground, color: currentTheme.text, borderColor: currentTheme.border }]}
-                                placeholder="e.g., Fighter, Wizard, Cleric"
-                                placeholderTextColor={currentTheme.noticeText}
-                                value={playerForm.class}
-                                onChangeText={text => setPlayerForm(prev => ({ ...prev, class: text }))}
-                            />
+                            <View style={styles.modalSection}>
+                                <Text style={[styles.modalSectionTitle, { color: currentTheme.text }]}>Class</Text>
+                                <TextInput
+                                    style={[styles.modalInput, { backgroundColor: currentTheme.inputBackground, color: currentTheme.text, borderColor: currentTheme.border }]}
+                                    placeholder="e.g., Fighter, Wizard, Cleric"
+                                    placeholderTextColor={currentTheme.noticeText}
+                                    value={playerForm.class}
+                                    onChangeText={text => setPlayerForm(prev => ({ ...prev, class: text }))}
+                                />
+                            </View>
                             
-                            <Text style={[modalStyles.fieldLabel, { color: currentTheme.text }]}>Maximum Hit Points</Text>
-                            <TextInput
-                                style={[modalStyles.input, { backgroundColor: currentTheme.innerBackground, color: currentTheme.text, borderColor: currentTheme.border }]}
-                                placeholder="e.g., 25"
-                                placeholderTextColor={currentTheme.noticeText}
-                                keyboardType="numeric"
-                                value={playerForm.maxHp}
-                                onChangeText={text => setPlayerForm(prev => ({ ...prev, maxHp: text }))}
-                            />
+                            <View style={styles.modalSection}>
+                                <Text style={[styles.modalSectionTitle, { color: currentTheme.text }]}>Maximum Hit Points</Text>
+                                <TextInput
+                                    style={[styles.modalInput, { backgroundColor: currentTheme.inputBackground, color: currentTheme.text, borderColor: currentTheme.border }]}
+                                    placeholder="e.g., 25"
+                                    placeholderTextColor={currentTheme.noticeText}
+                                    keyboardType="numeric"
+                                    value={playerForm.maxHp}
+                                    onChangeText={text => setPlayerForm(prev => ({ ...prev, maxHp: text }))}
+                                />
+                            </View>
                             
-                            <Text style={[modalStyles.fieldLabel, { color: currentTheme.text }]}>Armor Class</Text>
-                            <TextInput
-                                style={[modalStyles.input, { backgroundColor: currentTheme.innerBackground, color: currentTheme.text, borderColor: currentTheme.border }]}
-                                placeholder="e.g., 16"
-                                placeholderTextColor={currentTheme.noticeText}
-                                keyboardType="numeric"
-                                value={playerForm.ac}
-                                onChangeText={text => setPlayerForm(prev => ({ ...prev, ac: text }))}
-                            />
+                            <View style={styles.modalSection}>
+                                <Text style={[styles.modalSectionTitle, { color: currentTheme.text }]}>Armor Class</Text>
+                                <TextInput
+                                    style={[styles.modalInput, { backgroundColor: currentTheme.inputBackground, color: currentTheme.text, borderColor: currentTheme.border }]}
+                                    placeholder="e.g., 16"
+                                    placeholderTextColor={currentTheme.noticeText}
+                                    keyboardType="numeric"
+                                    value={playerForm.ac}
+                                    onChangeText={text => setPlayerForm(prev => ({ ...prev, ac: text }))}
+                                />
+                            </View>
                             
-                            <Text style={[modalStyles.fieldLabel, { color: currentTheme.text }]}>Passive Perception</Text>
-                            <TextInput
-                                style={[modalStyles.input, { backgroundColor: currentTheme.innerBackground, color: currentTheme.text, borderColor: currentTheme.border }]}
-                                placeholder="e.g., 14"
-                                placeholderTextColor={currentTheme.noticeText}
-                                keyboardType="numeric"
-                                value={playerForm.passivePerception}
-                                onChangeText={text => setPlayerForm(prev => ({ ...prev, passivePerception: text }))}
-                            />
+                            <View style={styles.modalSection}>
+                                <Text style={[styles.modalSectionTitle, { color: currentTheme.text }]}>Passive Perception</Text>
+                                <TextInput
+                                    style={[styles.modalInput, { backgroundColor: currentTheme.inputBackground, color: currentTheme.text, borderColor: currentTheme.border }]}
+                                    placeholder="e.g., 14"
+                                    placeholderTextColor={currentTheme.noticeText}
+                                    keyboardType="numeric"
+                                    value={playerForm.passivePerception}
+                                    onChangeText={text => setPlayerForm(prev => ({ ...prev, passivePerception: text }))}
+                                />
+                            </View>
                             
-                            <Text style={[modalStyles.fieldLabel, { color: currentTheme.text }]}>Initiative Bonus</Text>
-                            <TextInput
-                                style={[modalStyles.input, { backgroundColor: currentTheme.innerBackground, color: currentTheme.text, borderColor: currentTheme.border }]}
-                                placeholder="e.g., +3, -1, 2"
-                                placeholderTextColor={currentTheme.noticeText}
-                                keyboardType="numeric"
-                                value={playerForm.initiativeBonus}
-                                onChangeText={text => setPlayerForm(prev => ({ ...prev, initiativeBonus: text }))}
-                            />
+                            <View style={styles.modalSection}>
+                                <Text style={[styles.modalSectionTitle, { color: currentTheme.text }]}>Initiative Bonus</Text>
+                                <TextInput
+                                    style={[styles.modalInput, { backgroundColor: currentTheme.inputBackground, color: currentTheme.text, borderColor: currentTheme.border }]}
+                                    placeholder="e.g., +3, -1, 2"
+                                    placeholderTextColor={currentTheme.noticeText}
+                                    keyboardType="numeric"
+                                    value={playerForm.initiativeBonus}
+                                    onChangeText={text => setPlayerForm(prev => ({ ...prev, initiativeBonus: text }))}
+                                />
+                            </View>
                             
-                            <CampaignSelector
-                                selectedCampaignId={playerForm.campaignId || undefined}
-                                onCampaignChange={(campaignId) => setPlayerForm(prev => ({ ...prev, campaignId: campaignId || '' }))}
-                                theme={currentTheme}
-                                label="Campaign (optional)"
-                            />
+                            <View style={styles.modalSection}>
+                                <CampaignSelector
+                                    selectedCampaignId={playerForm.campaignId || undefined}
+                                    onCampaignChange={(campaignId) => setPlayerForm(prev => ({ ...prev, campaignId: campaignId || '' }))}
+                                    theme={currentTheme}
+                                    label="Campaign (optional)"
+                                />
+                            </View>
                             
-                            <PlayerImagePicker
-                                currentImageUri={selectedImageUri || playerForm.tokenUrl}
-                                onImageSelected={setSelectedImageUri}
-                                theme={currentTheme}
-                            />
-                        </ScrollView>
-                        
-                        <View style={modalStyles.modalButtons}>
-                            <TouchableOpacity 
-                                onPress={handleSavePlayer} 
-                                style={[modalStyles.modalButton, { backgroundColor: currentTheme.primary }]}
-                            >
-                                <Text style={[modalStyles.modalButtonText, { color: 'white' }]}>
-                                    {editPlayer ? 'Save' : 'Add'}
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-                    </TouchableOpacity>
-                </TouchableOpacity>
-            </Modal>
+                            <View style={styles.modalSection}>
+                                <PlayerImagePicker
+                                    currentImageUri={selectedImageUri || playerForm.tokenUrl}
+                                    onImageSelected={setSelectedImageUri}
+                                    theme={currentTheme}
+                                />
+                            </View>
+                            
+                            <View style={styles.actionRow}>
+                                <TouchableOpacity 
+                                    onPress={handleSavePlayer} 
+                                    style={[styles.modalButton, styles.modalButtonPrimary]}
+                                >
+                                    <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>
+                                        {editPlayer ? 'Save' : 'Add'}
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                        </>
+                    );
+                })()}
+            </BaseModal>
 
             {/* Confirmation Modal */}
             <ConfirmModal

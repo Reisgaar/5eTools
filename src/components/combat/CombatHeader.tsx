@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View, Pressable } from 'react-native';
 import { createCombatStyles } from '../../styles/combat';
 import { CombatHeaderProps } from './types';
 
@@ -16,7 +16,12 @@ export default function CombatHeader({
 
   return (
     <View style={[styles.header, { backgroundColor: theme.card }]}>
-      <TouchableOpacity onPress={onBackToList} style={styles.headerBackButton}>
+      <TouchableOpacity 
+        onPress={onBackToList} 
+        style={styles.headerBackButton}
+        activeOpacity={0.7}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+      >
         <Ionicons name="arrow-back" size={24} color={theme.text} />
       </TouchableOpacity>
       
@@ -29,6 +34,8 @@ export default function CombatHeader({
         <TouchableOpacity 
           onPress={onEditCombat} 
           style={[styles.headerIconButton, { backgroundColor: theme.primary }]}
+          activeOpacity={0.7}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
           <Ionicons name="settings-outline" size={20} color="white" />
         </TouchableOpacity>
@@ -37,17 +44,29 @@ export default function CombatHeader({
         <TouchableOpacity 
           onPress={onRandomizeInitiative} 
           style={[styles.headerIconButton, { backgroundColor: theme.primary }]}
+          activeOpacity={0.7}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
           <Ionicons name="dice-outline" size={20} color="white" />
         </TouchableOpacity>
         
         {/* Add Player Button */}
-        <TouchableOpacity 
-          onPress={onOpenPlayerModal} 
-          style={[styles.headerIconButton, { backgroundColor: theme.primary }]}
+        <Pressable 
+          onPress={() => {
+            console.log('🔘 Add Player button pressed (Pressable)');
+            onOpenPlayerModal();
+          }} 
+          style={({ pressed }) => [
+            styles.headerIconButton, 
+            { 
+              backgroundColor: theme.primary,
+              opacity: pressed ? 0.7 : 1
+            }
+          ]}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
           <Ionicons name="person-add-outline" size={20} color="white" />
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </View>
   );
