@@ -25,7 +25,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
     onConfirm, 
     title, 
     message, 
-    confirmText = 'Delete', 
+    confirmText = 'Accept', 
     cancelText = 'Cancel',
     theme 
 }) => {

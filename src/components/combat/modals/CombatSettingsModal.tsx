@@ -100,11 +100,11 @@ const CombatSettingsModal: React.FC<CombatSettingsModalProps> = ({
           style={styles.settingsOption}
           onPress={onDeletePress}
         >
-          <View style={[styles.optionIcon, { backgroundColor: '#f44336' + '20' }]}>
-            <Ionicons name="trash" size={24} color="#f44336" />
+          <View style={[styles.optionIcon, { backgroundColor: (theme.danger || '#f44336') + '20' }]}>
+            <Ionicons name="trash" size={24} color={theme.danger || '#f44336'} />
           </View>
           <View style={styles.optionContent}>
-            <Text style={[styles.optionTitle, { color: '#f44336' }]}>Remove from Combat</Text>
+            <Text style={[styles.optionTitle, { color: theme.danger || '#f44336' }]}>Remove from Combat</Text>
             <Text style={[styles.optionDescription, { color: theme.noticeText }]}>
               Permanently remove this creature
             </Text>

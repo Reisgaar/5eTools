@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { BaseModal } from '../../ui';
 import { createBaseModalStyles } from '../../../styles/baseModalStyles';
+import { modalStyles } from '../../../styles/modalStyles';
 
 interface HPEditModalProps {
     visible: boolean;
@@ -47,27 +48,24 @@ export default function HPEditModal({
         onClose();
     };
 
-    const handleCancel = () => {
-        setCurrentHp(initialCurrentHp);
-        onClose();
-    };
+
 
     // Create title
     const modalTitle = "Edit Current HP";
 
     return (
-        <BaseModal visible={visible} onClose={handleCancel} theme={theme} title={modalTitle}>
+        <BaseModal visible={visible} onClose={onClose} theme={theme} title={modalTitle}>
             {/* Creature Name */}
-            <View style={styles.creatureNameContainer}>
+            <View style={modalStyles.creatureNameContainer}>
                 <Text style={[styles.modalText, { fontStyle: 'italic', textAlign: 'center' }]}>
                     #{combatantNumber} {creatureName}
                 </Text>
             </View>
 
             {/* HP Display */}
-            <View style={styles.hpDisplayContainer}>
+            <View style={modalStyles.hpDisplayContainer}>
                 <TextInput
-                    style={[styles.currentHpInput, { 
+                    style={[modalStyles.currentHpInput, { 
                         backgroundColor: theme.inputBackground, 
                         color: theme.text, 
                         borderColor: theme.primary 
@@ -85,25 +83,25 @@ export default function HPEditModal({
                     textAlign="center"
                 />
                 
-                <Text style={[styles.separator, { color: theme.text }]}>/</Text>
+                <Text style={[modalStyles.hpSeparator, { color: theme.text }]}>/</Text>
                 
                 <TouchableOpacity
-                    style={[styles.maxHpDisplay, { 
+                    style={[modalStyles.maxHpDisplay, { 
                         backgroundColor: theme.inputBackground, 
                         borderColor: theme.primary 
                     }]}
                     onPress={onMaxHpEdit}
                 >
-                    <Text style={[styles.maxHpText, { color: theme.text }]}>
+                    <Text style={[modalStyles.maxHpText, { color: theme.text }]}>
                         {maxHp}
                     </Text>
                 </TouchableOpacity>
             </View>
 
             {/* HP Adjustment Buttons */}
-            <View style={styles.buttonContainer}>
+            <View style={modalStyles.editButtonContainer}>
                 {/* Decrement Buttons - Left Column */}
-                <View style={styles.buttonColumn}>
+                <View style={modalStyles.buttonColumn}>
                     <TouchableOpacity
                         style={[styles.modalButton, styles.modalButtonPrimary]}
                         onPress={() => handleDecrement(10)}
@@ -125,7 +123,7 @@ export default function HPEditModal({
                 </View>
 
                 {/* Increment Buttons - Right Column */}
-                <View style={styles.buttonColumn}>
+                <View style={modalStyles.buttonColumn}>
                     <TouchableOpacity
                         style={[styles.modalButton, styles.modalButtonPrimary]}
                         onPress={() => handleIncrement(10)}
@@ -150,12 +148,6 @@ export default function HPEditModal({
             {/* Action Buttons */}
             <View style={styles.actionRow}>
                 <TouchableOpacity
-                    style={[styles.modalButton, styles.modalButtonSecondary]}
-                    onPress={handleCancel}
-                >
-                    <Text style={[styles.modalButtonText, styles.modalButtonTextSecondary]}>Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
                     style={[styles.modalButton, styles.modalButtonPrimary]}
                     onPress={handleAccept}
                 >
@@ -166,53 +158,4 @@ export default function HPEditModal({
     );
 }
 
-const styles = StyleSheet.create({
-    creatureNameContainer: {
-        alignItems: 'center',
-        marginBottom: 16,
-    },
-    hpDisplayContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: 24,
-        gap: 12,
-    },
-    currentHpInput: {
-        borderWidth: 2,
-        borderRadius: 8,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        fontSize: 24,
-        fontWeight: 'bold',
-        textAlign: 'center',
-        minWidth: 80,
-    },
-    separator: {
-        fontSize: 24,
-        fontWeight: 'bold',
-    },
-    maxHpDisplay: {
-        borderWidth: 2,
-        borderRadius: 8,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        minWidth: 80,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    maxHpText: {
-        fontSize: 24,
-        fontWeight: 'bold',
-    },
-    buttonContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 24,
-        gap: 16,
-    },
-    buttonColumn: {
-        flex: 1,
-        gap: 8,
-    },
-});
+

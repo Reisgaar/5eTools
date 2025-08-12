@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { BaseModal } from '../../ui';
 import { createBaseModalStyles } from '../../../styles/baseModalStyles';
+import { modalStyles } from '../../../styles/modalStyles';
 
 interface MaxHPEditModalProps {
     visible: boolean;
@@ -45,10 +46,7 @@ export default function MaxHPEditModal({
         onClose();
     };
 
-    const handleCancel = () => {
-        setMaxHp(initialMaxHp);
-        onClose();
-    };
+
 
     // Create title with current HP info
     const modalTitle = `Edit Max HP - #${combatantNumber} ${creatureName}`;
@@ -57,16 +55,16 @@ export default function MaxHPEditModal({
     return (
         <BaseModal 
             visible={visible} 
-            onClose={handleCancel} 
+            onClose={onClose} 
             theme={theme} 
             title={modalTitle}
             subtitle={modalSubtitle}
         >
             {/* Max HP Display */}
-            <View style={styles.maxHpContainer}>
+            <View style={modalStyles.maxHpContainer}>
                 <Text style={[styles.modalText, { fontWeight: 'bold' }]}>Max HP:</Text>
                 <TextInput
-                    style={[styles.maxHpInput, { 
+                    style={[modalStyles.maxHpInput, { 
                         backgroundColor: theme.inputBackground, 
                         color: theme.text, 
                         borderColor: theme.primary 
@@ -86,9 +84,9 @@ export default function MaxHPEditModal({
             </View>
 
             {/* Max HP Adjustment Buttons */}
-            <View style={styles.buttonContainer}>
+            <View style={modalStyles.editButtonContainer}>
                 {/* Decrement Buttons - Left Column */}
-                <View style={styles.buttonColumn}>
+                <View style={modalStyles.buttonColumn}>
                     <TouchableOpacity
                         style={[styles.modalButton, styles.modalButtonPrimary]}
                         onPress={() => handleDecrement(10)}
@@ -110,7 +108,7 @@ export default function MaxHPEditModal({
                 </View>
 
                 {/* Increment Buttons - Right Column */}
-                <View style={styles.buttonColumn}>
+                <View style={modalStyles.buttonColumn}>
                     <TouchableOpacity
                         style={[styles.modalButton, styles.modalButtonPrimary]}
                         onPress={() => handleIncrement(10)}
@@ -135,12 +133,6 @@ export default function MaxHPEditModal({
             {/* Action Buttons */}
             <View style={styles.actionRow}>
                 <TouchableOpacity
-                    style={[styles.modalButton, styles.modalButtonSecondary]}
-                    onPress={handleCancel}
-                >
-                    <Text style={[styles.modalButtonText, styles.modalButtonTextSecondary]}>Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
                     style={[styles.modalButton, styles.modalButtonPrimary]}
                     onPress={handleAccept}
                 >
@@ -151,32 +143,4 @@ export default function MaxHPEditModal({
     );
 }
 
-const styles = StyleSheet.create({
-    maxHpContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: 16,
-        gap: 12,
-    },
-    maxHpInput: {
-        borderWidth: 2,
-        borderRadius: 8,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        fontSize: 24,
-        fontWeight: 'bold',
-        textAlign: 'center',
-        minWidth: 80,
-    },
-    buttonContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 24,
-        gap: 16,
-    },
-    buttonColumn: {
-        flex: 1,
-        gap: 8,
-    },
-});
+

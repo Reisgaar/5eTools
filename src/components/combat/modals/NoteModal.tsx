@@ -34,10 +34,7 @@ const NoteModal: React.FC<NoteModalProps> = ({
     onClose();
   };
 
-  const handleCancel = () => {
-    setNoteText(currentNote);
-    onClose();
-  };
+
 
   const modalTitle = "Creature Notes";
   const modalSubtitle = combatantNumber ? `#${combatantNumber} ${creatureName}` : creatureName;
@@ -45,7 +42,7 @@ const NoteModal: React.FC<NoteModalProps> = ({
   return (
     <BaseModal 
       visible={visible} 
-      onClose={handleCancel} 
+      onClose={onClose} 
       theme={theme} 
       title={modalTitle}
       subtitle={modalSubtitle}
@@ -74,12 +71,6 @@ const NoteModal: React.FC<NoteModalProps> = ({
 
       {/* Action Buttons */}
       <View style={styles.actionRow}>
-        <TouchableOpacity
-          style={[styles.modalButton, styles.modalButtonSecondary]}
-          onPress={handleCancel}
-        >
-          <Text style={[styles.modalButtonText, styles.modalButtonTextSecondary]}>Cancel</Text>
-        </TouchableOpacity>
         <TouchableOpacity
           style={[styles.modalButton, styles.modalButtonPrimary]}
           onPress={handleAccept}

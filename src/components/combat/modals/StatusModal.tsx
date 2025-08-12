@@ -44,10 +44,7 @@ const StatusModal: React.FC<StatusModalProps> = ({
     onClose();
   };
 
-  const handleCancel = () => {
-    setSelectedConditions(currentConditions);
-    onClose();
-  };
+
 
   const modalTitle = "Status Conditions";
   const modalSubtitle = combatantNumber ? `#${combatantNumber} ${creatureName}` : creatureName;
@@ -55,7 +52,7 @@ const StatusModal: React.FC<StatusModalProps> = ({
   return (
     <BaseModal 
       visible={visible} 
-      onClose={handleCancel} 
+      onClose={onClose} 
       theme={theme} 
       title={modalTitle}
       subtitle={modalSubtitle}
@@ -85,12 +82,6 @@ const StatusModal: React.FC<StatusModalProps> = ({
 
       {/* Action Buttons */}
       <View style={styles.actionRow}>
-        <TouchableOpacity
-          style={[styles.modalButton, styles.modalButtonSecondary]}
-          onPress={handleCancel}
-        >
-          <Text style={[styles.modalButtonText, styles.modalButtonTextSecondary]}>Cancel</Text>
-        </TouchableOpacity>
         <TouchableOpacity
           style={[styles.modalButton, styles.modalButtonPrimary]}
           onPress={handleAccept}

@@ -31,6 +31,7 @@ export interface Combatant {
 export interface Combat {
   id: string;
   name: string;
+  description?: string;
   createdAt: number;
   combatants: Combatant[];
   groupByName: { [nameOrigin: string]: boolean };
@@ -47,7 +48,7 @@ interface CombatContextType {
   currentCombat: Combat | null;
   combatants: Combatant[];
   groupByName: { [nameOrigin: string]: boolean };
-  createCombat: (name: string, campaignId?: string) => string;
+  createCombat: (name: string, campaignId?: string, description?: string) => string;
   selectCombat: (id: string) => void;
   clearCurrentCombat: () => void;
   deleteCombat: (id: string) => void;
@@ -77,6 +78,7 @@ interface CombatContextType {
   updateCombatantConditions: (id: string, conditions: string[]) => void;
   updateCombatantNote: (id: string, note: string) => void;
   setCombatActive: (id: string, active: boolean) => void;
+  updateCombat: (id: string, updates: { name?: string; description?: string; campaignId?: string }) => void;
   getSortedCombats: (campaignId?: string | null) => Combat[];
   reloadCombats: () => Promise<void>;
 }
@@ -260,7 +262,7 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const combatants = currentCombat?.combatants || [];
   const groupByName = currentCombat?.groupByName || {};
 
-  const createCombat = (name: string, campaignId?: string): string => {
+  const createCombat = (name: string, campaignId?: string, description?: string): string => {
     // Use a more robust ID generation to avoid duplicates
     const timestamp = Date.now();
     const random = Math.random().toString(36).substring(2, 15);
@@ -268,6 +270,7 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const newCombat: Combat = {
       id,
       name,
+      description,
       createdAt: Date.now(),
       combatants: [],
       groupByName: {}, // All names will be grouped by default as they are added
@@ -727,6 +730,20 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   };
 
+  const updateCombat = (id: string, updates: { name?: string; description?: string; campaignId?: string }) => {
+    setCombats(prev => prev.map(c =>
+      c.id === id
+        ? { ...c, ...updates }
+        : c
+    ));
+    
+    // Save
+    const updatedCombat = combats.find(c => c.id === id);
+    if (updatedCombat) {
+      storeCombatToFile({ ...updatedCombat, ...updates });
+    }
+  };
+
 
 
   // Grouping logic
@@ -1178,6 +1195,7 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       updateCombatantConditions,
       updateCombatantNote,
       setCombatActive,
+      updateCombat,
       getSortedCombats,
       reloadCombats,
     }}>

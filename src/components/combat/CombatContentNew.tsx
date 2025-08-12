@@ -11,7 +11,7 @@ import CombatControls from './CombatControls';
 import CombatGroup from './CombatGroup';
 import CombatIndividual from './CombatIndividual';
 import CombatPlayer from './CombatPlayer';
-import { PlayerModal, ValueEditModal, HPEditModal, MaxHPEditModal, StatusModal, NoteModal, DeleteCombatantModal, CombatSettingsModal } from './modals';
+import { PlayerModal, ValueEditModal, HPEditModal, MaxHPEditModal, StatusModal, NoteModal, DeleteCombatantModal, CombatSettingsModal, CombatFormModal } from './modals';
 import { SettingsModal, ConfirmModal, ColorModal } from '../modals';
 import { Ionicons } from '@expo/vector-icons';
 import { createCombatStyles } from '../../styles/combat';
@@ -35,6 +35,7 @@ export default function CombatContentNew({
   onRandomizeInitiative,
   onStopCombat,
   onBackToList,
+  onEditCombat,
   theme,
   isGroupEnabled,
   toggleGroupForName,
@@ -45,7 +46,7 @@ export default function CombatContentNew({
   onStartCombat,
   onNextTurn
 }: CombatContentProps) {
-  const { getTurnOrder, addPlayerCombatant, resetCombatGroups } = useCombat();
+  const { getTurnOrder, addPlayerCombatant, resetCombatGroups, currentCombat, currentCombatId } = useCombat();
   const { openBeastModal, openSpellModal } = useModal();
   
   // State for modals
@@ -77,6 +78,9 @@ export default function CombatContentNew({
     message: string;
     onConfirm: () => void;
   } | null>(null);
+  
+  // State for edit combat modal
+  const [editCombatModalVisible, setEditCombatModalVisible] = React.useState(false);
   
   // State for editing
   const [editingValue, setEditingValue] = React.useState<{
@@ -461,10 +465,10 @@ export default function CombatContentNew({
 
   // Handle randomize initiative with confirm modal
   const handleRandomizeInitiativeWithConfirm = () => {
-    showConfirmModal(
-      'Randomize Initiative',
-      'Do you want to roll initiative for all creatures? (1d20 + initiative bonus)',
-      () => {
+    setConfirmModalData({
+      title: 'Randomize Initiative',
+      message: 'Do you want to roll initiative for all creatures? (1d20 + initiative bonus)',
+      onConfirm: () => {
         console.log('=== RANDOMIZE INITIATIVE CONFIRMED ===');
         
         if (combatants.length === 0) {
@@ -493,7 +497,8 @@ export default function CombatContentNew({
         
         console.log('=== RANDOMIZE INITIATIVE COMPLETED ===');
       }
-    );
+    });
+    setConfirmModalVisible(true);
   };
 
   const turnOrder = getTurnOrder(combatants, groupByName);
@@ -506,6 +511,7 @@ export default function CombatContentNew({
         onBackToList={onBackToList}
         onRandomizeInitiative={handleRandomizeInitiativeWithConfirm}
         onOpenPlayerModal={openPlayerModal}
+        onEditCombat={() => setEditCombatModalVisible(true)}
         theme={theme}
       />
 
@@ -711,6 +717,18 @@ export default function CombatContentNew({
         tokenUrl={tokenModalData?.tokenUrl || ''}
         fallbackUrl={tokenModalData?.fallbackUrl || ''}
         creatureName={tokenModalData?.creatureName || ''}
+        theme={theme}
+      />
+
+      {/* Edit Combat Modal */}
+      <CombatFormModal
+        visible={editCombatModalVisible}
+        onClose={() => setEditCombatModalVisible(false)}
+        mode="edit"
+        combatId={currentCombatId || ''}
+        initialName={combatName}
+        initialDescription={currentCombat?.description}
+        initialCampaignId={currentCombat?.campaignId}
         theme={theme}
       />
 

@@ -9,6 +9,7 @@ export default function CombatHeader({
   onBackToList,
   onRandomizeInitiative,
   onOpenPlayerModal,
+  onEditCombat,
   theme
 }: CombatHeaderProps) {
   const styles = createCombatStyles(theme);
@@ -24,6 +25,14 @@ export default function CombatHeader({
       </Text>
       
       <View style={styles.headerActionButtons}>
+        {/* Edit Combat Button */}
+        <TouchableOpacity 
+          onPress={onEditCombat} 
+          style={[styles.headerIconButton, { backgroundColor: theme.primary }]}
+        >
+          <Ionicons name="settings-outline" size={20} color="white" />
+        </TouchableOpacity>
+        
         {/* Randomize Initiative Button */}
         <TouchableOpacity 
           onPress={onRandomizeInitiative} 

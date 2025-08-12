@@ -55,7 +55,7 @@ const DeleteCombatantModal: React.FC<DeleteCombatantModalProps> = ({
     >
       {/* Delete Section */}
       <View style={styles.modalSection}>
-        <Text style={[styles.modalSectionTitle, { color: '#f44336' }]}>Combat Management</Text>
+        <Text style={[styles.modalSectionTitle, { color: theme.danger || '#f44336' }]}>Combat Management</Text>
         <Text style={[styles.modalNoticeText, { color: theme.noticeText }]}>
           Remove this creature from the combat tracker permanently.
         </Text>
@@ -63,7 +63,7 @@ const DeleteCombatantModal: React.FC<DeleteCombatantModalProps> = ({
         {!showConfirmation ? (
           <TouchableOpacity 
             onPress={handleDeleteClick} 
-            style={[styles.deleteBtn, { backgroundColor: '#f44336' }]}
+            style={[styles.deleteBtn, { backgroundColor: theme.danger || '#f44336' }]}
           > 
             <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold' }}>
               Remove from Combat
@@ -83,7 +83,7 @@ const DeleteCombatantModal: React.FC<DeleteCombatantModalProps> = ({
               </TouchableOpacity>
               <TouchableOpacity 
                 onPress={handleConfirm} 
-                style={[styles.confirmationBtn, { backgroundColor: '#f44336' }]}
+                style={[styles.confirmationBtn, { backgroundColor: theme.danger || '#f44336' }]}
               > 
                 <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold' }}>Confirm Delete</Text>
               </TouchableOpacity>

@@ -48,10 +48,7 @@ const ColorModal: React.FC<ColorModalProps> = ({
     onClose();
   };
 
-  const handleCancel = () => {
-    setSelectedColor(currentColor);
-    onClose();
-  };
+
 
   const handleClear = () => {
     onAccept(null);
@@ -64,7 +61,7 @@ const ColorModal: React.FC<ColorModalProps> = ({
   return (
     <BaseModal 
       visible={visible} 
-      onClose={handleCancel} 
+      onClose={onClose} 
       theme={theme} 
       title={modalTitle}
       subtitle={modalSubtitle}
@@ -89,7 +86,7 @@ const ColorModal: React.FC<ColorModalProps> = ({
               onPress={() => setSelectedColor(color)}
             >
               {selectedColor === color && (
-                <Ionicons name="checkmark" size={20} color="#000" />
+                <Ionicons name="checkmark" size={20} color={theme.text} />
               )}
             </TouchableOpacity>
           ))}
@@ -106,12 +103,6 @@ const ColorModal: React.FC<ColorModalProps> = ({
 
       {/* Action Buttons */}
       <View style={styles.actionRow}>
-        <TouchableOpacity
-          style={[styles.modalButton, styles.modalButtonSecondary]}
-          onPress={handleCancel}
-        >
-          <Text style={[styles.modalButtonText, styles.modalButtonTextSecondary]}>Cancel</Text>
-        </TouchableOpacity>
         <TouchableOpacity
           style={[styles.modalButton, { borderColor: theme.primary, borderWidth: 1 }]}
           onPress={handleClear}

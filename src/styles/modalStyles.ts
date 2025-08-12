@@ -83,6 +83,28 @@ export const modalStyles = StyleSheet.create({
         justifyContent: 'center',
     },
     
+    // Botón secundario del modal
+    modalButtonSecondary: {
+        paddingHorizontal: 24,
+        paddingVertical: 12,
+        borderRadius: 8,
+        minWidth: 100,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1,
+    },
+    
+    // Botón de peligro del modal
+    modalButtonDanger: {
+        paddingHorizontal: 24,
+        paddingVertical: 12,
+        borderRadius: 8,
+        minWidth: 100,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#dc2626',
+    },
+    
     // Texto del botón
     modalButtonText: {
         fontSize: 16,
@@ -99,5 +121,114 @@ export const modalStyles = StyleSheet.create({
     emptyText: {
         fontSize: 16,
         textAlign: 'center',
+    },
+    
+    // Contenedor de valor para modales de edición
+    valueContainer: {
+        marginBottom: 24,
+        width: '100%',
+    },
+    
+    // Input de valor para modales de edición
+    valueInput: {
+        borderWidth: 2,
+        borderRadius: 8,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        fontSize: 24,
+        fontWeight: 'bold',
+        textAlign: 'center',
+    },
+    
+    // Contenedor de botones para modales de edición
+    editButtonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+        marginBottom: 24,
+        gap: 16,
+    },
+    
+    // Columna de botones
+    buttonColumn: {
+        flex: 1,
+        gap: 8,
+    },
+    
+    // Contenedor de botón de roll
+    rollButtonContainer: {
+        marginBottom: 16,
+        width: '100%',
+    },
+    
+    // Contenedor de nombre de criatura
+    creatureNameContainer: {
+        alignItems: 'center',
+        marginBottom: 16,
+    },
+    
+    // Contenedor de display de HP
+    hpDisplayContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 24,
+        gap: 12,
+    },
+    
+    // Input de HP actual
+    currentHpInput: {
+        borderWidth: 2,
+        borderRadius: 8,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        fontSize: 24,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        minWidth: 80,
+    },
+    
+    // Separador de HP
+    hpSeparator: {
+        fontSize: 24,
+        fontWeight: 'bold',
+    },
+    
+    // Display de HP máximo
+    maxHpDisplay: {
+        borderWidth: 2,
+        borderRadius: 8,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        minWidth: 80,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    
+    // Texto de HP máximo
+    maxHpText: {
+        fontSize: 24,
+        fontWeight: 'bold',
+    },
+    
+    // Contenedor de HP máximo
+    maxHpContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 16,
+        gap: 12,
+    },
+    
+    // Input de HP máximo
+    maxHpInput: {
+        borderWidth: 2,
+        borderRadius: 8,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        fontSize: 24,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        minWidth: 80,
     },
 });

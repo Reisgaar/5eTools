@@ -57,6 +57,7 @@ export interface CombatHeaderProps {
   onBackToList: () => void;
   onRandomizeInitiative: () => void;
   onOpenPlayerModal: () => void;
+  onEditCombat: () => void;
   theme: any;
 }
 
@@ -113,6 +114,7 @@ export interface CombatContentProps {
   onRandomizeInitiative: () => void;
   onStopCombat: () => void;
   onBackToList: () => void;
+  onEditCombat: () => void;
   theme: any;
   isGroupEnabled: (nameOrigin: string) => boolean;
   toggleGroupForName: (nameOrigin: string) => void;

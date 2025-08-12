@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 import { CombatContent, CombatList } from 'src/components/combat';
-import CreateCombatModal from 'src/components/combat/CreateCombatModal';
+import { CombatFormModal } from 'src/components/combat/modals';
 import { useAppSettings } from 'src/context/AppSettingsContext';
 import { useCampaign } from 'src/context/CampaignContext';
 import { useCombat } from 'src/context/CombatContext';
@@ -73,8 +73,8 @@ export default function CombatScreen() {
     setCreateCombatModalVisible(true);
   };
 
-  const handleCreateCombatWithName = (name: string, campaignId?: string) => {
-    createCombat(name, campaignId);
+  const handleCreateCombatWithName = (name: string, campaignId?: string, description?: string) => {
+    createCombat(name, campaignId, description);
   };
 
   const handleDeleteCombat = (combatId: string) => {
@@ -139,6 +139,7 @@ export default function CombatScreen() {
                   onRandomizeInitiative={handleRandomInitiative}
                   onStopCombat={stopCombat}
                   onBackToList={handleBackToList}
+                  onEditCombat={() => {}} // This will be handled by the modal in CombatContentNew
                   theme={currentTheme}
                   isGroupEnabled={isGroupEnabled}
                   toggleGroupForName={toggleGroupForName}
@@ -162,9 +163,10 @@ export default function CombatScreen() {
             </View>
 
             {/* Create Combat Modal */}
-            <CreateCombatModal
+            <CombatFormModal
                 visible={createCombatModalVisible}
                 onClose={() => setCreateCombatModalVisible(false)}
+                mode="create"
                 onCreateCombat={handleCreateCombatWithName}
                 theme={currentTheme}
             />

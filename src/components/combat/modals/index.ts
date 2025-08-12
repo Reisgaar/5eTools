@@ -1,3 +1,4 @@
+export { default as CombatFormModal } from './CombatFormModal';
 export { default as CombatSettingsModal } from './CombatSettingsModal';
 export { default as ColorPickerModal } from './ColorPickerModal';
 export { default as DeleteCombatantModal } from './DeleteCombatantModal';

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { BaseModal } from '../../ui';
 import { createBaseModalStyles } from '../../../styles/baseModalStyles';
+import { modalStyles } from '../../../styles/modalStyles';
 
 interface ValueEditModalProps {
     visible: boolean;
@@ -51,10 +52,7 @@ export default function ValueEditModal({
         onClose();
     };
 
-    const handleCancel = () => {
-        setValue(initialValue); // Reset to original value
-        onClose();
-    };
+
 
     const handleRollInitiative = () => {
         // Roll 1d20 + initiative bonus
@@ -75,15 +73,15 @@ export default function ValueEditModal({
     return (
         <BaseModal 
             visible={visible} 
-            onClose={handleCancel} 
+            onClose={onClose} 
             theme={theme} 
             title={modalTitle}
             subtitle={modalSubtitle}
         >
             {/* Value Display and Input */}
-            <View style={styles.valueContainer}>
+            <View style={modalStyles.valueContainer}>
                 <TextInput
-                    style={[styles.valueInput, { 
+                    style={[modalStyles.valueInput, { 
                         backgroundColor: theme.inputBackground, 
                         color: theme.text, 
                         borderColor: theme.primary 
@@ -103,9 +101,9 @@ export default function ValueEditModal({
             </View>
 
             {/* Increment/Decrement Buttons */}
-            <View style={styles.buttonContainer}>
+            <View style={modalStyles.editButtonContainer}>
                 {/* Decrement Buttons - Left Column */}
-                <View style={styles.buttonColumn}>
+                <View style={modalStyles.buttonColumn}>
                     <TouchableOpacity
                         style={[styles.modalButton, styles.modalButtonPrimary]}
                         onPress={() => handleDecrement(10)}
@@ -127,7 +125,7 @@ export default function ValueEditModal({
                 </View>
 
                 {/* Increment Buttons - Right Column */}
-                <View style={styles.buttonColumn}>
+                <View style={modalStyles.buttonColumn}>
                     <TouchableOpacity
                         style={[styles.modalButton, styles.modalButtonPrimary]}
                         onPress={() => handleIncrement(10)}
@@ -151,9 +149,9 @@ export default function ValueEditModal({
 
             {/* Roll Initiative Button - Only for initiative */}
             {isInitiative && (
-                <View style={styles.rollButtonContainer}>
+                <View style={modalStyles.rollButtonContainer}>
                     <TouchableOpacity
-                        style={[styles.modalButton, { backgroundColor: '#4CAF50' }]}
+                        style={[styles.modalButton, { backgroundColor: theme.success || '#4CAF50' }]}
                         onPress={handleRollInitiative}
                     >
                         <Text style={[styles.modalButtonText, { color: 'white' }]}>
@@ -166,12 +164,6 @@ export default function ValueEditModal({
             {/* Action Buttons */}
             <View style={styles.actionRow}>
                 <TouchableOpacity
-                    style={[styles.modalButton, styles.modalButtonSecondary]}
-                    onPress={handleCancel}
-                >
-                    <Text style={[styles.modalButtonText, styles.modalButtonTextSecondary]}>Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
                     style={[styles.modalButton, styles.modalButtonPrimary]}
                     onPress={handleAccept}
                 >
@@ -182,33 +174,4 @@ export default function ValueEditModal({
     );
 }
 
-const styles = StyleSheet.create({
-    valueContainer: {
-        marginBottom: 24,
-        width: '100%',
-    },
-    valueInput: {
-        borderWidth: 2,
-        borderRadius: 8,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        fontSize: 24,
-        fontWeight: 'bold',
-        textAlign: 'center',
-    },
-    buttonContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '100%',
-        marginBottom: 24,
-        gap: 16,
-    },
-    buttonColumn: {
-        flex: 1,
-        gap: 8,
-    },
-    rollButtonContainer: {
-        marginBottom: 16,
-        width: '100%',
-    },
-}); 
+ 
