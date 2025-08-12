@@ -1,22 +1,11 @@
-export { default as PlayerModal } from './PlayerModal';
-export { default as TokenViewModal } from './TokenViewModal';
 export { default as SettingsModal } from './SettingsModal';
-export { default as ValueEditModal } from './ValueEditModal';
 export { default as CampaignSelectorModal } from './CampaignSelectorModal';
 export { default as ConfirmModal } from './ConfirmModal';
-export { default as ColorPickerModal } from './ColorPickerModal';
-export { default as HPEditModal } from './HPEditModal';
-export { default as MaxHPEditModal } from './MaxHPEditModal';
-export { default as CRFilterModal } from './CRFilterModal';
 export { default as TypeFilterModal } from './TypeFilterModal';
-export { default as SourceFilterModal } from './SourceFilterModal';
 export { default as DiceRollModal } from './DiceRollModal';
 export { default as GlobalModals } from './GlobalModals';
-export { default as SpellNotFoundModal } from './SpellNotFoundModal';
-export { default as CreatureNotFoundModal } from './CreatureNotFoundModal';
-export { default as SourceSelectionModal } from './SourceSelectionModal';
+
+
 export { StorageManagementModal } from './StorageManagementModal';
-export { default as SchoolFilterModal } from './SchoolFilterModal';
-export { default as ClassFilterModal } from './ClassFilterModal';
 export { default as AdvancedDiceRollModal } from './AdvancedDiceRollModal';
-export { default as OtherFilterModal } from './OtherFilterModal';
+export { default as ColorModal } from './ColorModal';

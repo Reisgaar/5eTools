@@ -6,7 +6,7 @@ import { useData } from '../../context/DataContext';
 import { useAppSettings } from '../../context/AppSettingsContext';
 import { ALIGNMENTS, SIZES, STATS } from '../../data/helpers';
 import { renderEntries, parseDiceExpression, rollDice } from '../../utils/replaceTags';
-import Separator from '../ui/Separator';
+import { Separator } from '../ui';
 import { 
     normalizeString, 
     getCreatureSourceForBeast, 
@@ -15,9 +15,9 @@ import {
     getExcludedSpellSources,
     is2024Source
 } from '../../utils/stringUtils';
-import SpellNotFoundModal from '../modals/SpellNotFoundModal';
-import CreatureNotFoundModal from '../modals/CreatureNotFoundModal';
-import SourceSelectionModal from '../modals/SourceSelectionModal';
+import SpellNotFoundModal from '../spells/modals/SpellNotFoundModal';
+import CreatureNotFoundModal from './modals/CreatureNotFoundModal';
+import SourceSelectionModal from '../spells/modals/SourceSelectionModal';
 import { createModalStyles, getModalZIndex } from '../../styles/modals';
 
 interface BeastDetailModalProps {

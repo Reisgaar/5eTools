@@ -1,8 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { BaseModal } from '../ui';
-import { createBaseModalStyles } from '../../styles/baseModalStyles';
+import { BaseModal } from '../../ui';
+import { createBaseModalStyles } from '../../../styles/baseModalStyles';
 
 interface ColorPickerModalProps {
     visible: boolean;

@@ -1,106 +1,108 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { BaseModal } from '../ui';
-import { createBaseModalStyles } from '../../styles/baseModalStyles';
+import { BaseModal } from '../../ui';
+import { createBaseModalStyles } from '../../../styles/baseModalStyles';
 
-interface HPEditModalProps {
+interface ValueEditModalProps {
     visible: boolean;
     onClose: () => void;
-    onAccept: (currentHp: number) => void;
-    onMaxHpEdit: () => void;
-    creatureName: string;
-    combatantNumber: number;
-    initialCurrentHp: number;
-    maxHp: number;
+    onAccept: (value: number) => void;
+    title: string;
+    creatureName?: string;
+    combatantNumber?: number;
+    initialValue: number;
     theme: any;
+    isInitiative?: boolean;
+    initiativeBonus?: number;
+    isGroup?: boolean;
 }
 
-export default function HPEditModal({
+export default function ValueEditModal({
     visible,
     onClose,
     onAccept,
-    onMaxHpEdit,
+    title,
     creatureName,
     combatantNumber,
-    initialCurrentHp,
-    maxHp,
-    theme
-}: HPEditModalProps) {
-    const [currentHp, setCurrentHp] = useState(initialCurrentHp);
+    initialValue,
+    theme,
+    isInitiative = false,
+    initiativeBonus = 0,
+    isGroup = false
+}: ValueEditModalProps) {
+    const [value, setValue] = useState(initialValue);
     const styles = createBaseModalStyles(theme);
 
-    // Update local value when initial value changes
+    // Update local value when initialValue changes
     useEffect(() => {
-        setCurrentHp(initialCurrentHp);
-    }, [initialCurrentHp]);
+        setValue(initialValue);
+    }, [initialValue]);
 
     const handleIncrement = (amount: number) => {
-        setCurrentHp(prev => Math.min(maxHp, prev + amount));
+        setValue(prev => prev + amount);
     };
 
     const handleDecrement = (amount: number) => {
-        setCurrentHp(prev => prev - amount);
+        setValue(prev => Math.max(0, prev - amount));
     };
 
     const handleAccept = () => {
-        onAccept(currentHp);
+        onAccept(value);
         onClose();
     };
 
     const handleCancel = () => {
-        setCurrentHp(initialCurrentHp);
+        setValue(initialValue); // Reset to original value
         onClose();
     };
 
-    // Create title
-    const modalTitle = "Edit Current HP";
+    const handleRollInitiative = () => {
+        // Roll 1d20 + initiative bonus
+        const roll = Math.floor(Math.random() * 20) + 1;
+        const total = roll + initiativeBonus;
+        setValue(total);
+    };
+
+    // Create title with bonus for initiative
+    const modalTitle = isInitiative 
+        ? `${title} (Bonus: ${initiativeBonus >= 0 ? '+' : ''}${initiativeBonus})` 
+        : title;
+
+    const modalSubtitle = creatureName 
+        ? `${!isGroup && combatantNumber ? `#${combatantNumber} ` : ''}${creatureName}`
+        : undefined;
 
     return (
-        <BaseModal visible={visible} onClose={handleCancel} theme={theme} title={modalTitle}>
-            {/* Creature Name */}
-            <View style={styles.creatureNameContainer}>
-                <Text style={[styles.modalText, { fontStyle: 'italic', textAlign: 'center' }]}>
-                    #{combatantNumber} {creatureName}
-                </Text>
-            </View>
-
-            {/* HP Display */}
-            <View style={styles.hpDisplayContainer}>
+        <BaseModal 
+            visible={visible} 
+            onClose={handleCancel} 
+            theme={theme} 
+            title={modalTitle}
+            subtitle={modalSubtitle}
+        >
+            {/* Value Display and Input */}
+            <View style={styles.valueContainer}>
                 <TextInput
-                    style={[styles.currentHpInput, { 
+                    style={[styles.valueInput, { 
                         backgroundColor: theme.inputBackground, 
                         color: theme.text, 
                         borderColor: theme.primary 
                     }]}
-                    value={String(currentHp)}
+                    value={String(value)}
                     onChangeText={(text) => {
                         const num = parseInt(text, 10);
                         if (!isNaN(num)) {
-                            setCurrentHp(Math.min(maxHp, num));
+                            setValue(Math.max(0, num));
                         } else if (text === '') {
-                            setCurrentHp(0);
+                            setValue(0);
                         }
                     }}
                     keyboardType="numeric"
                     textAlign="center"
                 />
-                
-                <Text style={[styles.separator, { color: theme.text }]}>/</Text>
-                
-                <TouchableOpacity
-                    style={[styles.maxHpDisplay, { 
-                        backgroundColor: theme.inputBackground, 
-                        borderColor: theme.primary 
-                    }]}
-                    onPress={onMaxHpEdit}
-                >
-                    <Text style={[styles.maxHpText, { color: theme.text }]}>
-                        {maxHp}
-                    </Text>
-                </TouchableOpacity>
             </View>
 
-            {/* HP Adjustment Buttons */}
+            {/* Increment/Decrement Buttons */}
             <View style={styles.buttonContainer}>
                 {/* Decrement Buttons - Left Column */}
                 <View style={styles.buttonColumn}>
@@ -147,8 +149,28 @@ export default function HPEditModal({
                 </View>
             </View>
 
-            {/* Action Button */}
-            <View style={styles.actionContainer}>
+            {/* Roll Initiative Button - Only for initiative */}
+            {isInitiative && (
+                <View style={styles.rollButtonContainer}>
+                    <TouchableOpacity
+                        style={[styles.modalButton, { backgroundColor: '#4CAF50' }]}
+                        onPress={handleRollInitiative}
+                    >
+                        <Text style={[styles.modalButtonText, { color: 'white' }]}>
+                            Roll Initiative (1d20{initiativeBonus >= 0 ? '+' : ''}{initiativeBonus})
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+            )}
+
+            {/* Action Buttons */}
+            <View style={styles.actionRow}>
+                <TouchableOpacity
+                    style={[styles.modalButton, styles.modalButtonSecondary]}
+                    onPress={handleCancel}
+                >
+                    <Text style={[styles.modalButtonText, styles.modalButtonTextSecondary]}>Cancel</Text>
+                </TouchableOpacity>
                 <TouchableOpacity
                     style={[styles.modalButton, styles.modalButtonPrimary]}
                     onPress={handleAccept}
@@ -161,18 +183,11 @@ export default function HPEditModal({
 }
 
 const styles = StyleSheet.create({
-    creatureNameContainer: {
-        alignItems: 'center',
-        marginBottom: 16,
-    },
-    hpDisplayContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
+    valueContainer: {
         marginBottom: 24,
-        gap: 12,
+        width: '100%',
     },
-    currentHpInput: {
+    valueInput: {
         borderWidth: 2,
         borderRadius: 8,
         paddingHorizontal: 16,
@@ -180,28 +195,11 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
         textAlign: 'center',
-        minWidth: 80,
-    },
-    separator: {
-        fontSize: 24,
-        fontWeight: 'bold',
-    },
-    maxHpDisplay: {
-        borderWidth: 2,
-        borderRadius: 8,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        minWidth: 80,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    maxHpText: {
-        fontSize: 24,
-        fontWeight: 'bold',
     },
     buttonContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
+        width: '100%',
         marginBottom: 24,
         gap: 16,
     },
@@ -209,7 +207,8 @@ const styles = StyleSheet.create({
         flex: 1,
         gap: 8,
     },
-    actionContainer: {
+    rollButtonContainer: {
+        marginBottom: 16,
         width: '100%',
     },
-});
+}); 

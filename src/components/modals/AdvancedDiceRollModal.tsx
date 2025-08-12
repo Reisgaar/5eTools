@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, Switch, StyleSheet } from 'react-native';
-import BaseModal from '../ui/BaseModal';
+import { BaseModal } from '../ui';
 import { rollDice, parseDiceExpression } from '../../utils/replaceTags';
 import { useModal } from '../../context/ModalContext';
 import { getModalZIndex } from '../../styles/modals';

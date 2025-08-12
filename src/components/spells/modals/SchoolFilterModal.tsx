@@ -1,7 +1,7 @@
 import React from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { BaseModal } from '../ui';
-import { createBaseModalStyles } from '../../styles/baseModalStyles';
+import { BaseModal } from '../../ui';
+import { createBaseModalStyles } from '../../../styles/baseModalStyles';
 
 interface SchoolFilterModalProps {
   visible: boolean;

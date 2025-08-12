@@ -1,10 +1,10 @@
 import React from 'react';
 import { Dimensions, FlatList, ScrollView, Text, TouchableOpacity, View, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { BaseModal } from '../ui';
-import { createBaseModalStyles } from '../../styles/baseModalStyles';
-import { DEFAULT_PLAYER_TOKEN } from '../../constants/tokens';
-import { useCampaign } from '../../context/CampaignContext';
+import { BaseModal } from '../../ui';
+import { createBaseModalStyles } from '../../../styles/baseModalStyles';
+import { DEFAULT_PLAYER_TOKEN } from '../../../constants/tokens';
+import { useCampaign } from '../../../context/CampaignContext';
 
 interface Player {
   name: string;

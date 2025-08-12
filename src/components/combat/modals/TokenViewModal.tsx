@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { BaseModal } from '../ui';
-import { createBaseModalStyles } from '../../styles/baseModalStyles';
+import { BaseModal } from '../../ui';
+import { createBaseModalStyles } from '../../../styles/baseModalStyles';
 
 interface TokenViewModalProps {
   visible: boolean;

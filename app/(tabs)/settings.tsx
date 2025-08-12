@@ -3,7 +3,7 @@ import React from 'react';
 import { ActivityIndicator, Alert, Dimensions, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 // STYLES
-import { commonStyles } from 'src/style/styles';
+import { commonStyles } from 'src/styles/commonStyles';
 
 // CONTEXTS
 import { useRouter } from 'expo-router';

@@ -32,11 +32,11 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         shadowRadius: 3.84,
         zIndex: 1000,
         
-        // Responsive sizing
-        width: Platform.OS === 'web' ? '90%' : '95%',
-        maxWidth: Platform.OS === 'web' ? 450 : 500,
-        maxHeight: Platform.OS === 'web' ? '85%' : '85%',
-        minHeight: Platform.OS === 'web' ? 300 : 400,
+        // Responsive sizing - improved for mobile
+        width: Platform.OS === 'web' ? '90%' : '92%',
+        maxWidth: Platform.OS === 'web' ? 450 : 400,
+        maxHeight: Platform.OS === 'web' ? '85%' : '80%',
+        minHeight: Platform.OS === 'web' ? 300 : 350,
     },
     
     // Header section
@@ -65,15 +65,15 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         flex: 1,
     },
     modalTitle: {
-        fontSize: Platform.OS === 'web' ? 16 : 18,
+        fontSize: Platform.OS === 'web' ? 16 : 17,
         fontWeight: 'bold',
         color: theme.text,
-        marginBottom: Platform.OS === 'web' ? 2 : 4,
+        marginBottom: Platform.OS === 'web' ? 2 : 3,
     },
     modalSubtitle: {
         fontSize: Platform.OS === 'web' ? 11 : 12,
         color: theme.noticeText,
-        marginBottom: Platform.OS === 'web' ? 4 : 6,
+        marginBottom: Platform.OS === 'web' ? 4 : 5,
     },
     modalCloseButton: {
         padding: 4,
@@ -94,15 +94,15 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
     // Content sections
     modalBody: {
         flex: 1,
-        paddingHorizontal: 20,
-        paddingBottom: 20,
+        paddingHorizontal: Platform.OS === 'web' ? 20 : 16,
+        paddingBottom: Platform.OS === 'web' ? 20 : 16,
     },
     modalScrollView: {
         flex: 1,
-        paddingHorizontal: 20,
+        paddingHorizontal: Platform.OS === 'web' ? 20 : 16,
     },
     modalScrollContent: {
-        paddingBottom: 20,
+        paddingBottom: Platform.OS === 'web' ? 20 : 16,
     },
     
     // Footer section
@@ -168,10 +168,11 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
     // Button styles
     modalButton: {
         borderRadius: 8,
-        paddingVertical: 12,
-        paddingHorizontal: 24,
+        paddingVertical: Platform.OS === 'web' ? 12 : 10,
+        paddingHorizontal: Platform.OS === 'web' ? 24 : 20,
         alignItems: 'center',
         justifyContent: 'center',
+        minHeight: Platform.OS === 'web' ? 44 : 40,
     },
     modalButtonPrimary: {
         backgroundColor: theme.primary,
@@ -226,6 +227,133 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         fontSize: 12,
         color: theme.noticeText,
         marginTop: 2,
+    },
+    
+    // Action row for modals with multiple buttons
+    actionRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+        gap: Platform.OS === 'web' ? 12 : 8,
+        marginTop: 16,
+    },
+    
+    // Settings option styles
+    settingsOption: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 16,
+        paddingHorizontal: 12,
+        borderRadius: 8,
+        marginBottom: 8,
+        backgroundColor: 'rgba(0,0,0,0.02)',
+    },
+    optionIcon: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: 'rgba(0,0,0,0.05)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 12,
+    },
+    optionContent: {
+        flex: 1,
+    },
+    optionTitle: {
+        fontSize: 16,
+        fontWeight: '600',
+        marginBottom: 2,
+    },
+    optionDescription: {
+        fontSize: 12,
+    },
+    
+    // Conditions grid styles
+    conditionsGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-around',
+    },
+    conditionBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        margin: 4,
+        flex: 1,
+        minWidth: 0,
+    },
+    
+    // Color grid styles
+    colorGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-around',
+        marginTop: 16,
+    },
+    colorOption: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        margin: 5,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    selectedColor: {
+        borderWidth: 2,
+        borderColor: 'black',
+    },
+    currentSelection: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 16,
+        justifyContent: 'center',
+    },
+    currentText: {
+        fontSize: 14,
+        marginRight: 8,
+    },
+    currentColor: {
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+    },
+    
+    // Note input styles
+    noteInput: {
+        borderRadius: 8,
+        padding: 12,
+        fontSize: 14,
+        minHeight: 120,
+        textAlignVertical: 'top',
+        marginTop: 12,
+        borderWidth: 1,
+    },
+    
+    // Delete button styles
+    deleteBtn: {
+        paddingVertical: 12,
+        borderRadius: 8,
+        alignItems: 'center',
+        marginTop: 16,
+    },
+    confirmationContainer: {
+        marginTop: 16,
+    },
+    confirmationText: {
+        fontSize: 14,
+        textAlign: 'center',
+        marginBottom: 16,
+        fontWeight: '500',
+    },
+    confirmationButtons: {
+        flexDirection: 'row',
+        gap: 12,
+    },
+    confirmationBtn: {
+        flex: 1,
+        paddingVertical: 12,
+        borderRadius: 8,
+        alignItems: 'center',
     },
 });
 

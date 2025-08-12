@@ -10,7 +10,8 @@ import { equalsNormalized } from 'src/utils/stringUtils';
 // COMPONENTS
 import { BeastListItem } from 'src/components/beasts';
 import { CombatSelectionModal } from 'src/components/combat';
-import { CRFilterModal, SourceFilterModal, TypeFilterModal } from 'src/components/modals';
+import { CRFilterModal, SourceFilterModal } from 'src/components/beasts/modals';
+import { TypeFilterModal } from 'src/components/modals';
 
 // CONTEXTS
 import { useAppSettings } from 'src/context/AppSettingsContext';

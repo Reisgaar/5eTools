@@ -1,91 +1,106 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { BaseModal } from '../ui';
-import { createBaseModalStyles } from '../../styles/baseModalStyles';
+import { BaseModal } from '../../ui';
+import { createBaseModalStyles } from '../../../styles/baseModalStyles';
 
-interface MaxHPEditModalProps {
+interface HPEditModalProps {
     visible: boolean;
     onClose: () => void;
-    onAccept: (maxHp: number) => void;
+    onAccept: (currentHp: number) => void;
+    onMaxHpEdit: () => void;
     creatureName: string;
     combatantNumber: number;
-    initialMaxHp: number;
-    currentHp: number;
+    initialCurrentHp: number;
+    maxHp: number;
     theme: any;
 }
 
-export default function MaxHPEditModal({
+export default function HPEditModal({
     visible,
     onClose,
     onAccept,
+    onMaxHpEdit,
     creatureName,
     combatantNumber,
-    initialMaxHp,
-    currentHp,
+    initialCurrentHp,
+    maxHp,
     theme
-}: MaxHPEditModalProps) {
-    const [maxHp, setMaxHp] = useState(initialMaxHp);
+}: HPEditModalProps) {
+    const [currentHp, setCurrentHp] = useState(initialCurrentHp);
     const styles = createBaseModalStyles(theme);
 
     // Update local value when initial value changes
     useEffect(() => {
-        setMaxHp(initialMaxHp);
-    }, [initialMaxHp]);
+        setCurrentHp(initialCurrentHp);
+    }, [initialCurrentHp]);
 
     const handleIncrement = (amount: number) => {
-        setMaxHp(prev => prev + amount);
+        setCurrentHp(prev => Math.min(maxHp, prev + amount));
     };
 
     const handleDecrement = (amount: number) => {
-        setMaxHp(prev => Math.max(1, prev - amount));
+        setCurrentHp(prev => prev - amount);
     };
 
     const handleAccept = () => {
-        onAccept(maxHp);
+        onAccept(currentHp);
         onClose();
     };
 
     const handleCancel = () => {
-        setMaxHp(initialMaxHp);
+        setCurrentHp(initialCurrentHp);
         onClose();
     };
 
-    // Create title with current HP info
-    const modalTitle = `Edit Max HP - #${combatantNumber} ${creatureName}`;
-    const modalSubtitle = `Current: ${currentHp}`;
+    // Create title
+    const modalTitle = "Edit Current HP";
 
     return (
-        <BaseModal 
-            visible={visible} 
-            onClose={handleCancel} 
-            theme={theme} 
-            title={modalTitle}
-            subtitle={modalSubtitle}
-        >
-            {/* Max HP Display */}
-            <View style={styles.maxHpContainer}>
-                <Text style={[styles.modalText, { fontWeight: 'bold' }]}>Max HP:</Text>
+        <BaseModal visible={visible} onClose={handleCancel} theme={theme} title={modalTitle}>
+            {/* Creature Name */}
+            <View style={styles.creatureNameContainer}>
+                <Text style={[styles.modalText, { fontStyle: 'italic', textAlign: 'center' }]}>
+                    #{combatantNumber} {creatureName}
+                </Text>
+            </View>
+
+            {/* HP Display */}
+            <View style={styles.hpDisplayContainer}>
                 <TextInput
-                    style={[styles.maxHpInput, { 
+                    style={[styles.currentHpInput, { 
                         backgroundColor: theme.inputBackground, 
                         color: theme.text, 
                         borderColor: theme.primary 
                     }]}
-                    value={String(maxHp)}
+                    value={String(currentHp)}
                     onChangeText={(text) => {
                         const num = parseInt(text, 10);
                         if (!isNaN(num)) {
-                            setMaxHp(Math.max(1, num));
+                            setCurrentHp(Math.min(maxHp, num));
                         } else if (text === '') {
-                            setMaxHp(1);
+                            setCurrentHp(0);
                         }
                     }}
                     keyboardType="numeric"
                     textAlign="center"
                 />
+                
+                <Text style={[styles.separator, { color: theme.text }]}>/</Text>
+                
+                <TouchableOpacity
+                    style={[styles.maxHpDisplay, { 
+                        backgroundColor: theme.inputBackground, 
+                        borderColor: theme.primary 
+                    }]}
+                    onPress={onMaxHpEdit}
+                >
+                    <Text style={[styles.maxHpText, { color: theme.text }]}>
+                        {maxHp}
+                    </Text>
+                </TouchableOpacity>
             </View>
 
-            {/* Max HP Adjustment Buttons */}
+            {/* HP Adjustment Buttons */}
             <View style={styles.buttonContainer}>
                 {/* Decrement Buttons - Left Column */}
                 <View style={styles.buttonColumn}>
@@ -132,8 +147,14 @@ export default function MaxHPEditModal({
                 </View>
             </View>
 
-            {/* Action Button */}
-            <View style={styles.actionContainer}>
+            {/* Action Buttons */}
+            <View style={styles.actionRow}>
+                <TouchableOpacity
+                    style={[styles.modalButton, styles.modalButtonSecondary]}
+                    onPress={handleCancel}
+                >
+                    <Text style={[styles.modalButtonText, styles.modalButtonTextSecondary]}>Cancel</Text>
+                </TouchableOpacity>
                 <TouchableOpacity
                     style={[styles.modalButton, styles.modalButtonPrimary]}
                     onPress={handleAccept}
@@ -146,14 +167,18 @@ export default function MaxHPEditModal({
 }
 
 const styles = StyleSheet.create({
-    maxHpContainer: {
+    creatureNameContainer: {
+        alignItems: 'center',
+        marginBottom: 16,
+    },
+    hpDisplayContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 16,
+        marginBottom: 24,
         gap: 12,
     },
-    maxHpInput: {
+    currentHpInput: {
         borderWidth: 2,
         borderRadius: 8,
         paddingHorizontal: 16,
@@ -162,6 +187,23 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         textAlign: 'center',
         minWidth: 80,
+    },
+    separator: {
+        fontSize: 24,
+        fontWeight: 'bold',
+    },
+    maxHpDisplay: {
+        borderWidth: 2,
+        borderRadius: 8,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        minWidth: 80,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    maxHpText: {
+        fontSize: 24,
+        fontWeight: 'bold',
     },
     buttonContainer: {
         flexDirection: 'row',
@@ -172,8 +214,5 @@ const styles = StyleSheet.create({
     buttonColumn: {
         flex: 1,
         gap: 8,
-    },
-    actionContainer: {
-        width: '100%',
     },
 });

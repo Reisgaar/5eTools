@@ -1,76 +1,58 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { BaseModal } from '../ui';
-import { createBaseModalStyles } from '../../styles/baseModalStyles';
+import { BaseModal } from '../../ui';
+import { createBaseModalStyles } from '../../../styles/baseModalStyles';
 
-interface ValueEditModalProps {
+interface MaxHPEditModalProps {
     visible: boolean;
     onClose: () => void;
-    onAccept: (value: number) => void;
-    title: string;
-    creatureName?: string;
-    combatantNumber?: number;
-    initialValue: number;
+    onAccept: (maxHp: number) => void;
+    creatureName: string;
+    combatantNumber: number;
+    initialMaxHp: number;
+    currentHp: number;
     theme: any;
-    isInitiative?: boolean;
-    initiativeBonus?: number;
-    isGroup?: boolean;
 }
 
-export default function ValueEditModal({
+export default function MaxHPEditModal({
     visible,
     onClose,
     onAccept,
-    title,
     creatureName,
     combatantNumber,
-    initialValue,
-    theme,
-    isInitiative = false,
-    initiativeBonus = 0,
-    isGroup = false
-}: ValueEditModalProps) {
-    const [value, setValue] = useState(initialValue);
+    initialMaxHp,
+    currentHp,
+    theme
+}: MaxHPEditModalProps) {
+    const [maxHp, setMaxHp] = useState(initialMaxHp);
     const styles = createBaseModalStyles(theme);
 
-    // Update local value when initialValue changes
+    // Update local value when initial value changes
     useEffect(() => {
-        setValue(initialValue);
-    }, [initialValue]);
+        setMaxHp(initialMaxHp);
+    }, [initialMaxHp]);
 
     const handleIncrement = (amount: number) => {
-        setValue(prev => prev + amount);
+        setMaxHp(prev => prev + amount);
     };
 
     const handleDecrement = (amount: number) => {
-        setValue(prev => Math.max(0, prev - amount));
+        setMaxHp(prev => Math.max(1, prev - amount));
     };
 
     const handleAccept = () => {
-        onAccept(value);
+        onAccept(maxHp);
         onClose();
     };
 
     const handleCancel = () => {
-        setValue(initialValue); // Reset to original value
+        setMaxHp(initialMaxHp);
         onClose();
     };
 
-    const handleRollInitiative = () => {
-        // Roll 1d20 + initiative bonus
-        const roll = Math.floor(Math.random() * 20) + 1;
-        const total = roll + initiativeBonus;
-        setValue(total);
-    };
-
-    // Create title with bonus for initiative
-    const modalTitle = isInitiative 
-        ? `${title} (Bonus: ${initiativeBonus >= 0 ? '+' : ''}${initiativeBonus})` 
-        : title;
-
-    const modalSubtitle = creatureName 
-        ? `${!isGroup && combatantNumber ? `#${combatantNumber} ` : ''}${creatureName}`
-        : undefined;
+    // Create title with current HP info
+    const modalTitle = `Edit Max HP - #${combatantNumber} ${creatureName}`;
+    const modalSubtitle = `Current: ${currentHp}`;
 
     return (
         <BaseModal 
@@ -80,21 +62,22 @@ export default function ValueEditModal({
             title={modalTitle}
             subtitle={modalSubtitle}
         >
-            {/* Value Display and Input */}
-            <View style={styles.valueContainer}>
+            {/* Max HP Display */}
+            <View style={styles.maxHpContainer}>
+                <Text style={[styles.modalText, { fontWeight: 'bold' }]}>Max HP:</Text>
                 <TextInput
-                    style={[styles.valueInput, { 
+                    style={[styles.maxHpInput, { 
                         backgroundColor: theme.inputBackground, 
                         color: theme.text, 
                         borderColor: theme.primary 
                     }]}
-                    value={String(value)}
+                    value={String(maxHp)}
                     onChangeText={(text) => {
                         const num = parseInt(text, 10);
                         if (!isNaN(num)) {
-                            setValue(Math.max(0, num));
+                            setMaxHp(Math.max(1, num));
                         } else if (text === '') {
-                            setValue(0);
+                            setMaxHp(1);
                         }
                     }}
                     keyboardType="numeric"
@@ -102,7 +85,7 @@ export default function ValueEditModal({
                 />
             </View>
 
-            {/* Increment/Decrement Buttons */}
+            {/* Max HP Adjustment Buttons */}
             <View style={styles.buttonContainer}>
                 {/* Decrement Buttons - Left Column */}
                 <View style={styles.buttonColumn}>
@@ -149,22 +132,14 @@ export default function ValueEditModal({
                 </View>
             </View>
 
-            {/* Roll Initiative Button - Only for initiative */}
-            {isInitiative && (
-                <View style={styles.rollButtonContainer}>
-                    <TouchableOpacity
-                        style={[styles.modalButton, { backgroundColor: '#4CAF50' }]}
-                        onPress={handleRollInitiative}
-                    >
-                        <Text style={[styles.modalButtonText, { color: 'white' }]}>
-                            Roll Initiative (1d20{initiativeBonus >= 0 ? '+' : ''}{initiativeBonus})
-                        </Text>
-                    </TouchableOpacity>
-                </View>
-            )}
-
             {/* Action Buttons */}
             <View style={styles.actionRow}>
+                <TouchableOpacity
+                    style={[styles.modalButton, styles.modalButtonSecondary]}
+                    onPress={handleCancel}
+                >
+                    <Text style={[styles.modalButtonText, styles.modalButtonTextSecondary]}>Cancel</Text>
+                </TouchableOpacity>
                 <TouchableOpacity
                     style={[styles.modalButton, styles.modalButtonPrimary]}
                     onPress={handleAccept}
@@ -177,11 +152,14 @@ export default function ValueEditModal({
 }
 
 const styles = StyleSheet.create({
-    valueContainer: {
-        marginBottom: 24,
-        width: '100%',
+    maxHpContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 16,
+        gap: 12,
     },
-    valueInput: {
+    maxHpInput: {
         borderWidth: 2,
         borderRadius: 8,
         paddingHorizontal: 16,
@@ -189,11 +167,11 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
         textAlign: 'center',
+        minWidth: 80,
     },
     buttonContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        width: '100%',
         marginBottom: 24,
         gap: 16,
     },
@@ -201,14 +179,4 @@ const styles = StyleSheet.create({
         flex: 1,
         gap: 8,
     },
-    actionRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '100%',
-        gap: 12,
-    },
-    rollButtonContainer: {
-        marginBottom: 16,
-        width: '100%',
-    },
-}); 
+});

@@ -6,7 +6,7 @@ import { Text, View, Pressable } from "react-native";
 import { useAppSettings } from "../../context/AppSettingsContext";
 
 // STYLES
-import { commonStyles } from 'src/style/styles';
+import { commonStyles } from 'src/styles/commonStyles';
 
 type Props = {
     text: string;

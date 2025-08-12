@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
-import { BaseModal } from '../ui';
-import { createBaseModalStyles } from '../../styles/baseModalStyles';
+import { BaseModal } from '../../ui';
+import { createBaseModalStyles } from '../../../styles/baseModalStyles';
 
 interface OtherFilterModalProps {
     visible: boolean;
@@ -87,4 +87,6 @@ export default function OtherFilterModal({
         </BaseModal>
     );
 }
+
+
 

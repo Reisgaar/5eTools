@@ -22,9 +22,9 @@ import {
   formatLevel
 } from '../../utils/spellUtils';
 import { normalizeString, equalsNormalized, is2024Source } from '../../utils/stringUtils';
-import SpellNotFoundModal from '../modals/SpellNotFoundModal';
-import CreatureNotFoundModal from '../modals/CreatureNotFoundModal';
-import SourceSelectionModal from '../modals/SourceSelectionModal';
+import SpellNotFoundModal from './modals/SpellNotFoundModal';
+import CreatureNotFoundModal from '../beasts/modals/CreatureNotFoundModal';
+import SourceSelectionModal from './modals/SourceSelectionModal';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 

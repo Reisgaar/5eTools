@@ -11,13 +11,14 @@ import CombatControls from './CombatControls';
 import CombatGroup from './CombatGroup';
 import CombatIndividual from './CombatIndividual';
 import CombatPlayer from './CombatPlayer';
-import { PlayerModal, SettingsModal, ValueEditModal, HPEditModal, MaxHPEditModal, ConfirmModal } from '../modals';
+import { PlayerModal, ValueEditModal, HPEditModal, MaxHPEditModal, StatusModal, NoteModal, DeleteCombatantModal, CombatSettingsModal } from './modals';
+import { SettingsModal, ConfirmModal, ColorModal } from '../modals';
 import { Ionicons } from '@expo/vector-icons';
 import { createCombatStyles } from '../../styles/combat';
 import { CombatContentProps } from './types';
 import { getCombatDisplayList } from './utils';
 import { loadCombatImages } from './utils';
-import { TokenViewModal } from '../modals';
+import { TokenViewModal } from './modals';
 
 export default function CombatContentNew({
   combatants,
@@ -53,6 +54,13 @@ export default function CombatContentNew({
   const [settingsModalVisible, setSettingsModalVisible] = React.useState(false);
   const [hpEditModalVisible, setHpEditModalVisible] = React.useState(false);
   const [maxHpEditModalVisible, setMaxHpEditModalVisible] = React.useState(false);
+  
+  // State for new individual settings modals
+  const [combatSettingsModalVisible, setCombatSettingsModalVisible] = React.useState(false);
+  const [statusModalVisible, setStatusModalVisible] = React.useState(false);
+  const [colorModalVisible, setColorModalVisible] = React.useState(false);
+  const [noteModalVisible, setNoteModalVisible] = React.useState(false);
+  const [deleteCombatantModalVisible, setDeleteCombatantModalVisible] = React.useState(false);
   
   // State for token view modal
   const [tokenModalVisible, setTokenModalVisible] = React.useState(false);
@@ -298,23 +306,9 @@ export default function CombatContentNew({
     setMaxHpEditModalVisible(false);
   };
 
-  // Handle color editing - moved to settings modal
-  const handleColorEdit = (id: string, name: string, currentColor?: string) => {
-    // Color editing is now handled in the settings modal
-    console.log('Color editing moved to settings modal');
-  };
 
-  const handleColorSelect = (color: string | null) => {
-    if (editingStatus) {
-      onUpdateColor(editingStatus.id, color);
-    }
-  };
 
-  const handleColorCancel = () => {
-    // Color cancel is now handled in the settings modal
-  };
-
-  // Handle status editing
+  // Handle status editing - new approach with individual modals
   const handleStatusEdit = (id: string, name: string, currentColor?: string, currentCondition?: string) => {
     const combatant = combatants.find(c => c.id === id);
     setEditingStatus({
@@ -324,32 +318,77 @@ export default function CombatContentNew({
       currentConditions: combatant?.conditions || [],
       currentNote: combatant?.note || ''
     });
-    setSettingsModalVisible(true);
+    setCombatSettingsModalVisible(true);
   };
 
+  // Handle individual settings modal actions
+  const handleStatusPress = () => {
+    setCombatSettingsModalVisible(false);
+    setStatusModalVisible(true);
+  };
+
+  const handleColorPress = () => {
+    setCombatSettingsModalVisible(false);
+    setColorModalVisible(true);
+  };
+
+  const handleNotePress = () => {
+    setCombatSettingsModalVisible(false);
+    setNoteModalVisible(true);
+  };
+
+  const handleDeletePress = () => {
+    setCombatSettingsModalVisible(false);
+    setDeleteCombatantModalVisible(true);
+  };
+
+  // Handle status modal actions
   const handleStatusSelect = (conditions: string[]) => {
     if (editingStatus) {
       onUpdateConditions(editingStatus.id, conditions);
     }
+    setStatusModalVisible(false);
   };
 
   const handleStatusCancel = () => {
-    setSettingsModalVisible(false);
-    setEditingStatus(null);
+    setStatusModalVisible(false);
   };
 
-  // Handle note update
+  // Handle color modal actions
+  const handleColorSelect = (color: string | null) => {
+    if (editingStatus) {
+      onUpdateColor(editingStatus.id, color);
+    }
+    setColorModalVisible(false);
+  };
+
+  const handleColorCancel = () => {
+    setColorModalVisible(false);
+  };
+
+  // Handle note modal actions
   const handleNoteUpdate = (note: string) => {
     if (editingStatus) {
       onUpdateNote(editingStatus.id, note);
     }
+    setNoteModalVisible(false);
   };
 
-  // Handle delete confirmation
-  const handleDeleteConfirm = (id: string, name: string) => {
-    onRemoveCombatant(id);
-    setSettingsModalVisible(false);
+  const handleNoteCancel = () => {
+    setNoteModalVisible(false);
+  };
+
+  // Handle delete modal actions
+  const handleDeleteConfirm = () => {
+    if (editingStatus) {
+      onRemoveCombatant(editingStatus.id);
+    }
+    setDeleteCombatantModalVisible(false);
     setEditingStatus(null);
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteCombatantModalVisible(false);
   };
 
   // Handle creature press
@@ -595,16 +634,49 @@ export default function CombatContentNew({
         isGroup={editingValue?.isGroup || false}
       />
 
-      <SettingsModal
-        visible={settingsModalVisible}
-        currentConditions={editingStatus?.currentConditions || []}
-        currentColor={editingStatus?.currentColor}
-        onSelect={handleStatusSelect}
-        onColorSelect={handleColorSelect}
+      {/* New Individual Settings Modals */}
+      <CombatSettingsModal
+        visible={combatSettingsModalVisible}
+        onClose={() => setCombatSettingsModalVisible(false)}
+        onStatusPress={handleStatusPress}
+        onColorPress={handleColorPress}
+        onNotePress={handleNotePress}
+        onDeletePress={handleDeletePress}
+        creatureName={editingStatus?.name || 'Creature'}
+        theme={theme}
+      />
+
+      <StatusModal
+        visible={statusModalVisible}
         onClose={handleStatusCancel}
-        onDelete={editingStatus ? () => onRemoveCombatant(editingStatus.id) : undefined}
-        onNoteUpdate={editingStatus ? handleNoteUpdate : undefined}
+        onAccept={handleStatusSelect}
+        currentConditions={editingStatus?.currentConditions || []}
+        creatureName={editingStatus?.name || 'Creature'}
+        theme={theme}
+      />
+
+      <ColorModal
+        visible={colorModalVisible}
+        onClose={handleColorCancel}
+        onAccept={handleColorSelect}
+        currentColor={editingStatus?.currentColor}
+        creatureName={editingStatus?.name || 'Creature'}
+        theme={theme}
+      />
+
+      <NoteModal
+        visible={noteModalVisible}
+        onClose={handleNoteCancel}
+        onAccept={handleNoteUpdate}
         currentNote={editingStatus?.currentNote || ''}
+        creatureName={editingStatus?.name || 'Creature'}
+        theme={theme}
+      />
+
+      <DeleteCombatantModal
+        visible={deleteCombatantModalVisible}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
         creatureName={editingStatus?.name || 'Creature'}
         theme={theme}
       />

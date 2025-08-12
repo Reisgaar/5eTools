@@ -8,7 +8,7 @@ import { useAppSettings } from 'src/context/AppSettingsContext';
 import { useCampaign } from 'src/context/CampaignContext';
 
 // STYLES
-import { commonStyles } from 'src/style/styles';
+import { commonStyles } from 'src/styles/commonStyles';
 import { modalStyles } from 'src/styles/modalStyles';
 
 // COMPONENTS

@@ -10,7 +10,7 @@ import { router } from 'expo-router';
 import { useAppSettings } from "../../context/AppSettingsContext";
 
 // STYLES
-import { commonStyles } from 'src/style/styles';
+import { commonStyles } from 'src/styles/commonStyles';
 
 type Props = {
     title: string;
