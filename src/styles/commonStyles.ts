@@ -274,4 +274,13 @@ export const commonStyles = StyleSheet.create({
         fontWeight: '600',
         fontSize: 16,
     },
+    filterBtn: {
+        borderWidth: 2,
+        borderRadius: 8,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        marginRight: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
 });

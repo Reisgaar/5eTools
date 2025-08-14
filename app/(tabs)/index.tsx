@@ -190,146 +190,149 @@ export default function HomeScreen() {
     };
 
     return (
-        <View style={[commonStyles.container, { backgroundColor: currentTheme.background, flex: 1 }]}>
-            <ScrollView style={{ flex: 1, padding: 16 }}>
+        <View style={[commonStyles.container, { padding: 0, backgroundColor: currentTheme.background, flex: 1 }]}>
+            <View style={{ flex: 1, padding: 16 }}>
                 {/* Header */}
-                <View style={{ marginBottom: 20 }}>
-                    <Text style={{ fontSize: 24, fontWeight: 'bold', color: currentTheme.text, marginBottom: 8 }}>
-                        5e Tools
-                    </Text>
-                    <Text style={{ fontSize: 16, color: currentTheme.noticeText, marginBottom: 16 }}>
+                <View>
+                    <Text style={{ fontSize: 16, color: currentTheme.noticeText, textAlign: 'center', marginBottom: 12 }}>
                         Manage campaigns and your players
                     </Text>
                 </View>
 
                 {/* Campaigns Section */}
-                <View style={{ marginBottom: 24 }}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                        <Text style={{ fontSize: 20, fontWeight: 'bold', color: currentTheme.text }}>
+                <View style={{ flex: 1 }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                        <Text style={{ fontSize: 16, fontWeight: 'bold', color: currentTheme.text }}>
                             Campaigns
                         </Text>
+                    
                         <TouchableOpacity onPress={openAddCampaignModal} style={styles.addButton}>
                             <Ionicons name="add" size={20} color="white" />
                         </TouchableOpacity>
                     </View>
                     
-                    {campaigns.length > 0 ? (
-                        <View style={{ borderWidth: 1, borderColor: currentTheme.primary, borderRadius: 8, overflow: 'hidden' }}>
-                            {campaigns.map((item, index) => (
-                                <View key={item.id} style={[styles.campaignItem, { 
-                                    borderBottomWidth: index === campaigns.length - 1 ? 0 : 1, 
-                                    borderBottomColor: currentTheme.primary,
-                                    backgroundColor: currentTheme.card
-                                }]}>
-                                    <View style={styles.campaignContent}>
-                                        <View style={{ flex: 1 }}>
-                                            <Text style={[styles.campaignName, { color: currentTheme.text }]}>
-                                                {item.name}
-                                            </Text>
-                                            {item.description && (
-                                                <Text style={[styles.campaignDescription, { color: currentTheme.noticeText }]}>
-                                                    {item.description}
+                    <View style={{ flex: 1, paddingBottom: 25 }}>
+                        {campaigns.length > 0 ? (
+                            <ScrollView style={{ flex: 1, borderWidth: 1, borderColor: currentTheme.primary, borderRadius: 8, overflow: 'hidden' }}>
+                                {campaigns.map((item, index) => (
+                                    <View key={item.id} style={[styles.campaignItem, { 
+                                        borderBottomWidth: index === campaigns.length - 1 ? 0 : 1, 
+                                        borderBottomColor: currentTheme.primary,
+                                        backgroundColor: currentTheme.card
+                                    }]}>
+                                        <View style={styles.campaignContent}>
+                                            <View style={{ flex: 1 }}>
+                                                <Text style={[styles.campaignName, { color: currentTheme.text }]}>
+                                                    {item.name}
                                                 </Text>
-                                            )}
+                                                {item.description && (
+                                                    <Text style={[styles.campaignDescription, { color: currentTheme.noticeText }]}>
+                                                        {item.description}
+                                                    </Text>
+                                                )}
+                                            </View>
+                                        </View>
+                                        <View style={styles.campaignActions}>
+                                            <TouchableOpacity 
+                                                onPress={() => openEditCampaignModal(item)} 
+                                                style={[styles.actionButton, { backgroundColor: currentTheme.primary, marginRight: 8 }]}
+                                            >
+                                                <Ionicons name="pencil" size={16} color="white" />
+                                            </TouchableOpacity>
+                                            <TouchableOpacity 
+                                                onPress={() => handleDeleteCampaign(item.id)}
+                                                style={[styles.actionButton, { backgroundColor: '#dc2626' }]}
+                                            >
+                                                <Ionicons name="trash" size={16} color="white" />
+                                            </TouchableOpacity>
                                         </View>
                                     </View>
-                                    <View style={styles.campaignActions}>
-                                        <TouchableOpacity 
-                                            onPress={() => openEditCampaignModal(item)} 
-                                            style={[styles.actionButton, { backgroundColor: currentTheme.primary, marginRight: 8 }]}
-                                        >
-                                            <Ionicons name="pencil" size={16} color="white" />
-                                        </TouchableOpacity>
-                                        <TouchableOpacity 
-                                            onPress={() => handleDeleteCampaign(item.id)}
-                                            style={[styles.actionButton, { backgroundColor: '#dc2626' }]}
-                                        >
-                                            <Ionicons name="trash" size={16} color="white" />
-                                        </TouchableOpacity>
-                                    </View>
-                                </View>
-                            ))}
-                        </View>
-                    ) : (
-                        <View style={[styles.emptyState, { backgroundColor: currentTheme.card }]}>
-                            <Text style={{ color: currentTheme.noticeText, textAlign: 'center' }}>
-                                No campaigns created. Create your first campaign to get started.
-                            </Text>
-                        </View>
-                    )}
+                                ))}
+                            </ScrollView>
+                        ) : (
+                            <View style={[styles.emptyState, { flex: 1, backgroundColor: currentTheme.card }]}>
+                                <Text style={{ color: currentTheme.noticeText, textAlign: 'center' }}>
+                                    No campaigns created. Create your first campaign to get started.
+                                </Text>
+                            </View>
+                        )}
+                    </View>
                 </View>
 
                 {/* Players Section */}
-                <View style={{ marginBottom: 24 }}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                        <Text style={{ fontSize: 20, fontWeight: 'bold', color: currentTheme.text }}>
+                <View style={{ flex: 1 }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                        <Text style={{ fontSize: 16, fontWeight: 'bold', color: currentTheme.text }}>
                             Players
                         </Text>
+
                         <TouchableOpacity onPress={openAddPlayerModal} style={styles.addButton}>
                             <Ionicons name="add" size={20} color="white" />
                         </TouchableOpacity>
                     </View>
                     
-                    {filteredPlayers.length > 0 ? (
-                        <View style={{ borderWidth: 1, borderColor: currentTheme.primary, borderRadius: 8, overflow: 'hidden' }}>
-                            {filteredPlayers.map((item, index) => (
-                                <View key={item.name} style={[styles.playerItem, { 
-                                    borderBottomWidth: index === filteredPlayers.length - 1 ? 0 : 1, 
-                                    borderBottomColor: currentTheme.primary,
-                                    backgroundColor: currentTheme.card
-                                }]}>
-                                    <View style={styles.playerContent}>
-                                    <Image
-                                        source={{ uri: item.tokenUrl || DEFAULT_TOKEN_URL }}
-                                        style={{
-                                            width: 40,
-                                            height: 40,
-                                            borderRadius: 20,
-                                            marginRight: 12,
-                                            borderWidth: 2,
-                                            borderColor: '#22c55a'
-                                        }}
-                                    />
-                                    <View style={{ flex: 1 }}>
-                                        <Text style={[styles.playerName, { color: currentTheme.text }]}>
-                                            {item.name}
-                                        </Text>
-                                        <Text style={[styles.playerDetails, { color: currentTheme.noticeText }]}>
-                                            {item.race} - {item.class}
-                                        </Text>
-                                        {getCampaignName(item.campaignId) && (
-                                            <Text style={[styles.playerDetails, { color: currentTheme.noticeText, fontSize: 12 }]}>
-                                                Campaign: {getCampaignName(item.campaignId)}
+                    <View style={{ flex: 1, paddingBottom: 25 }}>
+                        {filteredPlayers.length > 0 ? (
+                            <ScrollView style={{ flex: 1, borderWidth: 1, borderColor: currentTheme.primary, borderRadius: 8, overflow: 'hidden' }}>
+                                {filteredPlayers.map((item, index) => (
+                                    <View key={item.name} style={[styles.playerItem, { 
+                                        borderBottomWidth: index === filteredPlayers.length - 1 ? 0 : 1, 
+                                        borderBottomColor: currentTheme.primary,
+                                        backgroundColor: currentTheme.card
+                                    }]}>
+                                        <View style={styles.playerContent}>
+                                        <Image
+                                            source={{ uri: item.tokenUrl || DEFAULT_TOKEN_URL }}
+                                            style={{
+                                                width: 40,
+                                                height: 40,
+                                                borderRadius: 20,
+                                                marginRight: 12,
+                                                borderWidth: 2,
+                                                borderColor: '#22c55a'
+                                            }}
+                                        />
+                                        <View style={{ flex: 1 }}>
+                                            <Text style={[styles.playerName, { color: currentTheme.text }]}>
+                                                {item.name}
                                             </Text>
-                                        )}
+                                            <Text style={[styles.playerDetails, { color: currentTheme.noticeText }]}>
+                                                {item.race} - {item.class}
+                                            </Text>
+                                            {getCampaignName(item.campaignId) && (
+                                                <Text style={[styles.playerDetails, { color: currentTheme.noticeText, fontSize: 12 }]}>
+                                                    Campaign: {getCampaignName(item.campaignId)}
+                                                </Text>
+                                            )}
+                                        </View>
+                                        </View>
+                                        <View style={styles.playerActions}>
+                                            <TouchableOpacity 
+                                                onPress={() => openEditPlayerModal(item)} 
+                                                style={[styles.actionButton, { backgroundColor: currentTheme.primary, marginRight: 8 }]}
+                                            >
+                                                <Ionicons name="pencil" size={16} color="white" />
+                                            </TouchableOpacity>
+                                            <TouchableOpacity 
+                                                onPress={() => handleDeletePlayer(item.name)}
+                                                style={[styles.actionButton, { backgroundColor: '#dc2626' }]}
+                                            >
+                                                <Ionicons name="trash" size={16} color="white" />
+                                            </TouchableOpacity>
+                                        </View>
                                     </View>
-                                    </View>
-                                    <View style={styles.playerActions}>
-                                        <TouchableOpacity 
-                                            onPress={() => openEditPlayerModal(item)} 
-                                            style={[styles.actionButton, { backgroundColor: currentTheme.primary, marginRight: 8 }]}
-                                        >
-                                            <Ionicons name="pencil" size={16} color="white" />
-                                        </TouchableOpacity>
-                                        <TouchableOpacity 
-                                            onPress={() => handleDeletePlayer(item.name)}
-                                            style={[styles.actionButton, { backgroundColor: '#dc2626' }]}
-                                        >
-                                            <Ionicons name="trash" size={16} color="white" />
-                                        </TouchableOpacity>
-                                    </View>
-                                </View>
-                            ))}
-                        </View>
-                    ) : (
-                        <View style={[styles.emptyState, { backgroundColor: currentTheme.card }]}>
-                            <Text style={{ color: currentTheme.noticeText, textAlign: 'center' }}>
-                                No players created. Create your first player to get started.
-                            </Text>
-                        </View>
-                    )}
+                                ))}
+                            </ScrollView>
+                        ) : (
+                            <View style={[styles.emptyState, { flex: 1, backgroundColor: currentTheme.card }]}>
+                                <Text style={{ color: currentTheme.noticeText, textAlign: 'center' }}>
+                                    No players created. Create your first player to get started.
+                                </Text>
+                            </View>
+                        )}
+                    </View>
                 </View>
-            </ScrollView>
+            </View>
 
             {/* Campaign Modal */}
             <BaseModal 
@@ -382,131 +385,149 @@ export default function HomeScreen() {
                 })()}
             </BaseModal>
 
-            {/* Player Modal */}
-            <BaseModal 
-                visible={playerModalVisible} 
-                onClose={() => { setPlayerModalVisible(false); setEditPlayer(null); }} 
-                theme={currentTheme} 
-                title={editPlayer ? 'Edit Player' : 'Add Player'}
-                maxHeight="90%"
-                scrollable={true}
-            >
-                {(() => {
-                    const styles = createBaseModalStyles(currentTheme);
-                    return (
-                        <>
-                            <View style={styles.modalSection}>
-                                <Text style={[styles.modalSectionTitle, { color: currentTheme.text }]}>Character Name</Text>
-                                <TextInput
-                                    style={[styles.modalInput, { backgroundColor: currentTheme.inputBackground, color: currentTheme.text, borderColor: currentTheme.border }]}
-                                    placeholder="Enter character name"
-                                    placeholderTextColor={currentTheme.noticeText}
-                                    value={playerForm.name}
-                                    onChangeText={text => setPlayerForm(prev => ({ ...prev, name: text }))}
-                                />
-                            </View>
-                            
-                            <View style={styles.modalSection}>
-                                <Text style={[styles.modalSectionTitle, { color: currentTheme.text }]}>Race</Text>
-                                <TextInput
-                                    style={[styles.modalInput, { backgroundColor: currentTheme.inputBackground, color: currentTheme.text, borderColor: currentTheme.border }]}
-                                    placeholder="e.g., Human, Elf, Dwarf"
-                                    placeholderTextColor={currentTheme.noticeText}
-                                    value={playerForm.race}
-                                    onChangeText={text => setPlayerForm(prev => ({ ...prev, race: text }))}
-                                />
-                            </View>
-                            
-                            <View style={styles.modalSection}>
-                                <Text style={[styles.modalSectionTitle, { color: currentTheme.text }]}>Class</Text>
-                                <TextInput
-                                    style={[styles.modalInput, { backgroundColor: currentTheme.inputBackground, color: currentTheme.text, borderColor: currentTheme.border }]}
-                                    placeholder="e.g., Fighter, Wizard, Cleric"
-                                    placeholderTextColor={currentTheme.noticeText}
-                                    value={playerForm.class}
-                                    onChangeText={text => setPlayerForm(prev => ({ ...prev, class: text }))}
-                                />
-                            </View>
-                            
-                            <View style={styles.modalSection}>
-                                <Text style={[styles.modalSectionTitle, { color: currentTheme.text }]}>Maximum Hit Points</Text>
-                                <TextInput
-                                    style={[styles.modalInput, { backgroundColor: currentTheme.inputBackground, color: currentTheme.text, borderColor: currentTheme.border }]}
-                                    placeholder="e.g., 25"
-                                    placeholderTextColor={currentTheme.noticeText}
-                                    keyboardType="numeric"
-                                    value={playerForm.maxHp}
-                                    onChangeText={text => setPlayerForm(prev => ({ ...prev, maxHp: text }))}
-                                />
-                            </View>
-                            
-                            <View style={styles.modalSection}>
-                                <Text style={[styles.modalSectionTitle, { color: currentTheme.text }]}>Armor Class</Text>
-                                <TextInput
-                                    style={[styles.modalInput, { backgroundColor: currentTheme.inputBackground, color: currentTheme.text, borderColor: currentTheme.border }]}
-                                    placeholder="e.g., 16"
-                                    placeholderTextColor={currentTheme.noticeText}
-                                    keyboardType="numeric"
-                                    value={playerForm.ac}
-                                    onChangeText={text => setPlayerForm(prev => ({ ...prev, ac: text }))}
-                                />
-                            </View>
-                            
-                            <View style={styles.modalSection}>
-                                <Text style={[styles.modalSectionTitle, { color: currentTheme.text }]}>Passive Perception</Text>
-                                <TextInput
-                                    style={[styles.modalInput, { backgroundColor: currentTheme.inputBackground, color: currentTheme.text, borderColor: currentTheme.border }]}
-                                    placeholder="e.g., 14"
-                                    placeholderTextColor={currentTheme.noticeText}
-                                    keyboardType="numeric"
-                                    value={playerForm.passivePerception}
-                                    onChangeText={text => setPlayerForm(prev => ({ ...prev, passivePerception: text }))}
-                                />
-                            </View>
-                            
-                            <View style={styles.modalSection}>
-                                <Text style={[styles.modalSectionTitle, { color: currentTheme.text }]}>Initiative Bonus</Text>
-                                <TextInput
-                                    style={[styles.modalInput, { backgroundColor: currentTheme.inputBackground, color: currentTheme.text, borderColor: currentTheme.border }]}
-                                    placeholder="e.g., +3, -1, 2"
-                                    placeholderTextColor={currentTheme.noticeText}
-                                    keyboardType="numeric"
-                                    value={playerForm.initiativeBonus}
-                                    onChangeText={text => setPlayerForm(prev => ({ ...prev, initiativeBonus: text }))}
-                                />
-                            </View>
-                            
-                            <View style={styles.modalSection}>
-                                <CampaignSelector
-                                    selectedCampaignId={playerForm.campaignId || undefined}
-                                    onCampaignChange={(campaignId) => setPlayerForm(prev => ({ ...prev, campaignId: campaignId || '' }))}
-                                    theme={currentTheme}
-                                    label="Campaign (optional)"
-                                />
-                            </View>
-                            
-                            <View style={styles.modalSection}>
-                                <PlayerImagePicker
-                                    currentImageUri={selectedImageUri || playerForm.tokenUrl}
-                                    onImageSelected={setSelectedImageUri}
-                                    theme={currentTheme}
-                                />
-                            </View>
-                            
-                            <View style={styles.actionRow}>
-                                <TouchableOpacity 
-                                    onPress={handleSavePlayer} 
-                                    style={[styles.modalButton, styles.modalButtonPrimary]}
-                                >
-                                    <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>
-                                        {editPlayer ? 'Save' : 'Add'}
-                                    </Text>
-                                </TouchableOpacity>
-                            </View>
-                        </>
-                    );
-                })()}
-            </BaseModal>
+                         {/* Player Modal */}
+             <BaseModal 
+                 visible={playerModalVisible} 
+                 onClose={() => { setPlayerModalVisible(false); setEditPlayer(null); }} 
+                 theme={currentTheme} 
+                 title={editPlayer ? 'Edit Player' : 'Add Player'}
+                 maxHeight="90%"
+                 scrollable={true}
+                 showFooter={true}
+                 footerContent={(() => {
+                     const styles = createBaseModalStyles(currentTheme);
+                     return (
+                         <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-around' }}>
+                            <TouchableOpacity 
+                                onPress={() => {
+                                    setPlayerModalVisible(false);
+                                    setEditPlayer(null);
+                                    setPlayerForm({ name: '', race: '', class: '', maxHp: '', ac: '', passivePerception: '', initiativeBonus: '', tokenUrl: '', campaignId: '' });
+                                    setSelectedImageUri(null);
+                                }} 
+                                style={[styles.modalButton, styles.modalButtonPrimary, { width: '48%', marginRight: '2%', backgroundColor: '#dc2626'}]}
+                            >
+                                <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>
+                                    {'Cancel'}
+                                </Text>
+                            </TouchableOpacity>
+                             <TouchableOpacity 
+                                 onPress={handleSavePlayer} 
+                                 style={[styles.modalButton, styles.modalButtonPrimary, { width: '48%', marginLeft: '2%'}]}
+                             >
+                                 <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>
+                                     {editPlayer ? 'Save' : 'Add'}
+                                 </Text>
+                             </TouchableOpacity>
+                         </View>
+                     );
+                 })()}
+             >
+                 {(() => {
+                     const styles = createBaseModalStyles(currentTheme);
+                     return (
+                         <>
+                             <View style={styles.modalSection}>
+                                 <Text style={[styles.modalSectionTitle, { color: currentTheme.text }]}>Character Name</Text>
+                                 <TextInput
+                                     style={[styles.modalInput, { backgroundColor: currentTheme.inputBackground, color: currentTheme.text, borderColor: currentTheme.border }]}
+                                     placeholder="Enter character name"
+                                     placeholderTextColor={currentTheme.noticeText}
+                                     value={playerForm.name}
+                                     onChangeText={text => setPlayerForm(prev => ({ ...prev, name: text }))}
+                                 />
+                             </View>
+                             
+                             <View style={styles.modalSection}>
+                                 <Text style={[styles.modalSectionTitle, { color: currentTheme.text }]}>Race</Text>
+                                 <TextInput
+                                     style={[styles.modalInput, { backgroundColor: currentTheme.inputBackground, color: currentTheme.text, borderColor: currentTheme.border }]}
+                                     placeholder="e.g., Human, Elf, Dwarf"
+                                     placeholderTextColor={currentTheme.noticeText}
+                                     value={playerForm.race}
+                                     onChangeText={text => setPlayerForm(prev => ({ ...prev, race: text }))}
+                                 />
+                             </View>
+                             
+                             <View style={styles.modalSection}>
+                                 <Text style={[styles.modalSectionTitle, { color: currentTheme.text }]}>Class</Text>
+                                 <TextInput
+                                     style={[styles.modalInput, { backgroundColor: currentTheme.inputBackground, color: currentTheme.text, borderColor: currentTheme.border }]}
+                                     placeholder="e.g., Fighter, Wizard, Cleric"
+                                     placeholderTextColor={currentTheme.noticeText}
+                                     value={playerForm.class}
+                                     onChangeText={text => setPlayerForm(prev => ({ ...prev, class: text }))}
+                                 />
+                             </View>
+                             
+                             <View style={styles.modalSection}>
+                                 <Text style={[styles.modalSectionTitle, { color: currentTheme.text }]}>Maximum Hit Points</Text>
+                                 <TextInput
+                                     style={[styles.modalInput, { backgroundColor: currentTheme.inputBackground, color: currentTheme.text, borderColor: currentTheme.border }]}
+                                     placeholder="e.g., 25"
+                                     placeholderTextColor={currentTheme.noticeText}
+                                     keyboardType="numeric"
+                                     value={playerForm.maxHp}
+                                     onChangeText={text => setPlayerForm(prev => ({ ...prev, maxHp: text }))}
+                                 />
+                             </View>
+                             
+                             <View style={styles.modalSection}>
+                                 <Text style={[styles.modalSectionTitle, { color: currentTheme.text }]}>Armor Class</Text>
+                                 <TextInput
+                                     style={[styles.modalInput, { backgroundColor: currentTheme.inputBackground, color: currentTheme.text, borderColor: currentTheme.border }]}
+                                     placeholder="e.g., 16"
+                                     placeholderTextColor={currentTheme.noticeText}
+                                     keyboardType="numeric"
+                                     value={playerForm.ac}
+                                     onChangeText={text => setPlayerForm(prev => ({ ...prev, ac: text }))}
+                                 />
+                             </View>
+                             
+                             <View style={styles.modalSection}>
+                                 <Text style={[styles.modalSectionTitle, { color: currentTheme.text }]}>Passive Perception</Text>
+                                 <TextInput
+                                     style={[styles.modalInput, { backgroundColor: currentTheme.inputBackground, color: currentTheme.text, borderColor: currentTheme.border }]}
+                                     placeholder="e.g., 14"
+                                     placeholderTextColor={currentTheme.noticeText}
+                                     keyboardType="numeric"
+                                     value={playerForm.passivePerception}
+                                     onChangeText={text => setPlayerForm(prev => ({ ...prev, passivePerception: text }))}
+                                 />
+                             </View>
+                             
+                             <View style={styles.modalSection}>
+                                 <Text style={[styles.modalSectionTitle, { color: currentTheme.text }]}>Initiative Bonus</Text>
+                                 <TextInput
+                                     style={[styles.modalInput, { backgroundColor: currentTheme.inputBackground, color: currentTheme.text, borderColor: currentTheme.border }]}
+                                     placeholder="e.g., +3, -1, 2"
+                                     placeholderTextColor={currentTheme.noticeText}
+                                     keyboardType="numeric"
+                                     value={playerForm.initiativeBonus}
+                                     onChangeText={text => setPlayerForm(prev => ({ ...prev, initiativeBonus: text }))}
+                                 />
+                             </View>
+                             
+                             <View style={styles.modalSection}>
+                                 <CampaignSelector
+                                     selectedCampaignId={playerForm.campaignId || undefined}
+                                     onCampaignChange={(campaignId) => setPlayerForm(prev => ({ ...prev, campaignId: campaignId || '' }))}
+                                     theme={currentTheme}
+                                     label="Campaign (optional)"
+                                 />
+                             </View>
+                             
+                             <View style={styles.modalSection}>
+                                 <PlayerImagePicker
+                                     currentImageUri={selectedImageUri || playerForm.tokenUrl}
+                                     onImageSelected={setSelectedImageUri}
+                                     theme={currentTheme}
+                                 />
+                             </View>
+                         </>
+                     );
+                 })()}
+             </BaseModal>
 
             {/* Confirmation Modal */}
             <ConfirmModal
@@ -528,17 +549,11 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
     addButton: {
         backgroundColor: '#22c55e',
-        width: 32,
-        height: 32,
-        borderRadius: 16,
+        width: 28,
+        height: 28,
+        borderRadius: 14,
         alignItems: 'center',
         justifyContent: 'center',
-    },
-    addButtonText: {
-        color: 'white',
-        fontSize: 14,
-        fontWeight: '600',
-        marginLeft: 4,
     },
     campaignItem: {
         flexDirection: 'row',
@@ -592,6 +607,7 @@ const styles = StyleSheet.create({
         padding: 20,
         borderRadius: 8,
         alignItems: 'center',
+        justifyContent: 'center',
     },
     modalOverlay: {
         flex: 1,

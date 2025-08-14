@@ -35,22 +35,23 @@ export default function CombatList({
   return (
     <View style={styles.listContainer}>
         {/* Header with search and create button */}
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <Text style={[styles.listSectionTitle, { color: theme.text }]}>Combats</Text>
-            <TouchableOpacity
-                onPress={onCreateCombat}
-                style={{ 
-                    backgroundColor: theme.primary, 
-                    width: 32, 
-                    height: 32, 
-                    borderRadius: 16, 
-                    alignItems: 'center', 
-                    justifyContent: 'center' 
-                }}
-            >
-                <Ionicons name="add" size={20} color="white" />
-            </TouchableOpacity>
-        </View>
+        <TouchableOpacity
+            onPress={onCreateCombat}
+            style={{
+                position: 'absolute',
+                right: 10,
+                bottom: 10,
+                zIndex: 1,
+                backgroundColor: theme.primary, 
+                width: 60,
+                height: 60,
+                borderRadius: 30, 
+                alignItems: 'center', 
+                justifyContent: 'center' 
+            }}
+        >
+            <Ionicons name="add" size={20} color="white" />
+        </TouchableOpacity>
 
         {/* Search Input */}
         <TextInput

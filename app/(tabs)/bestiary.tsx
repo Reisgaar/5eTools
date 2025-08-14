@@ -26,6 +26,9 @@ import { useBestiaryFilters } from 'src/hooks/useBestiaryFilters';
 // CONSTANTS
 import { books as sourceIdToNameMap } from 'src/constants/books';
 
+// STYLES
+import { commonStyles } from 'src/styles/commonStyles';
+
 export default function BestiaryScreen() {
     const { currentTheme } = useAppSettings();
     const { simpleBeasts, simpleSpells, isLoading, isInitialized, getFullBeast, getFullSpell } = useData();
@@ -164,13 +167,13 @@ export default function BestiaryScreen() {
                 theme={currentTheme}
                 sourceIdToNameMap={sourceIdToNameMap}
             />
-            {/* Title Row with Filter Buttons */}
-            <View style={[styles.titleRow, { justifyContent: 'space-between' }]}>
-                <Text style={[styles.title, { color: currentTheme.text }]}>Bestiary</Text>
-                <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+            {/* Filter Buttons */}
+            <View style={[{ marginBottom: 12, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start'}]}>
+                <Text style={[{ fontSize: 16, fontWeight: 'bold', color: currentTheme.text, marginRight: 12}]}>Filters:</Text>
+                <View style={{ flex: 1, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                     <TouchableOpacity
                         onPress={filters.openCRFilterModal}
-                        style={[styles.filterBtn, { borderColor: filters.selectedCRs.length > 0 ? currentTheme.primary : currentTheme.text }]}
+                        style={[commonStyles.filterBtn, { borderColor: filters.selectedCRs.length > 0 ? currentTheme.primary : currentTheme.text }]}
                     >
                         <Text style={{ color: filters.selectedCRs.length > 0 ? currentTheme.primary : currentTheme.text, fontWeight: 'bold', fontSize: 12 }}>
                             CR
@@ -178,7 +181,7 @@ export default function BestiaryScreen() {
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={filters.openTypeFilterModal}
-                        style={[styles.filterBtn, { borderColor: filters.selectedTypes.length > 0 ? currentTheme.primary : currentTheme.text }]}
+                        style={[commonStyles.filterBtn, { borderColor: filters.selectedTypes.length > 0 ? currentTheme.primary : currentTheme.text }]}
                     >
                         <Text style={{ color: filters.selectedTypes.length > 0 ? currentTheme.primary : currentTheme.text, fontWeight: 'bold', fontSize: 12 }}>
                             Type
@@ -186,7 +189,7 @@ export default function BestiaryScreen() {
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={filters.openSourceFilterModal}
-                        style={[styles.filterBtn, { borderColor: filters.selectedSources.length > 0 ? currentTheme.primary : currentTheme.text }]}
+                        style={[commonStyles.filterBtn, { borderColor: filters.selectedSources.length > 0 ? currentTheme.primary : currentTheme.text }]}
                     >
                         <Text style={{ color: filters.selectedSources.length > 0 ? currentTheme.primary : currentTheme.text, fontWeight: 'bold', fontSize: 12 }}>
                             Source
@@ -198,7 +201,7 @@ export default function BestiaryScreen() {
                             filters.setSelectedTypes([]);
                             filters.setSelectedSources([]);
                         }}
-                        style={[styles.clearAllBtn, { borderColor: '#ef4444' }]}
+                        style={[commonStyles.filterBtn, { borderColor: '#ef4444' }]}
                     >
                         <Text style={{ color: '#ef4444', fontWeight: 'bold', fontSize: 12 }}>
                             Clear
@@ -283,15 +286,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 16,
     },
-    filterBtn: {
-        borderWidth: 2,
-        borderRadius: 8,
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        marginRight: 8,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
     title: {
         fontSize: 24,
         fontWeight: 'bold',
@@ -332,14 +326,5 @@ const styles = StyleSheet.create({
     filterSummaryText: {
         fontSize: 12,
         textAlign: 'left',
-    },
-    clearAllBtn: {
-        borderWidth: 2,
-        borderRadius: 8,
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        marginLeft: 8,
-        alignItems: 'center',
-        justifyContent: 'center',
     },
 });

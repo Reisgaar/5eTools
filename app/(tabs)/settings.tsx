@@ -78,9 +78,6 @@ export default function SettingsScreen() {
 
     return (
         <View style={{ flex: 1, backgroundColor: currentTheme.background }}>
-            <View style={{ marginBottom: 16, borderBottomWidth: 1, paddingHorizontal: 16, paddingVertical: 8, borderBottomColor: currentTheme.primary }}>
-                <Text style={{ fontSize: 24, fontWeight: 'bold', color: currentTheme.text }}>Settings</Text>
-            </View>
             <View style={[commonStyles.container, { backgroundColor: currentTheme.background, paddingTop: 0 }]}> 
                 <View style={{ justifyContent: 'center', marginBottom: 12 }}>
                     <Text style={[styles.sectionTitle, { color: currentTheme.text }]}>Theme</Text>

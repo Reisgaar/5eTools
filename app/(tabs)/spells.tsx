@@ -48,6 +48,7 @@ function formatComponents(components: any) {
 }
 
 export default function SpellsScreen() {
+    const { currentTheme } = useAppSettings();
     const { selectedCampaign } = useCampaign();
     const { simpleBeasts, simpleSpells, spells, spellSourceLookup, availableClasses, isLoading, isInitialized, getFullBeast, getFullSpell } = useData();
     const { currentTheme: theme } = useAppSettings();
@@ -195,50 +196,73 @@ export default function SpellsScreen() {
 
     return (
         <View style={[commonStyles.container, { flex: 1, backgroundColor: theme.background, paddingBottom: 0, paddingHorizontal: 8 }]}>
-            <View style={[commonStyles.header, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
-                <Text style={[commonStyles.title, { color: theme.text }]}>Spells</Text>
+            <View style={{ position: 'absolute', right: 10, bottom: 10, zIndex: 1 }}>
                 <TouchableOpacity
                     onPress={() => setSpellbookSelectorModalVisible(true)}
-                    style={[styles.filterBtn, { borderColor: currentSpellbookId ? theme.primary : theme.text }]}
+                    style={{ backgroundColor: theme.primary, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8 }}
                 >
-                    <Text style={{ color: currentSpellbookId ? theme.primary : theme.text, fontWeight: 'bold', fontSize: 11 }}>
+                    <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 12 }}>
                         {currentSpellbookId ? getCurrentSpellbook()?.name || 'Spellbook' : 'Spellbook'}
                     </Text>
                 </TouchableOpacity>
             </View>
+
+            {/* Title Row with Filter Buttons */}
+            <View style={[{ marginBottom: 12, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start'}]}>
+                <Text style={[{ fontSize: 16, fontWeight: 'bold', color: currentTheme.text, marginRight: 12}]}>Filters:</Text>
+                <View style={{ flex: 1, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    <TouchableOpacity
+                        onPress={filters.openSchoolFilterModal}
+                        style={[commonStyles.filterBtn, { borderColor: filters.selectedSchools.length > 0 ? theme.primary : theme.text, flex: 1, marginRight: 4 }]}
+                    >
+                        <Text style={{ color: filters.selectedSchools.length > 0 ? theme.primary : theme.text, fontWeight: 'bold', fontSize: 11 }}>
+                            School
+                        </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={filters.openClassFilterModal}
+                        style={[commonStyles.filterBtn, { borderColor: filters.selectedClasses.length > 0 ? theme.primary : theme.text, flex: 1, marginHorizontal: 2 }]}
+                    >
+                        <Text style={{ color: filters.selectedClasses.length > 0 ? theme.primary : theme.text, fontWeight: 'bold', fontSize: 11 }}>
+                            Class
+                        </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={filters.openOtherFilterModal}
+                        style={[commonStyles.filterBtn, { borderColor: filters.selectedOthers.length > 0 ? theme.primary : theme.text, flex: 1, marginHorizontal: 2 }]}
+                    >
+                        <Text style={{ color: filters.selectedOthers.length > 0 ? theme.primary : theme.text, fontWeight: 'bold', fontSize: 11 }}>
+                            Other
+                        </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={filters.clearAllFilters}
+                        style={[commonStyles.filterBtn, { borderColor: '#ef4444', flex: 1, marginLeft: 4 }]}
+                    >
+                        <Text style={{ color: '#ef4444', fontWeight: 'bold', fontSize: 11 }}>Clear</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
             
-            {/* Filter Buttons - All in one line */}
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
-                <TouchableOpacity
-                    onPress={filters.openSchoolFilterModal}
-                    style={[styles.filterBtn, { borderColor: filters.selectedSchools.length > 0 ? theme.primary : theme.text, flex: 1, marginRight: 4 }]}
-                >
-                    <Text style={{ color: filters.selectedSchools.length > 0 ? theme.primary : theme.text, fontWeight: 'bold', fontSize: 11 }}>
-                        School
-                    </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    onPress={filters.openClassFilterModal}
-                    style={[styles.filterBtn, { borderColor: filters.selectedClasses.length > 0 ? theme.primary : theme.text, flex: 1, marginHorizontal: 2 }]}
-                >
-                    <Text style={{ color: filters.selectedClasses.length > 0 ? theme.primary : theme.text, fontWeight: 'bold', fontSize: 11 }}>
-                        Class
-                    </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    onPress={filters.openOtherFilterModal}
-                    style={[styles.filterBtn, { borderColor: filters.selectedOthers.length > 0 ? theme.primary : theme.text, flex: 1, marginHorizontal: 2 }]}
-                >
-                    <Text style={{ color: filters.selectedOthers.length > 0 ? theme.primary : theme.text, fontWeight: 'bold', fontSize: 11 }}>
-                        Other
-                    </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    onPress={filters.clearAllFilters}
-                    style={[styles.filterBtn, { borderColor: '#ef4444', flex: 1, marginLeft: 4 }]}
-                >
-                    <Text style={{ color: '#ef4444', fontWeight: 'bold', fontSize: 11 }}>Clear</Text>
-                </TouchableOpacity>
+            {/* Level Filter Bar */}
+            <View style={styles.levelFilterContainer}>
+                {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((level) => (
+                    <TouchableOpacity
+                        key={level}
+                        style={[
+                            styles.levelButton,
+                            { backgroundColor: selectedLevels.includes(level) ? theme.primary : 'white', borderColor: theme.primary }
+                        ]}
+                        onPress={() => handleLevelPress(level)}
+                    >
+                        <Text style={[
+                            styles.levelButtonText,
+                            { color: selectedLevels.includes(level) ? 'white' : theme.text }
+                        ]}>
+                            {level === 0 ? 'C' : level}
+                        </Text>
+                    </TouchableOpacity>
+                ))}
             </View>
             
             {/* Search Input with Clear Button */}
@@ -252,27 +276,6 @@ export default function SpellsScreen() {
                     autoCapitalize="none"
                     placeholderTextColor={theme.noticeText}
                 />
-            </View>
-            
-            {/* Level Filter Bar */}
-            <View style={styles.levelFilterContainer}>
-                {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((level) => (
-                    <TouchableOpacity
-                        key={level}
-                        style={[
-                            styles.levelButton,
-                            { backgroundColor: selectedLevels.includes(level) ? theme.primary : 'transparent', borderColor: theme.border }
-                        ]}
-                        onPress={() => handleLevelPress(level)}
-                    >
-                        <Text style={[
-                            styles.levelButtonText,
-                            { color: selectedLevels.includes(level) ? 'white' : theme.text }
-                        ]}>
-                            {level === 0 ? 'C' : level}
-                        </Text>
-                    </TouchableOpacity>
-                ))}
             </View>
             
             {/* Applied Filters Text */}
@@ -413,16 +416,6 @@ export default function SpellsScreen() {
 }
 
 const styles = StyleSheet.create({
-    filterBtn: {
-        borderWidth: 1,
-        borderRadius: 6,
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        minHeight: 32,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginHorizontal: 4,
-    },
     levelFilterContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
@@ -433,10 +426,9 @@ const styles = StyleSheet.create({
     },
     levelButton: {
         borderWidth: 1,
-        borderRadius: 6,
+        borderRadius: 16,
         paddingHorizontal: 10,
         paddingVertical: 6,
-        minHeight: 32,
         justifyContent: 'center',
         alignItems: 'center',
         marginHorizontal: 1,

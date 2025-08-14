@@ -7,7 +7,7 @@ interface DataStatusProps {
     showDetails?: boolean;
 }
 
-export const DataStatus: React.FC<DataStatusProps> = ({ showDetails = true }) => {
+export default function DataStatus({ showDetails = true }: DataStatusProps) {
     const { beasts, spells, isLoading, isInitialized } = useData();
     const { currentTheme } = useAppSettings();
 

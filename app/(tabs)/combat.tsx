@@ -113,62 +113,55 @@ export default function CombatScreen() {
 
     return (
         <View style={{ flex: 1, backgroundColor: currentTheme.background }}>
-            {/* Header */}
-            {currentCombatId ? (<></>) : (
-                <View style={{ marginBottom: 16, borderBottomWidth: 1, paddingHorizontal: 16, paddingVertical: 8, borderBottomColor: currentTheme.primary }}>
-                    <Text style={{ fontSize: 24, fontWeight: 'bold', color: currentTheme.text }}>Combat Manager</Text>
-                </View>
-            )}
-
             <View style={{ flex: 1, backgroundColor: currentTheme.background, padding: 0, paddingBottom: 0 }}>
               {/* Show Combat List or Combat Content */}
               {currentCombatId ? (
                   // Show combat content when a combat is selected
                   <CombatContent
-                  combatants={combatants}
-                  combatName={currentCombat?.name || 'Combat'}
-                  onUpdateHp={updateHp}
-                  onUpdateMaxHp={updateMaxHp}
-                  onUpdateAc={updateAc}
-                  onUpdateColor={updateColor}
-                  onUpdateInitiative={updateInitiative}
-                  onUpdateInitiativeForGroup={updateInitiativeForGroup}
-                  onUpdateConditions={onUpdateConditions}
-                  onUpdateNote={updateCombatantNote}
-                  onRemoveCombatant={removeCombatant}
-                  onRandomizeInitiative={handleRandomInitiative}
-                  onStopCombat={stopCombat}
-                  onBackToList={handleBackToList}
-                  onEditCombat={() => {}} // This will be handled by the modal in CombatContentNew
-                  theme={currentTheme}
-                  isGroupEnabled={isGroupEnabled}
-                  toggleGroupForName={toggleGroupForName}
-                  groupByName={groupByName}
-                  round={currentCombat?.round || 1}
-                  turnIndex={currentCombat?.turnIndex || 0}
-                  started={!!currentCombat?.started}
-                  onStartCombat={startCombat}
-                  onNextTurn={nextTurn}
+                    combatants={combatants}
+                    combatName={currentCombat?.name || 'Combat'}
+                    onUpdateHp={updateHp}
+                    onUpdateMaxHp={updateMaxHp}
+                    onUpdateAc={updateAc}
+                    onUpdateColor={updateColor}
+                    onUpdateInitiative={updateInitiative}
+                    onUpdateInitiativeForGroup={updateInitiativeForGroup}
+                    onUpdateConditions={onUpdateConditions}
+                    onUpdateNote={updateCombatantNote}
+                    onRemoveCombatant={removeCombatant}
+                    onRandomizeInitiative={handleRandomInitiative}
+                    onStopCombat={stopCombat}
+                    onBackToList={handleBackToList}
+                    onEditCombat={() => {}} // This will be handled by the modal in CombatContentNew
+                    theme={currentTheme}
+                    isGroupEnabled={isGroupEnabled}
+                    toggleGroupForName={toggleGroupForName}
+                    groupByName={groupByName}
+                    round={currentCombat?.round || 1}
+                    turnIndex={currentCombat?.turnIndex || 0}
+                    started={!!currentCombat?.started}
+                    onStartCombat={startCombat}
+                    onNextTurn={nextTurn}
                   />
               ) : (
                   // Show combat list when no combat is selected
                   <CombatList
-                  combats={filteredCombats}
-                  currentCombatId={currentCombatId}
-                  onSelectCombat={handleSelectCombat}
-                  onCreateCombat={handleCreateCombat}
-                  theme={currentTheme}
+                    combats={filteredCombats}
+                    currentCombatId={currentCombatId}
+                    onSelectCombat={handleSelectCombat}
+                    onCreateCombat={handleCreateCombat}
+                    theme={currentTheme}
                   />
               )}
             </View>
 
             {/* Create Combat Modal */}
             <CombatFormModal
-                visible={createCombatModalVisible}
-                onClose={() => setCreateCombatModalVisible(false)}
-                mode="create"
-                onCreateCombat={handleCreateCombatWithName}
-                theme={currentTheme}
+              visible={createCombatModalVisible}
+              onClose={() => setCreateCombatModalVisible(false)}
+              mode="create"
+              onCreateCombat={handleCreateCombatWithName}
+              theme={currentTheme}
             />
         </View>
     );
