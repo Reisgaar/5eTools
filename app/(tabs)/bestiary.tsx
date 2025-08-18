@@ -20,7 +20,7 @@ import { CRFilterModal, SourceFilterModal } from 'src/components/beasts/modals';
 import { TypeFilterModal } from 'src/components/modals';
 
 // HOOKS
-import { useBestiaryFilters } from 'src/hooks/useBestiaryFilters';
+import useBestiaryFilters from 'src/hooks/useBestiaryFilters';
 
 // CONSTANTS
 import { books as sourceIdToNameMap } from 'src/constants/books';
@@ -43,7 +43,7 @@ export default function BestiaryScreen() {
     const [pageReady, setPageReady] = useState(false);
 
     // Use custom hook for all filter logic - but defer initialization
-    const filters = useBestiaryFilters(simpleBeasts, simpleBeasts);
+    const filters = useBestiaryFilters({ simpleBeasts, beasts: simpleBeasts });
 
     // Memoize combats to avoid unnecessary recalculations
     const sortedCombats = React.useMemo(() => {

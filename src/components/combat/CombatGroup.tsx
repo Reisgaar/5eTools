@@ -12,7 +12,7 @@ import { DEFAULT_CREATURE_TOKEN } from 'src/constants/tokens';
 import { createCombatStyles } from 'src/styles/combat';
 
 // COMPONENTS
-import { CombatMember } from 'src/components/combat';
+import CombatMember from 'src/components/combat/CombatMember';
 
 // MODELS
 import { CombatGroupProps } from 'src/models/interfaces/combat';

@@ -8,9 +8,10 @@ import { useModal } from 'src/context/ModalContext';
 import { useAppSettingsStore } from 'src/stores';
 
 // COMPONENTS
-import { BeastDetailModal } from 'src/components/beasts';
-import { AdvancedDiceRollModal, DiceRollModal } from 'src/components/modals';
-import { SpellDetailModal } from 'src/components/spells';
+import BeastDetailModal from 'src/components/beasts/BeastDetailModal';
+import SpellDetailModal from 'src/components/spells/SpellDetailModal';
+import AdvancedDiceRollModal from 'src/components/modals/AdvancedDiceRollModal';
+import DiceRollModal from 'src/components/modals/DiceRollModal';
 
 /**
  * GlobalModals component.

@@ -7,8 +7,8 @@ import { useCampaignStore, useSpellbookStore } from 'src/stores';
 
 // COMPONENTS
 import { BaseModal } from 'src/components/ui';
-import { SpellbookItem } from 'src/components/spells';
-import { useSpellbookSearch } from 'src/components/spells';
+import SpellbookItem from 'src/components/spells/SpellbookItem';
+import useSpellbookSearch from 'src/components/spells/useSpellbookSearch';
 import { ConfirmModal } from 'src/components/modals/';
 
 // STYLES

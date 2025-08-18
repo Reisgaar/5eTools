@@ -7,7 +7,12 @@ import { useCombat } from 'src/context/CombatContext';
 import { useModal } from 'src/context/ModalContext';
 
 // COMPONENTS
-import { CombatHeader, CombatControls, CombatGroup, CombatIndividual, CombatPlayer } from 'src/components/combat';
+import CombatHeader from 'src/components/combat/CombatHeader';
+import CombatControls from 'src/components/combat/CombatControls';
+import CombatGroup from 'src/components/combat/CombatGroup';
+import CombatIndividual from 'src/components/combat/CombatIndividual';
+import CombatPlayer from 'src/components/combat/CombatPlayer';
+
 import {
     PlayerModal,
     ValueEditModal,
