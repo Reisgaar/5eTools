@@ -1,10 +1,11 @@
+// REACT
 import { StyleSheet, Platform } from 'react-native';
 
 // Function to calculate z-index based on modal stack depth
 export const getModalZIndex = (stackDepth: number = 0): number => {
-  const baseZIndex = 1000;
-  const increment = 100;
-  return baseZIndex + (stackDepth * increment);
+    const baseZIndex = 1000;
+    const increment = 100;
+    return baseZIndex + (stackDepth * increment);
 };
 
 export const createBaseModalStyles = (theme: any) => StyleSheet.create({
@@ -27,7 +28,7 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         width: '100%',
         height: '100%',
     },
-    
+
     // Main modal content
     modalContent: {
         backgroundColor: theme.card,
@@ -39,14 +40,14 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
         zIndex: 1000,
-        
+
         // Responsive sizing - improved for mobile
         width: Platform.OS === 'web' ? '90%' : '92%',
         maxWidth: Platform.OS === 'web' ? 450 : 400,
         maxHeight: Platform.OS === 'web' ? '85%' : '80%',
         minHeight: Platform.OS === 'web' ? 300 : 350,
     },
-    
+
     // Header section
     modalHeader: {
         flexDirection: 'row',
@@ -91,14 +92,14 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 18,
     },
-    
+
     // Separator
     modalSeparator: {
         height: 1,
         backgroundColor: theme.border,
         marginBottom: 16,
     },
-    
+
     // Content sections
     modalBody: {
         flex: 1,
@@ -112,7 +113,7 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
     modalScrollContent: {
         paddingBottom: Platform.OS === 'web' ? 20 : 16,
     },
-    
+
     // Footer section
     modalFooter: {
         paddingHorizontal: 20,
@@ -121,7 +122,7 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         borderTopColor: theme.border,
         alignItems: 'flex-end',
     },
-    
+
     // Generic content styles
     modalSection: {
         marginBottom: 20,
@@ -142,7 +143,7 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         color: theme.noticeText,
         fontStyle: 'italic',
     },
-    
+
     // Grid styles for details
     modalGrid: {
         flexDirection: 'row',
@@ -172,7 +173,7 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         color: theme.text,
         textAlign: 'center',
     },
-    
+
     // Button styles
     modalButton: {
         borderRadius: 8,
@@ -200,7 +201,7 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
     modalButtonTextSecondary: {
         color: theme.text,
     },
-    
+
     // Input styles
     modalInput: {
         borderWidth: 1,
@@ -213,7 +214,7 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         fontSize: 16,
         marginBottom: 16,
     },
-    
+
     // List styles
     modalListItem: {
         flexDirection: 'row',
@@ -236,7 +237,7 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         color: theme.noticeText,
         marginTop: 2,
     },
-    
+
     // Checkbox for filter modals
     checkbox: {
         width: 20,
@@ -247,7 +248,7 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    
+
     // Action row for modals with multiple buttons
     actionRow: {
         flexDirection: 'row',
@@ -256,7 +257,7 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         gap: Platform.OS === 'web' ? 12 : 8,
         marginTop: 16,
     },
-    
+
     // Settings option styles
     settingsOption: {
         flexDirection: 'row',
@@ -287,7 +288,7 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
     optionDescription: {
         fontSize: 12,
     },
-    
+
     // Conditions grid styles
     conditionsGrid: {
         flexDirection: 'row',
@@ -304,7 +305,7 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         paddingVertical: 8,
         paddingHorizontal: 4,
     },
-    
+
     // Color grid styles
     colorGrid: {
         flexDirection: 'row',
@@ -342,7 +343,7 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         height: 20,
         borderRadius: 10,
     },
-    
+
     // Note input styles
     noteInput: {
         borderRadius: 8,
@@ -353,7 +354,7 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         marginTop: 12,
         borderWidth: 1,
     },
-    
+
     // Delete button styles
     deleteBtn: {
         paddingVertical: 12,
@@ -380,7 +381,7 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         borderRadius: 8,
         alignItems: 'center',
     },
-    
+
     // Beast Detail Modal specific styles
     beastDetailModalContent: {
         backgroundColor: theme.card,
@@ -497,4 +498,3 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         alignItems: 'flex-end',
     },
 });
-

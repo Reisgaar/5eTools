@@ -1,5 +1,5 @@
-export { createCombatStyles } from './combat';
-export { commonStyles } from './commonStyles';
-export { createBeastStyles } from './beastStyles';
-export { createSpellStyles } from './spellStyles';
-export { baseStyles, createThemedStyles } from './baseStyles';
+export { createCombatStyles } from 'src/styles/combat';
+export { commonStyles } from 'src/styles/commonStyles';
+export { createBeastStyles } from 'src/styles/beastStyles';
+export { createSpellStyles } from 'src/styles/spellStyles';
+export { baseStyles, createThemedStyles } from 'src/styles/baseStyles';

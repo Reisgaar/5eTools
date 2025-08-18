@@ -1,43 +1,48 @@
+// REACT
 import React from 'react';
-import { Modal, View, Text, TouchableOpacity, Pressable, ScrollView, Image, Platform } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { createBaseModalStyles } from '../../styles/baseModalStyles';
+import { Modal, View, Text, TouchableOpacity, ScrollView, Image } from 'react-native';
 
+// STYLES
+import { createBaseModalStyles } from 'src/styles/baseModalStyles';
+
+// INTERFACES
 interface BaseModalProps {
     visible: boolean;
     onClose: () => void;
     children: React.ReactNode;
     theme: any;
-    
+
     // Header configuration
     title?: string;
     subtitle?: string;
     tokenUrl?: string;
-    
+
     // Layout configuration
     width?: number | string;
     height?: number | string;
     maxHeight?: number | string;
     maxWidth?: number | string;
-    
+
     // Z-index for modal stacking
     zIndex?: number;
-    
+
     // Footer configuration
     showFooter?: boolean;
     footerContent?: React.ReactNode;
-    
+
     // Scroll configuration
     scrollable?: boolean;
     scrollContentStyle?: any;
-    
 
 }
 
-export default function BaseModal({ 
-    visible, 
-    onClose, 
-    children, 
+/**
+ * BaseModal component.
+ */
+export default function BaseModal({
+    visible,
+    onClose,
+    children,
     theme,
     title,
     subtitle,
@@ -53,7 +58,7 @@ export default function BaseModal({
     scrollContentStyle
 }: BaseModalProps) {
     const styles = createBaseModalStyles(theme);
-    
+
     const modalContent = (
         <View style={[
             styles.modalContent,
@@ -67,8 +72,8 @@ export default function BaseModal({
             <View style={styles.modalHeader}>
                 <View style={styles.modalHeaderContent}>
                     {tokenUrl && (
-                        <Image 
-                            source={{ uri: tokenUrl }} 
+                        <Image
+                            source={{ uri: tokenUrl }}
                             style={styles.modalToken}
                             resizeMode="contain"
                         />
@@ -86,13 +91,13 @@ export default function BaseModal({
                     <Text style={styles.modalCloseText}>✕</Text>
                 </TouchableOpacity>
             </View>
-            
+
             {/* Separator */}
             <View style={styles.modalSeparator} />
-            
+
             {/* Content */}
             {scrollable ? (
-                <ScrollView 
+                <ScrollView
                     style={styles.modalScrollView}
                     contentContainerStyle={[styles.modalScrollContent, scrollContentStyle]}
                     showsVerticalScrollIndicator={true}
@@ -108,7 +113,7 @@ export default function BaseModal({
                     {children}
                 </View>
             )}
-            
+
             {/* Footer */}
             {showFooter && (
                 <View style={styles.modalFooter}>
@@ -117,7 +122,7 @@ export default function BaseModal({
             )}
         </View>
     );
-    
+
     return (
         <Modal
             visible={visible}
@@ -125,12 +130,12 @@ export default function BaseModal({
             transparent={true}
             onRequestClose={onClose}
         >
-            <View 
-                style={[styles.modalOverlay, { zIndex: zIndex - 1 }]} 
+            <View
+                style={[styles.modalOverlay, { zIndex: zIndex - 1 }]}
                 onStartShouldSetResponder={() => true}
                 onResponderGrant={() => onClose()}
             >
-                <View 
+                <View
                     style={styles.modalContainer}
                     onStartShouldSetResponder={() => true}
                     onResponderGrant={(e) => e.stopPropagation()}

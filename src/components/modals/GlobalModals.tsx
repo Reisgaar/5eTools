@@ -8,26 +8,28 @@ import { useModal } from 'src/context/ModalContext';
 import { useAppSettingsStore } from 'src/stores';
 
 // COMPONENTS
-import BeastDetailModal from 'src/components/beasts/BeastDetailModal';
-import DiceRollModal from 'src/components/modals/DiceRollModal';
-import AdvancedDiceRollModal from 'src/components/modals/AdvancedDiceRollModal';
-import { SpellDetailModal } from 'src/components/spells/SpellDetailModal';
+import { BeastDetailModal } from 'src/components/beasts';
+import { AdvancedDiceRollModal, DiceRollModal } from 'src/components/modals';
+import { SpellDetailModal } from 'src/components/spells';
 
+/**
+ * GlobalModals component.
+ */
 export default function GlobalModals() {
-    const { 
-        beastModalVisible, 
-        selectedBeast, 
-        closeBeastModal, 
-        spellModalVisible, 
-        selectedSpell, 
-        closeSpellModal, 
-        diceModalState, 
+    const {
+        beastModalVisible,
+        selectedBeast,
+        closeBeastModal,
+        spellModalVisible,
+        selectedSpell,
+        closeSpellModal,
+        diceModalState,
         closeDiceModal,
         advancedDiceModalState,
         closeAdvancedDiceModal
     } = useModal();
     const { currentTheme } = useAppSettingsStore();
-  
+
     return (
         <>
             <BeastDetailModal
@@ -63,4 +65,4 @@ export default function GlobalModals() {
             />
         </>
     );
-} 
+}

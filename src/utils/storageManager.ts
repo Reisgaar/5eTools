@@ -1,8 +1,13 @@
+// REACT
 import { Platform } from 'react-native';
-import { getTokenCacheStats, cleanTokenCache, clearImageCache } from './tokenCache';
-import { getStorageInfo } from './fileStorage';
-import { formatBytes } from './storageUtils';
-import { STORAGE_CONFIG } from './constants';
+
+// UTILS
+import { getTokenCacheStats, cleanTokenCache, clearImageCache } from 'src/utils/tokenCache';
+import { getStorageInfo } from 'src/utils/fileStorage';
+import { formatBytes } from 'src/utils/storageUtils';
+
+// CONSTANTS
+import { STORAGE_CONFIG } from 'src/constants/utils';
 
 const isWeb = Platform.OS === 'web';
 
@@ -32,11 +37,11 @@ export const getStorageUsage = async (): Promise<StorageUsage> => {
     try {
         const tokenStats = await getTokenCacheStats();
         const dataStats = await getStorageInfo();
-        
+
         // Calculate image cache size
         let imageCacheEntries = 0;
         let imageCacheSize = 0;
-        
+
         if (isWeb) {
             // Count image cache entries in localStorage
             for (let i = 0; i < localStorage.length; i++) {
@@ -50,11 +55,11 @@ export const getStorageUsage = async (): Promise<StorageUsage> => {
                 }
             }
         }
-        
+
         // Estimate total used storage
-        const totalUsed = tokenStats.size + imageCacheSize + 
+        const totalUsed = tokenStats.size + imageCacheSize +
             (dataStats.beastsIndexSize || 0) + (dataStats.spellsIndexSize || 0);
-        
+
         // Estimate available storage (rough approximation)
         let totalAvailable = 0;
         if (isWeb) {
@@ -70,7 +75,7 @@ export const getStorageUsage = async (): Promise<StorageUsage> => {
             // For mobile, estimate available space (this is approximate)
             totalAvailable = 100 * 1024 * 1024; // 100MB estimate for mobile
         }
-        
+
         return {
             totalUsed,
             totalAvailable,
@@ -104,18 +109,18 @@ export const getStorageUsage = async (): Promise<StorageUsage> => {
 };
 
 // Clean up all caches
-export const cleanupAllCaches = async (): Promise<{ 
-    tokensCleaned: boolean; 
-    imagesCleaned: boolean; 
-    message: string; 
+export const cleanupAllCaches = async (): Promise<{
+    tokensCleaned: boolean;
+    imagesCleaned: boolean;
+    message: string;
 }> => {
     try {
         // Clean token cache (removes old entries)
         await cleanTokenCache();
-        
+
         // Clear image cache (removes all cached images)
         await clearImageCache();
-        
+
         return {
             tokensCleaned: true,
             imagesCleaned: true,
@@ -132,28 +137,28 @@ export const cleanupAllCaches = async (): Promise<{
 };
 
 // Check if storage is getting full
-export const isStorageGettingFull = async (): Promise<{ 
-    isFull: boolean; 
-    percentage: number; 
-    warning: string | null; 
+export const isStorageGettingFull = async (): Promise<{
+    isFull: boolean;
+    percentage: number;
+    warning: string | null;
 }> => {
     try {
         const usage = await getStorageUsage();
-        
+
         if (usage.totalAvailable === 0) {
             return { isFull: false, percentage: 0, warning: null };
         }
-        
+
         const percentage = (usage.totalUsed / usage.totalAvailable) * 100;
         const isFull = percentage > STORAGE_CONFIG.WARNING_THRESHOLD;
-        
+
         let warning = null;
         if (percentage > STORAGE_CONFIG.CRITICAL_THRESHOLD) {
             warning = 'Storage is almost full! Consider cleaning caches.';
         } else if (percentage > STORAGE_CONFIG.WARNING_THRESHOLD) {
             warning = 'Storage usage is high. Consider cleaning caches soon.';
         }
-        
+
         return { isFull, percentage, warning };
     } catch (error) {
         console.error('Error checking storage fullness:', error);
@@ -173,7 +178,7 @@ export const getStorageSummary = async (): Promise<{
     try {
         const usage = await getStorageUsage();
         const { isFull, percentage, warning } = await isStorageGettingFull();
-        
+
         let summary: string;
         if (isWeb) {
             if (usage.imageCache.size > 0) {
@@ -184,23 +189,23 @@ export const getStorageSummary = async (): Promise<{
         } else {
             summary = `Storage Usage: ${formatBytes(usage.totalUsed)} / ${formatBytes(usage.totalAvailable)} (${percentage.toFixed(1)}%) - Mobile storage`;
         }
-        
+
         const details = [
             `Token Cache: ${usage.tokenCache.entries} entries (${formatBytes(usage.tokenCache.size)})`,
             `Image Cache: ${usage.imageCache.entries} entries (${formatBytes(usage.imageCache.size)})`,
             `Data Storage: ${usage.dataStorage.beasts} beasts, ${usage.dataStorage.spells} spells`,
         ];
-        
+
         if (isWeb) {
             details.push(`Platform: Web (${usage.imageCache.size > 0 ? 'IndexedDB + localStorage' : 'localStorage only'})`);
         } else {
             details.push('Platform: Mobile (File System)');
         }
-        
+
         if (warning) {
             details.push(`⚠️ ${warning}`);
         }
-        
+
         return {
             summary,
             details,

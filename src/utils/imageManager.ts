@@ -1,5 +1,8 @@
+// REACT
 import { Platform } from 'react-native';
-import { getTokenUrl, getCachedTokenUrl, cacheLargeImage, getCachedLargeImageUrl } from './tokenCache';
+
+// UTILS
+import { getTokenUrl, getCachedTokenUrl, getCachedLargeImageUrl } from 'src/utils/tokenCache';
 
 const isWeb = Platform.OS === 'web';
 
@@ -15,7 +18,7 @@ export const generateCreatureUrls = (source: string, name: string): ImageInfo =>
     const encodedName = encodeURIComponent(name);
     const tokenUrl = `https://5e.tools/img/bestiary/tokens/${source}/${encodedName}.webp`;
     const fullImageUrl = `https://5e.tools/img/bestiary/${source}/${encodedName}.webp`;
-    
+
     return {
         tokenUrl,
         fullImageUrl
@@ -31,7 +34,7 @@ export const getCachedToken = async (source: string, name: string, originalUrl: 
             console.log(`Using cached token for ${source}/${name}`);
             return cachedUrl;
         }
-        
+
         // If not cached, cache it and return original URL for now
         console.log(`Caching token for ${source}/${name}`);
         await getTokenUrl(source, name, originalUrl);
@@ -57,14 +60,14 @@ export const getCachedFullImage = async (source: string, name: string, originalU
 // Get both token and full image URLs with caching
 export const getCachedCreatureImages = async (source: string, name: string): Promise<ImageInfo> => {
     const urls = generateCreatureUrls(source, name);
-    
+
     try {
         // Get cached token
         const cachedTokenUrl = await getCachedToken(source, name, urls.tokenUrl);
-        
+
         // Get cached full image
         const cachedFullImageUrl = await getCachedFullImage(source, name, urls.fullImageUrl);
-        
+
         return {
             ...urls,
             cachedTokenUrl,
@@ -84,7 +87,7 @@ export const getBestCreatureImage = async (source: string, name: string): Promis
 }> => {
     try {
         const urls = generateCreatureUrls(source, name);
-        
+
         // Try to get cached full image first
         const cachedFullImage = await getCachedLargeImageUrl(source, name, urls.fullImageUrl);
         if (cachedFullImage && cachedFullImage !== urls.fullImageUrl) {
@@ -94,7 +97,7 @@ export const getBestCreatureImage = async (source: string, name: string): Promis
                 isCached: true
             };
         }
-        
+
         // Try to get cached token
         const cachedToken = await getCachedTokenUrl(source, name);
         if (cachedToken) {
@@ -104,7 +107,7 @@ export const getBestCreatureImage = async (source: string, name: string): Promis
                 isCached: true
             };
         }
-        
+
         // If nothing is cached, return token for now (caching will happen in background)
         return {
             url: urls.tokenUrl,
@@ -126,13 +129,13 @@ export const getBestCreatureImage = async (source: string, name: string): Promis
 export const preloadCreatureImages = async (source: string, name: string): Promise<void> => {
     try {
         const urls = generateCreatureUrls(source, name);
-        
+
         // Cache both token and full image
         await Promise.all([
             getCachedToken(source, name, urls.tokenUrl),
             getCachedFullImage(source, name, urls.fullImageUrl)
         ]);
-        
+
         console.log(`Preloaded images for ${source}/${name}`);
     } catch (error) {
         console.error('Error preloading creature images:', error);
@@ -148,17 +151,17 @@ export const getCombatTrackerImages = async (source: string, name: string): Prom
 }> => {
     try {
         const urls = generateCreatureUrls(source, name);
-        
+
         // Get cached token for display
         const cachedToken = await getCachedTokenUrl(source, name);
         const displayUrl = cachedToken || urls.tokenUrl;
         const displayType = cachedToken ? 'token' : 'token';
-        
+
         // Get cached full image for modal
         const cachedFullImage = await getCachedLargeImageUrl(source, name, urls.fullImageUrl);
         const modalUrl = cachedFullImage && cachedFullImage !== urls.fullImageUrl ? cachedFullImage : urls.fullImageUrl;
         const modalType = cachedFullImage && cachedFullImage !== urls.fullImageUrl ? 'full' : 'full';
-        
+
         // Start caching if not already cached
         if (!cachedToken) {
             getCachedToken(source, name, urls.tokenUrl);
@@ -166,7 +169,7 @@ export const getCombatTrackerImages = async (source: string, name: string): Prom
         if (!cachedFullImage || cachedFullImage === urls.fullImageUrl) {
             getCachedFullImage(source, name, urls.fullImageUrl);
         }
-        
+
         return {
             displayUrl,
             modalUrl,
@@ -212,7 +215,7 @@ export const getCreatureCacheStatus = async (source: string, name: string): Prom
             isImageCached(source, name, 'token'),
             isImageCached(source, name, 'full')
         ]);
-        
+
         return {
             tokenCached,
             fullImageCached

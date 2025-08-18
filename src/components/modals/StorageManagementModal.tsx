@@ -1,37 +1,38 @@
 // REACT
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Alert } from 'react-native';
 
 // STORES
 import { useAppSettingsStore } from 'src/stores';
 
 // CONTEXTS
 import { useData } from 'src/context/DataContext';
-import { useModal } from 'src/context/ModalContext';
 
 // COMPONENTS
 import { BaseModal } from 'src/components/ui';
 
 // UTILS
-import { getStorageUsage, getStorageSummary, cleanupAllCaches } from 'src/utils/storageManager';
-import { clearImageCache } from 'src/utils/tokenCache';
+import { getStorageSummary, cleanupAllCaches } from 'src/utils/storageManager';
 
 // STYLES
 import { createBaseModalStyles } from 'src/styles/baseModalStyles';
 
+// INTERFACES
 interface StorageManagementModalProps {
     visible: boolean;
     onClose: () => void;
 }
 
-export const StorageManagementModal: React.FC<StorageManagementModalProps> = ({
+/**
+ * StorageManagementModal component.
+ */
+export default function StorageManagementModal({
     visible,
     onClose
-}) => {
+}: StorageManagementModalProps): JSX.Element {
     const { currentTheme } = useAppSettingsStore();
     const { isInitialized, simpleBeasts, simpleSpells, availableClasses, spellClassRelations } = useData();
 
-    
     const styles = createBaseModalStyles(currentTheme);
     const [storageInfo, setStorageInfo] = useState<{
         summary: string;
@@ -87,10 +88,10 @@ export const StorageManagementModal: React.FC<StorageManagementModalProps> = ({
     };
 
     return (
-        <BaseModal 
-            visible={visible} 
-            onClose={onClose} 
-            theme={currentTheme} 
+        <BaseModal
+            visible={visible}
+            onClose={onClose}
+            theme={currentTheme}
             title="Storage Management"
             maxHeight="90%"
             scrollable={true}
@@ -137,7 +138,7 @@ export const StorageManagementModal: React.FC<StorageManagementModalProps> = ({
                             <Text style={[styles.modalText, { color: currentTheme.noticeText, marginBottom: 4 }]}>
                                 • Spell-Class Relations: {spellClassRelations.length} relations
                             </Text>
-                            
+
                             {availableClasses.length > 0 && (
                                 <View style={styles.modalSection}>
                                     <Text style={[styles.modalSectionTitle, { color: currentTheme.text }]}>
@@ -178,7 +179,7 @@ export const StorageManagementModal: React.FC<StorageManagementModalProps> = ({
             )}
 
             <View style={styles.actionRow}>
-                <TouchableOpacity 
+                <TouchableOpacity
                     onPress={loadStorageInfo}
                     style={[styles.modalButton, styles.modalButtonPrimary]}
                 >
@@ -186,25 +187,23 @@ export const StorageManagementModal: React.FC<StorageManagementModalProps> = ({
                         Refresh
                     </Text>
                 </TouchableOpacity>
-                
-                <TouchableOpacity 
+
+                <TouchableOpacity
                     onPress={handleCleanup}
                     disabled={isCleaning}
                     style={[
-                        styles.modalButton, 
-                        { 
+                        styles.modalButton,
+                        {
                             backgroundColor: isCleaning ? currentTheme.disabledButtonBackground : '#ff9800',
                             opacity: isCleaning ? 0.6 : 1
                         }
                     ]}
                 >
                     <Text style={[styles.modalButtonText, { color: 'white' }]}>
-                        {isCleaning ? "Cleaning..." : "Clean All Caches"}
+                        {isCleaning ? 'Cleaning...' : 'Clean All Caches'}
                     </Text>
                 </TouchableOpacity>
             </View>
         </BaseModal>
     );
 };
-
-

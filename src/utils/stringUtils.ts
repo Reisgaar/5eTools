@@ -51,15 +51,15 @@ export function safeToString(value: any): string {
  */
 export function extractBeastType(beast: any): string {
     if (!beast) return '';
-    
+
     if (typeof beast.type === 'string') {
         return normalizeString(beast.type);
     }
-    
+
     if (typeof beast.type === 'object' && typeof beast.type.type === 'string') {
         return normalizeString(beast.type.type);
     }
-    
+
     return '';
 }
 
@@ -70,11 +70,11 @@ export function extractBeastType(beast: any): string {
  */
 export function extractBeastSource(beast: any): string {
     if (!beast) return '';
-    
+
     if (typeof beast.source === 'string') {
         return normalizeString(beast.source);
     }
-    
+
     return '';
 }
 

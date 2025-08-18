@@ -19,12 +19,12 @@ interface SpellbookSelectorModalProps {
 /**
  * Modal for selecting a spellbook.
  */
-const SpellbookSelectorModal: React.FC<SpellbookSelectorModalProps> = ({ 
-    visible, 
-    onClose, 
+export default function SpellbookSelectorModal({
+    visible,
+    onClose,
     onSelectSpellbook,
-    onCreateSpellbook 
-}) => {
+    onCreateSpellbook
+}: SpellbookSelectorModalProps) {
     const { spellbooks, currentSpellbookId, selectSpellbook, clearSpellbookSelection, getSpellbooksByCampaign } = useSpellbookStore();
     const { selectedCampaignId } = useCampaignStore();
     const { currentTheme } = useAppSettingsStore();
@@ -208,5 +208,3 @@ const styles = StyleSheet.create({
         marginVertical: 10,
     },
 });
-
-export default SpellbookSelectorModal;

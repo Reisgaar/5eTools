@@ -1,13 +1,19 @@
+// REACT
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
-import { BaseModal } from '../../ui';
-import { createBaseModalStyles } from '../../../styles/baseModalStyles';
+import { View, Text, TouchableOpacity } from 'react-native';
 
+// COMPONENTS
+import { BaseModal } from 'src/components/ui';
+
+// STYLES
+import { createBaseModalStyles } from 'src/styles/baseModalStyles';
+
+// INTERFACES
 interface OtherFilterModalProps {
     visible: boolean;
     onClose: () => void;
     theme: any;
-    options: Array<{ label: string; value: string }>;
+    options: { label: string; value: string }[];
     selectedOptions: string[];
     onToggleOption: (value: string) => void;
     onSelectAll: () => void;
@@ -15,6 +21,9 @@ interface OtherFilterModalProps {
     isApplying: boolean;
 }
 
+/**
+ * OtherFilterModal component.
+ */
 export default function OtherFilterModal({
     visible,
     onClose,
@@ -65,7 +74,7 @@ export default function OtherFilterModal({
                 <Text style={[unifiedStyles.modalText, { marginBottom: 16 }]}>
                     Select the spell types you want to include in the filter:
                 </Text>
-                
+
                 {options.map((option) => (
                     <TouchableOpacity
                         key={option.value}
@@ -78,8 +87,8 @@ export default function OtherFilterModal({
                     >
                         <View style={[
                             unifiedStyles.checkbox,
-                            { 
-                                borderColor: theme.primary, 
+                            {
+                                borderColor: theme.primary,
                                 backgroundColor: selectedOptions.includes(option.value) ? theme.primary : 'transparent'
                             }
                         ]}>
@@ -96,6 +105,3 @@ export default function OtherFilterModal({
         </BaseModal>
     );
 }
-
-
-

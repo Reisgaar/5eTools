@@ -1,3 +1,4 @@
+// REACT
 import { StyleSheet } from 'react-native';
 
 export const commonStyles = StyleSheet.create({
@@ -8,7 +9,7 @@ export const commonStyles = StyleSheet.create({
         backgroundColor: '#121212',
         flexGrow: 1,
     },
-    
+
     // Header styles
     header: {
         flexDirection: 'row',
@@ -28,7 +29,7 @@ export const commonStyles = StyleSheet.create({
         justifyContent: 'center',
         marginLeft: 8,
     },
-    
+
     // Title styles
     title: {
         fontSize: 24,
@@ -36,7 +37,7 @@ export const commonStyles = StyleSheet.create({
         marginBottom: 16,
         alignSelf: 'flex-start',
     },
-    
+
     // Input styles
     input: {
         borderWidth: 1,
@@ -56,7 +57,7 @@ export const commonStyles = StyleSheet.create({
         fontSize: 16,
         textDecorationLine: 'underline',
     },
-    
+
     // Card styles for items (beasts/spells)
     itemCard: {
         backgroundColor: '#232323',
@@ -79,7 +80,7 @@ export const commonStyles = StyleSheet.create({
         justifyContent: 'center',
         marginLeft: 8,
     },
-    
+
     // Item text styles
     itemLevel: {
         fontSize: 12,
@@ -98,7 +99,7 @@ export const commonStyles = StyleSheet.create({
         fontWeight: '400',
         marginLeft: 4,
     },
-    
+
     // View mode selector styles
     viewModeSelector: {
         flexDirection: 'row',
@@ -117,7 +118,7 @@ export const commonStyles = StyleSheet.create({
         fontSize: 14,
         fontWeight: 'bold',
     },
-    
+
     // Level filter styles
     levelBar: {
         marginBottom: 16,
@@ -137,7 +138,7 @@ export const commonStyles = StyleSheet.create({
         textAlign: 'center',
         fontSize: 15,
     },
-    
+
     // Current selection info styles
     currentSelectionInfo: {
         padding: 8,
@@ -149,7 +150,7 @@ export const commonStyles = StyleSheet.create({
         fontWeight: 'bold',
         textAlign: 'center',
     },
-    
+
     // Loading styles
     loadingContainer: {
         flex: 1,
@@ -162,7 +163,7 @@ export const commonStyles = StyleSheet.create({
         marginVertical: 16,
         textAlign: 'center',
     },
-    
+
     // Modal styles
     modalOverlay: {
         flex: 1,
@@ -201,7 +202,7 @@ export const commonStyles = StyleSheet.create({
         marginBottom: 20,
         opacity: 0.3,
     },
-    
+
     // Modal item styles
     modalItem: {
         flexDirection: 'row',
@@ -233,7 +234,7 @@ export const commonStyles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    
+
     // Section styles
     section: {
         padding: 16,
@@ -253,7 +254,7 @@ export const commonStyles = StyleSheet.create({
         fontStyle: 'italic',
         marginTop: 20,
     },
-    
+
     // Settings styles
     row: {
         flexDirection: 'row',

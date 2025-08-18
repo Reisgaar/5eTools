@@ -2,8 +2,6 @@
  * Utility functions for beast/monster data processing
  */
 
-import { normalizeString } from './stringUtils';
-
 /**
  * Calculates passive perception from beast data
  * @param beast - Beast object with skills or passive perception
@@ -71,7 +69,7 @@ function extractBonusFromSkill(skillValue: any): number {
     if (typeof skillValue === 'number') {
         return skillValue;
     }
-    
+
     if (typeof skillValue === 'string') {
         // Look for patterns like "perception +5", "+5", "5"
         const match = skillValue.match(/\+?\s*(\d+)/);
@@ -79,7 +77,7 @@ function extractBonusFromSkill(skillValue: any): number {
             return parseInt(match[1], 10);
         }
     }
-    
+
     return 0;
 }
 
@@ -90,15 +88,15 @@ function extractBonusFromSkill(skillValue: any): number {
  */
 export function getBeastType(beast: any): string {
     if (!beast) return '';
-    
+
     if (typeof beast.type === 'string') {
         return beast.type.toLowerCase();
     }
-    
+
     if (typeof beast.type === 'object' && typeof beast.type.type === 'string') {
         return beast.type.type.toLowerCase();
     }
-    
+
     return '';
 }
 
@@ -109,11 +107,11 @@ export function getBeastType(beast: any): string {
  */
 export function getBeastSource(beast: any): string {
     if (!beast) return '';
-    
+
     if (typeof beast.source === 'string') {
         return beast.source.toLowerCase();
     }
-    
+
     return '';
 }
 
@@ -127,12 +125,12 @@ export function calculateInitiativeBonus(beast: any): number {
     if (beast.dex && typeof beast.dex === 'number') {
         return Math.floor((beast.dex - 10) / 2);
     }
-    
+
     // Check if dexterity is in a different format (e.g., object with value)
     if (beast.dex && typeof beast.dex === 'object' && beast.dex.value) {
         return Math.floor((beast.dex.value - 10) / 2);
     }
-    
+
     // Default initiative bonus (0 for creatures without dexterity)
     return 0;
 }
@@ -144,7 +142,7 @@ export function calculateInitiativeBonus(beast: any): number {
  */
 export function extractSpeed(beast: any): string {
     if (!beast.speed) return '';
-    
+
     if (typeof beast.speed === 'object') {
         return Object.entries(beast.speed).map(([k, v]) => {
             if (typeof v === 'object' && v !== null) {
@@ -156,7 +154,7 @@ export function extractSpeed(beast: any): string {
             return `${k[0].toUpperCase() + k.slice(1)} ${v} ft.`;
         }).join(', ');
     }
-    
+
     return String(beast.speed);
 }
 
@@ -167,21 +165,21 @@ export function extractSpeed(beast: any): string {
  */
 export function extractSenses(beast: any): string {
     if (!beast.senses) return '';
-    
+
     let senses = Array.isArray(beast.senses) ? beast.senses.join(', ') : beast.senses;
-    
+
     // Add passive perception if available
     if (beast.passive) {
         senses += (senses ? ', ' : '') + `Passive Perception ${beast.passive}`;
     }
-    
+
     return senses;
 }
 
 // Helper function to extract AC value for combat
 export function extractACValue(ac: any): number {
     if (!ac) return 0;
-    
+
     // Handle array of AC objects
     if (Array.isArray(ac)) {
         const firstAC = ac[0];
@@ -190,12 +188,12 @@ export function extractACValue(ac: any): number {
         }
         return Number(firstAC || 0);
     }
-    
+
     // Handle single AC object
     if (typeof ac === 'object' && ac !== null) {
         return Number(ac.ac || ac.value || ac.armor || 0);
     }
-    
+
     // Handle simple number or string
     return Number(ac || 0);
 }

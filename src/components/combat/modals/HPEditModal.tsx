@@ -1,9 +1,14 @@
+// REACT
 import React, { useEffect, useState } from 'react';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { BaseModal } from '../../ui';
-import { createBaseModalStyles } from '../../../styles/baseModalStyles';
 
+// COMPONENTS
+import { BaseModal } from 'src/components/ui';
 
+// STYLES
+import { createBaseModalStyles } from 'src/styles/baseModalStyles';
+
+// INTERFACES
 interface HPEditModalProps {
     visible: boolean;
     onClose: () => void;
@@ -16,6 +21,9 @@ interface HPEditModalProps {
     theme: any;
 }
 
+/**
+ * Modal used to edit the current HP of a combatant.
+ */
 export default function HPEditModal({
     visible,
     onClose,
@@ -26,7 +34,7 @@ export default function HPEditModal({
     initialCurrentHp,
     maxHp,
     theme
-}: HPEditModalProps) {
+}: HPEditModalProps): JSX.Element {
     const [currentHp, setCurrentHp] = useState(initialCurrentHp);
     const styles = createBaseModalStyles(theme);
 
@@ -48,10 +56,8 @@ export default function HPEditModal({
         onClose();
     };
 
-
-
     // Create title
-    const modalTitle = "Edit Current HP";
+    const modalTitle = 'Edit Current HP';
 
     return (
         <BaseModal visible={visible} onClose={onClose} theme={theme} title={modalTitle} maxHeight="85%">
@@ -66,7 +72,7 @@ export default function HPEditModal({
             <View style={styles.modalSection}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 20, gap: 12 }}>
                     <TextInput
-                        style={{ 
+                        style={{
                             borderWidth: 2,
                             borderRadius: 8,
                             paddingHorizontal: 16,
@@ -75,9 +81,9 @@ export default function HPEditModal({
                             fontWeight: 'bold',
                             textAlign: 'center',
                             minWidth: 80,
-                            backgroundColor: theme.inputBackground, 
-                            color: theme.text, 
-                            borderColor: theme.primary 
+                            backgroundColor: theme.inputBackground,
+                            color: theme.text,
+                            borderColor: theme.primary
                         }}
                         value={String(currentHp)}
                         onChangeText={(text) => {
@@ -91,11 +97,11 @@ export default function HPEditModal({
                         keyboardType="numeric"
                         textAlign="center"
                     />
-                    
+
                     <Text style={{ fontSize: 24, fontWeight: 'bold', color: theme.text }}>/</Text>
-                    
+
                     <TouchableOpacity
-                        style={{ 
+                        style={{
                             borderWidth: 2,
                             borderRadius: 8,
                             paddingHorizontal: 16,
@@ -103,8 +109,8 @@ export default function HPEditModal({
                             minWidth: 80,
                             alignItems: 'center',
                             justifyContent: 'center',
-                            backgroundColor: theme.inputBackground, 
-                            borderColor: theme.primary 
+                            backgroundColor: theme.inputBackground,
+                            borderColor: theme.primary
                         }}
                         onPress={onMaxHpEdit}
                     >
@@ -120,24 +126,24 @@ export default function HPEditModal({
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginBottom: 20, gap: 12 }}>
                     {/* Decrement Buttons - Left Column */}
                     <View style={{ flex: 1, gap: 6 }}>
-                    <TouchableOpacity
-                        style={[styles.modalButton, styles.modalButtonPrimary]}
-                        onPress={() => handleDecrement(10)}
-                    >
-                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-10</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[styles.modalButton, styles.modalButtonPrimary]}
-                        onPress={() => handleDecrement(5)}
-                    >
-                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-5</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[styles.modalButton, styles.modalButtonPrimary]}
-                        onPress={() => handleDecrement(1)}
-                    >
-                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-1</Text>
-                    </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.modalButton, styles.modalButtonPrimary]}
+                            onPress={() => handleDecrement(10)}
+                        >
+                            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-10</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.modalButton, styles.modalButtonPrimary]}
+                            onPress={() => handleDecrement(5)}
+                        >
+                            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-5</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.modalButton, styles.modalButtonPrimary]}
+                            onPress={() => handleDecrement(1)}
+                        >
+                            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-1</Text>
+                        </TouchableOpacity>
                     </View>
 
                     {/* Increment Buttons - Right Column */}
@@ -176,5 +182,3 @@ export default function HPEditModal({
         </BaseModal>
     );
 }
-
-

@@ -1,13 +1,20 @@
+// REACT
 import React, { useState, useEffect } from 'react';
+
+// EXPO
 import { View, Text, TouchableOpacity, Image, Alert, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
+// INTERFACES
 interface ImagePickerProps {
     currentImageUri?: string;
     onImageSelected: (uri: string | null) => void;
     theme: any;
 }
 
+/**
+ * PlayerImagePicker component.
+ */
 export default function PlayerImagePicker({ currentImageUri, onImageSelected, theme }: ImagePickerProps) {
     const [imageUri, setImageUri] = useState<string | null>(currentImageUri || null);
     const [isLoading, setIsLoading] = useState(false);
@@ -19,12 +26,12 @@ export default function PlayerImagePicker({ currentImageUri, onImageSelected, th
     const selectImage = async () => {
         try {
             setIsLoading(true);
-            
+
             // Create a file input element
             const input = document.createElement('input');
             input.type = 'file';
             input.accept = 'image/*';
-            
+
             input.onchange = (event) => {
                 const file = (event.target as HTMLInputElement).files?.[0];
                 if (file) {
@@ -40,7 +47,7 @@ export default function PlayerImagePicker({ currentImageUri, onImageSelected, th
                 }
                 setIsLoading(false);
             };
-            
+
             input.click();
         } catch (error) {
             console.error('Error selecting image:', error);
@@ -57,7 +64,7 @@ export default function PlayerImagePicker({ currentImageUri, onImageSelected, th
     return (
         <View style={styles.container}>
             <Text style={[styles.label, { color: theme.text }]}>Character Token Image</Text>
-            
+
             <View style={[styles.imageContainer, { borderColor: theme.primary }]}>
                 {imageUri ? (
                     <View style={styles.imageWrapper}>
@@ -75,10 +82,10 @@ export default function PlayerImagePicker({ currentImageUri, onImageSelected, th
                         onPress={selectImage}
                         disabled={isLoading}
                     >
-                        <Ionicons 
-                            name={isLoading ? "hourglass" : "camera"} 
-                            size={32} 
-                            color={theme.primary} 
+                        <Ionicons
+                            name={isLoading ? 'hourglass' : 'camera'}
+                            size={32}
+                            color={theme.primary}
                         />
                         <Text style={[styles.placeholderText, { color: theme.noticeText }]}>
                             {isLoading ? 'Loading...' : 'Tap to select image'}
@@ -86,7 +93,7 @@ export default function PlayerImagePicker({ currentImageUri, onImageSelected, th
                     </TouchableOpacity>
                 )}
             </View>
-            
+
             {!imageUri && (
                 <TouchableOpacity
                     style={[styles.selectButton, { backgroundColor: theme.primary }]}
@@ -167,5 +174,3 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
 });
-
-

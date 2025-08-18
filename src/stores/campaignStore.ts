@@ -57,7 +57,7 @@ export const useCampaignStore = create<CampaignState>((set, get) => ({
     createCampaign: (name: string, description?: string): string => {
         const id = `campaign_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         const now = new Date().toISOString();
-        
+
         const newCampaign: Campaign = {
             id,
             name,
@@ -68,37 +68,37 @@ export const useCampaignStore = create<CampaignState>((set, get) => ({
 
         const currentCampaigns = get().campaigns;
         const updatedCampaigns = [...currentCampaigns, newCampaign];
-        
+
         set({ campaigns: updatedCampaigns });
         saveCampaignsToFile(updatedCampaigns);
-        
+
         return id;
     },
 
     deleteCampaign: (id: string) => {
         const currentCampaigns = get().campaigns;
         const currentSelectedCampaignId = get().selectedCampaignId;
-        
+
         const updatedCampaigns = currentCampaigns.filter(campaign => campaign.id !== id);
-        
+
         // If we deleted the selected campaign, clear selection
         const newSelectedCampaignId = currentSelectedCampaignId === id ? null : currentSelectedCampaignId;
         const newSelectedCampaign = newSelectedCampaignId ? updatedCampaigns.find(c => c.id === newSelectedCampaignId) || null : null;
-        
-        set({ 
-            campaigns: updatedCampaigns, 
+
+        set({
+            campaigns: updatedCampaigns,
             selectedCampaignId: newSelectedCampaignId,
             selectedCampaign: newSelectedCampaign
         });
-        
+
         saveCampaignsToFile(updatedCampaigns);
     },
 
     selectCampaign: (id: string | null) => {
         const currentCampaigns = get().campaigns;
         const selectedCampaign = id ? currentCampaigns.find(c => c.id === id) || null : null;
-        
-        set({ 
+
+        set({
             selectedCampaignId: id,
             selectedCampaign
         });
@@ -107,7 +107,7 @@ export const useCampaignStore = create<CampaignState>((set, get) => ({
     updateCampaign: (id: string, name: string, description?: string) => {
         const currentCampaigns = get().campaigns;
         const currentSelectedCampaignId = get().selectedCampaignId;
-        
+
         const updatedCampaigns = currentCampaigns.map(campaign => {
             if (campaign.id === id) {
                 return {
@@ -119,22 +119,22 @@ export const useCampaignStore = create<CampaignState>((set, get) => ({
             }
             return campaign;
         });
-        
+
         // Update selectedCampaign if it was the one being updated
-        const newSelectedCampaign = currentSelectedCampaignId === id 
-            ? updatedCampaigns.find(c => c.id === id) || null 
+        const newSelectedCampaign = currentSelectedCampaignId === id
+            ? updatedCampaigns.find(c => c.id === id) || null
             : get().selectedCampaign;
-        
-        set({ 
+
+        set({
             campaigns: updatedCampaigns,
             selectedCampaign: newSelectedCampaign
         });
-        
+
         saveCampaignsToFile(updatedCampaigns);
     },
 
     clearSelectedCampaign: () => {
-        set({ 
+        set({
             selectedCampaignId: null,
             selectedCampaign: null
         });

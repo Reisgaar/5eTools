@@ -1,14 +1,17 @@
+// REACT
 import { Platform } from 'react-native';
-import { IStorageProvider } from './IStorageProvider';
-import { WebStorageProvider } from './WebStorageProvider';
-import { MobileStorageProvider } from './MobileStorageProvider';
+
+// PROVIDERS
+import { IStorageProvider } from 'src/utils/storage/IStorageProvider';
+import { WebStorageProvider } from 'src/utils/storage/WebStorageProvider';
+import { MobileStorageProvider } from 'src/utils/storage/MobileStorageProvider';
 
 /**
  * Factory for creating the appropriate storage provider based on platform
  */
 export class StorageFactory {
     private static instance: IStorageProvider | null = null;
-    
+
     /**
      * Get the appropriate storage provider for the current platform
      */
@@ -22,14 +25,14 @@ export class StorageFactory {
         }
         return StorageFactory.instance;
     }
-    
+
     /**
      * Reset the singleton instance (useful for testing)
      */
     public static resetInstance(): void {
         StorageFactory.instance = null;
     }
-    
+
     /**
      * Get the platform name
      */

@@ -1,5 +1,8 @@
-import { StorageFactory } from './storage/StorageFactory';
-import { Beast, Spell, Player, Spellbook, Combat } from './types';
+// REACT
+import { StorageFactory } from 'src/utils/storage/StorageFactory';
+
+// MODELS
+import { Beast, Spell, Player, Spellbook, Combat } from 'src/models/interfaces/utils';
 
 // Re-export the storage provider for direct access
 export const storage = StorageFactory.getStorageProvider();
@@ -169,12 +172,10 @@ export const updateCampaign = async (id: string, name: string, description?: str
     await storage.updateCampaign(id, name, description);
 };
 
-
-
 export const regenerateCombatFiles = async (): Promise<void> => {
     await storage.regenerateCombatFiles();
 };
 
 export const regenerateAllIndexes = async (): Promise<void> => {
     await storage.regenerateAllIndexes();
-}; 
+};

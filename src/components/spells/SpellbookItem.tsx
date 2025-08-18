@@ -1,8 +1,14 @@
+// REACT
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { commonStyles } from '../../styles/commonStyles';
 
+// EXPO
+import { Ionicons } from '@expo/vector-icons';
+
+// STYLES
+import { commonStyles } from 'src/styles/commonStyles';
+
+// INTERFACES
 interface SpellbookItemProps {
     spellbook: any;
     theme: any;
@@ -14,6 +20,9 @@ interface SpellbookItemProps {
     showToggleButton?: boolean;
 }
 
+/**
+ * SpellbookItem component.
+ */
 export default function SpellbookItem({
     spellbook,
     theme,
@@ -26,7 +35,7 @@ export default function SpellbookItem({
 }: SpellbookItemProps) {
     return (
         <View style={[commonStyles.modalItem, { backgroundColor: theme.card, borderColor: theme.primary }]}>
-            <TouchableOpacity 
+            <TouchableOpacity
                 style={commonStyles.modalItemInfo}
                 onPress={onPress}
             >
@@ -49,10 +58,10 @@ export default function SpellbookItem({
                         onPress={onPress}
                         style={[commonStyles.modalActionButton, { backgroundColor: isInSpellbook ? '#dc2626' : theme.primary }]}
                     >
-                        <Ionicons 
-                            name={isInSpellbook ? "remove" : "add"} 
-                            size={16} 
-                            color="white" 
+                        <Ionicons
+                            name={isInSpellbook ? 'remove' : 'add'}
+                            size={16}
+                            color="white"
                         />
                     </TouchableOpacity>
                 )}

@@ -26,7 +26,7 @@ export default function CombatList({
     onSelectCombat,
     onCreateCombat,
     theme
-}: CombatListProps) {
+}: CombatListProps): JSX.Element {
     const styles = createCombatStyles(theme);
     const [searchQuery, setSearchQuery] = useState('');
     const { campaigns } = useCampaignStore();
@@ -35,7 +35,7 @@ export default function CombatList({
     const filteredCombats = useMemo(() => {
         if (!searchQuery.trim()) return combats;
 
-        return combats.filter(combat => 
+        return combats.filter(combat =>
             combat.name.toLowerCase().includes(searchQuery.toLowerCase())
         );
     }, [combats, searchQuery]);
@@ -43,7 +43,7 @@ export default function CombatList({
     // Helper function to get campaign name
     const getCampaignName = (campaignId?: string) => {
         if (!campaignId) return 'No campaign';
-        
+
         const campaign = campaigns.find(c => c.id === campaignId);
         return campaign ? campaign.name : 'Unknown campaign';
     };
@@ -58,12 +58,12 @@ export default function CombatList({
                     right: 10,
                     bottom: 10,
                     zIndex: 1,
-                    backgroundColor: theme.primary, 
+                    backgroundColor: theme.primary,
                     width: 60,
                     height: 60,
-                    borderRadius: 30, 
-                    alignItems: 'center', 
-                    justifyContent: 'center' 
+                    borderRadius: 30,
+                    alignItems: 'center',
+                    justifyContent: 'center'
                 }}
             >
                 <Ionicons name="add" size={20} color="white" />
@@ -80,61 +80,59 @@ export default function CombatList({
 
             <Text style={[styles.listSectionTitle, { color: theme.text }]}>Saved Combats</Text>
             <View style={[styles.listContainerBox, { backgroundColor: theme.card, borderColor: theme.primary, flex: 1, padding: 0 }]}>
-                    {/* Existing Combats */}
-                    <View>
-                        {!filteredCombats || filteredCombats.length === 0 ? (
-                            <View style={{ height: '100%', justifyContent: 'center', alignItems: 'center' }}>
-                                <Text style={[styles.listEmptyText, { color: theme.noticeText }]}>
-                                    {searchQuery.trim() ? 'No combats found matching your search.' : 'No combats created yet'}
-                                </Text>
-                            </View>
-                        ) : (
-                            <ScrollView style={{ height: '100%' }}>
-                                <View style={{ flex: 1, padding: 12 }}>
-                                    {filteredCombats.map(combat => (
-                                        <View key={combat.id} style={styles.listCombatListItem}>
-                                            <TouchableOpacity
-                                                onPress={() => onSelectCombat(combat.id)}
-                                                style={[
-                                                    styles.listCombatOption,
-                                                    { backgroundColor: theme.inputBackground },
-                                                    currentCombatId === combat.id && { borderColor: theme.primary, borderWidth: 2 },
-                                                    combat.started && { borderColor: '#4CAF50', borderWidth: 2 }
-                                                ]}
-                                            >
-                                                <View style={{ flex: 1 }}>
-                                                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                                                        <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-                                                            <Text style={[styles.listCombatName, { color: theme.text }]}>{combat.name}</Text>
-                                                            {combat.started ? (
-                                                                <View style={styles.listActiveBadge}>
-                                                                    <Text style={styles.listActiveBadgeText}>ACTIVE</Text>
-                                                                </View>
-                                                            ) : null}
-                                                        </View>
-                                                        <Text style={[styles.listCombatCount, { color: theme.noticeText }]}>
-                                                            {`(${combat.combatants?.length || 0} creatures)`}
-                                                        </Text>
+                {/* Existing Combats */}
+                <View>
+                    {!filteredCombats || filteredCombats.length === 0 ? (
+                        <View style={{ height: '100%', justifyContent: 'center', alignItems: 'center' }}>
+                            <Text style={[styles.listEmptyText, { color: theme.noticeText }]}>
+                                {searchQuery.trim() ? 'No combats found matching your search.' : 'No combats created yet'}
+                            </Text>
+                        </View>
+                    ) : (
+                        <ScrollView style={{ height: '100%' }}>
+                            <View style={{ flex: 1, padding: 12 }}>
+                                {filteredCombats.map(combat => (
+                                    <View key={combat.id} style={styles.listCombatListItem}>
+                                        <TouchableOpacity
+                                            onPress={() => onSelectCombat(combat.id)}
+                                            style={[
+                                                styles.listCombatOption,
+                                                { backgroundColor: theme.inputBackground },
+                                                currentCombatId === combat.id && { borderColor: theme.primary, borderWidth: 2 },
+                                                combat.isActive && { borderColor: '#4CAF50', borderWidth: 2 }
+                                            ]}
+                                        >
+                                            <View style={{ flex: 1 }}>
+                                                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                                                    <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                                                        <Text style={[styles.listCombatName, { color: theme.text }]}>{combat.name}</Text>
+                                                        {combat.isActive && (
+                                                            <View style={styles.listActiveBadge}>
+                                                                <Text style={styles.listActiveBadgeText}>ACTIVE</Text>
+                                                            </View>
+                                                        )}
                                                     </View>
-                                                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                                                        <Text style={[styles.listCombatCount, { color: theme.noticeText, fontSize: 12 }]}>
-                                                            {formatDate(combat.createdAt)}
-                                                        </Text>
-                                                        <Text style={[styles.listCombatCount, { color: theme.noticeText, fontSize: 12 }]}>
-                                                            {getCampaignName(combat.campaignId)}
-                                                        </Text>
-                                                    </View>
+                                                    <Text style={[styles.listCombatCount, { color: theme.noticeText }]}>
+                                                        {`(${combat.combatants?.length || 0} creatures)`}
+                                                    </Text>
                                                 </View>
-                                            </TouchableOpacity>
-                                            
-
-                                        </View>
-                                    ))}
-                                </View>
-                            </ScrollView>
-                        )}
-                    </View>
+                                                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                    <Text style={[styles.listCombatCount, { color: theme.noticeText, fontSize: 12 }]}>
+                                                        {formatDate(combat.createdAt)}
+                                                    </Text>
+                                                    <Text style={[styles.listCombatCount, { color: theme.noticeText, fontSize: 12 }]}>
+                                                        {getCampaignName(combat.campaignId)}
+                                                    </Text>
+                                                </View>
+                                            </View>
+                                        </TouchableOpacity>
+                                    </View>
+                                ))}
+                            </View>
+                        </ScrollView>
+                    )}
+                </View>
             </View>
         </View>
     );
-} 
+}

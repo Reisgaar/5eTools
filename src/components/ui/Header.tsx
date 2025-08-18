@@ -12,7 +12,10 @@ import { useCampaignStore, useAppSettingsStore } from 'src/stores';
 // COMPONENTS
 import CampaignSelectorModal from 'src/components/modals/CampaignSelectorModal';
 
-const Header: React.FC = () => {
+/**
+ * Header component.
+ */
+export default function Header() {
     const { selectedCampaign, selectedCampaignId, clearSelectedCampaign } = useCampaignStore();
     const { currentTheme } = useAppSettingsStore();
     const [campaignModalVisible, setCampaignModalVisible] = React.useState(false);
@@ -23,18 +26,18 @@ const Header: React.FC = () => {
 
     // Map pathname to tab name
     const getTabName = () => {
-        const path = usePathname(); 
-        const name = path.substring(path.lastIndexOf('/') + 1).charAt(0).toUpperCase() + path.substring(path.lastIndexOf('/') + 2)
+        const path = usePathname();
+        const name = path.substring(path.lastIndexOf('/') + 1).charAt(0).toUpperCase() + path.substring(path.lastIndexOf('/') + 2);
         return !name || name === '' ? 'Home' : name.toLowerCase() === 'combat' ? 'Combat Manager' : name;
     };
 
     return (
         <>
             <SafeAreaView style={{
-                backgroundColor: currentTheme.background, 
-                flexDirection: 'row', 
-                alignItems: 'center', 
-                justifyContent: 'space-between', 
+                backgroundColor: currentTheme.background,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
                 paddingHorizontal: 10,
                 paddingVertical: 5,
                 borderBottomWidth: 2,
@@ -44,7 +47,7 @@ const Header: React.FC = () => {
                     <Image source={require('../../../assets/images/logo_lg.png')} style={[styles.logo, { height: 30, width: 30, borderRadius: 6 }]} />
                     <Text style={{ fontSize: 18, fontWeight: 'bold', color: currentTheme.text }}>{getTabName()}</Text>
                 </View>
-                
+
                 <TouchableOpacity onPress={handleCampaignPress} style={[styles.filterBtn, { borderColor: selectedCampaignId ? currentTheme.primary : currentTheme.text }]}>
                     <Text style={[styles.filterBtnText, { color: selectedCampaignId ? currentTheme.primary : currentTheme.text }]}>
                         {selectedCampaignId && selectedCampaign ? selectedCampaign.name : 'All Campaigns'}
@@ -52,9 +55,9 @@ const Header: React.FC = () => {
                 </TouchableOpacity>
             </SafeAreaView>
 
-            <CampaignSelectorModal 
-                visible={campaignModalVisible} 
-                onClose={() => setCampaignModalVisible(false)} 
+            <CampaignSelectorModal
+                visible={campaignModalVisible}
+                onClose={() => setCampaignModalVisible(false)}
             />
         </>
     );
@@ -90,5 +93,3 @@ const styles = StyleSheet.create({
         fontSize: 12,
     },
 });
-
-export default Header;

@@ -47,7 +47,7 @@ export default function PlayerModal({
     selectedPlayers,
     onPlayerToggle,
     theme
-}: PlayerModalProps) {
+}: PlayerModalProps): JSX.Element {
     const { selectedCampaign, campaigns } = useCampaignStore();
     const styles = createBaseModalStyles(theme);
 
@@ -69,12 +69,12 @@ export default function PlayerModal({
         const campaign = campaigns.find(c => c.id === campaignId);
         return campaign ? campaign.name : null;
     };
-  
+
     return (
-        <BaseModal 
-            visible={visible} 
-            onClose={onClose} 
-            theme={theme} 
+        <BaseModal
+            visible={visible}
+            onClose={onClose}
+            theme={theme}
             title="Add Players to Combat"
             scrollable={true}
         >
@@ -87,8 +87,8 @@ export default function PlayerModal({
                     <TouchableOpacity
                         key={item.name}
                         style={[
-                        styles.modalListItem,
-                        { marginBottom: 8, borderRadius: 8 }
+                            styles.modalListItem,
+                            { marginBottom: 8, borderRadius: 8 }
                         ]}
                         onPress={() => onPlayerToggle(item.name)}
                     >
@@ -123,11 +123,11 @@ export default function PlayerModal({
                     </TouchableOpacity>
                 ))
             )}
-            
-            <TouchableOpacity 
-                onPress={onAddPlayers} 
+
+            <TouchableOpacity
+                onPress={onAddPlayers}
                 style={[styles.modalButton, styles.modalButtonPrimary, { marginTop: 16 }]}
-            > 
+            >
                 <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>Add</Text>
             </TouchableOpacity>
         </BaseModal>

@@ -1,11 +1,21 @@
+// REACT
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, Switch, StyleSheet } from 'react-native';
-import { BaseModal } from '../ui';
-import { rollDice, parseDiceExpression } from '../../utils/replaceTags';
-import { useModal } from '../../context/ModalContext';
-import { getModalZIndex } from '../../styles/baseModalStyles';
-import { createBaseModalStyles } from '../../styles/baseModalStyles';
 
+// CONTEXT
+import { useModal } from 'src/context/ModalContext';
+
+// STYLES
+import { getModalZIndex } from 'src/styles/baseModalStyles';
+import { createBaseModalStyles } from 'src/styles/baseModalStyles';
+
+// COMPONENTS
+import { BaseModal } from 'src/components/ui';
+
+// UTILS
+import { rollDice, parseDiceExpression } from 'src/utils/replaceTags';
+
+// INTERFACES
 interface AdvancedDiceRollModalProps {
     visible: boolean;
     onClose: () => void;
@@ -25,18 +35,21 @@ interface AdvancedDiceRollModalProps {
 
 type AdvantageType = 'normal' | 'advantage' | 'disadvantage';
 
-export default function AdvancedDiceRollModal({ 
-    visible, 
-    onClose, 
-    theme, 
-    d20Config, 
-    damageConfig 
-}: AdvancedDiceRollModalProps) {
+/**
+ * AdvancedDiceRollModal component.
+ */
+export default function AdvancedDiceRollModal({
+    visible,
+    onClose,
+    theme,
+    d20Config,
+    damageConfig
+}: AdvancedDiceRollModalProps): JSX.Element {
     const { beastStackDepth, spellStackDepth } = useModal();
     const maxStackDepth = Math.max(beastStackDepth, spellStackDepth);
     const dynamicZIndex = getModalZIndex(maxStackDepth + 1); // Dice modals should be above other modals
     const unifiedStyles = createBaseModalStyles(theme);
-    
+
     const [advantageType, setAdvantageType] = useState<AdvantageType>('normal');
     const [situationalBonus, setSituationalBonus] = useState('');
     const [isCritical, setIsCritical] = useState(false);
@@ -50,19 +63,18 @@ export default function AdvancedDiceRollModal({
             let situationalBonusNum = 0;
             if (situationalBonus) {
                 // Handle + and - prefixes
-                if (situationalBonus.startsWith('+')) {
+                if (situationalBonus.startsWith('+'))
                     situationalBonusNum = parseInt(situationalBonus.slice(1)) || 0;
-                } else if (situationalBonus.startsWith('-')) {
+                else if (situationalBonus.startsWith('-'))
                     situationalBonusNum = -parseInt(situationalBonus.slice(1)) || 0;
-                } else {
+                else
                     situationalBonusNum = parseInt(situationalBonus) || 0;
-                }
             }
             const totalBonus = d20Config.bonus + situationalBonusNum;
-            
+
             let rolls: number[];
             let finalRoll: number;
-            
+
             if (advantageType === 'normal') {
                 rolls = [Math.floor(Math.random() * 20) + 1];
                 finalRoll = rolls[0];
@@ -72,16 +84,15 @@ export default function AdvancedDiceRollModal({
                     Math.floor(Math.random() * 20) + 1,
                     Math.floor(Math.random() * 20) + 1
                 ];
-                
-                if (advantageType === 'advantage') {
+
+                if (advantageType === 'advantage')
                     finalRoll = Math.max(rolls[0], rolls[1]);
-                } else {
+                else
                     finalRoll = Math.min(rolls[0], rolls[1]);
-                }
             }
-            
+
             const total = finalRoll + totalBonus;
-            
+
             setResult({
                 total,
                 rolls,
@@ -91,36 +102,35 @@ export default function AdvancedDiceRollModal({
             // Tirada de daño
             const parsed = parseDiceExpression(damageConfig.expression);
             if (!parsed) return;
-            
+
             let { numDice, diceType, modifier } = parsed;
-            
+
             // Aplicar crítico
-            if (isCritical) {
+            if (isCritical)
                 numDice *= 2;
-            }
-            
+
             const { result: rollResult, breakdown } = rollDice(numDice, diceType, modifier);
-            
+
             // Aplicar repetición de 1s y 2s
             let finalRolls = [...breakdown];
             let finalResult = rollResult;
-            
+
             if (repeatOnes || repeatTwos) {
                 let additionalRolls: number[] = [];
-                
+
                 breakdown.forEach(roll => {
                     if ((repeatOnes && roll === 1) || (repeatTwos && roll === 2)) {
                         const newRoll = Math.floor(Math.random() * diceType) + 1;
                         additionalRolls.push(newRoll);
                     }
                 });
-                
+
                 if (additionalRolls.length > 0) {
                     finalRolls = [...finalRolls, ...additionalRolls];
                     finalResult += additionalRolls.reduce((a, b) => a + b, 0);
                 }
             }
-            
+
             setResult({
                 total: finalResult,
                 rolls: finalRolls,
@@ -171,14 +181,14 @@ export default function AdvancedDiceRollModal({
                 <Text style={[unifiedStyles.modalText, { fontSize: 16, fontWeight: 'bold', marginBottom: 16 }]}>
                     Roll Configuration
                 </Text>
-                
+
                 {/* Advantage/Disadvantage Switch */}
                 <View style={unifiedStyles.modalSection}>
                     <Text style={[unifiedStyles.modalText, { marginBottom: 12 }]}>Advantage/Disadvantage:</Text>
                     <View style={unifiedStyles.actionRow}>
-                        <TouchableOpacity 
+                        <TouchableOpacity
                             style={[
-                                unifiedStyles.modalButton, 
+                                unifiedStyles.modalButton,
                                 unifiedStyles.modalButtonSecondary,
                                 advantageType === 'disadvantage' && unifiedStyles.modalButtonPrimary
                             ]}
@@ -191,9 +201,9 @@ export default function AdvancedDiceRollModal({
                                 Disadvantage
                             </Text>
                         </TouchableOpacity>
-                        <TouchableOpacity 
+                        <TouchableOpacity
                             style={[
-                                unifiedStyles.modalButton, 
+                                unifiedStyles.modalButton,
                                 unifiedStyles.modalButtonSecondary,
                                 advantageType === 'normal' && unifiedStyles.modalButtonPrimary
                             ]}
@@ -206,9 +216,9 @@ export default function AdvancedDiceRollModal({
                                 Normal
                             </Text>
                         </TouchableOpacity>
-                        <TouchableOpacity 
+                        <TouchableOpacity
                             style={[
-                                unifiedStyles.modalButton, 
+                                unifiedStyles.modalButton,
                                 unifiedStyles.modalButtonSecondary,
                                 advantageType === 'advantage' && unifiedStyles.modalButtonPrimary
                             ]}
@@ -223,7 +233,7 @@ export default function AdvancedDiceRollModal({
                         </TouchableOpacity>
                     </View>
                 </View>
-                
+
                 {/* Situational Bonus */}
                 <View style={unifiedStyles.modalSection}>
                     <Text style={[unifiedStyles.modalText, { marginBottom: 8 }]}>Situational Bonus:</Text>
@@ -241,7 +251,7 @@ export default function AdvancedDiceRollModal({
                         keyboardType="numeric"
                     />
                 </View>
-                
+
                 {/* Base Bonus Display */}
                 <View style={unifiedStyles.modalSection}>
                     <Text style={[unifiedStyles.modalText, { textAlign: 'center', fontStyle: 'italic' }]}>
@@ -262,14 +272,14 @@ export default function AdvancedDiceRollModal({
             <Text style={[unifiedStyles.modalText, { fontSize: 16, fontWeight: 'bold', marginBottom: 16 }]}>
                 Damage Configuration
             </Text>
-            
+
             {/* Critical Hit */}
             <View style={unifiedStyles.modalSection}>
                 <Text style={[unifiedStyles.modalText, { marginBottom: 12 }]}>Critical Hit:</Text>
                 <View style={unifiedStyles.actionRow}>
-                    <TouchableOpacity 
+                    <TouchableOpacity
                         style={[
-                            unifiedStyles.modalButton, 
+                            unifiedStyles.modalButton,
                             unifiedStyles.modalButtonSecondary,
                             isCritical && unifiedStyles.modalButtonPrimary
                         ]}
@@ -284,14 +294,14 @@ export default function AdvancedDiceRollModal({
                     </TouchableOpacity>
                 </View>
             </View>
-            
+
             {/* Repeat 1s */}
             <View style={unifiedStyles.modalSection}>
                 <Text style={[unifiedStyles.modalText, { marginBottom: 12 }]}>Repeat 1s:</Text>
                 <View style={unifiedStyles.actionRow}>
-                    <TouchableOpacity 
+                    <TouchableOpacity
                         style={[
-                            unifiedStyles.modalButton, 
+                            unifiedStyles.modalButton,
                             unifiedStyles.modalButtonSecondary,
                             repeatOnes && unifiedStyles.modalButtonPrimary
                         ]}
@@ -306,14 +316,14 @@ export default function AdvancedDiceRollModal({
                     </TouchableOpacity>
                 </View>
             </View>
-            
+
             {/* Repeat 2s */}
             <View style={unifiedStyles.modalSection}>
                 <Text style={[unifiedStyles.modalText, { marginBottom: 12 }]}>Repeat 2s:</Text>
                 <View style={unifiedStyles.actionRow}>
-                    <TouchableOpacity 
+                    <TouchableOpacity
                         style={[
-                            unifiedStyles.modalButton, 
+                            unifiedStyles.modalButton,
                             unifiedStyles.modalButtonSecondary,
                             repeatTwos && unifiedStyles.modalButtonPrimary
                         ]}
@@ -328,7 +338,7 @@ export default function AdvancedDiceRollModal({
                     </TouchableOpacity>
                 </View>
             </View>
-            
+
             {/* Expression Display */}
             <View style={unifiedStyles.modalSection}>
                 <Text style={[unifiedStyles.modalText, { textAlign: 'center', fontStyle: 'italic' }]}>
@@ -340,22 +350,22 @@ export default function AdvancedDiceRollModal({
 
     const renderResult = () => {
         if (!result) return null;
-        
+
         return (
-            <View style={[unifiedStyles.modalSection, { 
-                alignItems: 'center', 
-                padding: 16, 
-                borderWidth: 1, 
-                borderColor: theme.border, 
+            <View style={[unifiedStyles.modalSection, {
+                alignItems: 'center',
+                padding: 16,
+                borderWidth: 1,
+                borderColor: theme.border,
                 borderRadius: 8,
                 backgroundColor: theme.card + '20'
             }]}>
                 <Text style={[unifiedStyles.modalText, { fontSize: 16, fontWeight: 'bold', marginBottom: 8 }]}>
                     Roll Result
                 </Text>
-                <Text style={[unifiedStyles.modalText, { 
-                    fontSize: 24, 
-                    fontWeight: 'bold', 
+                <Text style={[unifiedStyles.modalText, {
+                    fontSize: 24,
+                    fontWeight: 'bold',
                     marginBottom: 8,
                     color: theme.success || '#4ade80'
                 }]}>
@@ -382,9 +392,9 @@ export default function AdvancedDiceRollModal({
             <View style={unifiedStyles.modalBody}>
                 {d20Config && renderD20Config()}
                 {damageConfig && renderDamageConfig()}
-                
+
                 {renderResult()}
-                
+
                 <View style={unifiedStyles.actionRow}>
                     <TouchableOpacity
                         style={[unifiedStyles.modalButton, unifiedStyles.modalButtonPrimary]}
@@ -399,5 +409,4 @@ export default function AdvancedDiceRollModal({
         </BaseModal>
     );
 }
-
 

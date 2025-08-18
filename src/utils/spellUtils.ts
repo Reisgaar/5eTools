@@ -2,7 +2,8 @@
  * Utility functions for spell data manipulation and formatting
  */
 
-import { normalizeString, equalsNormalized } from './stringUtils';
+// UTILS
+import { normalizeString, equalsNormalized } from 'src/utils/stringUtils';
 
 /**
  * School mapping for spells
@@ -32,7 +33,7 @@ export function getFullSchool(school: string): string {
  */
 function formatMonetaryValues(text: string): string {
     if (!text) return text;
-    
+
     // Patterns for monetary values
     const monetaryPatterns = [
         // Gold pieces: 50 gp, 100 gold pieces, 25 GP, etc.
@@ -48,20 +49,20 @@ function formatMonetaryValues(text: string): string {
         // Generic cost patterns: "costs 50 gold", "worth 25 silver", etc.
         /(?:costs?|worth|value\s*of)\s*(\d+)\s*(?:gp|gold|sp|silver|cp|copper|ep|electrum|pp|platinum)/gi
     ];
-    
+
     let formattedText = text;
-    
+
     monetaryPatterns.forEach(pattern => {
         formattedText = formattedText.replace(pattern, (match, amount) => {
             // Extract the original currency type from the match
             const currencyMatch = match.match(/(?:gp|gold\s*pieces?|gold|GPP?|sp|silver\s*pieces?|silver|CS|cp|copper\s*pieces?|copper|ep|electrum\s*pieces?|electrum|GE|pp|platinum\s*pieces?|platinum)/i);
             const currency = currencyMatch ? currencyMatch[0] : '';
-            
+
             // Return the formatted version with bold amount
             return match.replace(amount, `**${amount}**`);
         });
     });
-    
+
     return formattedText;
 }
 
@@ -70,9 +71,9 @@ function formatMonetaryValues(text: string): string {
  */
 export function formatComponents(components: any, theme?: any, onCreaturePress?: (name: string, source: string) => void, onSpellPress?: (name: string, source: string) => void): any {
     if (!components) return '';
-    
+
     let baseText = '';
-    
+
     if (Array.isArray(components)) {
         baseText = components.join(', ');
     } else if (typeof components === 'object') {
@@ -91,13 +92,13 @@ export function formatComponents(components: any, theme?: any, onCreaturePress?:
     } else {
         baseText = String(components);
     }
-    
+
     // If we have theme and handlers, process tags
     if (theme && (onCreaturePress || onSpellPress)) {
         const { renderEntries } = require('./replaceTags');
         return renderEntries(baseText, 0, theme, onCreaturePress, onSpellPress);
     }
-    
+
     return baseText;
 }
 
@@ -106,9 +107,9 @@ export function formatComponents(components: any, theme?: any, onCreaturePress?:
  */
 export function formatRange(range: any, theme?: any, onCreaturePress?: (name: string, source: string) => void, onSpellPress?: (name: string, source: string) => void): any {
     if (!range) return '';
-    
+
     let baseText = '';
-    
+
     if (typeof range === 'string') {
         baseText = range;
     } else if (typeof range === 'object') {
@@ -130,13 +131,13 @@ export function formatRange(range: any, theme?: any, onCreaturePress?: (name: st
     } else {
         baseText = String(range);
     }
-    
+
     // If we have theme and handlers, process tags
     if (theme && (onCreaturePress || onSpellPress)) {
         const { renderEntries } = require('./replaceTags');
         return renderEntries(baseText, 0, theme, onCreaturePress, onSpellPress);
     }
-    
+
     return baseText;
 }
 
@@ -145,9 +146,9 @@ export function formatRange(range: any, theme?: any, onCreaturePress?: (name: st
  */
 export function formatTime(time: any, theme?: any, onCreaturePress?: (name: string, source: string) => void, onSpellPress?: (name: string, source: string) => void, isRitual?: boolean): any {
     if (!time) return '';
-    
+
     let baseText = '';
-    
+
     if (typeof time === 'string') {
         baseText = time;
     } else if (Array.isArray(time)) {
@@ -166,18 +167,18 @@ export function formatTime(time: any, theme?: any, onCreaturePress?: (name: stri
     } else {
         baseText = String(time);
     }
-    
+
     // Add ritual information if applicable
     if (isRitual) {
         baseText += ' (ritual)';
     }
-    
+
     // If we have theme and handlers, process tags
     if (theme && (onCreaturePress || onSpellPress)) {
         const { renderEntries } = require('./replaceTags');
         return renderEntries(baseText, 0, theme, onCreaturePress, onSpellPress);
     }
-    
+
     return baseText;
 }
 
@@ -186,9 +187,9 @@ export function formatTime(time: any, theme?: any, onCreaturePress?: (name: stri
  */
 export function formatDuration(duration: any, theme?: any, onCreaturePress?: (name: string, source: string) => void, onSpellPress?: (name: string, source: string) => void, isConcentration?: boolean): any {
     if (!duration) return '';
-    
+
     let baseText = '';
-    
+
     if (typeof duration === 'string') {
         baseText = duration;
     } else if (Array.isArray(duration)) {
@@ -219,18 +220,18 @@ export function formatDuration(duration: any, theme?: any, onCreaturePress?: (na
     } else {
         baseText = String(duration);
     }
-    
+
     // Add concentration information if applicable
     if (isConcentration) {
         baseText += ' (concentration)';
     }
-    
+
     // If we have theme and handlers, process tags
     if (theme && (onCreaturePress || onSpellPress)) {
         const { renderEntries } = require('./replaceTags');
         return renderEntries(baseText, 0, theme, onCreaturePress, onSpellPress);
     }
-    
+
     return baseText;
 }
 
@@ -250,11 +251,11 @@ export function formatLevel(level: any): string {
  */
 export function extractSpellSource(spell: any): string {
     if (!spell) return '';
-    
+
     if (typeof spell.source === 'string') {
         return normalizeString(spell.source);
     }
-    
+
     return '';
 }
 
@@ -263,11 +264,11 @@ export function extractSpellSource(spell: any): string {
  */
 export function extractSpellSchool(spell: any): string {
     if (!spell) return '';
-    
+
     if (typeof spell.school === 'string') {
         return normalizeString(spell.school);
     }
-    
+
     return '';
 }
 
@@ -276,11 +277,11 @@ export function extractSpellSchool(spell: any): string {
  */
 export function extractSpellLevel(spell: any): number {
     if (!spell) return 0;
-    
+
     if (typeof spell.level === 'number') {
         return spell.level;
     }
-    
+
     return 0;
 }
 
@@ -289,12 +290,12 @@ export function extractSpellLevel(spell: any): number {
  */
 export function spellMatches(spell: any, name: string, source: string): boolean {
     if (!spell) return false;
-    
+
     const spellName = normalizeString(spell.name);
     const spellSource = normalizeString(spell.source);
     const searchName = normalizeString(name);
     const searchSource = normalizeString(source);
-    
+
     return equalsNormalized(spellName, searchName) && equalsNormalized(spellSource, searchSource);
 }
 
@@ -381,7 +382,7 @@ export function formatFeats(feats: any): string[] {
  */
 export function getSourceInitials(source: string): string {
     if (!source) return '?';
-    
+
     // Handle common source abbreviations
     const sourceMap: { [key: string]: string } = {
         'monster-manual': 'MM',
@@ -424,7 +425,7 @@ export function getSourceInitials(source: string): string {
         'guildmasters-guide-to-ravnica': 'GGtR',
         'mythic-odysseys-of-theros': 'MOoT',
     };
-    
+
     const lowerSource = source.toLowerCase().replace(/[^a-z0-9]/g, '-');
     return sourceMap[lowerSource] || source.substring(0, 3).toUpperCase();
 }

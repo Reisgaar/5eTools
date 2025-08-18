@@ -1,6 +1,10 @@
+// REACT
 import { useMemo, useState } from 'react';
-import { normalizeString, containsNormalized, includesNormalized } from 'src/utils/stringUtils';
 
+// UTILS
+import { containsNormalized } from 'src/utils/stringUtils';
+
+// CONSTANTS
 const SCHOOL_MAP: Record<string, string> = {
     A: 'Abjuration',
     C: 'Conjuration',
@@ -20,7 +24,7 @@ function getFullSchool(school: string) {
 
 function extractSpellClasses(spell: any, spellSourceLookup: any): string[] {
     const allClasses = new Set<string>();
-    
+
     // First try to get classes from the spell source lookup
     if (spellSourceLookup && spell.source && spellSourceLookup[spell.source]) {
         const sourceData = spellSourceLookup[spell.source];
@@ -36,7 +40,7 @@ function extractSpellClasses(spell: any, spellSourceLookup: any): string[] {
             });
         }
     }
-    
+
     // Fallback to spell.classes if available
     if (spell.classes) {
         if (typeof spell.classes === 'object') {
@@ -45,7 +49,7 @@ function extractSpellClasses(spell: any, spellSourceLookup: any): string[] {
             spell.classes.forEach((className: string) => allClasses.add(className));
         }
     }
-    
+
     return Array.from(allClasses);
 }
 
@@ -55,7 +59,7 @@ export function useSpellFilters(simpleSpells: any[], spells: any[], spellSourceL
     const [selectedSchools, setSelectedSchools] = useState<string[]>([]);
     const [selectedClasses, setSelectedClasses] = useState<string[]>([]);
     const [selectedOthers, setSelectedOthers] = useState<string[]>([]); // For ritual, concentration, etc.
-    
+
     // Pending (modal) filter states
     const [pendingSchools, setPendingSchools] = useState<string[]>([]);
     const [pendingClasses, setPendingClasses] = useState<string[]>([]);
@@ -102,14 +106,14 @@ export function useSpellFilters(simpleSpells: any[], spells: any[], spellSourceL
             const matchesName = containsNormalized(spell.name, search);
             const spellSchool = getFullSchool(spell.school);
             const matchesSchool = selectedSchools.length === 0 || selectedSchools.includes(spellSchool);
-            
+
             // For class filtering, we check the available classes directly on the spell
             let matchesClass = true;
             if (selectedClasses.length > 0) {
                 // Use the availableClasses property that was added to each spell
                 const spellClasses = spell.availableClasses || [];
                 // Check if any of the selected classes is in the spell's available classes
-                matchesClass = selectedClasses.some(selectedClass => 
+                matchesClass = selectedClasses.some(selectedClass =>
                     spellClasses.includes(selectedClass)
                 );
             }
@@ -128,7 +132,7 @@ export function useSpellFilters(simpleSpells: any[], spells: any[], spellSourceL
                     }
                 });
             }
-            
+
             return matchesName && matchesSchool && matchesClass && matchesOthers;
         });
     }, [simpleSpells, spells, spellSourceLookup, search, selectedSchools, selectedClasses, selectedOthers]);
@@ -156,7 +160,7 @@ export function useSpellFilters(simpleSpells: any[], spells: any[], spellSourceL
             prev.includes(school) ? prev.filter(s => s !== school) : [...prev, school]
         );
     };
-    
+
     const selectAllPendingSchools = () => {
         if (pendingSchools.length < schoolOptions.length) {
             setPendingSchools([...schoolOptions]);
@@ -164,7 +168,7 @@ export function useSpellFilters(simpleSpells: any[], spells: any[], spellSourceL
             setPendingSchools([]);
         }
     };
-    
+
     const applySchoolFilter = () => {
         setSchoolFilterModalVisible(false);
         setFilterApplying(true);
@@ -180,7 +184,7 @@ export function useSpellFilters(simpleSpells: any[], spells: any[], spellSourceL
             prev.includes(className) ? prev.filter(c => c !== className) : [...prev, className]
         );
     };
-    
+
     const selectAllPendingClasses = () => {
         if (pendingClasses.length < classOptions.length) {
             setPendingClasses([...classOptions]);
@@ -188,7 +192,7 @@ export function useSpellFilters(simpleSpells: any[], spells: any[], spellSourceL
             setPendingClasses([]);
         }
     };
-    
+
     const applyClassFilter = () => {
         setClassFilterModalVisible(false);
         setFilterApplying(true);
@@ -204,7 +208,7 @@ export function useSpellFilters(simpleSpells: any[], spells: any[], spellSourceL
             prev.includes(otherType) ? prev.filter(o => o !== otherType) : [...prev, otherType]
         );
     };
-    
+
     const selectAllPendingOthers = () => {
         if (pendingOthers.length < otherOptions.length) {
             setPendingOthers(otherOptions.map(o => o.value));
@@ -212,7 +216,7 @@ export function useSpellFilters(simpleSpells: any[], spells: any[], spellSourceL
             setPendingOthers([]);
         }
     };
-    
+
     const applyOtherFilter = () => {
         setOtherFilterModalVisible(false);
         setFilterApplying(true);
@@ -257,19 +261,19 @@ export function useSpellFilters(simpleSpells: any[], spells: any[], spellSourceL
     // Function to generate filter summary
     const getFilterSummary = (): string[] => {
         const summary: string[] = [];
-        
+
         if (search) {
             summary.push(`Search: "${search}"`);
         }
-        
+
         if (selectedSchools.length > 0) {
             summary.push(`School: ${selectedSchools.join(', ')}`);
         }
-        
+
         if (selectedClasses.length > 0) {
             summary.push(`Class: ${selectedClasses.join(', ')}`);
         }
-        
+
         if (selectedOthers.length > 0) {
             const labels = selectedOthers.map(value => {
                 const option = otherOptions.find(o => o.value === value);
@@ -277,7 +281,7 @@ export function useSpellFilters(simpleSpells: any[], spells: any[], spellSourceL
             });
             summary.push(`Type: ${labels.join(', ')}`);
         }
-        
+
         return summary;
     };
 

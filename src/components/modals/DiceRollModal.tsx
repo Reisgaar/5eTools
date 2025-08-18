@@ -1,8 +1,14 @@
+// REACT
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { getModalZIndex } from '../../styles/baseModalStyles';
-import { useModal } from '../../context/ModalContext';
 
+// STYLES
+import { getModalZIndex } from 'src/styles/baseModalStyles';
+
+// CONTEXT
+import { useModal } from 'src/context/ModalContext';
+
+// INTERFACES
 interface DiceRollModalProps {
     visible: boolean;
     expression: string;
@@ -15,22 +21,21 @@ interface DiceRollModalProps {
     onClose: () => void;
 }
 
-const DiceRollModal: React.FC<DiceRollModalProps> = ({ visible, expression, result, breakdown, modifier, type = 'damage', label, theme, onClose }) => {
+/**
+ * DiceRollModal component.
+ */
+export default function DiceRollModal({ visible, expression, result, breakdown, modifier, type = 'damage', label, theme, onClose }: DiceRollModalProps): JSX.Element | null {
     const { beastStackDepth, spellStackDepth } = useModal();
     const maxStackDepth = Math.max(beastStackDepth, spellStackDepth);
     const dynamicZIndex = getModalZIndex(maxStackDepth + 1); // Dice modals should be above other modals
-    
+
     if (!visible) return null;
-    let title = '';
-    if (label) {
-        title = label;
-    } else if (type === 'hit') {
-        title = 'Attack Roll';
-    } else if (type === 'save') {
-        title = 'Saving Roll';
-    } else {
-        title = 'Damage Roll';
-    }
+
+    let title = label ? label
+        : type === 'hit' ? 'Attack Roll'
+            : type === 'save' ? 'Saving Roll'
+                : 'Damage Roll';
+
     return (
         <View style={[styles.overlay, { zIndex: dynamicZIndex }]} pointerEvents="auto">
             <View style={[styles.content, { backgroundColor: theme.card }]}>
@@ -87,5 +92,3 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
 });
-
-export default DiceRollModal; 

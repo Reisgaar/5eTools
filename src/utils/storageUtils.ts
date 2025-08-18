@@ -1,6 +1,5 @@
-import { Spell, SpellIndex, SpellProcessingData } from './types';
-
-// Common utility functions for storage operations
+// MODELS
+import { Spell, SpellIndex, SpellProcessingData } from 'src/models/interfaces/utils';
 
 /**
  * Generate a safe filename from name and source
@@ -11,13 +10,13 @@ export const generateSafeFilename = (name: string, source: string): string => {
         .replace(/[^a-z0-9]/g, '-')
         .replace(/-+/g, '-')
         .replace(/^-|-$/g, '');
-    
+
     const safeSource = source
         .toLowerCase()
         .replace(/[^a-z0-9]/g, '-')
         .replace(/-+/g, '-')
         .replace(/^-|-$/g, '');
-    
+
     return `${safeName}-${safeSource}`;
 };
 
@@ -44,13 +43,13 @@ export const processSpellData = (spell: Spell): SpellProcessingData => {
             concentration = String(spell.duration).toLowerCase().includes('concentration');
         }
     }
-    
+
     // Extract ritual from meta
     const ritual = spell.meta && spell.meta.ritual || false;
-    
+
     // Use availableClasses or fallback to empty array
     const availableClasses = spell.availableClasses || [];
-    
+
     return {
         concentration,
         ritual,
@@ -63,7 +62,7 @@ export const processSpellData = (spell: Spell): SpellProcessingData => {
  */
 export const createSpellIndexEntry = (spell: Spell): SpellIndex => {
     const { concentration, ritual, availableClasses } = processSpellData(spell);
-    
+
     return {
         id: generateSafeFilename(spell.name, spell.source),
         name: spell.name,
@@ -126,11 +125,11 @@ export const logSpellProcessing = (spell: Spell, spellData: SpellProcessingData,
  */
 export const formatBytes = (bytes: number): string => {
     if (bytes === 0) return '0 Bytes';
-    
+
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    
+
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
 

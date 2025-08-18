@@ -1,58 +1,68 @@
-import { Ionicons } from '@expo/vector-icons';
+// REACT
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import { createCombatStyles } from '../../styles/combat';
-import { CombatControlsProps } from '../../models/interfaces/combat';
 
+// EXPO
+import { Ionicons } from '@expo/vector-icons';
+
+// STYLES
+import { createCombatStyles } from 'src/styles/combat';
+
+// MODELS
+import { CombatControlsProps } from 'src/models/interfaces/combat';
+
+/**
+ * CombatControls component.
+ */
 export default function CombatControls({
-  started,
-  round,
-  onStopCombat,
-  onNextTurn,
-  onStartCombat,
-  theme
+    started,
+    round,
+    onStopCombat,
+    onNextTurn,
+    onStartCombat,
+    theme
 }: CombatControlsProps) {
-  const styles = createCombatStyles(theme);
+    const styles = createCombatStyles(theme);
 
-  return (
-    <View style={[styles.controls, { borderTopColor: theme.border }]}>
-      {!started ? (
-        // Start Combat Button
-        <TouchableOpacity 
-          onPress={onStartCombat} 
-          style={[styles.controlsStartButton, { backgroundColor: theme.primary }]}
-        >
-          <Ionicons name='play' size={18} color="white" style={styles.controlsStartIcon} />
-          <Text style={styles.controlsStartText}>Start</Text>
-        </TouchableOpacity>
-      ) : (
-        // Finish Combat Button
-        <TouchableOpacity 
-          onPress={onStopCombat} 
-          style={styles.controlsFinishButton}
-        >
-          <Ionicons name='stop' size={18} color={'#c00'} style={styles.controlsFinishIcon} />
-          <Text style={styles.controlsFinishText}>Finish</Text>
-        </TouchableOpacity>
-      )}
-      
-      {started && (
-        <>
-          <Text style={[styles.controlsRoundText, { color: theme.text }]}>
-            {`Round ${round}`}
-          </Text>
-          
-          <TouchableOpacity 
-            onPress={onNextTurn} 
-            style={styles.controlsNextButton}
-          >
-            <Ionicons name='refresh' size={16} color="white" style={styles.controlsNextIcon} />
-            <Text style={styles.controlsNextText}>
-              Next Turn
-            </Text>
-          </TouchableOpacity>
-        </>
-      )}
-    </View>
-  );
+    return (
+        <View style={[styles.controls, { borderTopColor: theme.border }]}>
+            {!started ? (
+                // Start Combat Button
+                <TouchableOpacity
+                    onPress={onStartCombat}
+                    style={[styles.controlsStartButton, { backgroundColor: theme.primary }]}
+                >
+                    <Ionicons name='play' size={18} color="white" style={styles.controlsStartIcon} />
+                    <Text style={styles.controlsStartText}>Start</Text>
+                </TouchableOpacity>
+            ) : (
+                // Finish Combat Button
+                <TouchableOpacity
+                    onPress={onStopCombat}
+                    style={styles.controlsFinishButton}
+                >
+                    <Ionicons name='stop' size={18} color={'#c00'} style={styles.controlsFinishIcon} />
+                    <Text style={styles.controlsFinishText}>Finish</Text>
+                </TouchableOpacity>
+            )}
+
+            {started && (
+                <>
+                    <Text style={[styles.controlsRoundText, { color: theme.text }]}>
+                        {`Round ${round}`}
+                    </Text>
+
+                    <TouchableOpacity
+                        onPress={onNextTurn}
+                        style={styles.controlsNextButton}
+                    >
+                        <Ionicons name='refresh' size={16} color="white" style={styles.controlsNextIcon} />
+                        <Text style={styles.controlsNextText}>
+                            Next Turn
+                        </Text>
+                    </TouchableOpacity>
+                </>
+            )}
+        </View>
+    );
 }

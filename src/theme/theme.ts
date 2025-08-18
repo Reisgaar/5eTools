@@ -22,8 +22,8 @@ export type Theme = {
     tabBorder: string;
     border: string;
   };
-  
-  export const lightTheme: Theme = {
+
+export const lightTheme: Theme = {
     background: '#eee',
     innerBackground: '#ddd',
     text: '#000',
@@ -37,7 +37,7 @@ export type Theme = {
     confirmButtonBackground: '#38b000',
     disabledButtonBackground: '#cccccc',
     primary: '#5e60ce',
-    card: "#ffffff",
+    card: '#ffffff',
     cardTitle: '#fff',
     cardText: '#ccc',
     storyBackground: '#ddd',
@@ -46,9 +46,9 @@ export type Theme = {
     tabBackground: '#fff',
     tabBorder: '#aaa',
     border: '#ddd',
-  };
-  
-  export const darkTheme: Theme = {
+};
+
+export const darkTheme: Theme = {
     background: '#121212',
     innerBackground: '#333',
     text: '#fff',
@@ -71,5 +71,4 @@ export type Theme = {
     tabBackground: '#111',
     tabBorder: '#777',
     border: '#333',
-  };
-  
+};

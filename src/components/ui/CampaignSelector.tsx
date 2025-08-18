@@ -19,12 +19,12 @@ interface CampaignSelectorProps {
 /**
  * Component for selecting a campaign.
  */
-const CampaignSelector: React.FC<CampaignSelectorProps> = ({
+export default function CampaignSelector({
     selectedCampaignId,
     onCampaignChange,
     theme,
-    label = "Campaign (optional)"
-}) => {
+    label = 'Campaign (optional)'
+}: CampaignSelectorProps): JSX.Element {
     const { campaigns } = useCampaignStore();
     const [showCampaignSelector, setShowCampaignSelector] = useState(false);
 
@@ -57,9 +57,9 @@ const CampaignSelector: React.FC<CampaignSelectorProps> = ({
                 <Text style={{ color: theme.text, flex: 1 }}>
                     {getCampaignName(selectedCampaignId)}
                 </Text>
-                <Ionicons name={showCampaignSelector ? "chevron-up" : "chevron-down"} size={20} color={theme.text} />
+                <Ionicons name={showCampaignSelector ? 'chevron-up' : 'chevron-down'} size={20} color={theme.text} />
             </TouchableOpacity>
-            
+
             {showCampaignSelector && (
                 <ScrollView style={{ maxHeight: 200, marginBottom: 16 }}>
                     <TouchableOpacity
@@ -104,5 +104,3 @@ const CampaignSelector: React.FC<CampaignSelectorProps> = ({
         </View>
     );
 };
-
-export default CampaignSelector;

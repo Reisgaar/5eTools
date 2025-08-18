@@ -1,5 +1,6 @@
+// REACT
 import React from 'react';
-import { Text, TouchableOpacity, View, Pressable } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 
 // Helper for splitting and replacing tags in a string
 export function replaceTags(
@@ -79,15 +80,15 @@ export function replaceTags(
             case 'dice':
                 if (onDamagePress) {
                     nodes.push(
-                        <TouchableOpacity 
-                            key={key++} 
+                        <TouchableOpacity
+                            key={key++}
                             onPressIn={() => {
                                 console.log('🎲 Dice button pressed:', params[0]);
                                 onDamagePress(params[0]);
                             }}
                             activeOpacity={0.7}
-                            style={{ 
-                                paddingVertical: 1, 
+                            style={{
+                                paddingVertical: 1,
                                 paddingHorizontal: 3,
                                 marginHorizontal: 1,
                                 borderRadius: 2,
@@ -114,15 +115,15 @@ export function replaceTags(
             case 'hit':
                 if (onHitPress) {
                     nodes.push(
-                        <TouchableOpacity 
-                            key={key++} 
+                        <TouchableOpacity
+                            key={key++}
                             onPressIn={() => {
                                 console.log('⚔️ Hit button pressed:', params[0]);
                                 onHitPress(params[0]);
                             }}
                             activeOpacity={0.7}
-                            style={{ 
-                                paddingVertical: 1, 
+                            style={{
+                                paddingVertical: 1,
                                 paddingHorizontal: 3,
                                 marginHorizontal: 1,
                                 borderRadius: 2,
@@ -164,8 +165,8 @@ export function replaceTags(
                                 onCreaturePress(params[0], params[1]);
                             }}
                             activeOpacity={0.7}
-                            style={{ 
-                                paddingVertical: 0, 
+                            style={{
+                                paddingVertical: 0,
                                 paddingHorizontal: 1,
                                 marginHorizontal: 1,
                                 borderRadius: 1,
@@ -199,8 +200,8 @@ export function replaceTags(
                                 onSpellPress(params[0], params[1]);
                             }}
                             activeOpacity={0.7}
-                            style={{ 
-                                paddingVertical: 0, 
+                            style={{
+                                paddingVertical: 0,
                                 paddingHorizontal: 1,
                                 marginHorizontal: 1,
                                 borderRadius: 1,
@@ -242,17 +243,17 @@ export function replaceTags(
 
 // Shared function to render complex entries including lists
 export function renderEntries(
-    entries: any, 
-    indent: number = 0, 
-    theme: any, 
-    onCreaturePress?: (name: string, source: string) => void, 
+    entries: any,
+    indent: number = 0,
+    theme: any,
+    onCreaturePress?: (name: string, source: string) => void,
     onSpellPress?: (name: string, source: string) => void,
     textStyle: any = {},
     onDamagePress?: (expression: string) => void,
     onHitPress?: (bonus: string) => void
 ): React.ReactNode {
     if (!entries) return null;
-    
+
     if (typeof entries === 'string') {
         const parsed = replaceTags(entries, theme, onCreaturePress, onSpellPress, onDamagePress, onHitPress);
         return (
@@ -261,7 +262,7 @@ export function renderEntries(
             </Text>
         );
     }
-    
+
     if (Array.isArray(entries)) {
         return entries.map((entry, idx) => (
             <React.Fragment key={idx}>
@@ -269,7 +270,7 @@ export function renderEntries(
             </React.Fragment>
         ));
     }
-    
+
     if (typeof entries === 'object') {
         if (entries.type === 'entries' && entries.name) {
             return (
@@ -279,7 +280,7 @@ export function renderEntries(
                 </View>
             );
         }
-        
+
         if (entries.type === 'list' && entries.items) {
             return (
                 <View style={{ marginLeft: indent, marginBottom: 4 }}>
@@ -298,15 +299,15 @@ export function renderEntries(
                 </View>
             );
         }
-        
+
         if (entries.entries) {
             return renderEntries(entries.entries, indent, theme, onCreaturePress, onSpellPress, textStyle, onDamagePress, onHitPress);
         }
-        
+
         // Fallback for unknown object types
         return <Text style={[{ marginLeft: indent, color: theme.text, fontSize: 12 }, textStyle]}>{JSON.stringify(entries)}</Text>;
     }
-    
+
     return null;
 }
 

@@ -7,9 +7,9 @@ import { useCampaignStore, useSpellbookStore } from 'src/stores';
 
 // COMPONENTS
 import { BaseModal } from 'src/components/ui';
-import SpellbookItem from 'src/components/spells/SpellbookItem';
-import { useSpellbookSearch } from 'src/components/spells/useSpellbookSearch';
-import ConfirmModal from 'src/components/modals/ConfirmModal';
+import { SpellbookItem } from 'src/components/spells';
+import { useSpellbookSearch } from 'src/components/spells';
+import { ConfirmModal } from 'src/components/modals/';
 
 // STYLES
 import { createBaseModalStyles } from 'src/styles/baseModalStyles';
@@ -25,18 +25,18 @@ interface AddToSpellbookModalProps {
 /**
  * Modal for adding a spell to a spellbook.
  */
-export default function AddToSpellbookModal({ 
-    visible, 
-    onClose, 
-    spell, 
-    theme 
+export default function AddToSpellbookModal({
+    visible,
+    onClose,
+    spell,
+    theme
 }: AddToSpellbookModalProps) {
     const { spellbooks, getSpellbooksByCampaign, addSpellToSpellbook, removeSpellFromSpellbook, isSpellInSpellbook } = useSpellbookStore();
     const { selectedCampaign } = useCampaignStore();
     const filteredSpellbooks = getSpellbooksByCampaign(selectedCampaign?.id);
     const { searchQuery, setSearchQuery, filteredSpellbooks: searchedSpellbooks } = useSpellbookSearch(filteredSpellbooks);
     const styles = createBaseModalStyles(theme);
-    
+
     // Confirm modal state
     const [confirmModalVisible, setConfirmModalVisible] = useState(false);
     const [pendingRemoval, setPendingRemoval] = useState<{
@@ -47,7 +47,7 @@ export default function AddToSpellbookModal({
 
     const handleToggleSpellbook = (spellbookId: string) => {
         if (!spell) return;
-        
+
         if (isSpellInSpellbook(spellbookId, spell.name, spell.source)) {
             // Show confirmation before removing
             const spellbook = spellbooks.find(sb => sb.id === spellbookId);
@@ -78,9 +78,9 @@ export default function AddToSpellbookModal({
 
     const renderSpellbookItem = ({ item }: { item: any }) => {
         if (!spell) return null;
-        
+
         const isInSpellbook = isSpellInSpellbook(item.id, spell.name, spell.source);
-        
+
         return (
             <SpellbookItem
                 spellbook={item}
@@ -94,10 +94,10 @@ export default function AddToSpellbookModal({
 
     return (
         <>
-            <BaseModal 
-                visible={visible} 
-                onClose={onClose} 
-                theme={theme} 
+            <BaseModal
+                visible={visible}
+                onClose={onClose}
+                theme={theme}
                 title="Add to Spellbook"
                 subtitle={spell ? `Level ${spell.level === 0 ? 'Cantrip' : spell.level} • ${spell.school} • ${spell.source}` : undefined}
                 width={Platform.OS === 'web' ? 450 : '90%'}
@@ -133,7 +133,7 @@ export default function AddToSpellbookModal({
                     )}
                 </View>
             </BaseModal>
-            
+
             {/* Confirm Removal Modal */}
             <ConfirmModal
                 visible={confirmModalVisible}

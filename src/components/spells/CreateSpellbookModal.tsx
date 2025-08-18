@@ -25,11 +25,11 @@ interface CreateSpellbookModalProps {
 /**
  * Modal for creating a new spellbook.
  */
-export default function CreateSpellbookModal({ 
-    visible, 
-    onClose, 
+export default function CreateSpellbookModal({
+    visible,
+    onClose,
     onSpellbookCreated,
-    theme 
+    theme
 }: CreateSpellbookModalProps) {
     const { createSpellbook } = useSpellbookStore();
     const { selectedCampaign, campaigns } = useCampaignStore();
@@ -66,7 +66,7 @@ export default function CreateSpellbookModal({
             setSpellbookDescription('');
             setSelectedCampaignId(selectedCampaign?.id || undefined);
             onClose();
-            
+
             if (onSpellbookCreated) {
                 onSpellbookCreated(newSpellbookId);
             }
@@ -75,8 +75,6 @@ export default function CreateSpellbookModal({
         }
     };
 
-
-
     const getCampaignName = (campaignId?: string) => {
         if (!campaignId) return 'No campaign selected';
         const campaign = campaigns.find(c => c.id === campaignId);
@@ -84,10 +82,10 @@ export default function CreateSpellbookModal({
     };
 
     return (
-        <BaseModal 
-            visible={visible} 
-            onClose={onClose} 
-            theme={theme} 
+        <BaseModal
+            visible={visible}
+            onClose={onClose}
+            theme={theme}
             title="Create New Spellbook"
             width={Platform.OS === 'web' ? 450 : '90%'}
             maxHeight="80%"
@@ -95,7 +93,7 @@ export default function CreateSpellbookModal({
         >
             <View style={styles.modalSection}>
                 <Text style={styles.modalSectionTitle}>Spellbook Details</Text>
-                
+
                 <Text style={[styles.modalText, { marginBottom: 8 }]}>Name *</Text>
                 <TextInput
                     style={styles.modalInput}
@@ -105,7 +103,7 @@ export default function CreateSpellbookModal({
                     onChangeText={setSpellbookName}
                     autoFocus
                 />
-                
+
                 <Text style={[styles.modalText, { marginBottom: 8 }]}>Description (optional)</Text>
                 <TextInput
                     style={[styles.modalInput, { minHeight: 80 }]}
@@ -116,7 +114,7 @@ export default function CreateSpellbookModal({
                     multiline
                     numberOfLines={3}
                 />
-                
+
                 <Text style={[styles.modalText, { marginBottom: 8 }]}>Campaign (optional)</Text>
                 <TouchableOpacity
                     style={[styles.modalInput, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }]}
@@ -125,9 +123,9 @@ export default function CreateSpellbookModal({
                     <Text style={styles.modalText}>
                         {getCampaignName(selectedCampaignId)}
                     </Text>
-                    <Ionicons name={showCampaignSelector ? "chevron-up" : "chevron-down"} size={20} color={theme.text} />
+                    <Ionicons name={showCampaignSelector ? 'chevron-up' : 'chevron-down'} size={20} color={theme.text} />
                 </TouchableOpacity>
-                
+
                 {showCampaignSelector && (
                     <ScrollView style={{ maxHeight: 200, marginBottom: 24 }}>
                         <TouchableOpacity
@@ -154,7 +152,7 @@ export default function CreateSpellbookModal({
                     </ScrollView>
                 )}
             </View>
-            
+
             <View style={styles.modalSection}>
                 <TouchableOpacity
                     onPress={handleCreateSpellbook}

@@ -1,13 +1,12 @@
 // REACT
-import React, { JSX } from "react";
-import { Text, View } from "react-native";
+import React, { JSX } from 'react';
+import { Text, View } from 'react-native';
 
 // CONTEXTS
-import { useAppSettingsStore } from "src/stores/appSettingsStore";
+import { useAppSettingsStore } from 'src/stores/appSettingsStore';
 
-// STYLES
-
-type Props = {
+// INTERFACES
+interface SeparatorProps {
     title?: string;
     size?: 'small' | 'medium' | 'large';
 };
@@ -15,7 +14,7 @@ type Props = {
 /**
  * A separator line.
  */
-export default function Seaparator( { size = 'medium', title }: Props): JSX.Element {
+export default function Seaparator( { size = 'medium', title }: SeparatorProps): JSX.Element {
     const { currentTheme } = useAppSettingsStore();
 
     return (
@@ -27,5 +26,3 @@ export default function Seaparator( { size = 'medium', title }: Props): JSX.Elem
         </View>
     );
 }
-
-

@@ -1,9 +1,14 @@
+// REACT
 import React, { useEffect, useState } from 'react';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { BaseModal } from '../../ui';
-import { createBaseModalStyles } from '../../../styles/baseModalStyles';
 
+// COMPONENTS
+import { BaseModal } from 'src/components/ui';
 
+// STYLES
+import { createBaseModalStyles } from 'src/styles/baseModalStyles';
+
+// INTERFACES
 interface ValueEditModalProps {
     visible: boolean;
     onClose: () => void;
@@ -18,6 +23,9 @@ interface ValueEditModalProps {
     isGroup?: boolean;
 }
 
+/**
+ * Modal used to edit a value.
+ */
 export default function ValueEditModal({
     visible,
     onClose,
@@ -30,7 +38,7 @@ export default function ValueEditModal({
     isInitiative = false,
     initiativeBonus = 0,
     isGroup = false
-}: ValueEditModalProps) {
+}: ValueEditModalProps): JSX.Element {
     const [value, setValue] = useState(initialValue);
     const styles = createBaseModalStyles(theme);
 
@@ -52,8 +60,6 @@ export default function ValueEditModal({
         onClose();
     };
 
-
-
     const handleRollInitiative = () => {
         // Roll 1d20 + initiative bonus
         const roll = Math.floor(Math.random() * 20) + 1;
@@ -62,19 +68,19 @@ export default function ValueEditModal({
     };
 
     // Create title with bonus for initiative
-    const modalTitle = isInitiative 
-        ? `${title} (Bonus: ${initiativeBonus >= 0 ? '+' : ''}${initiativeBonus})` 
+    const modalTitle = isInitiative
+        ? `${title} (Bonus: ${initiativeBonus >= 0 ? '+' : ''}${initiativeBonus})`
         : title;
 
-    const modalSubtitle = creatureName 
+    const modalSubtitle = creatureName
         ? `${!isGroup && combatantNumber ? `#${combatantNumber} ` : ''}${creatureName}`
         : undefined;
 
     return (
-        <BaseModal 
-            visible={visible} 
-            onClose={onClose} 
-            theme={theme} 
+        <BaseModal
+            visible={visible}
+            onClose={onClose}
+            theme={theme}
             title={modalTitle}
             subtitle={modalSubtitle}
             maxHeight="85%"
@@ -82,9 +88,9 @@ export default function ValueEditModal({
             {/* Value Display and Input */}
             <View style={styles.modalSection}>
                 <TextInput
-                    style={[styles.modalInput, { 
-                        backgroundColor: theme.inputBackground, 
-                        color: theme.text, 
+                    style={[styles.modalInput, {
+                        backgroundColor: theme.inputBackground,
+                        color: theme.text,
                         borderColor: theme.primary,
                         fontSize: 24,
                         fontWeight: 'bold',
@@ -113,24 +119,24 @@ export default function ValueEditModal({
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginBottom: 20, gap: 12 }}>
                     {/* Decrement Buttons - Left Column */}
                     <View style={{ flex: 1, gap: 6 }}>
-                    <TouchableOpacity
-                        style={[styles.modalButton, styles.modalButtonPrimary]}
-                        onPress={() => handleDecrement(10)}
-                    >
-                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-10</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[styles.modalButton, styles.modalButtonPrimary]}
-                        onPress={() => handleDecrement(5)}
-                    >
-                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-5</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[styles.modalButton, styles.modalButtonPrimary]}
-                        onPress={() => handleDecrement(1)}
-                    >
-                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-1</Text>
-                    </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.modalButton, styles.modalButtonPrimary]}
+                            onPress={() => handleDecrement(10)}
+                        >
+                            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-10</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.modalButton, styles.modalButtonPrimary]}
+                            onPress={() => handleDecrement(5)}
+                        >
+                            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-5</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.modalButton, styles.modalButtonPrimary]}
+                            onPress={() => handleDecrement(1)}
+                        >
+                            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-1</Text>
+                        </TouchableOpacity>
                     </View>
 
                     {/* Increment Buttons - Right Column */}
@@ -183,5 +189,3 @@ export default function ValueEditModal({
         </BaseModal>
     );
 }
-
- 

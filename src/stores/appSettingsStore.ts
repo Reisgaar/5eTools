@@ -44,7 +44,7 @@ export const useAppSettingsStore = create<AppSettingsState>((set, get) => ({
         try {
             const savedTheme = await AsyncStorage.getItem('APP_THEME');
             let themeName: ThemeType = 'light';
-            
+
             if (savedTheme === 'light' || savedTheme === 'dark') {
                 themeName = savedTheme;
             } else {
@@ -56,7 +56,7 @@ export const useAppSettingsStore = create<AppSettingsState>((set, get) => ({
             const useAdvancedDiceRoll = savedDiceRoll !== null ? savedDiceRoll === 'true' : true;
 
             const currentTheme = themeName === 'dark' ? darkTheme : lightTheme;
-            
+
             set({ themeName, currentTheme, useAdvancedDiceRoll });
         } catch (error) {
             console.error('Error initializing app settings:', error);

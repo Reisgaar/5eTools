@@ -1,3 +1,4 @@
+// REACT
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, TextInput } from 'react-native';
 
@@ -30,9 +31,9 @@ interface CombatFormModalProps {
 }
 
 /**
- * Modal for creating or editing a combat.
+ * Modal used to create or edit a combat.
  */
-const CombatFormModal: React.FC<CombatFormModalProps> = ({
+export default function CombatFormModal({
     visible,
     onClose,
     mode,
@@ -42,16 +43,16 @@ const CombatFormModal: React.FC<CombatFormModalProps> = ({
     initialCampaignId,
     onCreateCombat,
     theme
-}) => {
+}: CombatFormModalProps): JSX.Element {
     const { campaigns, selectedCampaignId: contextSelectedCampaignId } = useCampaignStore();
     const { updateCombat, deleteCombat } = useCombat();
     const { beastStackDepth, spellStackDepth } = useModal();
-    
+
     const [name, setName] = useState(initialName);
     const [description, setDescription] = useState(initialDescription);
     const [selectedCampaignId, setSelectedCampaignId] = useState<string | undefined>(initialCampaignId);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-    
+
     const maxStackDepth = Math.max(beastStackDepth, spellStackDepth);
     const dynamicZIndex = getModalZIndex(maxStackDepth + 1);
     const styles = createBaseModalStyles(theme);
@@ -64,7 +65,7 @@ const CombatFormModal: React.FC<CombatFormModalProps> = ({
         if (visible) {
             setName(initialName);
             setDescription(initialDescription);
-            
+
             // For new combats, use the context's selected campaign if no initial campaign is provided
             if (mode === 'create' && !initialCampaignId && contextSelectedCampaignId)
                 setSelectedCampaignId(contextSelectedCampaignId);
@@ -94,7 +95,7 @@ const CombatFormModal: React.FC<CombatFormModalProps> = ({
 
     const confirmDelete = () => {
         if (combatId) {
-        deleteCombat(combatId);
+            deleteCombat(combatId);
         }
         setShowDeleteConfirm(false);
         onClose();
@@ -102,17 +103,17 @@ const CombatFormModal: React.FC<CombatFormModalProps> = ({
 
     return (
         <>
-            <BaseModal 
-                visible={visible} 
-                onClose={onClose} 
-                theme={theme} 
+            <BaseModal
+                visible={visible}
+                onClose={onClose}
+                theme={theme}
                 title={title}
                 scrollable={true}
                 zIndex={dynamicZIndex}
             >
                 <View style={styles.modalSection}>
                     <Text style={styles.modalSectionTitle}>Combat Details</Text>
-                    
+
                     {/* Name Input */}
                     <Text style={[styles.modalText, { marginBottom: 8 }]}>Combat Name *</Text>
                     <TextInput
@@ -143,15 +144,15 @@ const CombatFormModal: React.FC<CombatFormModalProps> = ({
                         theme={theme}
                         label="Campaign (optional)"
                     />
-                    
+
                     {/* Show info when campaign is auto-selected */}
                     {mode === 'create' && selectedCampaignId === contextSelectedCampaignId && contextSelectedCampaignId && (
-                        <Text style={[styles.modalText, { 
-                            fontSize: 12, 
-                            color: theme.noticeText, 
+                        <Text style={[styles.modalText, {
+                            fontSize: 12,
+                            color: theme.noticeText,
                             fontStyle: 'italic',
-                            marginTop: 4 
-                            }]}
+                            marginTop: 4
+                        }]}
                         >
                             Campaign automatically selected from current context
                         </Text>
@@ -162,8 +163,8 @@ const CombatFormModal: React.FC<CombatFormModalProps> = ({
                 <View style={styles.modalSection}>
                     <View style={styles.actionRow}>
                         {isEditMode && (
-                            <TouchableOpacity 
-                                onPress={handleDelete} 
+                            <TouchableOpacity
+                                onPress={handleDelete}
                                 style={[styles.modalButton, { backgroundColor: theme.danger || '#f44336' }]}
                             >
                                 <Text style={[styles.modalButtonText, { color: 'white' }]}>
@@ -171,9 +172,9 @@ const CombatFormModal: React.FC<CombatFormModalProps> = ({
                                 </Text>
                             </TouchableOpacity>
                         )}
-                        
-                        <TouchableOpacity 
-                            onPress={handleSave} 
+
+                        <TouchableOpacity
+                            onPress={handleSave}
                             style={[styles.modalButton, styles.modalButtonPrimary]}
                             disabled={!name.trim()}
                         >
@@ -199,5 +200,3 @@ const CombatFormModal: React.FC<CombatFormModalProps> = ({
         </>
     );
 };
-
-export default CombatFormModal;

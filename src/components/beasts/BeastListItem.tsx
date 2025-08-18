@@ -1,8 +1,14 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
+// REACT
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import { commonStyles } from '../../styles/commonStyles';
 
+// EXPO
+import Ionicons from '@expo/vector-icons/Ionicons';
+
+// STYLES
+import { commonStyles } from 'src/styles/commonStyles';
+
+// INTERFACES
 interface BeastListItemProps {
     beast: any;
     onAddToCombat: (beast: any) => void;
@@ -10,12 +16,12 @@ interface BeastListItemProps {
     theme: any;
 }
 
-
-
-// Helper function to get source initials
+/**
+ * Helper function to get source initials
+ */
 const getSourceInitials = (source: string): string => {
     if (!source) return '?';
-    
+
     // Handle common source abbreviations
     const sourceMap: { [key: string]: string } = {
         'monster-manual': 'MM',
@@ -127,27 +133,28 @@ const getSourceInitials = (source: string): string => {
         'adventure-with-muk-59': 'AwM59',
         'adventure-with-muk-60': 'AwM60',
     };
-    
+
     const lowerSource = source.toLowerCase().replace(/[^a-z0-9]/g, '-');
     return sourceMap[lowerSource] || source.substring(0, 3).toUpperCase();
 };
 
 // Component for individual beast (single source)
 export default function BeastListItem({
-  beast,
-  onAddToCombat,
-  onViewDetails,
-  theme
+    beast,
+    onAddToCombat,
+    onViewDetails,
+    theme
 }: BeastListItemProps) {
     // Format CR display
     const formatCR = (cr: any): string => {
         if (!cr || cr === 'Unknown' || cr === '') return '?';
+
         return String(cr);
     };
-    
+
     return (
         <View style={[commonStyles.itemCard, { backgroundColor: theme.card, borderColor: theme.primary }]}>
-            <TouchableOpacity 
+            <TouchableOpacity
                 style={commonStyles.itemInfoContainer}
                 onPress={() => onViewDetails(beast)}
             >
@@ -165,6 +172,3 @@ export default function BeastListItem({
         </View>
     );
 }
-
-
-

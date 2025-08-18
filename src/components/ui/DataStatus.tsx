@@ -13,20 +13,23 @@ interface DataStatusProps {
     showDetails?: boolean;
 }
 
+/**
+ * DataStatus component.
+ */
 export default function DataStatus({ showDetails = true }: DataStatusProps) {
     const { beasts, spells, isLoading, isInitialized } = useData();
     const { currentTheme } = useAppSettingsStore();
 
     if (isLoading) {
         return (
-            <View style={{ 
+            <View style={{
                 backgroundColor: currentTheme.card,
                 padding: 16,
                 borderRadius: 8,
                 alignItems: 'center'
             }}>
                 <ActivityIndicator size="small" color={currentTheme.primary} />
-                <Text style={{ 
+                <Text style={{
                     color: currentTheme.noticeText,
                     marginTop: 8,
                     fontSize: 14
@@ -39,13 +42,13 @@ export default function DataStatus({ showDetails = true }: DataStatusProps) {
 
     if (!isInitialized) {
         return (
-            <View style={{ 
+            <View style={{
                 backgroundColor: currentTheme.card,
                 padding: 16,
                 borderRadius: 8,
                 alignItems: 'center'
             }}>
-                <Text style={{ 
+                <Text style={{
                     color: currentTheme.noticeText,
                     fontSize: 14,
                     textAlign: 'center'
@@ -57,12 +60,12 @@ export default function DataStatus({ showDetails = true }: DataStatusProps) {
     }
 
     return (
-        <View style={{ 
+        <View style={{
             backgroundColor: currentTheme.card,
             padding: 16,
             borderRadius: 8
         }}>
-            <Text style={{ 
+            <Text style={{
                 fontSize: 16,
                 fontWeight: 'bold',
                 color: currentTheme.text,
@@ -70,10 +73,10 @@ export default function DataStatus({ showDetails = true }: DataStatusProps) {
             }}>
                 Data Status
             </Text>
-            
+
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                 <View>
-                    <Text style={{ 
+                    <Text style={{
                         color: currentTheme.noticeText,
                         fontSize: 14
                     }}>
@@ -81,7 +84,7 @@ export default function DataStatus({ showDetails = true }: DataStatusProps) {
                     </Text>
                 </View>
                 <View>
-                    <Text style={{ 
+                    <Text style={{
                         color: currentTheme.noticeText,
                         fontSize: 14
                     }}>
@@ -91,7 +94,7 @@ export default function DataStatus({ showDetails = true }: DataStatusProps) {
             </View>
 
             {showDetails && beasts.length > 0 && (
-                <Text style={{ 
+                <Text style={{
                     color: currentTheme.noticeText,
                     fontSize: 12,
                     marginTop: 8
@@ -101,7 +104,7 @@ export default function DataStatus({ showDetails = true }: DataStatusProps) {
             )}
 
             {showDetails && spells.length > 0 && (
-                <Text style={{ 
+                <Text style={{
                     color: currentTheme.noticeText,
                     fontSize: 12,
                     marginTop: 4
@@ -111,4 +114,4 @@ export default function DataStatus({ showDetails = true }: DataStatusProps) {
             )}
         </View>
     );
-}; 
+};

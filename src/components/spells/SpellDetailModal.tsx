@@ -3,7 +3,7 @@ import React from 'react';
 import { ActivityIndicator, Dimensions, ScrollView, Text, TouchableOpacity, View, Modal, Platform, Pressable } from 'react-native';
 
 // STORES
-import { useAppSettingsStore, useCampaignStore } from 'src/stores';
+import { useAppSettingsStore } from 'src/stores';
 
 // CONTEXTS
 import { useModal } from 'src/context/ModalContext';
@@ -13,30 +13,24 @@ import { useData } from 'src/context/DataContext';
 import { renderEntries, parseDiceExpression, rollDice } from 'src/utils/replaceTags';
 
 // COMPONENTS
-import { Separator } from 'src/components/ui';
-import SpellNotFoundModal from 'src/components/spells/modals/SpellNotFoundModal';
-import CreatureNotFoundModal from 'src/components/beasts/modals/CreatureNotFoundModal';
-import SourceSelectionModal from 'src/components/spells/modals/SourceSelectionModal';
+import { SpellNotFoundModal, SourceSelectionModal } from 'src/components/spells/modals';
+import { CreatureNotFoundModal } from 'src/components/beasts/modals';
 
 // STYLES
 import { createSpellStyles } from 'src/styles/spellStyles';
 import { getModalZIndex } from 'src/styles/baseModalStyles';
 
 // UTILS
-import { 
-  getFullSchool, 
-  formatComponents, 
-  formatRange, 
-  formatTime, 
-  formatDuration,
-  formatClasses,
-  formatSubclasses,
-  formatRaces,
-  formatBackgrounds,
-  formatFeats,
-  formatLevel
+import {
+    getFullSchool,
+    formatComponents,
+    formatRange,
+    formatTime,
+    formatDuration,
+    formatClasses,
+    formatLevel
 } from 'src/utils/spellUtils';
-import { normalizeString, equalsNormalized, is2024Source } from 'src/utils/stringUtils';
+import { normalizeString, is2024Source } from 'src/utils/stringUtils';
 
 // CONSTANTS
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -44,7 +38,7 @@ const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 /**
  * Modal for displaying spell details.
  */
-export function SpellDetailModal({
+export default function SpellDetailModal({
     visible,
     spell,
     onClose,
@@ -83,47 +77,47 @@ export function SpellDetailModal({
     const handleCreaturePressLocal = (name: string, source: string) => {
         console.log('GlobalModals SpellDetailModal onCreaturePress called with:', { name, source });
         console.log('SpellDetailModal - simpleBeasts count:', simpleBeasts.length);
-        
+
         // Get current spell source for 2024 logic
         const currentSpellSource = spell?.source;
-        
+
         // Find all matching creatures
         const matchingCreatures = simpleBeasts.filter((b: any) => {
             const nameMatch = normalizeString(b.name) === normalizeString(name);
             return nameMatch;
         });
-        
+
         console.log('Matching creatures:', matchingCreatures.map(c => ({ name: c.name, source: c.source })));
-        
+
         if (matchingCreatures.length === 0) {
             // No creatures found
             setCreatureNotFoundName(name);
             setCreatureNotFoundVisible(true);
             return;
         }
-        
+
         // Filter based on 2024 logic
         const isCurrentSpell2024 = is2024Source(currentSpellSource);
         const filteredCreatures = matchingCreatures.filter((b: any) => {
             const isBeast2024 = is2024Source(b.source);
             return isCurrentSpell2024 ? isBeast2024 : !isBeast2024;
         });
-        
+
         console.log('Filtered creatures:', filteredCreatures.map(c => ({ name: c.name, source: c.source })));
-        
+
         if (filteredCreatures.length === 0) {
             // No creatures found after filtering
             setCreatureNotFoundName(name);
             setCreatureNotFoundVisible(true);
             return;
         }
-        
+
         if (filteredCreatures.length === 1) {
             // Single creature found, open it directly
             openBeastModal(filteredCreatures[0], true);
             return;
         }
-        
+
         // Multiple creatures found, show selection modal
         setSourceSelectionData({
             title: 'Select Creature Source',
@@ -140,47 +134,47 @@ export function SpellDetailModal({
     const handleSpellPressLocal = (name: string, source: string) => {
         console.log('GlobalModals SpellDetailModal onSpellPress called with:', { name, source });
         console.log('SpellDetailModal - simpleSpells count:', simpleSpells.length);
-        
+
         // Get current spell source for 2024 logic
         const currentSpellSource = spell?.source;
-        
+
         // Find all matching spells
         const matchingSpells = simpleSpells.filter((s: any) => {
             const nameMatch = normalizeString(s.name) === normalizeString(name);
             return nameMatch;
         });
-        
+
         console.log('Matching spells:', matchingSpells.map(sp => ({ name: sp.name, source: sp.source })));
-        
+
         if (matchingSpells.length === 0) {
             // No spells found
             setSpellNotFoundName(name);
             setSpellNotFoundVisible(true);
             return;
         }
-        
+
         // Filter based on 2024 logic
         const isCurrentSpell2024 = is2024Source(currentSpellSource);
         const filteredSpells = matchingSpells.filter((s: any) => {
             const isSpell2024 = is2024Source(s.source);
             return isCurrentSpell2024 ? isSpell2024 : !isSpell2024;
         });
-        
+
         console.log('Filtered spells:', filteredSpells.map(sp => ({ name: sp.name, source: sp.source })));
-        
+
         if (filteredSpells.length === 0) {
             // No spells found after filtering
             setSpellNotFoundName(name);
             setSpellNotFoundVisible(true);
             return;
         }
-        
+
         if (filteredSpells.length === 1) {
             // Single spell found, open it directly
             openSpellModal(filteredSpells[0], true);
             return;
         }
-        
+
         // Multiple spells found, show selection modal
         setSourceSelectionData({
             title: 'Select Spell Source',
@@ -241,15 +235,15 @@ export function SpellDetailModal({
     // Helper function to check if spell requires concentration
     const requiresConcentration = (duration: any): boolean => {
         if (!duration) return false;
-        
+
         if (Array.isArray(duration)) {
             return duration.some((d: any) => d && d.concentration === true);
         }
-        
+
         if (typeof duration === 'object') {
             return duration.concentration === true;
         }
-        
+
         return String(duration).toLowerCase().includes('concentration');
     };
 
@@ -282,115 +276,43 @@ export function SpellDetailModal({
 
     return (
         <>
-        <Modal visible={visible} animationType="slide" transparent>
-            <View 
-                style={styles.spellDetailOverlay} 
-                onStartShouldSetResponder={() => true}
-                onResponderGrant={() => onClose()}
-            >
-                <View 
-                    style={[styles.spellDetailContent, { zIndex: dynamicZIndex }]}
+            <Modal visible={visible} animationType="slide" transparent>
+                <View
+                    style={styles.spellDetailOverlay}
                     onStartShouldSetResponder={() => true}
-                    onResponderGrant={(e) => e.stopPropagation()}
+                    onResponderGrant={() => onClose()}
                 >
-                    {/* Header - Standardized design */}
-                    <View style={styles.spellDetailHeader}>
-                        <View style={styles.spellDetailHeaderInfo}>
-                            <Text style={styles.spellDetailTitle}>{spell.name}</Text>
-                            <Text style={styles.spellDetailSubtitle}>
-                                {formatLevel(spell.level)} • {getFullSchool(spell.school)}
-                                {spell.meta?.ritual && ' (ritual)'}
-                            </Text>
+                    <View
+                        style={[styles.spellDetailContent, { zIndex: dynamicZIndex }]}
+                        onStartShouldSetResponder={() => true}
+                        onResponderGrant={(e) => e.stopPropagation()}
+                    >
+                        {/* Header - Standardized design */}
+                        <View style={styles.spellDetailHeader}>
+                            <View style={styles.spellDetailHeaderInfo}>
+                                <Text style={styles.spellDetailTitle}>{spell.name}</Text>
+                                <Text style={styles.spellDetailSubtitle}>
+                                    {formatLevel(spell.level)} • {getFullSchool(spell.school)}
+                                    {spell.meta?.ritual && ' (ritual)'}
+                                </Text>
+                            </View>
+                            <TouchableOpacity onPress={onClose} style={styles.spellDetailCloseButton}>
+                                <Text style={{ color: theme.text, fontWeight: 'bold', fontSize: 18 }}>✕</Text>
+                            </TouchableOpacity>
                         </View>
-                        <TouchableOpacity onPress={onClose} style={styles.spellDetailCloseButton}>
-                            <Text style={{ color: theme.text, fontWeight: 'bold', fontSize: 18 }}>✕</Text>
-                        </TouchableOpacity>
-                    </View>
-                    
-                    <View style={[styles.spellDetailSeparator, { backgroundColor: theme.border }]} />
 
-                    {/* Single ScrollView for all content */}
-                    {Platform.OS === 'web' ? (
-                        <ScrollView 
-                            style={styles.spellDetailScrollView}
-                            contentContainerStyle={styles.spellDetailScrollContent}
-                            showsVerticalScrollIndicator={true}
-                            nestedScrollEnabled={true}
-                            scrollEventThrottle={16}
-                            bounces={false}
-                            alwaysBounceVertical={false}
-                        >
-                            {/* Spell Details Grid - 2x2 */}
-                            <View style={styles.spellDetailGridContainer}>
-                                <View style={styles.spellDetailGrid}>
-                                    <View style={styles.spellDetailGridItem}>
-                                        <Text style={styles.spellDetailGridLabel}>Casting Time</Text>
-                                        <View style={styles.spellDetailGridValueContainer}>
-                                            {formatTime(spell.time, theme, handleCreaturePressLocal, handleSpellPressLocal, spell.meta?.ritual)}
-                                        </View>
-                                    </View>
-                                    <View style={styles.spellDetailGridItem}>
-                                        <Text style={styles.spellDetailGridLabel}>Range</Text>
-                                        <View style={styles.spellDetailGridValueContainer}>
-                                            {formatRange(spell.range, theme, handleCreaturePressLocal, handleSpellPressLocal)}
-                                        </View>
-                                    </View>
-                                    <View style={styles.spellDetailGridItem}>
-                                        <Text style={styles.spellDetailGridLabel}>Components</Text>
-                                        <View style={styles.spellDetailGridValueContainer}>
-                                            {formatComponents(spell.components, theme, handleCreaturePressLocal, handleSpellPressLocal)}
-                                        </View>
-                                    </View>
-                                    <View style={styles.spellDetailGridItemLast}>
-                                        <Text style={styles.spellDetailGridLabel}>Duration</Text>
-                                        <View style={styles.spellDetailGridValueContainer}>
-                                            {formatDuration(spell.duration, theme, handleCreaturePressLocal, handleSpellPressLocal, isConcentration)}
-                                        </View>
-                                    </View>
-                                </View>
-                            </View>
+                        <View style={[styles.spellDetailSeparator, { backgroundColor: theme.border }]} />
 
-                            {/* Spell Description */}
-                            <View style={{ marginBottom: 15 }}>
-                                <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 8, color: theme.text }}>Description</Text>
-                                {renderEntries(spell.entries, 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress)}
-                            </View>
-
-                            {/* Higher Level */}
-                            {spell.entriesHigherLevel && (
-                                <View style={{ marginBottom: 15 }}>
-                                    <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 8, color: theme.text }}>At Higher Levels</Text>
-                                    {renderHigherLevel(spell.entriesHigherLevel, theme, handleCreaturePressLocal, handleSpellPressLocal)}
-                                </View>
-                            )}
-
-                            {/* Classes */}
-                            {spell.classes && (
-                                <View style={{ marginBottom: 15 }}>
-                                    <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 8, color: theme.text }}>Classes</Text>
-                                    {renderList('Classes', formatClasses(spell.classes), theme)}
-                                </View>
-                            )}
-                        </ScrollView>
-                    ) : (
-                        <ScrollView 
-                            style={styles.spellDetailScrollView}
-                            contentContainerStyle={styles.spellDetailScrollContent}
-                            showsVerticalScrollIndicator={true}
-                            nestedScrollEnabled={true}
-                            scrollEventThrottle={16}
-                            bounces={false}
-                            alwaysBounceVertical={false}
-                            onStartShouldSetResponder={() => false}
-                            onMoveShouldSetResponder={() => true}
-                            onResponderGrant={() => {}}
-                            onResponderMove={() => {}}
-                            onResponderRelease={() => {}}
-                        >
-                            <View 
-                                style={{ flex: 1 }}
-                                onStartShouldSetResponder={() => true}
-                                onMoveShouldSetResponder={() => false}
+                        {/* Single ScrollView for all content */}
+                        {Platform.OS === 'web' ? (
+                            <ScrollView
+                                style={styles.spellDetailScrollView}
+                                contentContainerStyle={styles.spellDetailScrollContent}
+                                showsVerticalScrollIndicator={true}
+                                nestedScrollEnabled={true}
+                                scrollEventThrottle={16}
+                                bounces={false}
+                                alwaysBounceVertical={false}
                             >
                                 {/* Spell Details Grid - 2x2 */}
                                 <View style={styles.spellDetailGridContainer}>
@@ -443,51 +365,121 @@ export function SpellDetailModal({
                                         {renderList('Classes', formatClasses(spell.classes), theme)}
                                     </View>
                                 )}
-                            </View>
-                        </ScrollView>
-                    )}
+                            </ScrollView>
+                        ) : (
+                            <ScrollView
+                                style={styles.spellDetailScrollView}
+                                contentContainerStyle={styles.spellDetailScrollContent}
+                                showsVerticalScrollIndicator={true}
+                                nestedScrollEnabled={true}
+                                scrollEventThrottle={16}
+                                bounces={false}
+                                alwaysBounceVertical={false}
+                                onStartShouldSetResponder={() => false}
+                                onMoveShouldSetResponder={() => true}
+                                onResponderGrant={() => {}}
+                                onResponderMove={() => {}}
+                                onResponderRelease={() => {}}
+                            >
+                                <View
+                                    style={{ flex: 1 }}
+                                    onStartShouldSetResponder={() => true}
+                                    onMoveShouldSetResponder={() => false}
+                                >
+                                    {/* Spell Details Grid - 2x2 */}
+                                    <View style={styles.spellDetailGridContainer}>
+                                        <View style={styles.spellDetailGrid}>
+                                            <View style={styles.spellDetailGridItem}>
+                                                <Text style={styles.spellDetailGridLabel}>Casting Time</Text>
+                                                <View style={styles.spellDetailGridValueContainer}>
+                                                    {formatTime(spell.time, theme, handleCreaturePressLocal, handleSpellPressLocal, spell.meta?.ritual)}
+                                                </View>
+                                            </View>
+                                            <View style={styles.spellDetailGridItem}>
+                                                <Text style={styles.spellDetailGridLabel}>Range</Text>
+                                                <View style={styles.spellDetailGridValueContainer}>
+                                                    {formatRange(spell.range, theme, handleCreaturePressLocal, handleSpellPressLocal)}
+                                                </View>
+                                            </View>
+                                            <View style={styles.spellDetailGridItem}>
+                                                <Text style={styles.spellDetailGridLabel}>Components</Text>
+                                                <View style={styles.spellDetailGridValueContainer}>
+                                                    {formatComponents(spell.components, theme, handleCreaturePressLocal, handleSpellPressLocal)}
+                                                </View>
+                                            </View>
+                                            <View style={styles.spellDetailGridItemLast}>
+                                                <Text style={styles.spellDetailGridLabel}>Duration</Text>
+                                                <View style={styles.spellDetailGridValueContainer}>
+                                                    {formatDuration(spell.duration, theme, handleCreaturePressLocal, handleSpellPressLocal, isConcentration)}
+                                                </View>
+                                            </View>
+                                        </View>
+                                    </View>
 
-                    {/* Source - Outside scroll, always at bottom */}
-                    {spell.source && (
-                        <View style={styles.spellDetailFooter}>
-                            <Text style={styles.spellDetailSource}>
+                                    {/* Spell Description */}
+                                    <View style={{ marginBottom: 15 }}>
+                                        <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 8, color: theme.text }}>Description</Text>
+                                        {renderEntries(spell.entries, 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress)}
+                                    </View>
+
+                                    {/* Higher Level */}
+                                    {spell.entriesHigherLevel && (
+                                        <View style={{ marginBottom: 15 }}>
+                                            <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 8, color: theme.text }}>At Higher Levels</Text>
+                                            {renderHigherLevel(spell.entriesHigherLevel, theme, handleCreaturePressLocal, handleSpellPressLocal)}
+                                        </View>
+                                    )}
+
+                                    {/* Classes */}
+                                    {spell.classes && (
+                                        <View style={{ marginBottom: 15 }}>
+                                            <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 8, color: theme.text }}>Classes</Text>
+                                            {renderList('Classes', formatClasses(spell.classes), theme)}
+                                        </View>
+                                    )}
+                                </View>
+                            </ScrollView>
+                        )}
+
+                        {/* Source - Outside scroll, always at bottom */}
+                        {spell.source && (
+                            <View style={styles.spellDetailFooter}>
+                                <Text style={styles.spellDetailSource}>
                                 Source: {spell.source}{spell.page ? `, page ${spell.page}` : ''}{spell.srd ? ' Available in the SRD and Basic Rules.' : ''}
-                            </Text>
-                        </View>
-                    )}
+                                </Text>
+                            </View>
+                        )}
+                    </View>
                 </View>
-            </View>
-        </Modal>
-        
-        {/* Modals */}
-        <SpellNotFoundModal
-            visible={spellNotFoundVisible}
-            spellName={spellNotFoundName}
-            onClose={() => setSpellNotFoundVisible(false)}
-            theme={theme}
-        />
-        
-        <CreatureNotFoundModal
-            visible={creatureNotFoundVisible}
-            creatureName={creatureNotFoundName}
-            onClose={() => setCreatureNotFoundVisible(false)}
-            theme={theme}
-        />
-        
-        <SourceSelectionModal
-            visible={sourceSelectionVisible}
-            title={sourceSelectionData.title}
-            message={sourceSelectionData.message}
-            options={sourceSelectionData.options}
-            onSelect={sourceSelectionData.onSelect}
-            onClose={() => setSourceSelectionVisible(false)}
-            theme={theme}
-        />
-    </>
+            </Modal>
+
+            {/* Modals */}
+            <SpellNotFoundModal
+                visible={spellNotFoundVisible}
+                spellName={spellNotFoundName}
+                onClose={() => setSpellNotFoundVisible(false)}
+                theme={theme}
+            />
+
+            <CreatureNotFoundModal
+                visible={creatureNotFoundVisible}
+                creatureName={creatureNotFoundName}
+                onClose={() => setCreatureNotFoundVisible(false)}
+                theme={theme}
+            />
+
+            <SourceSelectionModal
+                visible={sourceSelectionVisible}
+                title={sourceSelectionData.title}
+                message={sourceSelectionData.message}
+                options={sourceSelectionData.options}
+                onSelect={sourceSelectionData.onSelect}
+                onClose={() => setSourceSelectionVisible(false)}
+                theme={theme}
+            />
+        </>
     );
 }
-
-
 
 function renderHigherLevel(entriesHigherLevel: any, theme: any, onCreaturePress?: (name: string, source: string) => void, onSpellPress?: (name: string, source: string) => void): React.ReactNode {
     if (!entriesHigherLevel) return null;
@@ -508,5 +500,3 @@ function renderList(label: string, arr: any, theme: any) {
         <Text style={{ color: theme.text, fontSize: 12, marginBottom: 4 }}><Text style={{ fontWeight: 'bold' }}>{label}:</Text> {arr.join(', ')}</Text>
     );
 }
-
- 

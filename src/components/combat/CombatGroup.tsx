@@ -1,162 +1,177 @@
-import { Ionicons } from '@expo/vector-icons';
+// REACT
 import React from 'react';
 import { Image, Platform, Text, TouchableOpacity, View } from 'react-native';
-import { DEFAULT_CREATURE_TOKEN } from '../../constants/tokens';
-import { createCombatStyles } from '../../styles/combat';
-import CombatMember from './CombatMember';
-import { CombatGroupProps } from '../../models/interfaces/combat';
-import { loadCachedTokenUrl } from '../../utils/combatUtils';
 
+// EXPO
+import { Ionicons } from '@expo/vector-icons';
+
+// CONSTANTS
+import { DEFAULT_CREATURE_TOKEN } from 'src/constants/tokens';
+
+// STYLES
+import { createCombatStyles } from 'src/styles/combat';
+
+// COMPONENTS
+import { CombatMember } from 'src/components/combat';
+
+// MODELS
+import { CombatGroupProps } from 'src/models/interfaces/combat';
+
+// UTILS
+import { loadCachedTokenUrl } from 'src/utils/combatUtils';
+
+/**
+ * CombatGroup component.
+ */
 export default function CombatGroup({
-  group,
-  isActive,
-  isGroupEnabled,
-  onToggleGroup,
-  onValueEdit,
-  onStatusEdit,
-  onCreaturePress,
-  onTokenPress,
-  cachedTokenUrls,
-  theme
-}: CombatGroupProps) {
-  const styles = createCombatStyles(theme);
-  const [tokenUrl, setTokenUrl] = React.useState<string | undefined>(undefined);
-  const ICON_SIZE = 14;
+    group,
+    isActive,
+    isGroupEnabled,
+    onToggleGroup,
+    onValueEdit,
+    onStatusEdit,
+    onCreaturePress,
+    onTokenPress,
+    cachedTokenUrls,
+    theme
+}: CombatGroupProps): JSX.Element {
+    const styles = createCombatStyles(theme);
+    const [tokenUrl, setTokenUrl] = React.useState<string | undefined>(undefined);
+    const ICON_SIZE = 14;
 
-  React.useEffect(() => {
-    const loadToken = async () => {
-      if (group.groupMembers[0]?.tokenUrl && group.groupMembers[0]?.source && group.groupMembers[0]?.name) {
-        const cachedUrl = await loadCachedTokenUrl(
-          group.groupMembers[0].tokenUrl, 
-          group.groupMembers[0].source, 
-          group.groupMembers[0].name
-        );
-        setTokenUrl(cachedUrl || undefined);
-      }
-    };
-    loadToken();
-  }, [group.groupMembers[0]?.tokenUrl, group.groupMembers[0]?.source, group.groupMembers[0]?.name]);
+    React.useEffect(() => {
+        const loadToken = async () => {
+            if (group.groupMembers[0]?.tokenUrl && group.groupMembers[0]?.source && group.groupMembers[0]?.name) {
+                const cachedUrl = await loadCachedTokenUrl(
+                    group.groupMembers[0].tokenUrl,
+                    group.groupMembers[0].source,
+                    group.groupMembers[0].name
+                );
+                setTokenUrl(cachedUrl || undefined);
+            }
+        };
+        loadToken();
+    }, [group.groupMembers[0]?.tokenUrl, group.groupMembers[0]?.source, group.groupMembers[0]?.name]);
 
-  return (
-    <View style={[
-      styles.groupContainer,
-      isActive && { backgroundColor: theme.primary + '20', borderWidth: 2, borderColor: theme.primary }
-    ]}>
-      {/* Group Header */}
-      <View style={styles.groupHeader}>
-        {/* Left Column: Token and Stats */}
-        <View style={styles.leftColumn}>
-          <TouchableOpacity
-            onPress={() => onTokenPress(tokenUrl, group.name)}
-            style={styles.groupToken}
-          >
-            <Image
-              source={tokenUrl ? { uri: tokenUrl } : { uri: DEFAULT_CREATURE_TOKEN }}
-              style={styles.groupTokenImage}
-            />
-          </TouchableOpacity>
+    return (
+        <View style={[
+            styles.groupContainer,
+            isActive && { backgroundColor: theme.primary + '20', borderWidth: 2, borderColor: theme.primary }
+        ]}>
+            {/* Group Header */}
+            <View style={styles.groupHeader}>
+                {/* Left Column: Token and Stats */}
+                <View style={styles.leftColumn}>
+                    <TouchableOpacity
+                        onPress={() => onTokenPress(tokenUrl, group.name)}
+                        style={styles.groupToken}
+                    >
+                        <Image
+                            source={tokenUrl ? { uri: tokenUrl } : { uri: DEFAULT_CREATURE_TOKEN }}
+                            style={styles.groupTokenImage}
+                        />
+                    </TouchableOpacity>
 
-          {/* Initiative and Passive Perception below token */}
-          <View style={styles.tokenButtonsRow}>
-            <TouchableOpacity
-              onPress={() => onValueEdit('initiative', group.initiative, '', group.name, true, 1)}
-              style={styles.tokenButton}
-            >
-              <Ionicons name='flash' size={ICON_SIZE} color={theme.buttonText || 'white'} style={styles.tokenButtonIcon} />
-              <Text style={styles.tokenButtonText}>
-                {group.initiative}
-              </Text>
-              {group.initiativeBonus !== undefined && group.initiativeBonus !== null && (
-                <Text style={[styles.tokenButtonText, { fontSize: 10, marginLeft: 2, color: theme.buttonText || 'white' }]}>
-                  {`(${group.initiativeBonus >= 0 ? '+' : ''}${group.initiativeBonus})`}
-                </Text>
-              )}
-            </TouchableOpacity>
-            
+                    {/* Initiative and Passive Perception below token */}
+                    <View style={styles.tokenButtonsRow}>
+                        <TouchableOpacity
+                            onPress={() => onValueEdit('initiative', group.initiative, '', group.name, true, 1)}
+                            style={styles.tokenButton}
+                        >
+                            <Ionicons name='flash' size={ICON_SIZE} color={theme.buttonText || 'white'} style={styles.tokenButtonIcon} />
+                            <Text style={styles.tokenButtonText}>
+                                {group.initiative}
+                            </Text>
+                            {group.initiativeBonus !== undefined && group.initiativeBonus !== null && (
+                                <Text style={[styles.tokenButtonText, { fontSize: 10, marginLeft: 2, color: theme.buttonText || 'white' }]}>
+                                    {`(${group.initiativeBonus >= 0 ? '+' : ''}${group.initiativeBonus})`}
+                                </Text>
+                            )}
+                        </TouchableOpacity>
 
-          </View>
-        </View>
-
-        {/* Right Column: Name and Combatants */}
-        <View style={styles.rightColumn}>
-          {/* Name and Group Toggle */}
-          <View style={styles.groupNameRow}>
-            <TouchableOpacity
-              onPress={() => onCreaturePress(group.name, group.source)}
-              style={styles.groupName}
-            >
-              <Text style={[styles.groupNameText, { color: theme.text }]}>
-                {group.name}
-              </Text>
-            </TouchableOpacity>
-
-            {/* Only show group button if there are multiple members */}
-            {group.showGroupButton ? (
-              <TouchableOpacity
-                onPress={onToggleGroup}
-                style={[
-                  styles.groupToggleButton,
-                  isGroupEnabled ? styles.groupToggleButtonGrouped : styles.groupToggleButtonUngrouped
-                ]}
-              >
-                <Text style={styles.groupToggleText}>
-                  {isGroupEnabled ? 'Ungroup' : 'Group'}
-                </Text>
-              </TouchableOpacity>
-            ) : null}
-          </View>
-
-          {/* Speed and Senses - Below name */}
-          {(group.speed || group.senses) && (
-            <View style={{ marginBottom: 4 }}>
-              {group.speed && (
-                <View style={{ flexDirection: 'row' }}>
-                  <View>
-                    <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, fontWeight: 'bold' }]}>
-                      Speed:
-                    </Text>
-                  </View>
-                  <View style={{ marginLeft: 4 }}>
-                    <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8 }]}>
-                      {group.speed}
-                    </Text>
-                  </View>
+                    </View>
                 </View>
-              )}
-              {group.senses && (
-                <View style={{ flexDirection: 'row' }}>
-                  <View>
-                    <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, fontWeight: 'bold' }]}>
-                      Senses:
-                    </Text>
-                  </View>
-                  <View style={{ marginLeft: 4 }}>
-                    <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8 }]}>
-                      {group.senses}
-                    </Text>
-                  </View>
+
+                {/* Right Column: Name and Combatants */}
+                <View style={styles.rightColumn}>
+                    {/* Name and Group Toggle */}
+                    <View style={styles.groupNameRow}>
+                        <TouchableOpacity
+                            onPress={() => onCreaturePress(group.name, group.source)}
+                            style={styles.groupName}
+                        >
+                            <Text style={[styles.groupNameText, { color: theme.text }]}>
+                                {group.name}
+                            </Text>
+                        </TouchableOpacity>
+
+                        {/* Only show group button if there are multiple members */}
+                        {group.showGroupButton && (
+                            <TouchableOpacity
+                                onPress={onToggleGroup}
+                                style={[
+                                    styles.groupToggleButton,
+                                    isGroupEnabled ? styles.groupToggleButtonGrouped : styles.groupToggleButtonUngrouped
+                                ]}
+                            >
+                                <Text style={styles.groupToggleText}>
+                                    {isGroupEnabled ? 'Ungroup' : 'Group'}
+                                </Text>
+                            </TouchableOpacity>
+                        )}
+                    </View>
+
+                    {/* Speed and Senses - Below name */}
+                    {(group.speed || group.senses) && (
+                        <View style={{ marginBottom: 4 }}>
+                            {group.speed && (
+                                <View style={{ flexDirection: 'row' }}>
+                                    <View>
+                                        <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, fontWeight: 'bold' }]}>
+                                            Speed:
+                                        </Text>
+                                    </View>
+                                    <View style={{ marginLeft: 4 }}>
+                                        <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8 }]}>
+                                            {group.speed}
+                                        </Text>
+                                    </View>
+                                </View>
+                            )}
+                            {group.senses && (
+                                <View style={{ flexDirection: 'row' }}>
+                                    <View>
+                                        <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, fontWeight: 'bold' }]}>
+                                            Senses:
+                                        </Text>
+                                    </View>
+                                    <View style={{ marginLeft: 4 }}>
+                                        <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8 }]}>
+                                            {group.senses}
+                                        </Text>
+                                    </View>
+                                </View>
+                            )}
+                        </View>
+                    )}
+
+                    {/* Group Members */}
+                    {group.groupMembers.map((member, index) => (
+                        <CombatMember
+                            key={member.id}
+                            member={member}
+                            memberIndex={index + 1}
+                            isActive={isActive}
+                            onValueEdit={onValueEdit}
+                            onStatusEdit={onStatusEdit}
+                            onCreaturePress={onCreaturePress}
+                            onTokenPress={onTokenPress}
+                            cachedTokenUrls={cachedTokenUrls}
+                            theme={theme}
+                        />
+                    ))}
                 </View>
-              )}
             </View>
-          )}
-
-          {/* Group Members */}
-          {group.groupMembers.map((member, index) => (
-            <CombatMember
-              key={member.id}
-              member={member}
-              memberIndex={index + 1}
-              isActive={isActive}
-              onValueEdit={onValueEdit}
-              onStatusEdit={onStatusEdit}
-              onCreaturePress={onCreaturePress}
-              onTokenPress={onTokenPress}
-              cachedTokenUrls={cachedTokenUrls}
-              theme={theme}
-            />
-          ))}
         </View>
-      </View>
-    </View>
-  );
+    );
 }

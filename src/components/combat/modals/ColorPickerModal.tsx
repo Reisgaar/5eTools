@@ -1,9 +1,17 @@
-import { Ionicons } from '@expo/vector-icons';
+// REACT
 import React, { useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import { BaseModal } from '../../ui';
-import { createBaseModalStyles } from '../../../styles/baseModalStyles';
 
+// EXPO
+import { Ionicons } from '@expo/vector-icons';
+
+// STYLES
+import { createBaseModalStyles } from 'src/styles/baseModalStyles';
+
+// COMPONENTS
+import { BaseModal } from 'src/components/ui';
+
+// INTERFACES
 interface ColorPickerModalProps {
     visible: boolean;
     onClose: () => void;
@@ -12,6 +20,7 @@ interface ColorPickerModalProps {
     theme: any;
 }
 
+// CONSTANTS
 const COLORS = [
     'rgba(255, 107, 107, 0.3)', // Light Red
     'rgba(255, 167, 38, 0.3)', // Light Orange
@@ -25,6 +34,9 @@ const COLORS = [
     'rgba(255, 152, 0, 0.3)', // Light Dark Orange
 ];
 
+/**
+ * Modal for selecting a color.
+ */
 export default function ColorPickerModal({
     visible,
     onClose,
@@ -96,5 +108,3 @@ export default function ColorPickerModal({
         </BaseModal>
     );
 }
-
- 

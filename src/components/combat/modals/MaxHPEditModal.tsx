@@ -1,9 +1,14 @@
+// REACT
 import React, { useEffect, useState } from 'react';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { BaseModal } from '../../ui';
-import { createBaseModalStyles } from '../../../styles/baseModalStyles';
 
+// COMPONENTS
+import { BaseModal } from 'src/components/ui';
 
+// STYLES
+import { createBaseModalStyles } from 'src/styles/baseModalStyles';
+
+// INTERFACES
 interface MaxHPEditModalProps {
     visible: boolean;
     onClose: () => void;
@@ -15,6 +20,9 @@ interface MaxHPEditModalProps {
     theme: any;
 }
 
+/**
+ * Modal used to edit the max HP of a combatant.
+ */
 export default function MaxHPEditModal({
     visible,
     onClose,
@@ -24,7 +32,7 @@ export default function MaxHPEditModal({
     initialMaxHp,
     currentHp,
     theme
-}: MaxHPEditModalProps) {
+}: MaxHPEditModalProps): JSX.Element {
     const [maxHp, setMaxHp] = useState(initialMaxHp);
     const styles = createBaseModalStyles(theme);
 
@@ -46,17 +54,15 @@ export default function MaxHPEditModal({
         onClose();
     };
 
-
-
     // Create title with current HP info
     const modalTitle = `Edit Max HP - #${combatantNumber} ${creatureName}`;
     const modalSubtitle = `Current: ${currentHp}`;
 
     return (
-        <BaseModal 
-            visible={visible} 
-            onClose={onClose} 
-            theme={theme} 
+        <BaseModal
+            visible={visible}
+            onClose={onClose}
+            theme={theme}
             title={modalTitle}
             subtitle={modalSubtitle}
             maxHeight="85%"
@@ -66,7 +72,7 @@ export default function MaxHPEditModal({
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 20, gap: 12 }}>
                     <Text style={[styles.modalText, { fontWeight: 'bold' }]}>Max HP:</Text>
                     <TextInput
-                        style={{ 
+                        style={{
                             borderWidth: 2,
                             borderRadius: 8,
                             paddingHorizontal: 16,
@@ -75,9 +81,9 @@ export default function MaxHPEditModal({
                             fontWeight: 'bold',
                             textAlign: 'center',
                             minWidth: 80,
-                            backgroundColor: theme.inputBackground, 
-                            color: theme.text, 
-                            borderColor: theme.primary 
+                            backgroundColor: theme.inputBackground,
+                            color: theme.text,
+                            borderColor: theme.primary
                         }}
                         value={String(maxHp)}
                         onChangeText={(text) => {
@@ -99,24 +105,24 @@ export default function MaxHPEditModal({
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginBottom: 20, gap: 12 }}>
                     {/* Decrement Buttons - Left Column */}
                     <View style={{ flex: 1, gap: 6 }}>
-                    <TouchableOpacity
-                        style={[styles.modalButton, styles.modalButtonPrimary]}
-                        onPress={() => handleDecrement(10)}
-                    >
-                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-10</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[styles.modalButton, styles.modalButtonPrimary]}
-                        onPress={() => handleDecrement(5)}
-                    >
-                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-5</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[styles.modalButton, styles.modalButtonPrimary]}
-                        onPress={() => handleDecrement(1)}
-                    >
-                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-1</Text>
-                    </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.modalButton, styles.modalButtonPrimary]}
+                            onPress={() => handleDecrement(10)}
+                        >
+                            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-10</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.modalButton, styles.modalButtonPrimary]}
+                            onPress={() => handleDecrement(5)}
+                        >
+                            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-5</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.modalButton, styles.modalButtonPrimary]}
+                            onPress={() => handleDecrement(1)}
+                        >
+                            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-1</Text>
+                        </TouchableOpacity>
                     </View>
 
                     {/* Increment Buttons - Right Column */}
@@ -155,5 +161,3 @@ export default function MaxHPEditModal({
         </BaseModal>
     );
 }
-
-

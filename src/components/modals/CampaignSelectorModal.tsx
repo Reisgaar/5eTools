@@ -20,7 +20,7 @@ interface CampaignSelectorModalProps {
 /**
  * Modal for selecting a campaign.
  */
-const CampaignSelectorModal: React.FC<CampaignSelectorModalProps> = ({ visible, onClose }) => {
+export default function CampaignSelectorModal({ visible, onClose }: CampaignSelectorModalProps): JSX.Element {
     const { campaigns, selectedCampaignId, selectCampaign, clearSelectedCampaign } = useCampaignStore();
     const { currentTheme } = useAppSettingsStore();
     const { getSortedCombats, reloadCombats } = useCombat();
@@ -29,12 +29,12 @@ const CampaignSelectorModal: React.FC<CampaignSelectorModalProps> = ({ visible, 
     const handleSelectCampaign = async (campaignId: string | null) => {
         // 1. Combats - Reload combats when changing campaign
         await reloadCombats();
-        
+
         // 2. Spells - Deselect spellbook if exists
         clearSpellbookSelection();
-        
+
         // 3. Home - Reload players (this will be handled by the Home component's useEffect)
-        
+
         if (campaignId) {
             selectCampaign(campaignId);
         } else {
@@ -46,12 +46,12 @@ const CampaignSelectorModal: React.FC<CampaignSelectorModalProps> = ({ visible, 
     const handleShowAll = async () => {
         // 1. Combats - Reload combats when changing campaign
         await reloadCombats();
-        
+
         // 2. Spells - Deselect spellbook if exists
         clearSpellbookSelection();
-        
+
         // 3. Home - Reload players (this will be handled by the Home component's useEffect)
-        
+
         clearSelectedCampaign();
         onClose();
     };
@@ -192,5 +192,3 @@ const styles = StyleSheet.create({
         marginBottom: 0,
     },
 });
-
-export default CampaignSelectorModal;

@@ -1,9 +1,21 @@
+// REACT
 import { useMemo, useState, useEffect, useCallback } from 'react';
-import { normalizeString, extractBeastType, extractBeastSource, containsNormalized, includesNormalized } from 'src/utils/stringUtils';
-import { getBeastType, getBeastSource, calculatePassivePerception } from 'src/utils/beastUtils';
+
+// UTILS
+import { normalizeString } from 'src/utils/stringUtils';
+import { getBeastType, getBeastSource } from 'src/utils/beastUtils';
 import { getStorage } from 'src/utils/storage';
 
-export function useBestiaryFilters(simpleBeasts: any[], beasts: any[]) {
+// INTERFACES
+interface BestiaryFiltersProps {
+    simpleBeasts: any[];
+    beasts: any[];
+}
+
+/**
+ * useBestiaryFilters hook.
+ */
+export default function useBestiaryFilters({ simpleBeasts, beasts }: BestiaryFiltersProps) {
     // Search and filter states
     const [search, setSearch] = useState('');
     const [selectedCRs, setSelectedCRs] = useState<string[]>([]);
@@ -16,7 +28,7 @@ export function useBestiaryFilters(simpleBeasts: any[], beasts: any[]) {
     const [filterModalVisible, setFilterModalVisible] = useState(false);
     const [typeFilterModalVisible, setTypeFilterModalVisible] = useState(false);
     const [sourceFilterModalVisible, setSourceFilterModalVisible] = useState(false);
-    
+
     // Filter indexes for optimization
     const [filterIndexes, setFilterIndexes] = useState<{ cr: string[], type: string[], source: string[] } | null>(null);
 
@@ -50,7 +62,7 @@ export function useBestiaryFilters(simpleBeasts: any[], beasts: any[]) {
         if (filterIndexes?.cr) {
             return filterIndexes.cr;
         }
-        
+
         // Fallback to original method
         const crs = Array.from(new Set(beastData.map(b => b.crString)));
         // Sort: numbers/fractions first, then 'Unknown' last
@@ -75,7 +87,7 @@ export function useBestiaryFilters(simpleBeasts: any[], beasts: any[]) {
         if (filterIndexes?.type) {
             return filterIndexes.type;
         }
-        
+
         // Fallback to original method
         const types = Array.from(new Set(beastData.map(b => b.normalizedType))).filter(Boolean).sort();
         return types;
@@ -86,7 +98,7 @@ export function useBestiaryFilters(simpleBeasts: any[], beasts: any[]) {
         if (filterIndexes?.source) {
             return filterIndexes.source;
         }
-        
+
         // Fallback to original method
         const sources = Array.from(new Set(beastData.map(b => b.normalizedSource))).filter(Boolean).sort();
         return sources;
@@ -106,7 +118,7 @@ export function useBestiaryFilters(simpleBeasts: any[], beasts: any[]) {
             if (!normalizedSearch) return beastData;
             return beastData.filter(b => b.normalizedName.includes(normalizedSearch));
         }
-        
+
         return beastData.filter(b => {
             // Name filter
             const matchesName = !normalizedSearch || b.normalizedName.includes(normalizedSearch);
@@ -245,75 +257,75 @@ export function useBestiaryFilters(simpleBeasts: any[], beasts: any[]) {
     // Function to get source acronym (e.g., "Player's Handbook" -> "PHB")
     const getSourceAcronym = (sourceName: string): string => {
         const acronymMap: { [key: string]: string } = {
-            "Player's Handbook": "PHB",
-            "Dungeon Master's Guide": "DMG",
-            "Monster Manual": "MM",
-            "Volo's Guide to Monsters": "VGtM",
-            "Mordenkainen's Tome of Foes": "MToF",
-            "Tasha's Cauldron of Everything": "TCoE",
-            "Xanathar's Guide to Everything": "XGtE",
-            "Fizban's Treasury of Dragons": "FToD",
-            "Mordenkainen Presents: Monsters of the Multiverse": "MPMM",
-            "The Wild Beyond the Witchlight": "WBtW",
-            "Van Richten's Guide to Ravenloft": "VRGtR",
-            "Strixhaven: A Curriculum of Chaos": "SACoC",
-            "Candlekeep Mysteries": "CM",
-            "Icewind Dale: Rime of the Frostmaiden": "IDRotF",
-            "Explorer's Guide to Wildemount": "EGtW",
-            "Eberron: Rising from the Last War": "ERftLW",
-            "Acquisitions Incorporated": "AI",
-            "Guildmasters' Guide to Ravnica": "GGtR",
-            "Mythic Odysseys of Theros": "MOoT",
-            "Theros: Beyond Death": "TBD",
-            "Baldur's Gate: Descent into Avernus": "BGDiA",
-            "Dragon Heist": "DH",
-            "Dungeon of the Mad Mage": "DotMM",
-            "Ghosts of Saltmarsh": "GoS",
-            "Princes of the Apocalypse": "PotA",
-            "Out of the Abyss": "OotA",
-            "Curse of Strahd": "CoS",
-            "Storm King's Thunder": "SKT",
-            "Tales from the Yawning Portal": "TftYP",
-            "Tomb of Annihilation": "ToA",
-            "Hoard of the Dragon Queen": "HotDQ",
-            "The Rise of Tiamat": "RoT",
-            "Lost Mine of Phandelver": "LMoP",
-            "Tyranny of Dragons": "ToD",
-            "Elemental Evil Player's Companion": "EEPC",
-            "Sword Coast Adventurer's Guide": "SCAG",
-            "Unearthed Arcana": "UA",
-            "Adventure League": "AL",
-            "Homebrew": "HB",
-            "Critical Role": "CR",
-            "D&D Beyond": "DDB",
-            "Dungeon Master's Guild": "DMG",
-            "Kobold Press": "KP",
-            "Green Ronin": "GR",
-            "Paizo": "PZ",
-            "Wizards of the Coast": "WotC",
-            "Other": "OTH"
+            'Player\'s Handbook': 'PHB',
+            'Dungeon Master\'s Guide': 'DMG',
+            'Monster Manual': 'MM',
+            'Volo\'s Guide to Monsters': 'VGtM',
+            'Mordenkainen\'s Tome of Foes': 'MToF',
+            'Tasha\'s Cauldron of Everything': 'TCoE',
+            'Xanathar\'s Guide to Everything': 'XGtE',
+            'Fizban\'s Treasury of Dragons': 'FToD',
+            'Mordenkainen Presents: Monsters of the Multiverse': 'MPMM',
+            'The Wild Beyond the Witchlight': 'WBtW',
+            'Van Richten\'s Guide to Ravenloft': 'VRGtR',
+            'Strixhaven: A Curriculum of Chaos': 'SACoC',
+            'Candlekeep Mysteries': 'CM',
+            'Icewind Dale: Rime of the Frostmaiden': 'IDRotF',
+            'Explorer\'s Guide to Wildemount': 'EGtW',
+            'Eberron: Rising from the Last War': 'ERftLW',
+            'Acquisitions Incorporated': 'AI',
+            'Guildmasters\' Guide to Ravnica': 'GGtR',
+            'Mythic Odysseys of Theros': 'MOoT',
+            'Theros: Beyond Death': 'TBD',
+            'Baldur\'s Gate: Descent into Avernus': 'BGDiA',
+            'Dragon Heist': 'DH',
+            'Dungeon of the Mad Mage': 'DotMM',
+            'Ghosts of Saltmarsh': 'GoS',
+            'Princes of the Apocalypse': 'PotA',
+            'Out of the Abyss': 'OotA',
+            'Curse of Strahd': 'CoS',
+            'Storm King\'s Thunder': 'SKT',
+            'Tales from the Yawning Portal': 'TftYP',
+            'Tomb of Annihilation': 'ToA',
+            'Hoard of the Dragon Queen': 'HotDQ',
+            'The Rise of Tiamat': 'RoT',
+            'Lost Mine of Phandelver': 'LMoP',
+            'Tyranny of Dragons': 'ToD',
+            'Elemental Evil Player\'s Companion': 'EEPC',
+            'Sword Coast Adventurer\'s Guide': 'SCAG',
+            'Unearthed Arcana': 'UA',
+            'Adventure League': 'AL',
+            'Homebrew': 'HB',
+            'Critical Role': 'CR',
+            'D&D Beyond': 'DDB',
+            'Dungeon Master\'s Guild': 'DMG',
+            'Kobold Press': 'KP',
+            'Green Ronin': 'GR',
+            'Paizo': 'PZ',
+            'Wizards of the Coast': 'WotC',
+            'Other': 'OTH'
         };
-        
+
         return acronymMap[sourceName] || sourceName.substring(0, 3).toUpperCase();
     };
 
     // Function to generate filter summary
     const getFilterSummary = (): string[] => {
         const summary: string[] = [];
-        
+
         if (selectedCRs.length > 0) {
             summary.push(`CR: ${selectedCRs.join(', ')}`);
         }
-        
+
         if (selectedTypes.length > 0) {
             summary.push(`Type: ${selectedTypes.join(', ')}`);
         }
-        
+
         if (selectedSources.length > 0) {
             const sourceAcronyms = selectedSources.map(source => getSourceAcronym(source));
             summary.push(`Source: ${sourceAcronyms.join(', ')}`);
         }
-        
+
         return summary;
     };
 
@@ -382,4 +394,4 @@ export function useBestiaryFilters(simpleBeasts: any[], beasts: any[]) {
         applySourceFilter,
         getBeastType
     };
-} 
+}

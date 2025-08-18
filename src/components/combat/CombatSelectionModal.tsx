@@ -13,7 +13,6 @@ import { CombatSelectionModalProps } from 'src/models/interfaces/combat';
 
 // UTILS
 import { formatDate } from 'src/utils/combatUtils';
-import { getTokenUrl } from 'src/utils/tokenCache';
 
 /**
  * Modal for selecting a combat.
@@ -28,7 +27,7 @@ export default function CombatSelectionModal({
     onQuantityChange,
     onSelectCombat,
     theme
-}: CombatSelectionModalProps) {
+}: CombatSelectionModalProps): JSX.Element {
     const { campaigns } = useCampaignStore();
     const [searchQuery, setSearchQuery] = useState('');
     const [tokenUrl, setTokenUrl] = useState<string | null>(null);
@@ -57,7 +56,7 @@ export default function CombatSelectionModal({
     const filteredCombats = useMemo(() => {
         if (!searchQuery.trim()) return combats;
 
-        return combats.filter(combat => 
+        return combats.filter(combat =>
             combat.name.toLowerCase().includes(searchQuery.toLowerCase())
         );
     }, [combats, searchQuery]);
@@ -70,7 +69,7 @@ export default function CombatSelectionModal({
     };
 
     // Create title with beast name
-    const modalTitle = `Add to Combat`;
+    const modalTitle = 'Add to Combat';
 
     return (
         <Modal visible={visible} animationType="slide" transparent>
@@ -102,30 +101,30 @@ export default function CombatSelectionModal({
                                         />
                                     </View>
                                 )}
-                                
+
                                 {/* Beast Name */}
                                 <View style={styles.beastNameContainer}>
                                     <Text style={[styles.beastName, { color: theme.text }]} numberOfLines={2}>
                                         {beastToAdd?.name || 'Unknown Beast'}
                                     </Text>
                                 </View>
-                                
+
                                 {/* Quantity Selector */}
                                 <View style={styles.quantityContainer}>
                                     <Text style={[styles.quantityLabel, { color: theme.text }]}>Quantity</Text>
                                     <View style={styles.quantityRow}>
-                                        <TouchableOpacity 
+                                        <TouchableOpacity
                                             onPress={() => {
                                                 const currentQty = parseInt(quantity, 10) || 1;
                                                 if (currentQty > 1) {
-                                                onQuantityChange(String(currentQty - 1));
+                                                    onQuantityChange(String(currentQty - 1));
                                                 }
                                             }}
                                             style={[styles.quantityButton, { backgroundColor: theme.primary }]}
                                         >
                                             <Text style={styles.quantityButtonText}>-</Text>
                                         </TouchableOpacity>
-                                        
+
                                         <TextInput
                                             style={[styles.quantityInput, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.primary }]}
                                             value={quantity}
@@ -133,8 +132,8 @@ export default function CombatSelectionModal({
                                             keyboardType="numeric"
                                             textAlign="center"
                                         />
-                                        
-                                        <TouchableOpacity 
+
+                                        <TouchableOpacity
                                             onPress={() => {
                                                 const currentQty = parseInt(quantity, 10) || 1;
                                                 onQuantityChange(String(currentQty + 1));

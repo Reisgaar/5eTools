@@ -1,14 +1,15 @@
 // REACT
-import React, { JSX } from "react";
-import { Text, View, Pressable } from "react-native";
+import React, { JSX } from 'react';
+import { Text, View, Pressable } from 'react-native';
 
 // CONTEXTS
-import { useAppSettingsStore } from "src/stores/appSettingsStore";
+import { useAppSettingsStore } from 'src/stores/appSettingsStore';
 
 // STYLES
 import { commonStyles } from 'src/styles/commonStyles';
 
-type Props = {
+// INTERFACES
+interface ClickableTextProps {
     text: string;
     align?: 'baseline' | 'center' | 'flex-end' | 'flex-start' | 'stretch';
     action: () => void;
@@ -17,7 +18,7 @@ type Props = {
 /**
  * A header with two icon buttons.
  */
-export default function ClickableText({ text, align = 'flex-start', action }: Props): JSX.Element {
+export default function ClickableText({ text, align = 'flex-start', action }: ClickableTextProps): JSX.Element {
     const { currentTheme } = useAppSettingsStore();
 
     return (
@@ -33,5 +34,3 @@ export default function ClickableText({ text, align = 'flex-start', action }: Pr
         </View>
     );
 }
-
-

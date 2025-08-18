@@ -1,5 +1,8 @@
+// EXPO
 import * as FileSystem from 'expo-file-system';
-import { STORAGE_KEYS } from './types';
+
+// MODELS
+import { STORAGE_KEYS } from 'src/models/interfaces/utils';
 
 // Platform detection
 export const isWeb = typeof window !== 'undefined' && window.document;
@@ -13,7 +16,7 @@ export const getPersistentDataDir = (): string => {
     if (isWeb) {
         return '/dnd_data/'; // Web doesn't use file paths
     }
-    
+
     // For mobile, use a versioned directory structure
     // This ensures data persists across app updates
     return `${FileSystem.documentDirectory}dnd_data_v${STORAGE_VERSION.replace(/\./g, '_')}/`;
