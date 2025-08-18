@@ -10,7 +10,7 @@ import { useCombat } from 'src/context/CombatContext';
 import { useModal } from 'src/context/ModalContext';
 
 // STYLES
-import { createBaseModalStyles, getModalZIndex } from 'src/styles/baseModalStyles';
+import { createBaseModalStyles } from 'src/styles/baseModalStyles';
 
 // COMPONENTS
 import { BaseModal } from 'src/components/ui';
@@ -53,8 +53,6 @@ export default function CombatFormModal({
     const [selectedCampaignId, setSelectedCampaignId] = useState<string | undefined>(initialCampaignId);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-    const maxStackDepth = Math.max(beastStackDepth, spellStackDepth);
-    const dynamicZIndex = getModalZIndex(maxStackDepth + 1);
     const styles = createBaseModalStyles(theme);
 
     const isEditMode = mode === 'edit';
@@ -109,7 +107,6 @@ export default function CombatFormModal({
                 theme={theme}
                 title={title}
                 scrollable={true}
-                zIndex={dynamicZIndex}
             >
                 <View style={styles.modalSection}>
                     <Text style={styles.modalSectionTitle}>Combat Details</Text>

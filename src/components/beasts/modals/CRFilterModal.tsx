@@ -8,9 +8,6 @@ import { Ionicons } from '@expo/vector-icons';
 // CONTEXTS
 import { useModal } from 'src/context/ModalContext';
 
-// STYLES
-import { getModalZIndex } from 'src/styles/baseModalStyles';
-
 // INTERFACES
 interface CRFilterModalProps {
     visible: boolean;
@@ -39,8 +36,6 @@ export default function CRFilterModal({
     sourceIdToNameMap
 }: CRFilterModalProps) {
     const { beastStackDepth, spellStackDepth } = useModal();
-    const maxStackDepth = Math.max(beastStackDepth, spellStackDepth);
-    const dynamicZIndex = getModalZIndex(maxStackDepth + 1); // Filter modals should be above other modals
 
     // Pre-compute selected state for better performance
     const selectedSet = useMemo(() => new Set(selectedCRs), [selectedCRs]);
@@ -53,8 +48,8 @@ export default function CRFilterModal({
 
     return (
         <Modal visible={visible} animationType="slide" transparent>
-            <TouchableOpacity style={[styles.modalOverlay, { zIndex: dynamicZIndex }]} activeOpacity={1} onPress={onClose}>
-                <TouchableOpacity style={[styles.modalContent, { backgroundColor: theme.card, zIndex: dynamicZIndex }]} activeOpacity={1} onPress={() => {}}>
+            <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={onClose}>
+                <TouchableOpacity style={[styles.modalContent, { backgroundColor: theme.card }]} activeOpacity={1} onPress={() => {}}>
                     <View style={styles.modalHeader}>
                         <Text style={[styles.modalTitle, { color: theme.text }]}>
                             Filter by CR

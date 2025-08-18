@@ -16,7 +16,7 @@ export const baseStyles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,0.6)',
         justifyContent: 'center',
         alignItems: 'center',
-        zIndex: 1000,
+        zIndex: 10,
     },
     modalContentWrapper: {
         width: '90%',
@@ -161,7 +161,7 @@ export const baseStyles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,0.6)',
         justifyContent: 'center',
         alignItems: 'center',
-        zIndex: 1000,
+        zIndex: 10,
     },
     detailContent: {
         width: '90%',

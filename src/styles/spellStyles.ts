@@ -92,12 +92,12 @@ export const createSpellStyles = (theme: any) => {
             backgroundColor: 'rgba(0,0,0,0.6)',
             justifyContent: 'center', // Back to center
             alignItems: 'center',
-            zIndex: 1000,
+            zIndex: 10,
         },
         spellDetailContent: {
             ...baseStyles.detailContent,
             backgroundColor: theme.card,
-            zIndex: 1000,
+            zIndex: 10,
             maxHeight: '85%',
             minHeight: 700,
             height: '85%',

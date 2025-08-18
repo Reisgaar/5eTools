@@ -18,7 +18,6 @@ import { CreatureNotFoundModal } from 'src/components/beasts/modals';
 
 // STYLES
 import { createSpellStyles } from 'src/styles/spellStyles';
-import { getModalZIndex } from 'src/styles/baseModalStyles';
 
 // UTILS
 import {
@@ -59,7 +58,6 @@ export default function SpellDetailModal({
     const { simpleBeasts, simpleSpells } = useData();
     const { useAdvancedDiceRoll } = useAppSettingsStore();
     const styles = createSpellStyles(theme);
-    const dynamicZIndex = getModalZIndex(spellStackDepth);
 
     // Modal state
     const [spellNotFoundVisible, setSpellNotFoundVisible] = React.useState(false);
@@ -254,7 +252,7 @@ export default function SpellDetailModal({
     if (!spell) return (
         <Modal visible={visible} animationType="slide" transparent>
             <Pressable style={styles.spellDetailOverlay} onPress={onClose}>
-                <View style={[styles.spellDetailContent, { justifyContent: 'center', alignItems: 'center', zIndex: dynamicZIndex }]}>
+                <View style={[styles.spellDetailContent, { justifyContent: 'center', alignItems: 'center' }]}>
                     <ActivityIndicator size="large" color={theme.primary} />
                 </View>
             </Pressable>
@@ -266,7 +264,7 @@ export default function SpellDetailModal({
         return (
             <Modal visible={visible} animationType="slide" transparent>
                 <Pressable style={styles.spellDetailOverlay} onPress={onClose}>
-                    <View style={[styles.spellDetailContent, { justifyContent: 'center', alignItems: 'center', zIndex: dynamicZIndex }]}>
+                    <View style={[styles.spellDetailContent, { justifyContent: 'center', alignItems: 'center' }]}>
                         <Text style={{ color: theme.text }}>Invalid spell data</Text>
                     </View>
                 </Pressable>
@@ -283,7 +281,7 @@ export default function SpellDetailModal({
                     onResponderGrant={() => onClose()}
                 >
                     <View
-                        style={[styles.spellDetailContent, { zIndex: dynamicZIndex }]}
+                        style={styles.spellDetailContent}
                         onStartShouldSetResponder={() => true}
                         onResponderGrant={(e) => e.stopPropagation()}
                     >

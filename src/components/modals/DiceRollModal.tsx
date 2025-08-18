@@ -2,12 +2,6 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-// STYLES
-import { getModalZIndex } from 'src/styles/baseModalStyles';
-
-// CONTEXT
-import { useModal } from 'src/context/ModalContext';
-
 // INTERFACES
 interface DiceRollModalProps {
     visible: boolean;
@@ -25,10 +19,6 @@ interface DiceRollModalProps {
  * DiceRollModal component.
  */
 export default function DiceRollModal({ visible, expression, result, breakdown, modifier, type = 'damage', label, theme, onClose }: DiceRollModalProps): JSX.Element | null {
-    const { beastStackDepth, spellStackDepth } = useModal();
-    const maxStackDepth = Math.max(beastStackDepth, spellStackDepth);
-    const dynamicZIndex = getModalZIndex(maxStackDepth + 1); // Dice modals should be above other modals
-
     if (!visible) return null;
 
     let title = label ? label
@@ -37,7 +27,7 @@ export default function DiceRollModal({ visible, expression, result, breakdown, 
                 : 'Damage Roll';
 
     return (
-        <View style={[styles.overlay, { zIndex: dynamicZIndex }]} pointerEvents="auto">
+        <View style={styles.overlay} pointerEvents="auto">
             <View style={[styles.content, { backgroundColor: theme.card }]}>
                 <Text style={[styles.title, { color: theme.text }]}>{`${title}: ${expression}`}</Text>
                 <Text style={[styles.result, { color: theme.success || '#4ade80' }]}>{`Total: ${result}`}</Text>
@@ -60,6 +50,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,0.5)',
         justifyContent: 'center',
         alignItems: 'center',
+        zIndex: 100,
     },
     content: {
         borderRadius: 12,

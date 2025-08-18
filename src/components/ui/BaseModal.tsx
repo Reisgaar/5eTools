@@ -1,9 +1,12 @@
 // REACT
 import React from 'react';
-import { Modal, View, Text, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { Modal, View, Text, TouchableOpacity, ScrollView, Image, TouchableWithoutFeedback, Keyboard, Dimensions } from 'react-native';
 
 // STYLES
 import { createBaseModalStyles } from 'src/styles/baseModalStyles';
+
+// CONSTANTS
+const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
 
 // INTERFACES
 interface BaseModalProps {
@@ -47,11 +50,6 @@ export default function BaseModal({
     title,
     subtitle,
     tokenUrl,
-    width,
-    height,
-    maxHeight,
-    maxWidth,
-    zIndex = 1000,
     showFooter = false,
     footerContent,
     scrollable = false,
@@ -62,11 +60,7 @@ export default function BaseModal({
     const modalContent = (
         <View style={[
             styles.modalContent,
-            { zIndex },
-            ...(width ? [{ width: width as any }] : []),
-            ...(height ? [{ height: height as any }] : []),
-            ...(maxHeight ? [{ maxHeight: maxHeight as any }] : []),
-            ...(maxWidth ? [{ maxWidth: maxWidth as any }] : [])
+            { zIndex: 10 , maxHeight: SCREEN_HEIGHT * 0.8, maxWidth: SCREEN_WIDTH * 0.9 }
         ]}>
             {/* Header */}
             <View style={styles.modalHeader}>
@@ -109,7 +103,7 @@ export default function BaseModal({
                     {children}
                 </ScrollView>
             ) : (
-                <View style={styles.modalBody}>
+                <View style={[styles.modalBody]}>
                     {children}
                 </View>
             )}
@@ -130,19 +124,18 @@ export default function BaseModal({
             transparent={true}
             onRequestClose={onClose}
         >
-            <View
-                style={[styles.modalOverlay, { zIndex: zIndex - 1 }]}
-                onStartShouldSetResponder={() => true}
-                onResponderGrant={() => onClose()}
-            >
-                <View
-                    style={styles.modalContainer}
-                    onStartShouldSetResponder={() => true}
-                    onResponderGrant={(e) => e.stopPropagation()}
-                >
-                    {modalContent}
+            <TouchableWithoutFeedback onPress={() => {
+                Keyboard.dismiss();
+                onClose();
+            }}>
+                <View style={[styles.modalOverlay]}>
+                    <TouchableWithoutFeedback onPress={() => {}}>
+                        <View style={styles.modalContainer}>
+                            {modalContent}
+                        </View>
+                    </TouchableWithoutFeedback>
                 </View>
-            </View>
+            </TouchableWithoutFeedback>
         </Modal>
     );
 }

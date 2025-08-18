@@ -1,12 +1,5 @@
 // REACT
-import { StyleSheet, Platform } from 'react-native';
-
-// Function to calculate z-index based on modal stack depth
-export const getModalZIndex = (stackDepth: number = 0): number => {
-    const baseZIndex = 1000;
-    const increment = 100;
-    return baseZIndex + (stackDepth * increment);
-};
+import { StyleSheet } from 'react-native';
 
 export const createBaseModalStyles = (theme: any) => StyleSheet.create({
     // Overlay and container
@@ -19,7 +12,7 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,0.6)',
         justifyContent: 'flex-start',
         alignItems: 'center',
-        zIndex: 1000,
+        zIndex: 10,
         paddingTop: 40,
     },
     modalContainer: {
@@ -34,18 +27,11 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         backgroundColor: theme.card,
         borderRadius: 12,
         overflow: 'hidden',
-        elevation: 6,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
-        zIndex: 1000,
-
-        // Responsive sizing - improved for mobile
-        width: '92%',
-        maxWidth: 400,
-        maxHeight: '80%',
-        minHeight: 350,
+        zIndex: 10,
     },
 
     // Header section

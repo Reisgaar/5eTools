@@ -29,8 +29,7 @@ export default function GlobalModals() {
         closeDiceModal,
         advancedDiceModalState,
         closeAdvancedDiceModal,
-        campaignSelectorModalVisible,
-        closeCampaignSelectorModal
+        campaignSelectorModalVisible
     } = useModal();
     const { currentTheme } = useAppSettingsStore();
 
@@ -38,21 +37,8 @@ export default function GlobalModals() {
         <>
             {campaignSelectorModalVisible ? (
                 <CampaignSelectorModal visible={campaignSelectorModalVisible} />
-            ) : (
+            ) : diceModalState.visible || advancedDiceModalState.visible ? (
                 <>
-                    <BeastDetailModal
-                        visible={beastModalVisible}
-                        beast={selectedBeast}
-                        onClose={closeBeastModal}
-                        theme={currentTheme}
-                    />
-                    <SpellDetailModal
-                        visible={spellModalVisible}
-                        spell={selectedSpell}
-                        onClose={closeSpellModal}
-                        schoolFullName={selectedSpell ? selectedSpell.school : ''}
-                        theme={currentTheme}
-                    />
                     <DiceRollModal
                         visible={diceModalState.visible}
                         expression={diceModalState.expression}
@@ -70,6 +56,22 @@ export default function GlobalModals() {
                         theme={currentTheme}
                         d20Config={advancedDiceModalState.d20Config}
                         damageConfig={advancedDiceModalState.damageConfig}
+                    />
+                </>
+            ):(
+                <>
+                    <BeastDetailModal
+                        visible={beastModalVisible}
+                        beast={selectedBeast}
+                        onClose={closeBeastModal}
+                        theme={currentTheme}
+                    />
+                    <SpellDetailModal
+                        visible={spellModalVisible}
+                        spell={selectedSpell}
+                        onClose={closeSpellModal}
+                        schoolFullName={selectedSpell ? selectedSpell.school : ''}
+                        theme={currentTheme}
                     />
                 </>
             )};

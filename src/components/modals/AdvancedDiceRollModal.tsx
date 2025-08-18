@@ -1,12 +1,11 @@
 // REACT
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, TextInput, Switch, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, TouchableWithoutFeedback, Keyboard } from 'react-native';
 
 // CONTEXT
 import { useModal } from 'src/context/ModalContext';
 
 // STYLES
-import { getModalZIndex } from 'src/styles/baseModalStyles';
 import { createBaseModalStyles } from 'src/styles/baseModalStyles';
 
 // COMPONENTS
@@ -46,8 +45,6 @@ export default function AdvancedDiceRollModal({
     damageConfig
 }: AdvancedDiceRollModalProps): JSX.Element {
     const { beastStackDepth, spellStackDepth } = useModal();
-    const maxStackDepth = Math.max(beastStackDepth, spellStackDepth);
-    const dynamicZIndex = getModalZIndex(maxStackDepth + 1); // Dice modals should be above other modals
     const unifiedStyles = createBaseModalStyles(theme);
 
     const [advantageType, setAdvantageType] = useState<AdvantageType>('normal');
@@ -178,40 +175,43 @@ export default function AdvancedDiceRollModal({
 
         return (
             <View style={unifiedStyles.modalSection}>
-                <Text style={[unifiedStyles.modalText, { fontSize: 16, fontWeight: 'bold', marginBottom: 16 }]}>
+                <Text style={[unifiedStyles.modalText, { fontSize: 16, fontWeight: 'bold' }]}>
                     Roll Configuration
                 </Text>
 
                 {/* Advantage/Disadvantage Switch */}
                 <View style={unifiedStyles.modalSection}>
-                    <Text style={[unifiedStyles.modalText, { marginBottom: 12 }]}>Advantage/Disadvantage:</Text>
-                    <View style={unifiedStyles.actionRow}>
+                    <View style={[unifiedStyles.actionRow, { marginTop: 6 }]}>
                         <TouchableOpacity
                             style={[
                                 unifiedStyles.modalButton,
                                 unifiedStyles.modalButtonSecondary,
-                                advantageType === 'disadvantage' && unifiedStyles.modalButtonPrimary
+                                advantageType === 'disadvantage' && unifiedStyles.modalButtonPrimary,
+                                { width: '30%', paddingHorizontal: 1, paddingVertical: 4 }
                             ]}
                             onPress={() => setAdvantageType('disadvantage')}
                         >
                             <Text style={[
                                 unifiedStyles.modalButtonText,
-                                advantageType === 'disadvantage' ? unifiedStyles.modalButtonTextPrimary : unifiedStyles.modalButtonTextSecondary
+                                advantageType === 'disadvantage' ? unifiedStyles.modalButtonTextPrimary : unifiedStyles.modalButtonTextSecondary,
+                                { fontSize: 12 }
                             ]}>
-                                Disadvantage
+                                Disadv.
                             </Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[
                                 unifiedStyles.modalButton,
                                 unifiedStyles.modalButtonSecondary,
-                                advantageType === 'normal' && unifiedStyles.modalButtonPrimary
+                                advantageType === 'normal' && unifiedStyles.modalButtonPrimary,
+                                { width: '30%', paddingHorizontal: 1, paddingVertical: 4 }
                             ]}
                             onPress={() => setAdvantageType('normal')}
                         >
                             <Text style={[
                                 unifiedStyles.modalButtonText,
-                                advantageType === 'normal' ? unifiedStyles.modalButtonTextPrimary : unifiedStyles.modalButtonTextSecondary
+                                advantageType === 'normal' ? unifiedStyles.modalButtonTextPrimary : unifiedStyles.modalButtonTextSecondary,
+                                { fontSize: 12 }
                             ]}>
                                 Normal
                             </Text>
@@ -220,48 +220,86 @@ export default function AdvancedDiceRollModal({
                             style={[
                                 unifiedStyles.modalButton,
                                 unifiedStyles.modalButtonSecondary,
-                                advantageType === 'advantage' && unifiedStyles.modalButtonPrimary
+                                advantageType === 'advantage' && unifiedStyles.modalButtonPrimary,
+                                { width: '30%', paddingHorizontal: 1, paddingVertical: 4 }
                             ]}
                             onPress={() => setAdvantageType('advantage')}
                         >
                             <Text style={[
                                 unifiedStyles.modalButtonText,
-                                advantageType === 'advantage' ? unifiedStyles.modalButtonTextPrimary : unifiedStyles.modalButtonTextSecondary
+                                advantageType === 'advantage' ? unifiedStyles.modalButtonTextPrimary : unifiedStyles.modalButtonTextSecondary,
+                                { fontSize: 12 }
                             ]}>
-                                Advantage
+                                Adv.
                             </Text>
                         </TouchableOpacity>
                     </View>
                 </View>
 
                 {/* Situational Bonus */}
-                <View style={unifiedStyles.modalSection}>
-                    <Text style={[unifiedStyles.modalText, { marginBottom: 8 }]}>Situational Bonus:</Text>
-                    <TextInput
-                        style={unifiedStyles.modalInput}
-                        value={situationalBonus}
-                        onChangeText={(text) => {
-                            // Allow +, -, and numbers
-                            if (/^[+-]?\d*$/.test(text)) {
-                                setSituationalBonus(text);
+                <View style={[unifiedStyles.modalSection, { display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
+                    <Text style={[unifiedStyles.modalText, { fontSize: 16, fontWeight: 'bold', marginBottom: 0, marginRight: 8 }]}>
+                        Situational Bonus:
+                    </Text>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flex: 1 }}>
+                        <TouchableOpacity
+                            style={{ backgroundColor: theme.primary, height: 30, width: 30, borderRadius: 30, justifyContent: 'center', alignItems: 'center' }}
+                            onPress={() => {
+                                const currentValue = parseInt(situationalBonus) || 0;
+                                setSituationalBonus(String(currentValue - 1));
+                            }}
+                        >
+                            <Text style={{ fontSize: 18, fontWeight: 'bold', color: 'white' }}>
+                                -
+                            </Text>
+                        </TouchableOpacity>
+                        
+                        <View style={[
+                            { 
+                                paddingVertical: 8,
+                                paddingHorizontal: 2,
+                                borderRadius: 8,
+                                flex: 1, 
+                                marginHorizontal: 8, 
+                                justifyContent: 'center', 
+                                alignItems: 'center',
+                                backgroundColor: theme.background
                             }
-                        }}
-                        placeholder="+2, -1, etc."
-                        placeholderTextColor={theme.noticeText}
-                        keyboardType="numeric"
-                    />
+                        ]}>
+                            <Text style={[unifiedStyles.modalText, { fontSize: 16, fontWeight: 'bold' }]}>
+                                {situationalBonus ? (parseInt(situationalBonus) > 0 ? '+' : '') + situationalBonus : '0'}
+                            </Text>
+                        </View>
+                        
+                        <TouchableOpacity
+                            style={{ backgroundColor: theme.primary, height: 30, width: 30, borderRadius: 30, justifyContent: 'center', alignItems: 'center' }}
+                            onPress={() => {
+                                const currentValue = parseInt(situationalBonus) || 0;
+                                setSituationalBonus(String(currentValue + 1));
+                            }}
+                        >
+                            <Text style={{ fontSize: 18, fontWeight: 'bold', color: 'white' }}>
+                                +
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
 
                 {/* Base Bonus Display */}
-                <View style={unifiedStyles.modalSection}>
-                    <Text style={[unifiedStyles.modalText, { textAlign: 'center', fontStyle: 'italic' }]}>
-                        Base Bonus: {d20Config!.bonus >= 0 ? '+' : ''}{d20Config!.bonus}
+                <View style={[unifiedStyles.modalSection, { marginBottom: 0 }]}>
+                    <Text style={[unifiedStyles.modalText, { fontSize: 16, fontWeight: 'bold', marginBottom: 0, marginRight: 8 }]}>
+                        Resume:
                     </Text>
-                    {situationalBonus && (
-                        <Text style={[unifiedStyles.modalText, { textAlign: 'center', fontStyle: 'italic', marginTop: 4 }]}>
-                            Total Bonus: {totalBonus >= 0 ? '+' : ''}{totalBonus}
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center'}}>
+                        <Text style={[unifiedStyles.modalText, { textAlign: 'center', fontStyle: 'italic' }]}>
+                            Base Bonus: {d20Config!.bonus >= 0 ? '+' : ''}{d20Config!.bonus}
                         </Text>
-                    )}
+                        {situationalBonus && (
+                            <Text style={[unifiedStyles.modalText, { textAlign: 'center', fontStyle: 'italic', marginTop: 4 }]}>
+                                Total Bonus: {totalBonus >= 0 ? '+' : ''}{totalBonus}
+                            </Text>
+                        )}
+                    </View>
                 </View>
             </View>
         );
@@ -352,31 +390,34 @@ export default function AdvancedDiceRollModal({
         if (!result) return null;
 
         return (
-            <View style={[unifiedStyles.modalSection, {
-                alignItems: 'center',
-                padding: 16,
-                borderWidth: 1,
-                borderColor: theme.border,
-                borderRadius: 8,
-                backgroundColor: theme.card + '20'
-            }]}>
+            <View>
                 <Text style={[unifiedStyles.modalText, { fontSize: 16, fontWeight: 'bold', marginBottom: 8 }]}>
-                    Roll Result
+                    Roll Result:
                 </Text>
-                <Text style={[unifiedStyles.modalText, {
-                    fontSize: 24,
-                    fontWeight: 'bold',
-                    marginBottom: 8,
-                    color: theme.success || '#4ade80'
+                <View style={[unifiedStyles.modalSection, {
+                    alignItems: 'center',
+                    padding: 16,
+                    borderWidth: 1,
+                    borderColor: theme.border,
+                    borderRadius: 8,
+                    backgroundColor: theme.card + '20'
                 }]}>
-                    Total: {result.total}
-                </Text>
-                <Text style={[unifiedStyles.modalText, { marginBottom: 4 }]}>
-                    Rolls: {result.rolls.join(', ')}
-                </Text>
-                <Text style={[unifiedStyles.modalText, { fontSize: 12, fontStyle: 'italic' }]}>
-                    {result.expression}
-                </Text>
+                    <Text style={[unifiedStyles.modalText, {
+                        lineHeight: 24,
+                        fontSize: 24,
+                        fontWeight: 'bold',
+                        marginBottom: 8,
+                        color: theme.success || '#4ade80'
+                    }]}>
+                        Total: {result.total}
+                    </Text>
+                    <Text style={[unifiedStyles.modalText, { marginBottom: 4 }]}>
+                        Dice rolls: {result.rolls.join(', ')}
+                    </Text>
+                    <Text style={[unifiedStyles.modalText, { fontSize: 12, fontStyle: 'italic' }]}>
+                        {result.expression}
+                    </Text>
+                </View>
             </View>
         );
     };
@@ -387,25 +428,27 @@ export default function AdvancedDiceRollModal({
             onClose={handleClose}
             theme={theme}
             title={getTitle()}
-            zIndex={dynamicZIndex}
+            scrollable={true}
         >
-            <View style={unifiedStyles.modalBody}>
-                {d20Config && renderD20Config()}
-                {damageConfig && renderDamageConfig()}
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <View style={unifiedStyles.modalBody}>
+                    {d20Config && renderD20Config()}
+                    {damageConfig && renderDamageConfig()}
 
-                {renderResult()}
+                    {renderResult()}
 
-                <View style={unifiedStyles.actionRow}>
-                    <TouchableOpacity
-                        style={[unifiedStyles.modalButton, unifiedStyles.modalButtonPrimary]}
-                        onPress={handleRoll}
-                    >
-                        <Text style={[unifiedStyles.modalButtonText, unifiedStyles.modalButtonTextPrimary]}>
-                            Roll Dice
-                        </Text>
-                    </TouchableOpacity>
+                    <View style={unifiedStyles.actionRow}>
+                        <TouchableOpacity
+                            style={[unifiedStyles.modalButton, unifiedStyles.modalButtonPrimary]}
+                            onPress={handleRoll}
+                        >
+                            <Text style={[unifiedStyles.modalButtonText, unifiedStyles.modalButtonTextPrimary]}>
+                                Roll Dice
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
-            </View>
+            </TouchableWithoutFeedback>
         </BaseModal>
     );
 }

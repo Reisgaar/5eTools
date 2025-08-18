@@ -22,7 +22,6 @@ import { CreatureNotFoundModal } from 'src/components/beasts/modals';
 
 // STYLES
 import { createBaseModalStyles } from 'src/styles/baseModalStyles';
-import { getModalZIndex } from 'src/styles/baseModalStyles';
 
 interface BeastDetailModalProps {
     visible: boolean;
@@ -390,7 +389,6 @@ export default function BeastDetailModal({ visible, beast, onClose, theme, onCre
     const { simpleBeasts, simpleSpells, availableClasses, spellClassRelations, isInitialized } = useData();
     const { beastStackDepth, openSpellModal, openBeastModal, openDiceModal, openAdvancedDiceModal } = useModal();
     const styles = createBaseModalStyles(currentTheme);
-    const dynamicZIndex = getModalZIndex(beastStackDepth);
 
     // All hooks must be at the top level, before any conditional returns
     const [cachedImageUrl, setCachedImageUrl] = React.useState<string | null>(null);
@@ -702,14 +700,8 @@ export default function BeastDetailModal({ visible, beast, onClose, theme, onCre
     return (
         <>
             <Modal visible={visible} animationType="slide" transparent>
-                <Pressable
-                    style={styles.modalOverlay}
-                    onPress={onClose}
-                >
-                    <Pressable
-                        style={[styles.beastDetailModalContent, { zIndex: dynamicZIndex }]}
-                        onPress={(e) => e.stopPropagation()}
-                    >
+                <View style={[styles.modalOverlay, { paddingHorizontal: 10, paddingVertical: 30 }]}>
+                    <View style={[styles.beastDetailModalContent, { flex: 1 }]}>
                         <View style={styles.beastDetailHeader}>
                             <View style={styles.beastDetailHeaderContent}>
                                 {(cachedImageUrl) && (
@@ -765,127 +757,117 @@ export default function BeastDetailModal({ visible, beast, onClose, theme, onCre
                             : (
                                 <>
                                     <View style={styles.beastDetailBody}>
-                                        <View style={{ flex: 1 }}>
-                                            <ScrollView
-                                                style={{ flex: 1 }}
-                                                contentContainerStyle={{ paddingBottom: 20, flexGrow: 1 }}
-                                                showsVerticalScrollIndicator={true}
-                                                nestedScrollEnabled={true}
-                                                scrollEventThrottle={16}
-                                                bounces={false}
-                                                alwaysBounceVertical={false}
-                                            >
-                                                <View style={styles.beastDetailContent}>
-                                                    {/* AC, Initiative, HP, Speed */}
-                                                    <Separator title='Basics'/>
-                                                    <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>AC</Text> {formatAC(beast['ac'])}</Text>
-                                                    <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>Initiative</Text> {getAbilityMod(beast['dex'])} ({beast['dex']})</Text>
-                                                    <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>HP</Text> {formatHP(beast['hp'])}</Text>
-                                                    <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>Speed</Text> {formatSpeed(beast['speed'])}</Text>
+                                        <ScrollView contentContainerStyle={{ paddingBottom: 20 }} >
+                                            <View style={[styles.beastDetailContent, { flex: 1 }]}>
+                                                {/* AC, Initiative, HP, Speed */}
+                                                <Separator title='Basics'/>
+                                                <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>AC</Text> {formatAC(beast['ac'])}</Text>
+                                                <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>Initiative</Text> {getAbilityMod(beast['dex'])} ({beast['dex']})</Text>
+                                                <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>HP</Text> {formatHP(beast['hp'])}</Text>
+                                                <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>Speed</Text> {formatSpeed(beast['speed'])}</Text>
 
-                                                    {/* Ability Scores */}
-                                                    <Separator title='Stats and Salvations'/>
-                                                    <View style={styles.beastDetailStatsContainer}>
-                                                        {STATS.map(({ key, label }) => (
-                                                            <TouchableOpacity
-                                                                key={key}
-                                                                style={styles.beastDetailStatButton}
-                                                                activeOpacity={0.7}
-                                                                onPressIn={() => {
-                                                                    console.log('📊 Stat button pressed:', key, label);
-                                                                    handleSaveRoll(key, label);
-                                                                }}
-                                                            >
-                                                                <Text style={styles.beastDetailStatText}>{label}</Text>
-                                                                <Text style={styles.beastDetailStatValue}>{beast[key]}</Text>
-                                                                <Text style={styles.beastDetailStatValue}>{getAbilityMod(beast[key])}</Text>
-                                                            </TouchableOpacity>
-                                                        ))}
-                                                    </View>
-
-                                                    {/* Skills and Abilities */}
-                                                    <Separator title='Skills and Abilities'/>
-                                                    {beast['skill'] && (
-                                                        <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>Skills:</Text> {formatSkills(beast['skill'])}</Text>
-                                                    )}
-                                                    {beast['resist'] && (
-                                                        <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>Damage Resistances:</Text> {formatArray(beast['resist'])}</Text>
-                                                    )}
-                                                    {beast['immune'] && (
-                                                        <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>Damage Immunities:</Text> {formatImmunities(beast['immune'])}</Text>
-                                                    )}
-                                                    {beast['conditionImmune'] && (
-                                                        <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>Condition Immunities:</Text> {formatConditionImmunities(beast['conditionImmune'])}</Text>
-                                                    )}
-                                                    {beast['senses'] && (
-                                                        <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>Senses:</Text> {formatSenses(beast['senses'], beast['passive'])}</Text>
-                                                    )}
-                                                    {beast['languages'] && (
-                                                        <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>Languages:</Text> {formatArray(beast['languages'])}</Text>
-                                                    )}
-                                                    {beast['cr'] && (
-                                                        <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>CR:</Text> {formatCR(beast['cr'])}</Text>
-                                                    )}
-
-                                                    {/* Traits, Actions, Bonus Actions, Spellcasting */}
-                                                    {beast['trait'] && (
-                                                        <>
-                                                            <Separator title='Traits'/>
-                                                            {renderEntries(beast['trait'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress)}
-                                                        </>
-                                                    )}
-                                                    {beast['spellcasting'] && (
-                                                        <>
-                                                            <Separator title='Spellcasting'/>
-                                                            {formatSpellcasting(beast['spellcasting'], theme, handleCreaturePressLocal, handleSpellPressLocal, handleDamagePress, handleHitPress)}
-                                                        </>
-                                                    )}
-                                                    {beast['action'] && (
-                                                        <>
-                                                            <Separator title='Actions'/>
-                                                            {renderEntries(beast['action'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress)}
-                                                        </>
-                                                    )}
-                                                    {beast['bonus'] && (
-                                                        <>
-                                                            <Separator title='Bonus Actions'/>
-                                                            {renderEntries(beast['bonus'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress)}
-                                                        </>
-                                                    )}
-                                                    {beast['reaction'] && (
-                                                        <>
-                                                            <Separator title='Reactions'/>
-                                                            {renderEntries(beast['reaction'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress)}
-                                                        </>
-                                                    )}
-                                                    {beast['lair'] && (
-                                                        <>
-                                                            <Separator title='Lair Actions'/>
-                                                            {renderEntries(beast['lair'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress)}
-                                                        </>
-                                                    )}
-                                                    {beast['legendary'] && (
-                                                        <>
-                                                            <Separator title='Legendary Actions'/>
-                                                            {beast['legendaryHeader'] && (
-                                                                <Text style={{ color: theme.text, marginBottom: 8, fontStyle: 'italic' }}>
-                                                                    {beast['legendaryHeader'].map((header: string, i: number) => (
-                                                                        <Text key={i}>{header}{i < beast['legendaryHeader'].length - 1 ? '\n' : ''}</Text>
-                                                                    ))}
-                                                                </Text>
-                                                            )}
-                                                            {renderEntries(beast['legendary'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress)}
-                                                        </>
-                                                    )}
-                                                    {beast['mythic'] && (
-                                                        <>
-                                                            <Separator title='Mythic Actions'/>
-                                                            {renderEntries(beast['mythic'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress)}
-                                                        </>
-                                                    )}
+                                                {/* Ability Scores */}
+                                                <Separator title='Stats and Salvations'/>
+                                                <View style={styles.beastDetailStatsContainer}>
+                                                    {STATS.map(({ key, label }) => (
+                                                        <TouchableOpacity
+                                                            key={key}
+                                                            style={styles.beastDetailStatButton}
+                                                            activeOpacity={0.7}
+                                                            onPressIn={() => {
+                                                                console.log('📊 Stat button pressed:', key, label);
+                                                                handleSaveRoll(key, label);
+                                                            }}
+                                                        >
+                                                            <Text style={styles.beastDetailStatText}>{label}</Text>
+                                                            <Text style={styles.beastDetailStatValue}>{beast[key]}</Text>
+                                                            <Text style={styles.beastDetailStatValue}>{getAbilityMod(beast[key])}</Text>
+                                                        </TouchableOpacity>
+                                                    ))}
                                                 </View>
-                                            </ScrollView>
-                                        </View>
+
+                                                {/* Skills and Abilities */}
+                                                <Separator title='Skills and Abilities'/>
+                                                {beast['skill'] && (
+                                                    <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>Skills:</Text> {formatSkills(beast['skill'])}</Text>
+                                                )}
+                                                {beast['resist'] && (
+                                                    <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>Damage Resistances:</Text> {formatArray(beast['resist'])}</Text>
+                                                )}
+                                                {beast['immune'] && (
+                                                    <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>Damage Immunities:</Text> {formatImmunities(beast['immune'])}</Text>
+                                                )}
+                                                {beast['conditionImmune'] && (
+                                                    <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>Condition Immunities:</Text> {formatConditionImmunities(beast['conditionImmune'])}</Text>
+                                                )}
+                                                {beast['senses'] && (
+                                                    <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>Senses:</Text> {formatSenses(beast['senses'], beast['passive'])}</Text>
+                                                )}
+                                                {beast['languages'] && (
+                                                    <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>Languages:</Text> {formatArray(beast['languages'])}</Text>
+                                                )}
+                                                {beast['cr'] && (
+                                                    <Text style={styles.beastDetailText}><Text style={styles.beastDetailBoldText}>CR:</Text> {formatCR(beast['cr'])}</Text>
+                                                )}
+
+                                                {/* Traits, Actions, Bonus Actions, Spellcasting */}
+                                                {beast['trait'] && (
+                                                    <>
+                                                        <Separator title='Traits'/>
+                                                        {renderEntries(beast['trait'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress)}
+                                                    </>
+                                                )}
+                                                {beast['spellcasting'] && (
+                                                    <>
+                                                        <Separator title='Spellcasting'/>
+                                                        {formatSpellcasting(beast['spellcasting'], theme, handleCreaturePressLocal, handleSpellPressLocal, handleDamagePress, handleHitPress)}
+                                                    </>
+                                                )}
+                                                {beast['action'] && (
+                                                    <>
+                                                        <Separator title='Actions'/>
+                                                        {renderEntries(beast['action'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress)}
+                                                    </>
+                                                )}
+                                                {beast['bonus'] && (
+                                                    <>
+                                                        <Separator title='Bonus Actions'/>
+                                                        {renderEntries(beast['bonus'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress)}
+                                                    </>
+                                                )}
+                                                {beast['reaction'] && (
+                                                    <>
+                                                        <Separator title='Reactions'/>
+                                                        {renderEntries(beast['reaction'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress)}
+                                                    </>
+                                                )}
+                                                {beast['lair'] && (
+                                                    <>
+                                                        <Separator title='Lair Actions'/>
+                                                        {renderEntries(beast['lair'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress)}
+                                                    </>
+                                                )}
+                                                {beast['legendary'] && (
+                                                    <>
+                                                        <Separator title='Legendary Actions'/>
+                                                        {beast['legendaryHeader'] && (
+                                                            <Text style={{ color: theme.text, marginBottom: 8, fontStyle: 'italic' }}>
+                                                                {beast['legendaryHeader'].map((header: string, i: number) => (
+                                                                    <Text key={i}>{header}{i < beast['legendaryHeader'].length - 1 ? '\n' : ''}</Text>
+                                                                ))}
+                                                            </Text>
+                                                        )}
+                                                        {renderEntries(beast['legendary'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress)}
+                                                    </>
+                                                )}
+                                                {beast['mythic'] && (
+                                                    <>
+                                                        <Separator title='Mythic Actions'/>
+                                                        {renderEntries(beast['mythic'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress)}
+                                                    </>
+                                                )}
+                                            </View>
+                                        </ScrollView>
                                     </View>
 
                                     {/* Source Footer */}
@@ -897,8 +879,8 @@ export default function BeastDetailModal({ visible, beast, onClose, theme, onCre
                                 </>
                             )
                         }
-                    </Pressable>
-                </Pressable>
+                    </View>
+                </View>
             </Modal>
 
             {/* Modals */}
