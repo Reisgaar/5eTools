@@ -3,8 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 // STORES
-import { useAppSettingsStore } from 'src/stores/appSettingsStore';
-import { useCampaignStore } from 'src/stores';
+import { useAppSettingsStore, useCampaignStore } from 'src/stores';
 
 // CONTEXTS
 import { useCombat } from 'src/context/CombatContext';

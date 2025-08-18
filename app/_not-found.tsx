@@ -6,7 +6,7 @@ import { Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 // STORES
-import { useAppSettingsStore } from 'src/stores/appSettingsStore';
+import { useAppSettingsStore } from 'src/stores';
 
 /**
  * Screen that is shown when a page is not found.

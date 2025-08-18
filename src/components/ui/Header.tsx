@@ -7,8 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePathname } from 'expo-router';
 
 // STORES
-import { useCampaignStore } from 'src/stores';
-import { useAppSettingsStore } from 'src/stores/appSettingsStore';
+import { useCampaignStore, useAppSettingsStore } from 'src/stores';
 
 // COMPONENTS
 import CampaignSelectorModal from 'src/components/modals/CampaignSelectorModal';

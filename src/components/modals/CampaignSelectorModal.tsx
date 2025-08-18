@@ -6,11 +6,10 @@ import { Modal, View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react
 import { Ionicons } from '@expo/vector-icons';
 
 // STORES
-import { useAppSettingsStore } from 'src/stores/appSettingsStore';import { useCampaignStore } from 'src/stores';
+import { useAppSettingsStore, useCampaignStore, useSpellbookStore } from 'src/stores';
 
 // CONTEXTS
 import { useCombat } from 'src/context/CombatContext';
-import { useSpellbook } from 'src/context/SpellbookContext';
 
 // INTERFACES
 interface CampaignSelectorModalProps {
@@ -25,7 +24,7 @@ const CampaignSelectorModal: React.FC<CampaignSelectorModalProps> = ({ visible, 
     const { campaigns, selectedCampaignId, selectCampaign, clearSelectedCampaign } = useCampaignStore();
     const { currentTheme } = useAppSettingsStore();
     const { getSortedCombats, reloadCombats } = useCombat();
-    const { getSpellbooksByCampaign, clearSpellbookSelection } = useSpellbook();
+    const { getSpellbooksByCampaign, clearSpellbookSelection } = useSpellbookStore();
 
     const handleSelectCampaign = async (campaignId: string | null) => {
         // 1. Combats - Reload combats when changing campaign

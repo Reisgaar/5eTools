@@ -6,13 +6,11 @@ import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, TouchableOpac
 import { Ionicons } from '@expo/vector-icons';
 
 // STORES
-import { useAppSettingsStore } from 'src/stores/appSettingsStore';
-import { useCampaignStore } from 'src/stores';
+import { useAppSettingsStore, useCampaignStore, useSpellbookStore } from 'src/stores';
 
 // CONTEXTS
 import { useData } from 'src/context/DataContext';
 import { useModal } from 'src/context/ModalContext';
-import { useSpellbook } from 'src/context/SpellbookContext';
 
 // COMPONENTS
 import { AddToSpellbookModal, SpellbookSelectorModal, CreateSpellbookModal } from 'src/components/spells';
@@ -63,7 +61,7 @@ export default function SpellsScreen() {
     const { selectedCampaign } = useCampaignStore();
     const { simpleBeasts, simpleSpells, spells, spellSourceLookup, availableClasses, isLoading, isInitialized, getFullBeast, getFullSpell } = useData();
     const { openBeastModal, openSpellModal } = useModal();
-    const { spellbooks, currentSpellbookId, getCurrentSpellbook, getSpellbooksByCampaign, addSpellToSpellbook, removeSpellFromSpellbook, isSpellInSpellbook, selectSpellbook, clearSpellbookSelection, getSpellbookSpells } = useSpellbook();
+    const { spellbooks, currentSpellbookId, getCurrentSpellbook, getSpellbooksByCampaign, addSpellToSpellbook, removeSpellFromSpellbook, isSpellInSpellbook, selectSpellbook, clearSpellbookSelection, getSpellbookSpells } = useSpellbookStore();
     const [selectedLevels, setSelectedLevels] = useState<number[]>([]); // multi-select
     const [pageReady, setPageReady] = useState(false);
     const [addToSpellbookModalVisible, setAddToSpellbookModalVisible] = useState(false);

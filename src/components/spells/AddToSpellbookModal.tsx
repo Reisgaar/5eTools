@@ -3,10 +3,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, FlatList, Platform } from 'react-native';
 
 // STORES
-import { useCampaignStore } from 'src/stores';
-
-// CONTEXTS
-import { useSpellbook } from 'src/context/SpellbookContext';
+import { useCampaignStore, useSpellbookStore } from 'src/stores';
 
 // COMPONENTS
 import { BaseModal } from 'src/components/ui';
@@ -34,7 +31,7 @@ export default function AddToSpellbookModal({
     spell, 
     theme 
 }: AddToSpellbookModalProps) {
-    const { spellbooks, getSpellbooksByCampaign, addSpellToSpellbook, removeSpellFromSpellbook, isSpellInSpellbook } = useSpellbook();
+    const { spellbooks, getSpellbooksByCampaign, addSpellToSpellbook, removeSpellFromSpellbook, isSpellInSpellbook } = useSpellbookStore();
     const { selectedCampaign } = useCampaignStore();
     const filteredSpellbooks = getSpellbooksByCampaign(selectedCampaign?.id);
     const { searchQuery, setSearchQuery, filteredSpellbooks: searchedSpellbooks } = useSpellbookSearch(filteredSpellbooks);

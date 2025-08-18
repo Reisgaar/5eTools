@@ -7,8 +7,7 @@ import { CombatContent, CombatList } from 'src/components/combat';
 import { CombatFormModal } from 'src/components/combat/modals';
 
 // STORES
-import { useAppSettingsStore } from 'src/stores/appSettingsStore';
-import { useCampaignStore } from 'src/stores';
+import { useAppSettingsStore, useCampaignStore } from 'src/stores';
 
 // CONTEXTS
 import { useCombat } from 'src/context/CombatContext';

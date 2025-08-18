@@ -6,7 +6,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Tabs } from 'expo-router';
 
 // STORES
-import { useAppSettingsStore } from 'src/stores/appSettingsStore';
+import { useAppSettingsStore } from 'src/stores';
 
 // CONTEXTS
 import { SafeAreaView } from 'react-native-safe-area-context';

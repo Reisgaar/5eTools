@@ -6,10 +6,7 @@ import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView, Platform } 
 import { Ionicons } from '@expo/vector-icons';
 
 // STORES
-import { useCampaignStore } from 'src/stores';
-
-// CONTEXTS
-import { useSpellbook } from 'src/context/SpellbookContext';
+import { useCampaignStore, useSpellbookStore } from 'src/stores';
 
 // COMPONENTS
 import { BaseModal } from 'src/components/ui';
@@ -34,7 +31,7 @@ export default function CreateSpellbookModal({
     onSpellbookCreated,
     theme 
 }: CreateSpellbookModalProps) {
-    const { createSpellbook } = useSpellbook();
+    const { createSpellbook } = useSpellbookStore();
     const { selectedCampaign, campaigns } = useCampaignStore();
     const [spellbookName, setSpellbookName] = useState('');
     const [spellbookDescription, setSpellbookDescription] = useState('');

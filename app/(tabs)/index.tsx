@@ -4,8 +4,7 @@ import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View,
 import { Ionicons } from '@expo/vector-icons';
 
 // STORES
-import { useAppSettingsStore } from 'src/stores/appSettingsStore';
-import { useCampaignStore } from 'src/stores';
+import { useAppSettingsStore, useCampaignStore } from 'src/stores';
 
 // STYLES
 import { commonStyles } from 'src/styles/commonStyles';

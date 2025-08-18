@@ -6,11 +6,7 @@ import { Modal, View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react
 import { Ionicons } from '@expo/vector-icons';
 
 // STORES
-import { useAppSettingsStore } from 'src/stores/appSettingsStore';
-import { useCampaignStore } from 'src/stores';
-
-// CONTEXTS
-import { useSpellbook } from 'src/context/SpellbookContext';
+import { useAppSettingsStore, useCampaignStore, useSpellbookStore } from 'src/stores';
 
 // INTERFACES
 interface SpellbookSelectorModalProps {
@@ -29,7 +25,7 @@ const SpellbookSelectorModal: React.FC<SpellbookSelectorModalProps> = ({
     onSelectSpellbook,
     onCreateSpellbook 
 }) => {
-    const { spellbooks, currentSpellbookId, selectSpellbook, clearSpellbookSelection, getSpellbooksByCampaign } = useSpellbook();
+    const { spellbooks, currentSpellbookId, selectSpellbook, clearSpellbookSelection, getSpellbooksByCampaign } = useSpellbookStore();
     const { selectedCampaignId } = useCampaignStore();
     const { currentTheme } = useAppSettingsStore();
 

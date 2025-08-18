@@ -5,7 +5,7 @@ import React from 'react';
 import { useModal } from 'src/context/ModalContext';
 
 // STORES
-import { useAppSettingsStore } from 'src/stores/appSettingsStore';
+import { useAppSettingsStore } from 'src/stores';
 
 // COMPONENTS
 import BeastDetailModal from 'src/components/beasts/BeastDetailModal';

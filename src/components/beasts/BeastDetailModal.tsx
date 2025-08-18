@@ -3,7 +3,7 @@ import React from 'react';
 import { ActivityIndicator, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, Pressable, Platform } from 'react-native';
 
 // STORES
-import { useAppSettingsStore } from 'src/stores/appSettingsStore';
+import { useAppSettingsStore } from 'src/stores';
 
 // CONTEXTS
 import { useModal } from 'src/context/ModalContext';
