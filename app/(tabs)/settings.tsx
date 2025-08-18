@@ -2,23 +2,26 @@
 import React from 'react';
 import { ActivityIndicator, Alert, Dimensions, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
+// EXPO
+import { useRouter } from 'expo-router';
+
+// STORES
+import { useAppSettingsStore } from 'src/stores';
+
 // STYLES
 import { commonStyles } from 'src/styles/commonStyles';
 
 // CONTEXTS
-import { useRouter } from 'expo-router';
-import { useAppSettings } from 'src/context/AppSettingsContext';
 import { useData } from 'src/context/DataContext';
 
 // UTILS
 import { regenerateAllIndexes } from 'src/utils/fileStorage';
 
 // COMPONENTS
-import { Ionicons } from '@expo/vector-icons';
 import { StorageManagementModal, ConfirmModal } from 'src/components/modals';
 
 export default function SettingsScreen() {
-    const { themeName, currentTheme, setTheme, useAdvancedDiceRoll, setUseAdvancedDiceRoll } = useAppSettings();
+    const { currentTheme, themeName, setTheme, useAdvancedDiceRoll, setUseAdvancedDiceRoll } = useAppSettingsStore();
     const { simpleBeasts, simpleSpells, isLoading, isInitialized, reloadData, clearData } = useData();
     const router = useRouter();
 

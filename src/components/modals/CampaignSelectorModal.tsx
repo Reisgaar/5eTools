@@ -1,11 +1,15 @@
 // REACT
 import React from 'react';
 import { Modal, View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
+
+// EXOPO
 import { Ionicons } from '@expo/vector-icons';
+
+// STORES
+import { useAppSettingsStore } from 'src/stores/appSettingsStore';
 
 // CONTEXTS
 import { useCampaign } from 'src/context/CampaignContext';
-import { useAppSettings } from 'src/context/AppSettingsContext';
 import { useCombat } from 'src/context/CombatContext';
 import { useSpellbook } from 'src/context/SpellbookContext';
 
@@ -16,7 +20,7 @@ interface CampaignSelectorModalProps {
 
 const CampaignSelectorModal: React.FC<CampaignSelectorModalProps> = ({ visible, onClose }) => {
     const { campaigns, selectedCampaignId, selectCampaign, clearSelectedCampaign } = useCampaign();
-    const { currentTheme } = useAppSettings();
+    const { currentTheme } = useAppSettingsStore();
     const { getSortedCombats, reloadCombats } = useCombat();
     const { getSpellbooksByCampaign, clearSpellbookSelection } = useSpellbook();
 

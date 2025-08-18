@@ -46,6 +46,16 @@ export const commonStyles = StyleSheet.create({
         fontSize: 16,
         marginBottom: 16,
     },
+
+    // Button styles
+    settingsButton: {
+        paddingVertical: 12,
+        alignItems: 'center',
+    },
+    settingsButtonText: {
+        fontSize: 16,
+        textDecorationLine: 'underline',
+    },
     
     // Card styles for items (beasts/spells)
     itemCard: {

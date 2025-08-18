@@ -1,8 +1,15 @@
 // REACT
 import React, { useEffect, useState } from 'react';
-
-// REACT NATIVE
 import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+
+// STORES
+import { useAppSettingsStore } from 'src/stores/appSettingsStore';
+
+// CONTEXTS
+import { useCombat } from 'src/context/CombatContext';
+import { useData } from 'src/context/DataContext';
+import { useModal } from 'src/context/ModalContext';
+import { useCampaign } from 'src/context/CampaignContext';
 
 // UTILS
 import { equalsNormalized } from 'src/utils/stringUtils';
@@ -13,13 +20,6 @@ import { CombatSelectionModal } from 'src/components/combat';
 import { CRFilterModal, SourceFilterModal } from 'src/components/beasts/modals';
 import { TypeFilterModal } from 'src/components/modals';
 
-// CONTEXTS
-import { useAppSettings } from 'src/context/AppSettingsContext';
-import { useCombat } from 'src/context/CombatContext';
-import { useData } from 'src/context/DataContext';
-import { useModal } from 'src/context/ModalContext';
-import { useCampaign } from 'src/context/CampaignContext';
-
 // HOOKS
 import { useBestiaryFilters } from 'src/hooks/useBestiaryFilters';
 
@@ -29,8 +29,11 @@ import { books as sourceIdToNameMap } from 'src/constants/books';
 // STYLES
 import { commonStyles } from 'src/styles/commonStyles';
 
+/**
+ * Screen that displays the bestiary.
+ */
 export default function BestiaryScreen() {
-    const { currentTheme } = useAppSettings();
+    const { currentTheme } = useAppSettingsStore();
     const { simpleBeasts, simpleSpells, isLoading, isInitialized, getFullBeast, getFullSpell } = useData();
     const { addCombatantToCombat, getSortedCombats } = useCombat();
     const { openBeastModal, openSpellModal } = useModal();

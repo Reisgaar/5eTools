@@ -1,12 +1,16 @@
 // REACT
 import React from 'react';
 import { Modal, View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
+
+// EXPO
 import { Ionicons } from '@expo/vector-icons';
+
+// STORES
+import { useAppSettingsStore } from 'src/stores/appSettingsStore';
 
 // CONTEXTS
 import { useSpellbook } from 'src/context/SpellbookContext';
 import { useCampaign } from 'src/context/CampaignContext';
-import { useAppSettings } from 'src/context/AppSettingsContext';
 
 interface SpellbookSelectorModalProps {
     visible: boolean;
@@ -23,7 +27,7 @@ const SpellbookSelectorModal: React.FC<SpellbookSelectorModalProps> = ({
 }) => {
     const { spellbooks, currentSpellbookId, selectSpellbook, clearSpellbookSelection, getSpellbooksByCampaign } = useSpellbook();
     const { selectedCampaignId } = useCampaign();
-    const { currentTheme } = useAppSettings();
+    const { currentTheme } = useAppSettingsStore();
 
     // Get spellbooks filtered by selected campaign
     const filteredSpellbooks = getSpellbooksByCampaign(selectedCampaignId);

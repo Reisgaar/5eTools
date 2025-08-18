@@ -1,12 +1,18 @@
+// REACT
 import React from 'react';
 import { ActivityIndicator, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, Pressable, Platform } from 'react-native';
-import { getCachedCreatureImages, getBestCreatureImage } from '../../utils/imageManager';
-import { useModal } from '../../context/ModalContext';
-import { useData } from '../../context/DataContext';
-import { useAppSettings } from '../../context/AppSettingsContext';
-import { ALIGNMENTS, SIZES, STATS } from '../../data/helpers';
-import { renderEntries, parseDiceExpression, rollDice } from '../../utils/replaceTags';
-import { Separator } from '../ui';
+
+// STORES
+import { useAppSettingsStore } from 'src/stores/appSettingsStore';
+
+// CONTEXTS
+import { useModal } from 'src/context/ModalContext';
+import { useData } from 'src/context/DataContext';
+
+// UTILS
+import { getCachedCreatureImages, getBestCreatureImage } from 'src/utils/imageManager';
+import { ALIGNMENTS, SIZES, STATS } from 'src/data/helpers';
+import { renderEntries, parseDiceExpression, rollDice } from 'src/utils/replaceTags';
 import { 
     normalizeString, 
     getCreatureSourceForBeast, 
@@ -14,12 +20,17 @@ import {
     getSpellSourceForBeast, 
     getExcludedSpellSources,
     is2024Source
-} from '../../utils/stringUtils';
-import SpellNotFoundModal from '../spells/modals/SpellNotFoundModal';
-import CreatureNotFoundModal from './modals/CreatureNotFoundModal';
-import SourceSelectionModal from '../spells/modals/SourceSelectionModal';
-import { createBaseModalStyles } from '../../styles/baseModalStyles';
-import { getModalZIndex } from '../../styles/baseModalStyles';
+} from 'src/utils/stringUtils';
+
+// COMPONENTS
+import { Separator } from 'src/components/ui';
+import SpellNotFoundModal from 'src/components/spells/modals/SpellNotFoundModal';
+import CreatureNotFoundModal from 'src/components/beasts/modals/CreatureNotFoundModal';
+import SourceSelectionModal from 'src/components/spells/modals/SourceSelectionModal';
+
+// STYLES
+import { createBaseModalStyles } from 'src/styles/baseModalStyles';
+import { getModalZIndex } from 'src/styles/baseModalStyles';
 
 interface BeastDetailModalProps {
     visible: boolean;
@@ -344,10 +355,9 @@ function formatCR(cr: any) {
 }
 
 const BeastDetailModal: React.FC<BeastDetailModalProps> = ({ visible, beast, onClose, theme, onCreaturePress, onSpellPress }) => {
-    const { currentTheme } = useAppSettings();
+    const { currentTheme, useAdvancedDiceRoll} = useAppSettingsStore();
     const { simpleBeasts, simpleSpells, availableClasses, spellClassRelations, isInitialized } = useData();
     const { beastStackDepth, openSpellModal, openBeastModal, openDiceModal, openAdvancedDiceModal } = useModal();
-    const { useAdvancedDiceRoll } = useAppSettings();
     const styles = createBaseModalStyles(currentTheme);
     const dynamicZIndex = getModalZIndex(beastStackDepth);
     

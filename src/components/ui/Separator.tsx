@@ -3,7 +3,7 @@ import React, { JSX } from "react";
 import { Text, View } from "react-native";
 
 // CONTEXTS
-import { useAppSettings } from "../../context/AppSettingsContext";
+import { useAppSettingsStore } from "src/stores/appSettingsStore";
 
 // STYLES
 
@@ -16,7 +16,7 @@ type Props = {
  * A separator line.
  */
 export default function Seaparator( { size = 'medium', title }: Props): JSX.Element {
-    const { currentTheme } = useAppSettings();
+    const { currentTheme } = useAppSettingsStore();
 
     return (
         <View>

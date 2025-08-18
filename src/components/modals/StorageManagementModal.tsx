@@ -1,12 +1,23 @@
+// REACT
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Alert } from 'react-native';
-import { BaseModal } from '../ui';
-import { useData } from '../../context/DataContext';
-import { useAppSettings } from '../../context/AppSettingsContext';
-import { getStorageUsage, getStorageSummary, cleanupAllCaches } from '../../utils/storageManager';
-import { clearImageCache } from '../../utils/tokenCache';
-import { createBaseModalStyles } from '../../styles/baseModalStyles';
-import { useModal } from '../../context/ModalContext';
+
+// STORES
+import { useAppSettingsStore } from 'src/stores/appSettingsStore';
+
+// CONTEXTS
+import { useData } from 'src/context/DataContext';
+import { useModal } from 'src/context/ModalContext';
+
+// COMPONENTS
+import { BaseModal } from 'src/components/ui';
+
+// UTILS
+import { getStorageUsage, getStorageSummary, cleanupAllCaches } from 'src/utils/storageManager';
+import { clearImageCache } from 'src/utils/tokenCache';
+
+// STYLES
+import { createBaseModalStyles } from 'src/styles/baseModalStyles';
 
 interface StorageManagementModalProps {
     visible: boolean;
@@ -17,7 +28,7 @@ export const StorageManagementModal: React.FC<StorageManagementModalProps> = ({
     visible,
     onClose
 }) => {
-    const { currentTheme } = useAppSettings();
+    const { currentTheme } = useAppSettingsStore();
     const { isInitialized, simpleBeasts, simpleSpells, availableClasses, spellClassRelations } = useData();
 
     

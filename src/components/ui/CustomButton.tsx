@@ -3,7 +3,7 @@ import React, { JSX } from "react";
 import { Text, Pressable } from "react-native";
 
 // CONTEXTS
-import { useAppSettings } from "../../context/AppSettingsContext";
+import { useAppSettingsStore } from "src/stores/appSettingsStore";
 
 // STYLES
 import { commonStyles } from 'src/styles/commonStyles';
@@ -18,7 +18,7 @@ type Props = {
  * A header with two icon buttons.
  */
 export default function CustomButton({ text, secondaryText, action }: Props): JSX.Element {
-    const { currentTheme } = useAppSettings();
+    const { currentTheme } = useAppSettingsStore();
 
     return (
         <Pressable

@@ -1,13 +1,29 @@
-import { Ionicons } from '@expo/vector-icons';
+// REACT
 import React from 'react';
 import { ActivityIndicator, Dimensions, ScrollView, Text, TouchableOpacity, View, Modal, Platform, Pressable } from 'react-native';
-import { useModal } from '../../context/ModalContext';
-import { useData } from '../../context/DataContext';
-import { useAppSettings } from '../../context/AppSettingsContext';
-import { renderEntries, parseDiceExpression, rollDice } from '../../utils/replaceTags';
-import { Separator } from '../ui';
-import { createSpellStyles } from '../../styles/spellStyles';
-import { getModalZIndex } from '../../styles/baseModalStyles';
+
+// STORES
+import { useAppSettingsStore } from 'src/stores/appSettingsStore';
+
+// CONTEXTS
+import { useCampaign } from 'src/context/CampaignContext';
+import { useModal } from 'src/context/ModalContext';
+import { useData } from 'src/context/DataContext';
+
+// UTILS
+import { renderEntries, parseDiceExpression, rollDice } from 'src/utils/replaceTags';
+
+// COMPONENTS
+import { Separator } from 'src/components/ui';
+import SpellNotFoundModal from 'src/components/spells/modals/SpellNotFoundModal';
+import CreatureNotFoundModal from 'src/components/beasts/modals/CreatureNotFoundModal';
+import SourceSelectionModal from 'src/components/spells/modals/SourceSelectionModal';
+
+// STYLES
+import { createSpellStyles } from 'src/styles/spellStyles';
+import { getModalZIndex } from 'src/styles/baseModalStyles';
+
+// UTILS
 import { 
   getFullSchool, 
   formatComponents, 
@@ -20,11 +36,8 @@ import {
   formatBackgrounds,
   formatFeats,
   formatLevel
-} from '../../utils/spellUtils';
-import { normalizeString, equalsNormalized, is2024Source } from '../../utils/stringUtils';
-import SpellNotFoundModal from './modals/SpellNotFoundModal';
-import CreatureNotFoundModal from '../beasts/modals/CreatureNotFoundModal';
-import SourceSelectionModal from './modals/SourceSelectionModal';
+} from 'src/utils/spellUtils';
+import { normalizeString, equalsNormalized, is2024Source } from 'src/utils/stringUtils';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -50,7 +63,7 @@ export function SpellDetailModal({
 }) {
     const { openDiceModal, openAdvancedDiceModal, openBeastModal, openSpellModal, spellStackDepth } = useModal();
     const { simpleBeasts, simpleSpells } = useData();
-    const { useAdvancedDiceRoll } = useAppSettings();
+    const { useAdvancedDiceRoll } = useAppSettingsStore();
     const styles = createSpellStyles(theme);
     const dynamicZIndex = getModalZIndex(spellStackDepth);
 

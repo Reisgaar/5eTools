@@ -8,14 +8,14 @@ import { usePathname } from 'expo-router';
 
 // CONTEXTS
 import { useCampaign } from 'src/context/CampaignContext';
-import { useAppSettings } from 'src/context/AppSettingsContext';
+import { useAppSettingsStore } from 'src/stores/appSettingsStore';
 
 // COMPONENTS
 import CampaignSelectorModal from 'src/components/modals/CampaignSelectorModal';
 
 const Header: React.FC = () => {
     const { selectedCampaign, selectedCampaignId, clearSelectedCampaign } = useCampaign();
-    const { currentTheme } = useAppSettings();
+    const { currentTheme } = useAppSettingsStore();
     const [campaignModalVisible, setCampaignModalVisible] = React.useState(false);
 
     const handleCampaignPress = () => {

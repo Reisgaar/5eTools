@@ -1,81 +1,89 @@
+// REACT
 import React, { useState } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
+
+// COMPONENTS
 import { CombatContent, CombatList } from 'src/components/combat';
 import { CombatFormModal } from 'src/components/combat/modals';
-import { useAppSettings } from 'src/context/AppSettingsContext';
+
+// STORES
+import { useAppSettingsStore } from 'src/stores/appSettingsStore';
+
+// CONTEXTS
 import { useCampaign } from 'src/context/CampaignContext';
 import { useCombat } from 'src/context/CombatContext';
 import { useData } from 'src/context/DataContext';
 import { useModal } from 'src/context/ModalContext';
 
 export default function CombatScreen() {
-  const { selectedCampaign } = useCampaign();
-  const { 
-    combats,
-    currentCombatId,
-    currentCombat,
-    combatants, 
-    createCombat,
-    selectCombat,
-    clearCurrentCombat,
-    deleteCombat,
-    updateHp, 
-    updateMaxHp,
-    updateAc,
-    updateColor,
-    updateInitiative, 
-    updateInitiativeForGroup,
-    removeCombatant, 
-    clearCombat,
-    isGroupEnabled,
-    toggleGroupForName,
-    groupByName,
-    startCombat,
-    stopCombat,
-    nextTurn,
-    updateCombatantConditions,
-    updateCombatantNote,
-    setCombatActive,
-    getSortedCombats
-  } = useCombat();
-  const { currentTheme } = useAppSettings();
-  const { getFullBeast } = useData();
-  const { openBeastModal, openSpellModal } = useModal();
-  const [createCombatModalVisible, setCreateCombatModalVisible] = useState(false);
-  
-  // Sync local state with context combatants if needed
-  React.useEffect(() => {
-    // setCombatantsState(combatants); // This line is removed as per the edit hint
-  }, [combatants]);
+    const { selectedCampaign } = useCampaign();
+    const { 
+        combats,
+        currentCombatId,
+        currentCombat,
+        combatants, 
+        createCombat,
+        selectCombat,
+        clearCurrentCombat,
+        deleteCombat,
+        updateHp, 
+        updateMaxHp,
+        updateAc,
+        updateColor,
+        updateInitiative, 
+        updateInitiativeForGroup,
+        removeCombatant, 
+        clearCombat,
+        isGroupEnabled,
+        toggleGroupForName,
+        groupByName,
+        startCombat,
+        stopCombat,
+        nextTurn,
+        updateCombatantConditions,
+        updateCombatantNote,
+        setCombatActive,
+        getSortedCombats
+    } = useCombat();
 
-  const onUpdateConditions = (id: string, conditions: string[]) => {
-    updateCombatantConditions(id, conditions);
-  };
+    const { currentTheme } = useAppSettingsStore();
+    const { getFullBeast } = useData();
+    const { openBeastModal, openSpellModal } = useModal();
+    const [createCombatModalVisible, setCreateCombatModalVisible] = useState(false);
+    
+    // Sync local state with context combatants if needed
+    React.useEffect(() => {
+        // setCombatantsState(combatants); // This line is removed as per the edit hint
+    }, [combatants]);
 
-  // Find full beast by name and source (async)
-  const handleGetFullBeast = async (name: string, source: string) => {
-    try {
-      return await getFullBeast(name, source);
-    } catch (error) {
-      console.error('Error getting full beast:', error);
-      return null;
-    }
-  };
+    const onUpdateConditions = (id: string, conditions: string[]) => {
+        updateCombatantConditions(id, conditions);
+    };
 
-  // Menu handlers
-  const handleRandomInitiative = () => {
-    console.log('=== RANDOMIZE INITIATIVE CALLED ===');
-    console.log('Combatants count:', combatants.length);
-    // This function is now handled by the modal in CombatContentNew
-  };
+    // Find full beast by name and source (async)
+    const handleGetFullBeast = async (name: string, source: string) => {
+        try {
+            return await getFullBeast(name, source);
+        } catch (error) {
+            console.error('Error getting full beast:', error);
+            return null;
+        }
+    };
 
-  const handleCreateCombat = () => {
-    setCreateCombatModalVisible(true);
-  };
+    // Menu handlers
+    const handleRandomInitiative = () => {
+        console.log('=== RANDOMIZE INITIATIVE CALLED ===');
+        console.log('Combatants count:', combatants.length);
+        // This function is now handled by the modal in CombatContentNew
+    };
 
-  const handleCreateCombatWithName = (name: string, campaignId?: string, description?: string) => {
-    createCombat(name, campaignId, description);
-  };
+    const handleCreateCombat = () => {
+        setCreateCombatModalVisible(true);
+    };
+
+    const handleCreateCombatWithName = (name: string, campaignId?: string, description?: string) => {
+        createCombat(name, campaignId, description);
+    };
 
   const handleDeleteCombat = (combatId: string) => {
     Alert.alert(
@@ -88,28 +96,28 @@ export default function CombatScreen() {
     );
   };
 
-  const handleSelectCombat = (combatId: string) => {
-    selectCombat(combatId);
-  };
+    const handleSelectCombat = (combatId: string) => {
+        selectCombat(combatId);
+    };
 
-  const handleViewBeastDetails = (beast: any) => {
-    openBeastModal(beast);
-  };
+    const handleViewBeastDetails = (beast: any) => {
+        openBeastModal(beast);
+    };
 
-  const handleBackToList = () => {
-    clearCurrentCombat(); // Clear current combat selection
-  };
+    const handleBackToList = () => {
+        clearCurrentCombat(); // Clear current combat selection
+    };
 
-  const handleSetCombatActive = (combatId: string, active: boolean) => {
-    setCombatActive(combatId, active);
-  };
+    const handleSetCombatActive = (combatId: string, active: boolean) => {
+        setCombatActive(combatId, active);
+    };
 
-  // Get combats filtered by selected campaign
-  const filteredCombats = getSortedCombats(selectedCampaign?.id || null);
-  
-  // Debug logging
-  console.log('CombatScreen - selectedCampaign:', selectedCampaign);
-  console.log('CombatScreen - filteredCombats count:', filteredCombats.length);
+    // Get combats filtered by selected campaign
+    const filteredCombats = getSortedCombats(selectedCampaign?.id || null);
+    
+    // Debug logging
+    console.log('CombatScreen - selectedCampaign:', selectedCampaign);
+    console.log('CombatScreen - filteredCombats count:', filteredCombats.length);
 
     return (
         <View style={{ flex: 1, backgroundColor: currentTheme.background }}>
@@ -166,7 +174,3 @@ export default function CombatScreen() {
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-  // Styles moved to individual components
-}); 

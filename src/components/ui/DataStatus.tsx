@@ -1,15 +1,21 @@
+// REACT
 import React from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
-import { useAppSettings } from '../../context/AppSettingsContext';
-import { useData } from '../../context/DataContext';
 
+// CONTEXTS
+import { useData } from 'src/context/DataContext';
+
+// STORES
+import { useAppSettingsStore } from 'src/stores/appSettingsStore';
+
+// INTERFACES
 interface DataStatusProps {
     showDetails?: boolean;
 }
 
 export default function DataStatus({ showDetails = true }: DataStatusProps) {
     const { beasts, spells, isLoading, isInitialized } = useData();
-    const { currentTheme } = useAppSettings();
+    const { currentTheme } = useAppSettingsStore();
 
     if (isLoading) {
         return (

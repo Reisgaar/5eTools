@@ -3,8 +3,10 @@ import React from 'react';
 import { ActivityIndicator, Alert, FlatList, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
+// STORES
+import { useAppSettingsStore } from 'src/stores/appSettingsStore';
+
 // CONTEXTS
-import { useAppSettings } from 'src/context/AppSettingsContext';
 import { useCampaign } from 'src/context/CampaignContext';
 
 // STYLES
@@ -20,7 +22,7 @@ const DEFAULT_TOKEN_URL = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2w
 
 // Home screen tab displaying campaign selection and player management.
 export default function HomeScreen() {
-    const { currentTheme } = useAppSettings();
+    const { currentTheme } = useAppSettingsStore();
     const { campaigns, selectedCampaign, createCampaign, deleteCampaign, updateCampaign } = useCampaign();
 
     // Campaign modal state

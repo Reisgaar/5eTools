@@ -5,14 +5,16 @@ import React, { useMemo } from 'react';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Tabs } from 'expo-router';
 
+// STORES
+import { useAppSettingsStore } from 'src/stores/appSettingsStore';
+
 // CONTEXTS
 import { SafeAreaView } from 'react-native-safe-area-context';
 // No longer import modal overlays or ModalProvider here
-import { useAppSettings } from 'src/context/AppSettingsContext';
 
 // Layout for the main tab navigation of the app, providing themed tab bar and screen structure.
 export default function TabsLayout() {
-    const { currentTheme } = useAppSettings();
+    const { currentTheme } = useAppSettingsStore();
 
     const screens = useMemo(() => [
         { name: 'index', title: 'Home', icon: 'home' },
