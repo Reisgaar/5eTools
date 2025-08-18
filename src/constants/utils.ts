@@ -4,19 +4,12 @@ import * as FileSystem from 'expo-file-system';
 // MODELS
 import { STORAGE_KEYS } from 'src/models/interfaces/utils';
 
-// Platform detection
-export const isWeb = typeof window !== 'undefined' && window.document;
-
 // Storage version for migration management
 export const STORAGE_VERSION = '1.0.0';
 
 // Persistent data directory strategy for mobile
 // Using documentDirectory for maximum persistence across app updates
 export const getPersistentDataDir = (): string => {
-    if (isWeb) {
-        return '/dnd_data/'; // Web doesn't use file paths
-    }
-
     // For mobile, use a versioned directory structure
     // This ensures data persists across app updates
     return `${FileSystem.documentDirectory}dnd_data_v${STORAGE_VERSION.replace(/\./g, '_')}/`;
@@ -53,8 +46,6 @@ export const DEBUG_CONFIG = {
 
 // Storage limits and configuration
 export const STORAGE_CONFIG = {
-    WEB_LOCAL_STORAGE_LIMIT: 5 * 1024 * 1024, // 5MB for localStorage (app data)
-    WEB_INDEXEDDB_LIMIT: 50 * 1024 * 1024, // 50MB for IndexedDB (image cache)
     TOKEN_CACHE_MAX_SIZE: 50 * 1024 * 1024, // 50MB
     IMAGE_CACHE_MAX_SIZE: 100 * 1024 * 1024, // 100MB
     WARNING_THRESHOLD: 80, // 80% usage triggers warning

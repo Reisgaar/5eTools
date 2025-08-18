@@ -7,9 +7,6 @@ import * as FileSystem from 'expo-file-system';
 // CONSTANTS
 import { DATA_DIR } from 'src/constants/utils';
 
-// Check if we're running on web
-const isWeb = Platform.OS === 'web';
-
 // Web storage keys
 const WEB_STORAGE_KEYS = {
     TOKEN_CACHE: 'dnd_token_cache',
@@ -27,10 +24,6 @@ const INDEXEDDB_CONFIG = {
 // Initialize IndexedDB for web
 const initIndexedDB = (): Promise<IDBDatabase> => {
     return new Promise((resolve, reject) => {
-        if (!isWeb) {
-            reject(new Error('IndexedDB only available on web'));
-            return;
-        }
 
         const request = indexedDB.open(INDEXEDDB_CONFIG.name, INDEXEDDB_CONFIG.version);
 
@@ -48,8 +41,6 @@ const initIndexedDB = (): Promise<IDBDatabase> => {
 
 // Store image in IndexedDB
 const storeImageInIndexedDB = async (key: string, dataUrl: string): Promise<void> => {
-    if (!isWeb) return;
-
     try {
         const db = await initIndexedDB();
         const transaction = db.transaction([INDEXEDDB_CONFIG.storeName], 'readwrite');
@@ -68,8 +59,6 @@ const storeImageInIndexedDB = async (key: string, dataUrl: string): Promise<void
 
 // Get image from IndexedDB
 const getImageFromIndexedDB = async (key: string): Promise<string | null> => {
-    if (!isWeb) return null;
-
     try {
         const db = await initIndexedDB();
         const transaction = db.transaction([INDEXEDDB_CONFIG.storeName], 'readonly');
@@ -88,8 +77,6 @@ const getImageFromIndexedDB = async (key: string): Promise<string | null> => {
 
 // Remove image from IndexedDB
 const removeImageFromIndexedDB = async (key: string): Promise<void> => {
-    if (!isWeb) return;
-
     try {
         const db = await initIndexedDB();
         const transaction = db.transaction([INDEXEDDB_CONFIG.storeName], 'readwrite');
@@ -135,10 +122,6 @@ const generateCacheKey = (source: string, name: string): string => {
 
 // Ensure token cache directory exists
 const ensureTokenCacheDir = async (): Promise<void> => {
-    if (isWeb) {
-        return;
-    }
-
     const dirInfo = await FileSystem.getInfoAsync(TOKEN_CACHE_DIR);
     if (!dirInfo.exists) {
         await FileSystem.makeDirectoryAsync(TOKEN_CACHE_DIR, { intermediates: true });
@@ -193,26 +176,6 @@ const cleanupCache = async (cache: TokenCache, requiredSize: number): Promise<To
         if (newTotalSize + entrySize + requiredSize <= meta.maxSize) {
             newCache[key] = entry;
             newTotalSize += entrySize;
-        } else {
-            // Remove from storage
-            if (isWeb) {
-                if (entry.useIndexedDB) {
-                    // Remove from IndexedDB
-                    try {
-                        await removeImageFromIndexedDB(key);
-                    } catch (error) {
-                        console.warn('Error removing from IndexedDB:', error);
-                    }
-                } else if (entry.dataUrl) {
-                    // Remove from localStorage if it's a web entry
-                    try {
-                        const imageCacheKey = `dnd_image_cache_${key}`;
-                        localStorage.removeItem(imageCacheKey);
-                    } catch (error) {
-                        // Ignore errors when removing
-                    }
-                }
-            }
         }
     }
 
@@ -245,19 +208,12 @@ const safeSetItem = (key: string, value: string): boolean => {
 // Load token cache from storage
 export const loadTokenCache = async (): Promise<TokenCache> => {
     try {
-        if (isWeb) {
-            const cacheData = localStorage.getItem(WEB_STORAGE_KEYS.TOKEN_CACHE);
-            if (cacheData) {
-                return JSON.parse(cacheData);
-            }
-        } else {
-            await ensureTokenCacheDir();
-            const cacheFile = `${TOKEN_CACHE_DIR}cache.json`;
-            const fileInfo = await FileSystem.getInfoAsync(cacheFile);
-            if (fileInfo.exists) {
-                const jsonData = await FileSystem.readAsStringAsync(cacheFile);
-                return JSON.parse(jsonData);
-            }
+        await ensureTokenCacheDir();
+        const cacheFile = `${TOKEN_CACHE_DIR}cache.json`;
+        const fileInfo = await FileSystem.getInfoAsync(cacheFile);
+        if (fileInfo.exists) {
+            const jsonData = await FileSystem.readAsStringAsync(cacheFile);
+            return JSON.parse(jsonData);
         }
         return {};
     } catch (error) {
@@ -269,21 +225,9 @@ export const loadTokenCache = async (): Promise<TokenCache> => {
 // Save token cache to storage
 export const saveTokenCache = async (cache: TokenCache): Promise<void> => {
     try {
-        if (isWeb) {
-            const cacheJson = JSON.stringify(cache);
-            const success = safeSetItem(WEB_STORAGE_KEYS.TOKEN_CACHE, cacheJson);
-
-            if (!success) {
-                // If we can't save the cache, try to clean it up first
-                const cleanedCache = await cleanupCache(cache, cacheJson.length);
-                const cleanedJson = JSON.stringify(cleanedCache);
-                safeSetItem(WEB_STORAGE_KEYS.TOKEN_CACHE, cleanedJson);
-            }
-        } else {
-            await ensureTokenCacheDir();
-            const cacheFile = `${TOKEN_CACHE_DIR}cache.json`;
-            await FileSystem.writeAsStringAsync(cacheFile, JSON.stringify(cache));
-        }
+        await ensureTokenCacheDir();
+        const cacheFile = `${TOKEN_CACHE_DIR}cache.json`;
+        await FileSystem.writeAsStringAsync(cacheFile, JSON.stringify(cache));
     } catch (error) {
         console.error('Error saving token cache:', error);
     }
@@ -306,28 +250,14 @@ export const getCachedTokenUrl = async (source: string, name: string): Promise<s
         return null;
     }
 
-    if (isWeb) {
-        // Try to get from IndexedDB first, fallback to localStorage
-        try {
-            const indexedDBUrl = await getImageFromIndexedDB(key);
-            if (indexedDBUrl) {
-                return indexedDBUrl;
-            }
-        } catch (error) {
-            console.warn('IndexedDB not available, falling back to localStorage');
+    // Check if the local file still exists
+    if (entry.localPath) {
+        const fileInfo = await FileSystem.getInfoAsync(entry.localPath);
+        if (fileInfo.exists) {
+            return entry.localPath;
         }
-
-        return entry.dataUrl || null;
-    } else {
-        // Check if the local file still exists
-        if (entry.localPath) {
-            const fileInfo = await FileSystem.getInfoAsync(entry.localPath);
-            if (fileInfo.exists) {
-                return entry.localPath;
-            }
-        }
-        return null;
     }
+    return null;
 };
 
 // Cache a token
@@ -336,98 +266,25 @@ export const cacheToken = async (source: string, name: string, tokenUrl: string)
         const cache = await loadTokenCache();
         const key = generateCacheKey(source, name);
 
-        if (isWeb) {
-            // For web, fetch the image and convert to data URL
-            const response = await fetch(tokenUrl);
-            const blob = await response.blob();
-            const dataUrl = await new Promise<string>((resolve) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result as string);
-                reader.readAsDataURL(blob);
-            });
+        // For mobile, download and save locally
+        await ensureTokenCacheDir();
+        const filename = `${key}.webp`;
+        const localPath = `${TOKEN_CACHE_DIR}${filename}`;
 
-            const entrySize = dataUrl.length;
+        const downloadResult = await FileSystem.downloadAsync(tokenUrl, localPath);
 
-            // Try to store in IndexedDB first (50MB limit)
-            try {
-                await storeImageInIndexedDB(key, dataUrl);
-
-                // Store metadata in localStorage (small footprint)
-                cache[key] = {
-                    source,
-                    name,
-                    tokenUrl,
-                    cachedAt: Date.now(),
-                    size: entrySize,
-                    useIndexedDB: true // Flag to indicate IndexedDB storage
-                };
-
-                await saveTokenCache(cache);
-                console.log(`Token cached in IndexedDB for ${source}/${name}`);
-                return;
-            } catch (indexedDBError) {
-                console.warn('IndexedDB failed, falling back to localStorage:', indexedDBError);
-            }
-
-            // Fallback to localStorage (5MB limit)
-            const meta = getCacheMeta();
-
-            // Check if we have enough space
-            if (meta.totalSize + entrySize > meta.maxSize) {
-                // Clean up cache to make space
-                const cleanedCache = await cleanupCache(cache, entrySize);
-                cleanedCache[key] = {
-                    source,
-                    name,
-                    tokenUrl,
-                    cachedAt: Date.now(),
-                    dataUrl,
-                    size: entrySize
-                };
-
-                // Update metadata
-                meta.totalSize += entrySize;
-                saveCacheMeta(meta);
-
-                await saveTokenCache(cleanedCache);
-            } else {
-                // We have enough space
-                cache[key] = {
-                    source,
-                    name,
-                    tokenUrl,
-                    cachedAt: Date.now(),
-                    dataUrl,
-                    size: entrySize
-                };
-
-                // Update metadata
-                meta.totalSize += entrySize;
-                saveCacheMeta(meta);
-
-                await saveTokenCache(cache);
-            }
+        if (downloadResult.status === 200) {
+            cache[key] = {
+                source,
+                name,
+                tokenUrl,
+                cachedAt: Date.now(),
+                localPath
+            };
+            await saveTokenCache(cache);
         } else {
-            // For mobile, download and save locally
-            await ensureTokenCacheDir();
-            const filename = `${key}.webp`;
-            const localPath = `${TOKEN_CACHE_DIR}${filename}`;
-
-            const downloadResult = await FileSystem.downloadAsync(tokenUrl, localPath);
-
-            if (downloadResult.status === 200) {
-                cache[key] = {
-                    source,
-                    name,
-                    tokenUrl,
-                    cachedAt: Date.now(),
-                    localPath
-                };
-                await saveTokenCache(cache);
-            } else {
-                console.error('Failed to download token:', tokenUrl);
-                return;
-            }
+            console.error('Failed to download token:', tokenUrl);
+            return;
         }
 
         console.log(`Token cached for ${source}/${name}`);
@@ -462,13 +319,6 @@ export const cleanTokenCache = async (): Promise<void> => {
 
         for (const [key, entry] of Object.entries(cache)) {
             if (entry.cachedAt < thirtyDaysAgo) {
-                if (!isWeb && entry.localPath) {
-                    // Remove local file
-                    const fileInfo = await FileSystem.getInfoAsync(entry.localPath);
-                    if (fileInfo.exists) {
-                        await FileSystem.deleteAsync(entry.localPath);
-                    }
-                }
                 totalSizeRemoved += entry.size || 0;
                 delete cache[key];
                 cleaned = true;
@@ -477,12 +327,6 @@ export const cleanTokenCache = async (): Promise<void> => {
 
         if (cleaned) {
             // Update metadata
-            if (isWeb) {
-                const meta = getCacheMeta();
-                meta.totalSize = Math.max(0, meta.totalSize - totalSizeRemoved);
-                saveCacheMeta(meta);
-            }
-
             await saveTokenCache(cache);
             console.log('Token cache cleaned');
         }
@@ -499,11 +343,6 @@ export const getTokenCacheStats = async (): Promise<{ total: number; size: numbe
         size: JSON.stringify(cache).length
     };
 
-    if (isWeb) {
-        const meta = getCacheMeta();
-        return { ...stats, maxSize: meta.maxSize };
-    }
-
     return stats;
 };
 
@@ -512,10 +351,6 @@ const IMAGE_CACHE_DIR = `${DATA_DIR}image_cache/`;
 
 // Ensure image cache directory exists
 const ensureImageCacheDir = async (): Promise<void> => {
-    if (isWeb) {
-        return;
-    }
-
     const dirInfo = await FileSystem.getInfoAsync(IMAGE_CACHE_DIR);
     if (!dirInfo.exists) {
         await FileSystem.makeDirectoryAsync(IMAGE_CACHE_DIR, { intermediates: true });
@@ -527,51 +362,19 @@ export const cacheLargeImage = async (source: string, name: string, imageUrl: st
     try {
         const key = generateCacheKey(source, name);
 
-        if (isWeb) {
-            // For web, fetch the image and convert to data URL
-            const response = await fetch(imageUrl);
-            const blob = await response.blob();
-            const dataUrl = await new Promise<string>((resolve) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result as string);
-                reader.readAsDataURL(blob);
-            });
+        // For mobile, download and save locally
+        await ensureImageCacheDir();
+        const filename = `${key}_large.webp`;
+        const localPath = `${IMAGE_CACHE_DIR}${filename}`;
 
-            // Try IndexedDB first (50MB limit)
-            try {
-                await storeImageInIndexedDB(`${key}_large`, dataUrl);
-                console.log(`Large image cached in IndexedDB for ${source}/${name}`);
-                return dataUrl;
-            } catch (indexedDBError) {
-                console.warn('IndexedDB failed for large image, falling back to localStorage:', indexedDBError);
-            }
+        const downloadResult = await FileSystem.downloadAsync(imageUrl, localPath);
 
-            // Fallback to localStorage (5MB limit)
-            const imageCacheKey = `dnd_image_cache_${key}`;
-            const success = safeSetItem(imageCacheKey, dataUrl);
-
-            if (success) {
-                console.log(`Large image cached in localStorage for ${source}/${name}`);
-                return dataUrl;
-            } else {
-                console.warn(`Failed to cache large image for ${source}/${name} - storage quota exceeded`);
-                return imageUrl; // Return original URL if caching fails
-            }
+        if (downloadResult.status === 200) {
+            console.log(`Large image cached for ${source}/${name}`);
+            return localPath;
         } else {
-            // For mobile, download and save locally
-            await ensureImageCacheDir();
-            const filename = `${key}_large.webp`;
-            const localPath = `${IMAGE_CACHE_DIR}${filename}`;
-
-            const downloadResult = await FileSystem.downloadAsync(imageUrl, localPath);
-
-            if (downloadResult.status === 200) {
-                console.log(`Large image cached for ${source}/${name}`);
-                return localPath;
-            } else {
-                console.error('Failed to download large image:', imageUrl);
-                return imageUrl; // Return original URL if download fails
-            }
+            console.error('Failed to download large image:', imageUrl);
+            return imageUrl; // Return original URL if download fails
         }
     } catch (error) {
         console.error('Error caching large image:', error);
@@ -584,36 +387,15 @@ export const getCachedLargeImageUrl = async (source: string, name: string, origi
     try {
         const key = generateCacheKey(source, name);
 
-        if (isWeb) {
-            // Try IndexedDB first
-            try {
-                const indexedDBUrl = await getImageFromIndexedDB(`${key}_large`);
-                if (indexedDBUrl) {
-                    console.log(`Using cached large image from IndexedDB for ${source}/${name}`);
-                    return indexedDBUrl;
-                }
-            } catch (error) {
-                console.warn('IndexedDB not available for large image, checking localStorage');
-            }
+        // For mobile, check if file exists
+        await ensureImageCacheDir();
+        const filename = `${key}_large.webp`;
+        const localPath = `${IMAGE_CACHE_DIR}${filename}`;
 
-            // Fallback to localStorage
-            const imageCacheKey = `dnd_image_cache_${key}`;
-            const cachedDataUrl = localStorage.getItem(imageCacheKey);
-            if (cachedDataUrl) {
-                console.log(`Using cached large image from localStorage for ${source}/${name}`);
-                return cachedDataUrl;
-            }
-        } else {
-            // For mobile, check if file exists
-            await ensureImageCacheDir();
-            const filename = `${key}_large.webp`;
-            const localPath = `${IMAGE_CACHE_DIR}${filename}`;
-
-            const fileInfo = await FileSystem.getInfoAsync(localPath);
-            if (fileInfo.exists) {
-                console.log(`Using cached large image for ${source}/${name}`);
-                return localPath;
-            }
+        const fileInfo = await FileSystem.getInfoAsync(localPath);
+        if (fileInfo.exists) {
+            console.log(`Using cached large image for ${source}/${name}`);
+            return localPath;
         }
 
         // If not cached, cache it and return the cached URL
@@ -629,42 +411,11 @@ export const getCachedLargeImageUrl = async (source: string, name: string, origi
 // Clear all cached images
 export const clearImageCache = async (): Promise<void> => {
     try {
-        if (isWeb) {
-            // Clear IndexedDB
-            try {
-                const db = await initIndexedDB();
-                const transaction = db.transaction([INDEXEDDB_CONFIG.storeName], 'readwrite');
-                const store = transaction.objectStore(INDEXEDDB_CONFIG.storeName);
-
-                return new Promise((resolve, reject) => {
-                    const request = store.clear();
-                    request.onsuccess = () => {
-                        console.log('IndexedDB image cache cleared');
-                        resolve();
-                    };
-                    request.onerror = () => reject(request.error);
-                });
-            } catch (error) {
-                console.warn('IndexedDB not available for clearing, clearing localStorage only');
-            }
-
-            // Clear all image cache keys from localStorage
-            const keysToRemove: string[] = [];
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key && key.startsWith('dnd_image_cache_')) {
-                    keysToRemove.push(key);
-                }
-            }
-            keysToRemove.forEach(key => localStorage.removeItem(key));
-            console.log('localStorage image cache cleared');
-        } else {
-            // Clear image cache directory
-            const dirInfo = await FileSystem.getInfoAsync(IMAGE_CACHE_DIR);
-            if (dirInfo.exists) {
-                await FileSystem.deleteAsync(IMAGE_CACHE_DIR, { idempotent: true });
-                console.log('Image cache cleared');
-            }
+        // Clear image cache directory
+        const dirInfo = await FileSystem.getInfoAsync(IMAGE_CACHE_DIR);
+        if (dirInfo.exists) {
+            await FileSystem.deleteAsync(IMAGE_CACHE_DIR, { idempotent: true });
+            console.log('Image cache cleared');
         }
     } catch (error) {
         console.error('Error clearing image cache:', error);

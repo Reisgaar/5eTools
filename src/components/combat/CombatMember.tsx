@@ -57,9 +57,7 @@ export default function CombatMember({
                                     .filter(condition => condition && condition.trim() !== '') // Filter out empty conditions
                                     .map((condition, index) => (
                                         <View key={index} style={styles.statusBadge}>
-                                            <Text style={[styles.statusBadgeText,
-                                                Platform.OS === 'web' ? styles.statusBadgeTextWeb : styles.statusBadgeTextMobile
-                                            ]}>
+                                            <Text style={[styles.statusBadgeText, styles.statusBadgeTextMobile]}>
                                                 {condition}
                                             </Text>
                                         </View>

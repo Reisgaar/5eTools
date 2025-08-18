@@ -304,15 +304,24 @@ export default function SpellDetailModal({
                         <View style={[styles.spellDetailSeparator, { backgroundColor: theme.border }]} />
 
                         {/* Single ScrollView for all content */}
-                        {Platform.OS === 'web' ? (
-                            <ScrollView
-                                style={styles.spellDetailScrollView}
-                                contentContainerStyle={styles.spellDetailScrollContent}
-                                showsVerticalScrollIndicator={true}
-                                nestedScrollEnabled={true}
-                                scrollEventThrottle={16}
-                                bounces={false}
-                                alwaysBounceVertical={false}
+                        <ScrollView
+                            style={styles.spellDetailScrollView}
+                            contentContainerStyle={styles.spellDetailScrollContent}
+                            showsVerticalScrollIndicator={true}
+                            nestedScrollEnabled={true}
+                            scrollEventThrottle={16}
+                            bounces={false}
+                            alwaysBounceVertical={false}
+                            onStartShouldSetResponder={() => false}
+                            onMoveShouldSetResponder={() => true}
+                            onResponderGrant={() => {}}
+                            onResponderMove={() => {}}
+                            onResponderRelease={() => {}}
+                        >
+                            <View
+                                style={{ flex: 1 }}
+                                onStartShouldSetResponder={() => true}
+                                onMoveShouldSetResponder={() => false}
                             >
                                 {/* Spell Details Grid - 2x2 */}
                                 <View style={styles.spellDetailGridContainer}>
@@ -365,81 +374,8 @@ export default function SpellDetailModal({
                                         {renderList('Classes', formatClasses(spell.classes), theme)}
                                     </View>
                                 )}
-                            </ScrollView>
-                        ) : (
-                            <ScrollView
-                                style={styles.spellDetailScrollView}
-                                contentContainerStyle={styles.spellDetailScrollContent}
-                                showsVerticalScrollIndicator={true}
-                                nestedScrollEnabled={true}
-                                scrollEventThrottle={16}
-                                bounces={false}
-                                alwaysBounceVertical={false}
-                                onStartShouldSetResponder={() => false}
-                                onMoveShouldSetResponder={() => true}
-                                onResponderGrant={() => {}}
-                                onResponderMove={() => {}}
-                                onResponderRelease={() => {}}
-                            >
-                                <View
-                                    style={{ flex: 1 }}
-                                    onStartShouldSetResponder={() => true}
-                                    onMoveShouldSetResponder={() => false}
-                                >
-                                    {/* Spell Details Grid - 2x2 */}
-                                    <View style={styles.spellDetailGridContainer}>
-                                        <View style={styles.spellDetailGrid}>
-                                            <View style={styles.spellDetailGridItem}>
-                                                <Text style={styles.spellDetailGridLabel}>Casting Time</Text>
-                                                <View style={styles.spellDetailGridValueContainer}>
-                                                    {formatTime(spell.time, theme, handleCreaturePressLocal, handleSpellPressLocal, spell.meta?.ritual)}
-                                                </View>
-                                            </View>
-                                            <View style={styles.spellDetailGridItem}>
-                                                <Text style={styles.spellDetailGridLabel}>Range</Text>
-                                                <View style={styles.spellDetailGridValueContainer}>
-                                                    {formatRange(spell.range, theme, handleCreaturePressLocal, handleSpellPressLocal)}
-                                                </View>
-                                            </View>
-                                            <View style={styles.spellDetailGridItem}>
-                                                <Text style={styles.spellDetailGridLabel}>Components</Text>
-                                                <View style={styles.spellDetailGridValueContainer}>
-                                                    {formatComponents(spell.components, theme, handleCreaturePressLocal, handleSpellPressLocal)}
-                                                </View>
-                                            </View>
-                                            <View style={styles.spellDetailGridItemLast}>
-                                                <Text style={styles.spellDetailGridLabel}>Duration</Text>
-                                                <View style={styles.spellDetailGridValueContainer}>
-                                                    {formatDuration(spell.duration, theme, handleCreaturePressLocal, handleSpellPressLocal, isConcentration)}
-                                                </View>
-                                            </View>
-                                        </View>
-                                    </View>
-
-                                    {/* Spell Description */}
-                                    <View style={{ marginBottom: 15 }}>
-                                        <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 8, color: theme.text }}>Description</Text>
-                                        {renderEntries(spell.entries, 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress)}
-                                    </View>
-
-                                    {/* Higher Level */}
-                                    {spell.entriesHigherLevel && (
-                                        <View style={{ marginBottom: 15 }}>
-                                            <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 8, color: theme.text }}>At Higher Levels</Text>
-                                            {renderHigherLevel(spell.entriesHigherLevel, theme, handleCreaturePressLocal, handleSpellPressLocal)}
-                                        </View>
-                                    )}
-
-                                    {/* Classes */}
-                                    {spell.classes && (
-                                        <View style={{ marginBottom: 15 }}>
-                                            <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 8, color: theme.text }}>Classes</Text>
-                                            {renderList('Classes', formatClasses(spell.classes), theme)}
-                                        </View>
-                                    )}
-                                </View>
-                            </ScrollView>
-                        )}
+                            </View>
+                        </ScrollView>
 
                         {/* Source - Outside scroll, always at bottom */}
                         {spell.source && (

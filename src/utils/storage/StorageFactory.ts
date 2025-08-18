@@ -3,7 +3,6 @@ import { Platform } from 'react-native';
 
 // PROVIDERS
 import { IStorageProvider } from 'src/utils/storage/IStorageProvider';
-import { WebStorageProvider } from 'src/utils/storage/WebStorageProvider';
 import { MobileStorageProvider } from 'src/utils/storage/MobileStorageProvider';
 
 /**
@@ -17,11 +16,7 @@ export class StorageFactory {
      */
     public static getStorageProvider(): IStorageProvider {
         if (!StorageFactory.instance) {
-            if (Platform.OS === 'web') {
-                StorageFactory.instance = new WebStorageProvider();
-            } else {
-                StorageFactory.instance = new MobileStorageProvider();
-            }
+            StorageFactory.instance = new MobileStorageProvider();
         }
         return StorageFactory.instance;
     }
@@ -37,6 +32,6 @@ export class StorageFactory {
      * Get the platform name
      */
     public static getPlatformName(): string {
-        return Platform.OS === 'web' ? 'web' : 'mobile';
+        return 'mobile';
     }
 }

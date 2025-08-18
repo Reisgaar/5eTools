@@ -83,7 +83,7 @@ export const createSpellStyles = (theme: any) => {
         ...baseSpellStyles,
 
         // Spell Detail Modal specific styles
-        spellDetailOverlay: Platform.OS === 'web' ? baseStyles.detailOverlay : {
+        spellDetailOverlay: {
             position: 'absolute',
             top: 0,
             left: 0,
@@ -97,27 +97,27 @@ export const createSpellStyles = (theme: any) => {
         spellDetailContent: {
             ...baseStyles.detailContent,
             backgroundColor: theme.card,
-            zIndex: 1000, // Ensure it appears above other modals
-            maxHeight: Platform.OS === 'web' ? '85%' : '85%', // Same for both now
-            minHeight: Platform.OS === 'web' ? 300 : 700, // Much higher for mobile
-            height: Platform.OS === 'web' ? undefined : '85%', // Fixed height for mobile
-            width: Platform.OS === 'web' ? '90%' : '95%', // Different for web vs mobile
-            maxWidth: Platform.OS === 'web' ? 450 : 500, // Different for web vs mobile
-            overflow: 'hidden', // Prevent content from overflowing
+            zIndex: 1000,
+            maxHeight: '85%',
+            minHeight: 700,
+            height: '85%',
+            width: '95%',
+            maxWidth: 500,
+            overflow: 'hidden',
         },
         spellDetailHeader: {
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
-            paddingHorizontal: 16, // Reduced from 20
-            paddingVertical: 12, // Reduced from 16/20
+            paddingHorizontal: 16,
+            paddingVertical: 12,
         },
         spellDetailHeaderInfo: {
             flex: 1,
-            marginRight: 8, // Reduced from 10
+            marginRight: 8,
         },
         spellDetailCloseButton: {
-            padding: 4, // Reduced from 8
+            padding: 4,
         },
         spellDetailSeparator: {
             height: 1,
@@ -131,14 +131,14 @@ export const createSpellStyles = (theme: any) => {
         spellDetailCloseBtn: baseStyles.detailCloseBtn,
         spellDetailTitle: {
             ...applyThemeToBaseStyle(baseStyles.detailTitle, theme),
-            fontSize: Platform.OS === 'web' ? 16 : 18, // Reduced from 18/20
-            marginBottom: Platform.OS === 'web' ? 2 : 4, // Reduced from 4/6
+            fontSize: 18,
+            marginBottom: 4,
         },
         spellDetailSubtitle: {
             ...baseStyles.detailSubtitle,
             color: theme.noticeText,
-            fontSize: Platform.OS === 'web' ? 11 : 12, // Reduced from 12/14
-            marginBottom: Platform.OS === 'web' ? 4 : 6, // Reduced from 8/10
+            fontSize: 12,
+            marginBottom: 6,
         },
         spellDetailField: applyThemeToBaseStyle(baseStyles.detailField, theme),
         spellDetailEntry: applyThemeToBaseStyle(baseStyles.detailEntry, theme),
@@ -155,7 +155,7 @@ export const createSpellStyles = (theme: any) => {
             width: '50%',
             borderWidth: 1,
             borderColor: theme.border,
-            padding: Platform.OS === 'web' ? 12 : 16, // Different for web vs mobile
+            padding: 16,
             alignItems: 'center',
         },
         spellDetailGridItemLast: {
@@ -166,27 +166,27 @@ export const createSpellStyles = (theme: any) => {
         },
         spellDetailGridLabel: {
             fontWeight: 'bold',
-            fontSize: Platform.OS === 'web' ? 12 : 14, // Different for web vs mobile
+            fontSize: 14,
             color: theme.text,
-            marginBottom: Platform.OS === 'web' ? 4 : 6, // Different for web vs mobile
+            marginBottom: 6,
             textAlign: 'center',
         },
         spellDetailGridValue: {
-            fontSize: Platform.OS === 'web' ? 12 : 14, // Different for web vs mobile
+            fontSize: 14,
             color: theme.text,
             textAlign: 'center',
         },
         spellDetailGridValueContainer: {
             alignItems: 'center',
             justifyContent: 'center',
-            minHeight: Platform.OS === 'web' ? 20 : 24,
+            minHeight: 24,
         },
         spellDetailScrollView: {
             flex: 1,
             paddingHorizontal: 20,
         },
         spellDetailScrollContent: {
-            paddingBottom: 16, // Reduced since footer is outside
+            paddingBottom: 16,
         },
         spellDetailSection: {
             marginBottom: 20,

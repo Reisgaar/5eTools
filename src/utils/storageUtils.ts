@@ -108,9 +108,9 @@ export const createCombatIndexEntry = (combat: any) => {
 /**
  * Debug logging for spell processing
  */
-export const logSpellProcessing = (spell: Spell, spellData: SpellProcessingData, platform: 'web' | 'mobile') => {
+export const logSpellProcessing = (spell: Spell, spellData: SpellProcessingData) => {
     if (spell.name === 'Cure Wounds' || spell.name === 'Fireball') {
-        console.log(`Spell ${spell.name} (${platform}):`, {
+        console.log(`Spell ${spell.name}:`, {
             duration: spell.duration,
             meta: spell.meta,
             availableClasses: spell.availableClasses,

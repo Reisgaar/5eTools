@@ -93,7 +93,7 @@ export abstract class BaseStorageProvider implements IStorageProvider {
                     concentration: spellIndexEntry.concentration,
                     ritual: spellIndexEntry.ritual,
                     availableClasses: spellIndexEntry.availableClasses
-                }, this.getPlatformName());
+                });
                 return spellIndexEntry;
             })
         };

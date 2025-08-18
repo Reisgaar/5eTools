@@ -177,7 +177,7 @@ export default function CombatIndividual({
                                                     <View key={index} style={styles.statusBadge}>
                                                         <Text style={[
                                                             styles.statusBadgeText,
-                                                            Platform.OS === 'web' ? styles.statusBadgeTextWeb : styles.statusBadgeTextMobile
+                                                            styles.statusBadgeTextMobile
                                                         ]}>
                                                             {condition}
                                                         </Text>

@@ -17,10 +17,10 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         right: 0,
         bottom: 0,
         backgroundColor: 'rgba(0,0,0,0.6)',
-        justifyContent: Platform.OS === 'web' ? 'center' : 'flex-start',
+        justifyContent: 'flex-start',
         alignItems: 'center',
         zIndex: 1000,
-        paddingTop: Platform.OS === 'web' ? 0 : 40,
+        paddingTop: 40,
     },
     modalContainer: {
         justifyContent: 'center',
@@ -42,10 +42,10 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         zIndex: 1000,
 
         // Responsive sizing - improved for mobile
-        width: Platform.OS === 'web' ? '90%' : '92%',
-        maxWidth: Platform.OS === 'web' ? 450 : 400,
-        maxHeight: Platform.OS === 'web' ? '85%' : '80%',
-        minHeight: Platform.OS === 'web' ? 300 : 350,
+        width: '92%',
+        maxWidth: 400,
+        maxHeight: '80%',
+        minHeight: 350,
     },
 
     // Header section
@@ -74,15 +74,15 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         flex: 1,
     },
     modalTitle: {
-        fontSize: Platform.OS === 'web' ? 16 : 17,
+        fontSize: 17,
         fontWeight: 'bold',
         color: theme.text,
-        marginBottom: Platform.OS === 'web' ? 2 : 3,
+        marginBottom: 3,
     },
     modalSubtitle: {
-        fontSize: Platform.OS === 'web' ? 11 : 12,
+        fontSize: 12,
         color: theme.noticeText,
-        marginBottom: Platform.OS === 'web' ? 4 : 5,
+        marginBottom: 5,
     },
     modalCloseButton: {
         padding: 4,
@@ -103,15 +103,15 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
     // Content sections
     modalBody: {
         flex: 1,
-        paddingHorizontal: Platform.OS === 'web' ? 20 : 16,
-        paddingBottom: Platform.OS === 'web' ? 20 : 16,
+        paddingHorizontal: 16,
+        paddingBottom: 16,
     },
     modalScrollView: {
         flex: 1,
-        paddingHorizontal: Platform.OS === 'web' ? 20 : 16,
+        paddingHorizontal: 16,
     },
     modalScrollContent: {
-        paddingBottom: Platform.OS === 'web' ? 20 : 16,
+        paddingBottom: 16,
     },
 
     // Footer section
@@ -158,18 +158,18 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         width: '50%',
         borderWidth: 1,
         borderColor: theme.border,
-        padding: Platform.OS === 'web' ? 12 : 16,
+        padding: 16,
         alignItems: 'center',
     },
     modalGridLabel: {
         fontWeight: 'bold',
-        fontSize: Platform.OS === 'web' ? 12 : 14,
+        fontSize: 14,
         color: theme.text,
-        marginBottom: Platform.OS === 'web' ? 4 : 6,
+        marginBottom: 6,
         textAlign: 'center',
     },
     modalGridValue: {
-        fontSize: Platform.OS === 'web' ? 12 : 14,
+        fontSize: 14,
         color: theme.text,
         textAlign: 'center',
     },
@@ -177,11 +177,11 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
     // Button styles
     modalButton: {
         borderRadius: 8,
-        paddingVertical: Platform.OS === 'web' ? 12 : 10,
-        paddingHorizontal: Platform.OS === 'web' ? 24 : 20,
+        paddingVertical: 10,
+        paddingHorizontal: 20,
         alignItems: 'center',
         justifyContent: 'center',
-        minHeight: Platform.OS === 'web' ? 44 : 40,
+        minHeight: 40,
     },
     modalButtonPrimary: {
         backgroundColor: theme.primary,
@@ -254,7 +254,7 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         width: '100%',
-        gap: Platform.OS === 'web' ? 12 : 8,
+        gap: 8,
         marginTop: 16,
     },
 
@@ -294,7 +294,7 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
-        paddingHorizontal: Platform.OS === 'web' ? 8 : 4,
+        paddingHorizontal: 4,
     },
     conditionBtn: {
         flexDirection: 'row',
@@ -386,13 +386,13 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
     beastDetailModalContent: {
         backgroundColor: theme.card,
         borderRadius: 12,
-        marginHorizontal: Platform.OS === 'web' ? 20 : 10,
-        width: Platform.OS === 'web' ? '90%' : '95%',
-        maxWidth: Platform.OS === 'web' ? 500 : '100%',
-        maxHeight: Platform.OS === 'web' ? '90%' : '95%',
+        marginHorizontal: 10,
+        width: '95%',
+        maxWidth: '100%',
+        maxHeight: '95%',
         overflow: 'hidden',
         alignSelf: 'center',
-        marginTop: Platform.OS === 'web' ? 0 : 20,
+        marginTop: 20,
     },
     beastDetailHeader: {
         flexDirection: 'row',

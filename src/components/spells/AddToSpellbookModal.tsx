@@ -100,7 +100,7 @@ export default function AddToSpellbookModal({
                 theme={theme}
                 title="Add to Spellbook"
                 subtitle={spell ? `Level ${spell.level === 0 ? 'Cantrip' : spell.level} • ${spell.school} • ${spell.source}` : undefined}
-                width={Platform.OS === 'web' ? 450 : '90%'}
+                width='90%'
                 maxHeight="80%"
                 scrollable={true}
             >

@@ -87,7 +87,7 @@ export default function CreateSpellbookModal({
             onClose={onClose}
             theme={theme}
             title="Create New Spellbook"
-            width={Platform.OS === 'web' ? 450 : '90%'}
+            width='90%'
             maxHeight="80%"
             scrollable={true}
         >

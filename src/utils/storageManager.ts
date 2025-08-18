@@ -9,8 +9,6 @@ import { formatBytes } from 'src/utils/storageUtils';
 // CONSTANTS
 import { STORAGE_CONFIG } from 'src/constants/utils';
 
-const isWeb = Platform.OS === 'web';
-
 export interface StorageUsage {
     totalUsed: number;
     totalAvailable: number;
@@ -42,39 +40,12 @@ export const getStorageUsage = async (): Promise<StorageUsage> => {
         let imageCacheEntries = 0;
         let imageCacheSize = 0;
 
-        if (isWeb) {
-            // Count image cache entries in localStorage
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key && key.startsWith('dnd_image_cache_')) {
-                    imageCacheEntries++;
-                    const value = localStorage.getItem(key);
-                    if (value) {
-                        imageCacheSize += value.length;
-                    }
-                }
-            }
-        }
-
         // Estimate total used storage
         const totalUsed = tokenStats.size + imageCacheSize +
             (dataStats.beastsIndexSize || 0) + (dataStats.spellsIndexSize || 0);
 
         // Estimate available storage (rough approximation)
-        let totalAvailable = 0;
-        if (isWeb) {
-            // For web, use the appropriate limit based on what we're storing
-            if (imageCacheSize > 0) {
-                // If we have image cache, use IndexedDB limit
-                totalAvailable = STORAGE_CONFIG.WEB_INDEXEDDB_LIMIT;
-            } else {
-                // Otherwise use localStorage limit
-                totalAvailable = STORAGE_CONFIG.WEB_LOCAL_STORAGE_LIMIT;
-            }
-        } else {
-            // For mobile, estimate available space (this is approximate)
-            totalAvailable = 100 * 1024 * 1024; // 100MB estimate for mobile
-        }
+        const totalAvailable = 100 * 1024 * 1024;
 
         return {
             totalUsed,
@@ -179,16 +150,7 @@ export const getStorageSummary = async (): Promise<{
         const usage = await getStorageUsage();
         const { isFull, percentage, warning } = await isStorageGettingFull();
 
-        let summary: string;
-        if (isWeb) {
-            if (usage.imageCache.size > 0) {
-                summary = `Storage Usage: ${formatBytes(usage.totalUsed)} / ${formatBytes(usage.totalAvailable)} (${percentage.toFixed(1)}%) - Using IndexedDB`;
-            } else {
-                summary = `Storage Usage: ${formatBytes(usage.totalUsed)} / ${formatBytes(usage.totalAvailable)} (${percentage.toFixed(1)}%) - Using localStorage`;
-            }
-        } else {
-            summary = `Storage Usage: ${formatBytes(usage.totalUsed)} / ${formatBytes(usage.totalAvailable)} (${percentage.toFixed(1)}%) - Mobile storage`;
-        }
+        const summary = `Storage Usage: ${formatBytes(usage.totalUsed)} / ${formatBytes(usage.totalAvailable)} (${percentage.toFixed(1)}%) - Mobile storage`;
 
         const details = [
             `Token Cache: ${usage.tokenCache.entries} entries (${formatBytes(usage.tokenCache.size)})`,
@@ -196,11 +158,7 @@ export const getStorageSummary = async (): Promise<{
             `Data Storage: ${usage.dataStorage.beasts} beasts, ${usage.dataStorage.spells} spells`,
         ];
 
-        if (isWeb) {
-            details.push(`Platform: Web (${usage.imageCache.size > 0 ? 'IndexedDB + localStorage' : 'localStorage only'})`);
-        } else {
-            details.push('Platform: Mobile (File System)');
-        }
+        details.push('Platform: Mobile (File System)');
 
         if (warning) {
             details.push(`⚠️ ${warning}`);
