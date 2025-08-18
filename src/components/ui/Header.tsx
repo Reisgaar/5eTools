@@ -9,8 +9,8 @@ import { usePathname } from 'expo-router';
 // STORES
 import { useCampaignStore, useAppSettingsStore } from 'src/stores';
 
-// COMPONENTS
-import CampaignSelectorModal from 'src/components/modals/CampaignSelectorModal';
+// CONTEXTS
+import { useModal } from 'src/context/ModalContext';
 
 /**
  * Header component.
@@ -18,10 +18,10 @@ import CampaignSelectorModal from 'src/components/modals/CampaignSelectorModal';
 export default function Header() {
     const { selectedCampaign, selectedCampaignId, clearSelectedCampaign } = useCampaignStore();
     const { currentTheme } = useAppSettingsStore();
-    const [campaignModalVisible, setCampaignModalVisible] = React.useState(false);
+    const { openCampaignSelectorModal } = useModal();
 
     const handleCampaignPress = () => {
-        setCampaignModalVisible(true);
+        openCampaignSelectorModal();
     };
 
     // Map pathname to tab name
@@ -54,11 +54,6 @@ export default function Header() {
                     </Text>
                 </TouchableOpacity>
             </SafeAreaView>
-
-            <CampaignSelectorModal
-                visible={campaignModalVisible}
-                onClose={() => setCampaignModalVisible(false)}
-            />
         </>
     );
 };

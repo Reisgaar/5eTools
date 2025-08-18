@@ -49,6 +49,10 @@ interface ModalContextType {
   openAdvancedDiceModal: (config: Omit<AdvancedDiceModalState, 'visible'>) => void;
   closeAdvancedDiceModal: () => void;
 
+  campaignSelectorModalVisible: boolean;
+  openCampaignSelectorModal: () => void;
+  closeCampaignSelectorModal: () => void;
+
   beastStack: any[];
   spellStack: any[];
 }
@@ -78,6 +82,8 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
     const [advancedDiceModalState, setAdvancedDiceModalState] = useState<AdvancedDiceModalState>({
         visible: false,
     });
+
+    const [campaignSelectorModalVisible, setCampaignSelectorModalVisible] = useState(false);
 
     const { getFullBeast, getFullSpell } = useData();
 
@@ -156,6 +162,13 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
         setAdvancedDiceModalState(prev => ({ ...prev, visible: false }));
     };
 
+    const openCampaignSelectorModal = () => {
+        setCampaignSelectorModalVisible(true);
+    };
+    const closeCampaignSelectorModal = () => {
+        setCampaignSelectorModalVisible(false);
+    };
+
     return (
         <ModalContext.Provider
             value={{
@@ -175,6 +188,9 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
                 advancedDiceModalState,
                 openAdvancedDiceModal,
                 closeAdvancedDiceModal,
+                campaignSelectorModalVisible,
+                openCampaignSelectorModal,
+                closeCampaignSelectorModal,
                 beastStack,
                 spellStack,
             }}

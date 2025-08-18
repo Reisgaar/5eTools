@@ -12,6 +12,7 @@ import BeastDetailModal from 'src/components/beasts/BeastDetailModal';
 import SpellDetailModal from 'src/components/spells/SpellDetailModal';
 import AdvancedDiceRollModal from 'src/components/modals/AdvancedDiceRollModal';
 import DiceRollModal from 'src/components/modals/DiceRollModal';
+import CampaignSelectorModal from 'src/components/modals/CampaignSelectorModal';
 
 /**
  * GlobalModals component.
@@ -27,43 +28,51 @@ export default function GlobalModals() {
         diceModalState,
         closeDiceModal,
         advancedDiceModalState,
-        closeAdvancedDiceModal
+        closeAdvancedDiceModal,
+        campaignSelectorModalVisible,
+        closeCampaignSelectorModal
     } = useModal();
     const { currentTheme } = useAppSettingsStore();
 
     return (
         <>
-            <BeastDetailModal
-                visible={beastModalVisible}
-                beast={selectedBeast}
-                onClose={closeBeastModal}
-                theme={currentTheme}
-            />
-            <SpellDetailModal
-                visible={spellModalVisible}
-                spell={selectedSpell}
-                onClose={closeSpellModal}
-                schoolFullName={selectedSpell ? selectedSpell.school : ''}
-                theme={currentTheme}
-            />
-            <DiceRollModal
-                visible={diceModalState.visible}
-                expression={diceModalState.expression}
-                result={diceModalState.result}
-                breakdown={diceModalState.breakdown}
-                modifier={diceModalState.modifier}
-                type={diceModalState.type}
-                label={diceModalState.label}
-                theme={currentTheme}
-                onClose={closeDiceModal}
-            />
-            <AdvancedDiceRollModal
-                visible={advancedDiceModalState.visible}
-                onClose={closeAdvancedDiceModal}
-                theme={currentTheme}
-                d20Config={advancedDiceModalState.d20Config}
-                damageConfig={advancedDiceModalState.damageConfig}
-            />
+            {campaignSelectorModalVisible ? (
+                <CampaignSelectorModal visible={campaignSelectorModalVisible} />
+            ) : (
+                <>
+                    <BeastDetailModal
+                        visible={beastModalVisible}
+                        beast={selectedBeast}
+                        onClose={closeBeastModal}
+                        theme={currentTheme}
+                    />
+                    <SpellDetailModal
+                        visible={spellModalVisible}
+                        spell={selectedSpell}
+                        onClose={closeSpellModal}
+                        schoolFullName={selectedSpell ? selectedSpell.school : ''}
+                        theme={currentTheme}
+                    />
+                    <DiceRollModal
+                        visible={diceModalState.visible}
+                        expression={diceModalState.expression}
+                        result={diceModalState.result}
+                        breakdown={diceModalState.breakdown}
+                        modifier={diceModalState.modifier}
+                        type={diceModalState.type}
+                        label={diceModalState.label}
+                        theme={currentTheme}
+                        onClose={closeDiceModal}
+                    />
+                    <AdvancedDiceRollModal
+                        visible={advancedDiceModalState.visible}
+                        onClose={closeAdvancedDiceModal}
+                        theme={currentTheme}
+                        d20Config={advancedDiceModalState.d20Config}
+                        damageConfig={advancedDiceModalState.damageConfig}
+                    />
+                </>
+            )};
         </>
     );
 }

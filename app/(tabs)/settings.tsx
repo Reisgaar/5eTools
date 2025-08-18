@@ -81,10 +81,11 @@ export default function SettingsScreen() {
 
     return (
         <View style={{ flex: 1, backgroundColor: currentTheme.background }}>
-            <View style={[commonStyles.container, { backgroundColor: currentTheme.background, paddingTop: 0 }]}> 
-                <View style={{ justifyContent: 'center', marginBottom: 12 }}>
-                    <Text style={[styles.sectionTitle, { color: currentTheme.text }]}>Theme</Text>
-                    <View style={commonStyles.row}>
+            <View style={[commonStyles.container, { backgroundColor: currentTheme.background, paddingTop: 0 }]}>
+
+                <Text style={[styles.sectionTitle, { color: currentTheme.text }]}>Theme</Text>
+                <View style={[commonStyles.row, { justifyContent: 'center', marginBottom: 12 }]}>
+                    <View style={[commonStyles.row, { flex: 1 }]}>
                         <Pressable
                             onPress={() => setTheme('light')}
                             style={[
@@ -106,9 +107,9 @@ export default function SettingsScreen() {
                     </View>
                 </View>
                 
-                <View style={{ justifyContent: 'center', marginBottom: 12 }}>
-                    <Text style={[styles.sectionTitle, { color: currentTheme.text }]}>Dice Rolling</Text>
-                    <View style={commonStyles.row}>
+                <Text style={[styles.sectionTitle, { color: currentTheme.text }]}>Dice Rolling:</Text>
+                <View style={[commonStyles.row, { justifyContent: 'center', marginBottom: 8 }]}>
+                    <View style={[commonStyles.row, { flex: 1 }]}>
                         <Pressable
                             onPress={() => setUseAdvancedDiceRoll(false)}
                             style={[
@@ -128,28 +129,30 @@ export default function SettingsScreen() {
                             <Text style={{ color: currentTheme.text }}>Advanced</Text>
                         </Pressable>
                     </View>
-                    <Text style={[styles.settingDescription, { color: currentTheme.noticeText }]}>
-                        {useAdvancedDiceRoll 
-                            ? 'Advanced mode allows you to configure advantage/disadvantage and situational bonuses before rolling.'
-                            : 'Simple mode rolls dice immediately without configuration options.'
-                        }
-                    </Text>
                 </View>
+                <Text style={[styles.settingDescription, { color: currentTheme.noticeText, marginTop: 0, marginBottom: 12 }]}>
+                    {useAdvancedDiceRoll 
+                        ? 'Advanced mode allows you to configure advantage/disadvantage and situational bonuses before rolling.'
+                        : 'Simple mode rolls dice immediately without configuration options.'
+                    }
+                </Text>
                 
                 <View style={{ justifyContent: 'center', marginBottom: 12 }}>
                     <Text style={[styles.sectionTitle, { color: currentTheme.text }]}>Data Management</Text>
-                    <Pressable 
-                        onPress={() => setStorageModalVisible(true)} 
-                        style={[commonStyles.button, { backgroundColor: currentTheme.primary, marginTop: 8 }]}
-                    > 
-                        <Text style={[commonStyles.buttonText, { color: currentTheme.buttonText || 'white' }]}>Storage Management</Text>
-                    </Pressable>
-                    <Pressable 
-                        onPress={handleRegenerateIndexes} 
-                        style={[commonStyles.button, { backgroundColor: '#f59e0b', marginTop: 8 }]}
-                    > 
-                        <Text style={[commonStyles.buttonText, { color: 'white' }]}>Regenerate All Indexes</Text>
-                    </Pressable>
+                    <View style={[commonStyles.row]}>
+                        <Pressable 
+                            onPress={() => setStorageModalVisible(true)} 
+                            style={[commonStyles.button, { backgroundColor: currentTheme.primary, marginTop: 0, flex: 0.5 }]}
+                        > 
+                            <Text style={[commonStyles.buttonText, { fontSize: 14, textAlign: 'center', color: currentTheme.buttonText || 'white' }]}>Storage Management</Text>
+                        </Pressable>
+                        <Pressable 
+                            onPress={handleRegenerateIndexes} 
+                            style={[commonStyles.button, { backgroundColor: '#f59e0b', marginTop: 0, flex: 0.5 }]}
+                        > 
+                            <Text style={[commonStyles.buttonText, { fontSize: 14, textAlign: 'center', color: 'white' }]}>Regenerate All Indexes</Text>
+                        </Pressable>
+                    </View>
                     <Text style={[styles.settingDescription, { color: currentTheme.noticeText, marginTop: 4 }]}>
                         Regenerates all indexes (beasts, spells, combats, relations, classes, filter indexes) from existing data files. This improves filter performance on Android.
                     </Text>
@@ -265,14 +268,8 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: '600',
         marginTop: 12,
-        marginBottom: 8,
+        marginBottom: 0,
         textAlign: 'center',
-    },
-    fieldLabel: {
-        fontSize: 16,
-        fontWeight: '600',
-        marginTop: 16,
-        marginBottom: 6,
     },
     settingDescription: {
         fontSize: 12,

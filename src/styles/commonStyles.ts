@@ -263,8 +263,8 @@ export const commonStyles = StyleSheet.create({
     },
     langButton: {
         flex: 1,
-        paddingHorizontal: 20,
-        paddingVertical: 12,
+        paddingHorizontal: 10,
+        paddingVertical: 8,
         borderRadius: 8,
         alignItems: 'center',
         borderWidth: 1,

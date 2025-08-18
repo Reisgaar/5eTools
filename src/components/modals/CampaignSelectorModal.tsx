@@ -10,21 +10,22 @@ import { useAppSettingsStore, useCampaignStore, useSpellbookStore } from 'src/st
 
 // CONTEXTS
 import { useCombat } from 'src/context/CombatContext';
+import { useModal } from 'src/context/ModalContext';
 
 // INTERFACES
 interface CampaignSelectorModalProps {
     visible: boolean;
-    onClose: () => void;
 }
 
 /**
  * Modal for selecting a campaign.
  */
-export default function CampaignSelectorModal({ visible, onClose }: CampaignSelectorModalProps): JSX.Element {
+export default function CampaignSelectorModal({ visible }: CampaignSelectorModalProps): JSX.Element {
     const { campaigns, selectedCampaignId, selectCampaign, clearSelectedCampaign } = useCampaignStore();
     const { currentTheme } = useAppSettingsStore();
     const { getSortedCombats, reloadCombats } = useCombat();
     const { getSpellbooksByCampaign, clearSpellbookSelection } = useSpellbookStore();
+    const { closeCampaignSelectorModal } = useModal();
 
     const handleSelectCampaign = async (campaignId: string | null) => {
         // 1. Combats - Reload combats when changing campaign
@@ -40,7 +41,7 @@ export default function CampaignSelectorModal({ visible, onClose }: CampaignSele
         } else {
             clearSelectedCampaign();
         }
-        onClose();
+        closeCampaignSelectorModal();
     };
 
     const handleShowAll = async () => {
@@ -53,18 +54,18 @@ export default function CampaignSelectorModal({ visible, onClose }: CampaignSele
         // 3. Home - Reload players (this will be handled by the Home component's useEffect)
 
         clearSelectedCampaign();
-        onClose();
+        closeCampaignSelectorModal();
     };
 
     return (
         <Modal visible={visible} animationType="slide" transparent>
-            <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={onClose}>
+            <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={closeCampaignSelectorModal}>
                 <TouchableOpacity style={[styles.modalContent, { backgroundColor: currentTheme.card }]} activeOpacity={1} onPress={() => {}}>
                     <View style={styles.modalHeader}>
                         <Text style={[styles.modalTitle, { color: currentTheme.text }]}>
                             Select Campaign
                         </Text>
-                        <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+                        <TouchableOpacity onPress={closeCampaignSelectorModal} style={styles.closeButton}>
                             <Ionicons name="close" size={24} color={currentTheme.text} />
                         </TouchableOpacity>
                     </View>
