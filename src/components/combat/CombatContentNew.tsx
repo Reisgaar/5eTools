@@ -15,9 +15,9 @@ import { PlayerModal, ValueEditModal, HPEditModal, MaxHPEditModal, StatusModal, 
 import { SettingsModal, ConfirmModal, ColorModal } from '../modals';
 import { Ionicons } from '@expo/vector-icons';
 import { createCombatStyles } from '../../styles/combat';
-import { CombatContentProps } from './types';
-import { getCombatDisplayList } from './utils';
-import { loadCombatImages } from './utils';
+import { CombatContentProps } from '../../models/interfaces/combat';
+import { getCombatDisplayList } from '../../utils/combatUtils';
+import { loadCombatImages } from '../../utils/combatUtils';
 import { TokenViewModal } from './modals';
 
 export default function CombatContentNew({

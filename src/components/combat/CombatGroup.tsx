@@ -4,8 +4,8 @@ import { Image, Platform, Text, TouchableOpacity, View } from 'react-native';
 import { DEFAULT_CREATURE_TOKEN } from '../../constants/tokens';
 import { createCombatStyles } from '../../styles/combat';
 import CombatMember from './CombatMember';
-import { CombatGroupProps } from './types';
-import { loadCachedTokenUrl } from './utils';
+import { CombatGroupProps } from '../../models/interfaces/combat';
+import { loadCachedTokenUrl } from '../../utils/combatUtils';
 
 export default function CombatGroup({
   group,

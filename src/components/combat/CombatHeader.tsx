@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Text, TouchableOpacity, View, Pressable } from 'react-native';
 import { createCombatStyles } from '../../styles/combat';
-import { CombatHeaderProps } from './types';
+import { CombatHeaderProps } from '../../models/interfaces/combat';
 
 export default function CombatHeader({
   combatName,

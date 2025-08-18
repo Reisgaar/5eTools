@@ -6,20 +6,23 @@ import { Modal, View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react
 import { Ionicons } from '@expo/vector-icons';
 
 // STORES
-import { useAppSettingsStore } from 'src/stores/appSettingsStore';
+import { useAppSettingsStore } from 'src/stores/appSettingsStore';import { useCampaignStore } from 'src/stores';
 
 // CONTEXTS
-import { useCampaign } from 'src/context/CampaignContext';
 import { useCombat } from 'src/context/CombatContext';
 import { useSpellbook } from 'src/context/SpellbookContext';
 
+// INTERFACES
 interface CampaignSelectorModalProps {
     visible: boolean;
     onClose: () => void;
 }
 
+/**
+ * Modal for selecting a campaign.
+ */
 const CampaignSelectorModal: React.FC<CampaignSelectorModalProps> = ({ visible, onClose }) => {
-    const { campaigns, selectedCampaignId, selectCampaign, clearSelectedCampaign } = useCampaign();
+    const { campaigns, selectedCampaignId, selectCampaign, clearSelectedCampaign } = useCampaignStore();
     const { currentTheme } = useAppSettingsStore();
     const { getSortedCombats, reloadCombats } = useCombat();
     const { getSpellbooksByCampaign, clearSpellbookSelection } = useSpellbook();

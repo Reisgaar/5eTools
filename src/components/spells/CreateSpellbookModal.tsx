@@ -1,11 +1,23 @@
+// REACT
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView, Platform } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { BaseModal } from '../ui';
-import { createBaseModalStyles } from '../../styles/baseModalStyles';
-import { useSpellbook } from '../../context/SpellbookContext';
-import { useCampaign } from '../../context/CampaignContext';
 
+// EXPO
+import { Ionicons } from '@expo/vector-icons';
+
+// STORES
+import { useCampaignStore } from 'src/stores';
+
+// CONTEXTS
+import { useSpellbook } from 'src/context/SpellbookContext';
+
+// COMPONENTS
+import { BaseModal } from 'src/components/ui';
+
+// STYLES
+import { createBaseModalStyles } from 'src/styles/baseModalStyles';
+
+// INTERFACES
 interface CreateSpellbookModalProps {
     visible: boolean;
     onClose: () => void;
@@ -13,6 +25,9 @@ interface CreateSpellbookModalProps {
     theme: any;
 }
 
+/**
+ * Modal for creating a new spellbook.
+ */
 export default function CreateSpellbookModal({ 
     visible, 
     onClose, 
@@ -20,7 +35,7 @@ export default function CreateSpellbookModal({
     theme 
 }: CreateSpellbookModalProps) {
     const { createSpellbook } = useSpellbook();
-    const { selectedCampaign, campaigns } = useCampaign();
+    const { selectedCampaign, campaigns } = useCampaignStore();
     const [spellbookName, setSpellbookName] = useState('');
     const [spellbookDescription, setSpellbookDescription] = useState('');
     const [selectedCampaignId, setSelectedCampaignId] = useState<string | undefined>(selectedCampaign?.id || undefined);

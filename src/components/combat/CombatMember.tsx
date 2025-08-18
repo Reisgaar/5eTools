@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Platform, Text, TouchableOpacity, View } from 'react-native';
 import { createCombatStyles } from '../../styles/combat';
-import { CombatMemberProps } from './types';
+import { CombatMemberProps } from '../../models/interfaces/combat';
 
 export default function CombatMember({
   member,

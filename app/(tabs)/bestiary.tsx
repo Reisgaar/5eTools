@@ -4,12 +4,12 @@ import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, TouchableOpac
 
 // STORES
 import { useAppSettingsStore } from 'src/stores/appSettingsStore';
+import { useCampaignStore } from 'src/stores';
 
 // CONTEXTS
 import { useCombat } from 'src/context/CombatContext';
 import { useData } from 'src/context/DataContext';
 import { useModal } from 'src/context/ModalContext';
-import { useCampaign } from 'src/context/CampaignContext';
 
 // UTILS
 import { equalsNormalized } from 'src/utils/stringUtils';
@@ -37,7 +37,7 @@ export default function BestiaryScreen() {
     const { simpleBeasts, simpleSpells, isLoading, isInitialized, getFullBeast, getFullSpell } = useData();
     const { addCombatantToCombat, getSortedCombats } = useCombat();
     const { openBeastModal, openSpellModal } = useModal();
-    const { selectedCampaignId } = useCampaign();
+    const { selectedCampaignId } = useCampaignStore();
     const [combatSelectionModalVisible, setCombatSelectionModalVisible] = useState(false);
     const [beastToAdd, setBeastToAdd] = useState<any | null>(null);
     const [quantity, setQuantity] = useState('1');

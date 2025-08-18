@@ -1,13 +1,23 @@
+// REACT
 import React, { useState } from 'react';
 import { View, Text, TextInput, FlatList, Platform } from 'react-native';
-import { BaseModal } from '../ui';
-import { createBaseModalStyles } from '../../styles/baseModalStyles';
-import { useSpellbook } from '../../context/SpellbookContext';
-import { useCampaign } from '../../context/CampaignContext';
-import SpellbookItem from './SpellbookItem';
-import { useSpellbookSearch } from './useSpellbookSearch';
-import ConfirmModal from '../modals/ConfirmModal';
 
+// STORES
+import { useCampaignStore } from 'src/stores';
+
+// CONTEXTS
+import { useSpellbook } from 'src/context/SpellbookContext';
+
+// COMPONENTS
+import { BaseModal } from 'src/components/ui';
+import SpellbookItem from 'src/components/spells/SpellbookItem';
+import { useSpellbookSearch } from 'src/components/spells/useSpellbookSearch';
+import ConfirmModal from 'src/components/modals/ConfirmModal';
+
+// STYLES
+import { createBaseModalStyles } from 'src/styles/baseModalStyles';
+
+// INTERFACES
 interface AddToSpellbookModalProps {
     visible: boolean;
     onClose: () => void;
@@ -15,6 +25,9 @@ interface AddToSpellbookModalProps {
     theme: any;
 }
 
+/**
+ * Modal for adding a spell to a spellbook.
+ */
 export default function AddToSpellbookModal({ 
     visible, 
     onClose, 
@@ -22,7 +35,7 @@ export default function AddToSpellbookModal({
     theme 
 }: AddToSpellbookModalProps) {
     const { spellbooks, getSpellbooksByCampaign, addSpellToSpellbook, removeSpellFromSpellbook, isSpellInSpellbook } = useSpellbook();
-    const { selectedCampaign } = useCampaign();
+    const { selectedCampaign } = useCampaignStore();
     const filteredSpellbooks = getSpellbooksByCampaign(selectedCampaign?.id);
     const { searchQuery, setSearchQuery, filteredSpellbooks: searchedSpellbooks } = useSpellbookSearch(filteredSpellbooks);
     const styles = createBaseModalStyles(theme);

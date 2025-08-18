@@ -4,9 +4,9 @@ import { ActivityIndicator, Dimensions, ScrollView, Text, TouchableOpacity, View
 
 // STORES
 import { useAppSettingsStore } from 'src/stores/appSettingsStore';
+import { useCampaignStore } from 'src/stores';
 
 // CONTEXTS
-import { useCampaign } from 'src/context/CampaignContext';
 import { useModal } from 'src/context/ModalContext';
 import { useData } from 'src/context/DataContext';
 
@@ -39,11 +39,12 @@ import {
 } from 'src/utils/spellUtils';
 import { normalizeString, equalsNormalized, is2024Source } from 'src/utils/stringUtils';
 
+// CONSTANTS
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-
-
-
+/**
+ * Modal for displaying spell details.
+ */
 export function SpellDetailModal({
     visible,
     spell,

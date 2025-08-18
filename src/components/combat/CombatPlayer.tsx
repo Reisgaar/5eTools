@@ -4,7 +4,7 @@ import { Image, Platform, Text, TouchableOpacity, View } from 'react-native';
 import { DEFAULT_PLAYER_TOKEN } from '../../constants/tokens';
 import { createCombatStyles } from '../../styles/combat';
 import { Combatant } from '../../context/CombatContext';
-import { loadCachedTokenUrl } from './utils';
+import { loadCachedTokenUrl } from '../../utils/combatUtils';
 
 export interface CombatPlayerProps {
   combatant: Combatant;

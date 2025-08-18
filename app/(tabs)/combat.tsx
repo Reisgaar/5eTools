@@ -8,15 +8,15 @@ import { CombatFormModal } from 'src/components/combat/modals';
 
 // STORES
 import { useAppSettingsStore } from 'src/stores/appSettingsStore';
+import { useCampaignStore } from 'src/stores';
 
 // CONTEXTS
-import { useCampaign } from 'src/context/CampaignContext';
 import { useCombat } from 'src/context/CombatContext';
 import { useData } from 'src/context/DataContext';
 import { useModal } from 'src/context/ModalContext';
 
 export default function CombatScreen() {
-    const { selectedCampaign } = useCampaign();
+    const { selectedCampaign } = useCampaignStore();
     const { 
         combats,
         currentCombatId,

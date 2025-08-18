@@ -7,11 +7,12 @@ import { Ionicons } from '@expo/vector-icons';
 
 // STORES
 import { useAppSettingsStore } from 'src/stores/appSettingsStore';
+import { useCampaignStore } from 'src/stores';
 
 // CONTEXTS
 import { useSpellbook } from 'src/context/SpellbookContext';
-import { useCampaign } from 'src/context/CampaignContext';
 
+// INTERFACES
 interface SpellbookSelectorModalProps {
     visible: boolean;
     onClose: () => void;
@@ -19,6 +20,9 @@ interface SpellbookSelectorModalProps {
     onCreateSpellbook: () => void;
 }
 
+/**
+ * Modal for selecting a spellbook.
+ */
 const SpellbookSelectorModal: React.FC<SpellbookSelectorModalProps> = ({ 
     visible, 
     onClose, 
@@ -26,7 +30,7 @@ const SpellbookSelectorModal: React.FC<SpellbookSelectorModalProps> = ({
     onCreateSpellbook 
 }) => {
     const { spellbooks, currentSpellbookId, selectSpellbook, clearSpellbookSelection, getSpellbooksByCampaign } = useSpellbook();
-    const { selectedCampaignId } = useCampaign();
+    const { selectedCampaignId } = useCampaignStore();
     const { currentTheme } = useAppSettingsStore();
 
     // Get spellbooks filtered by selected campaign

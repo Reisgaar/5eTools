@@ -6,15 +6,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 // EXPO
 import { usePathname } from 'expo-router';
 
-// CONTEXTS
-import { useCampaign } from 'src/context/CampaignContext';
+// STORES
+import { useCampaignStore } from 'src/stores';
 import { useAppSettingsStore } from 'src/stores/appSettingsStore';
 
 // COMPONENTS
 import CampaignSelectorModal from 'src/components/modals/CampaignSelectorModal';
 
 const Header: React.FC = () => {
-    const { selectedCampaign, selectedCampaignId, clearSelectedCampaign } = useCampaign();
+    const { selectedCampaign, selectedCampaignId, clearSelectedCampaign } = useCampaignStore();
     const { currentTheme } = useAppSettingsStore();
     const [campaignModalVisible, setCampaignModalVisible] = React.useState(false);
 

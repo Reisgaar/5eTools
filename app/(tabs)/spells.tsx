@@ -7,9 +7,9 @@ import { Ionicons } from '@expo/vector-icons';
 
 // STORES
 import { useAppSettingsStore } from 'src/stores/appSettingsStore';
+import { useCampaignStore } from 'src/stores';
 
 // CONTEXTS
-import { useCampaign } from 'src/context/CampaignContext';
 import { useData } from 'src/context/DataContext';
 import { useModal } from 'src/context/ModalContext';
 import { useSpellbook } from 'src/context/SpellbookContext';
@@ -60,7 +60,7 @@ function formatComponents(components: any) {
 
 export default function SpellsScreen() {
     const { currentTheme } = useAppSettingsStore();
-    const { selectedCampaign } = useCampaign();
+    const { selectedCampaign } = useCampaignStore();
     const { simpleBeasts, simpleSpells, spells, spellSourceLookup, availableClasses, isLoading, isInitialized, getFullBeast, getFullSpell } = useData();
     const { openBeastModal, openSpellModal } = useModal();
     const { spellbooks, currentSpellbookId, getCurrentSpellbook, getSpellbooksByCampaign, addSpellToSpellbook, removeSpellFromSpellbook, isSpellInSpellbook, selectSpellbook, clearSpellbookSelection, getSpellbookSpells } = useSpellbook();

@@ -1,8 +1,14 @@
+// REACT
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useCampaign } from 'src/context/CampaignContext';
 
+// EXPO
+import { Ionicons } from '@expo/vector-icons';
+
+// STORES
+import { useCampaignStore } from 'src/stores';
+
+// INTERFACES
 interface CampaignSelectorProps {
     selectedCampaignId?: string;
     onCampaignChange: (campaignId?: string) => void;
@@ -10,13 +16,16 @@ interface CampaignSelectorProps {
     label?: string;
 }
 
+/**
+ * Component for selecting a campaign.
+ */
 const CampaignSelector: React.FC<CampaignSelectorProps> = ({
     selectedCampaignId,
     onCampaignChange,
     theme,
     label = "Campaign (optional)"
 }) => {
-    const { campaigns } = useCampaign();
+    const { campaigns } = useCampaignStore();
     const [showCampaignSelector, setShowCampaignSelector] = useState(false);
 
     const getCampaignName = (campaignId?: string) => {

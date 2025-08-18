@@ -3,8 +3,8 @@ import React from 'react';
 import { Image, Platform, Text, TouchableOpacity, View } from 'react-native';
 import { DEFAULT_CREATURE_TOKEN } from '../../constants/tokens';
 import { createCombatStyles } from '../../styles/combat';
-import { CombatIndividualProps } from './types';
-import { loadCachedTokenUrl } from './utils';
+import { CombatIndividualProps } from '../../models/interfaces/combat';
+import { loadCachedTokenUrl } from '../../utils/combatUtils';
 
 export default function CombatIndividual({
   combatant,

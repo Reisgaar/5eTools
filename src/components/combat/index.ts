@@ -9,5 +9,5 @@ export { default as CombatList } from './CombatList';
 export { default as CombatSelectionModal } from './CombatSelectionModal';
 
 // Export shared types and utilities
-export * from './types';
-export * from './utils';
+export * from '../../models/interfaces/combat';
+export * from '../../utils/combatUtils';
