@@ -67,10 +67,25 @@ export default function StatusModal({
             theme={theme}
             title={modalTitle}
             subtitle={modalSubtitle}
+            footerContent={
+                <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
+                    <TouchableOpacity
+                        onPress={onClose}
+                        style={[styles.footerButton, { backgroundColor: theme.secondary }]}
+                    >
+                        <Text style={styles.footerButtonText}>Cancel</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={handleAccept}
+                        style={[styles.footerButton, { backgroundColor: theme.primary }]}
+                    >
+                        <Text style={styles.footerButtonText}>Accept</Text>
+                    </TouchableOpacity>
+                </View>
+            }
         >
             {/* Status Conditions Section */}
             <View style={styles.modalSection}>
-                <Text style={[styles.modalSectionTitle, { color: theme.text }]}>Select Conditions</Text>
                 <View style={styles.conditionsGrid}>
                     {DEFAULT_CONDITIONS.map((item) => (
                         <TouchableOpacity
@@ -88,16 +103,6 @@ export default function StatusModal({
                         </TouchableOpacity>
                     ))}
                 </View>
-            </View>
-
-            {/* Action Buttons */}
-            <View style={styles.actionRow}>
-                <TouchableOpacity
-                    style={[styles.modalButton, styles.modalButtonPrimary]}
-                    onPress={handleAccept}
-                >
-                    <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>Save</Text>
-                </TouchableOpacity>
             </View>
         </BaseModal>
     );

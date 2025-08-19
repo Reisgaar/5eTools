@@ -43,12 +43,8 @@ export default function HPEditModal({
         setCurrentHp(initialCurrentHp);
     }, [initialCurrentHp]);
 
-    const handleIncrement = (amount: number) => {
+    const handleValueChange = (amount: number) => {
         setCurrentHp(prev => Math.min(maxHp, prev + amount));
-    };
-
-    const handleDecrement = (amount: number) => {
-        setCurrentHp(prev => prev - amount);
     };
 
     const handleAccept = () => {
@@ -60,7 +56,28 @@ export default function HPEditModal({
     const modalTitle = 'Edit Current HP';
 
     return (
-        <BaseModal visible={visible} onClose={onClose} theme={theme} title={modalTitle} maxHeight="85%">
+        <BaseModal
+            visible={visible}
+            onClose={onClose}
+            theme={theme}
+            title={modalTitle}
+            footerContent={
+                <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
+                    <TouchableOpacity
+                        onPress={onClose}
+                        style={[styles.footerButton, { backgroundColor: theme.secondary }]}
+                    >
+                        <Text style={styles.footerButtonText}>Cancel</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={handleAccept}
+                        style={[styles.footerButton, { backgroundColor: theme.primary }]}
+                    >
+                        <Text style={styles.footerButtonText}>Accept</Text>
+                    </TouchableOpacity>
+                </View>
+            }
+        >
             {/* Creature Name */}
             <View style={styles.modalSection}>
                 <Text style={[styles.modalText, { fontStyle: 'italic', textAlign: 'center' }]}>
@@ -69,115 +86,70 @@ export default function HPEditModal({
             </View>
 
             {/* HP Display */}
-            <View style={styles.modalSection}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 20, gap: 12 }}>
-                    <TextInput
-                        style={{
-                            borderWidth: 2,
-                            borderRadius: 8,
-                            paddingHorizontal: 16,
-                            paddingVertical: 12,
-                            fontSize: 24,
-                            fontWeight: 'bold',
-                            textAlign: 'center',
-                            minWidth: 80,
-                            backgroundColor: theme.inputBackground,
-                            color: theme.text,
-                            borderColor: theme.primary
-                        }}
-                        value={String(currentHp)}
-                        onChangeText={(text) => {
-                            const num = parseInt(text, 10);
-                            if (!isNaN(num)) {
-                                setCurrentHp(Math.min(maxHp, num));
-                            } else if (text === '') {
-                                setCurrentHp(0);
-                            }
-                        }}
-                        keyboardType="numeric"
-                        textAlign="center"
-                    />
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 30, gap: 12 }}>
+                <TextInput
+                    style={{
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        padding: 8,
+                        fontSize: 18,
+                        fontWeight: 'bold',
+                        textAlign: 'center',
+                        backgroundColor: theme.inputBackground,
+                        color: theme.text,
+                        borderColor: theme.primary
+                    }}
+                    value={String(currentHp)}
+                    onChangeText={(text) => {
+                        const num = parseInt(text, 10);
+                        if (!isNaN(num)) {
+                            setCurrentHp(Math.min(maxHp, num));
+                        } else if (text === '') {
+                            setCurrentHp(0);
+                        }
+                    }}
+                    keyboardType="numeric"
+                    textAlign="center"
+                />
 
-                    <Text style={{ fontSize: 24, fontWeight: 'bold', color: theme.text }}>/</Text>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', color: theme.text }}>/</Text>
 
-                    <TouchableOpacity
-                        style={{
-                            borderWidth: 2,
-                            borderRadius: 8,
-                            paddingHorizontal: 16,
-                            paddingVertical: 12,
-                            minWidth: 80,
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            backgroundColor: theme.inputBackground,
-                            borderColor: theme.primary
-                        }}
-                        onPress={onMaxHpEdit}
-                    >
-                        <Text style={{ fontSize: 24, fontWeight: 'bold', color: theme.text }}>
-                            {maxHp}
-                        </Text>
-                    </TouchableOpacity>
-                </View>
+                <TouchableOpacity
+                    style={{
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        padding: 8,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: theme.inputBackground,
+                        borderColor: theme.primary
+                    }}
+                    onPress={onMaxHpEdit}
+                >
+                    <Text style={{ fontSize: 18, fontWeight: 'bold', color: theme.text }}>
+                        {maxHp}
+                    </Text>
+                </TouchableOpacity>
             </View>
 
             {/* HP Adjustment Buttons */}
             <View style={styles.modalSection}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginBottom: 20, gap: 12 }}>
                     {/* Decrement Buttons - Left Column */}
-                    <View style={{ flex: 1, gap: 6 }}>
-                        <TouchableOpacity
-                            style={[styles.modalButton, styles.modalButtonPrimary]}
-                            onPress={() => handleDecrement(10)}
-                        >
-                            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-10</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.modalButton, styles.modalButtonPrimary]}
-                            onPress={() => handleDecrement(5)}
-                        >
-                            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-5</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.modalButton, styles.modalButtonPrimary]}
-                            onPress={() => handleDecrement(1)}
-                        >
-                            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-1</Text>
-                        </TouchableOpacity>
-                    </View>
-
-                    {/* Increment Buttons - Right Column */}
-                    <View style={{ flex: 1, gap: 6 }}>
-                        <TouchableOpacity
-                            style={[styles.modalButton, styles.modalButtonPrimary]}
-                            onPress={() => handleIncrement(10)}
-                        >
-                            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>+10</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.modalButton, styles.modalButtonPrimary]}
-                            onPress={() => handleIncrement(5)}
-                        >
-                            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>+5</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.modalButton, styles.modalButtonPrimary]}
-                            onPress={() => handleIncrement(1)}
-                        >
-                            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>+1</Text>
-                        </TouchableOpacity>
+                    <View style={{ flex: 1, gap: 6, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
+                        {[-10, 10, -5, 5, -1, 1].map((value) => (
+                            <TouchableOpacity
+                                key={value}
+                                style={[styles.footerButton, { backgroundColor: theme.primary }]}
+                                onPress={() => handleValueChange(value)}
+                            >
+                                <Text style={[styles.footerButtonText]}>
+                                    {value > 0 ? `+${value}` : value}
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
                     </View>
                 </View>
-            </View>
-
-            {/* Action Buttons */}
-            <View style={styles.actionRow}>
-                <TouchableOpacity
-                    style={[styles.modalButton, styles.modalButtonPrimary]}
-                    onPress={handleAccept}
-                >
-                    <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>Accept</Text>
-                </TouchableOpacity>
             </View>
         </BaseModal>
     );

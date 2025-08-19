@@ -41,35 +41,30 @@ export default function ConfirmModal({
             onClose={onClose}
             theme={theme}
             title={title}
-            maxHeight="60%"
+            footerContent={
+                <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
+                    <TouchableOpacity
+                        onPress={onClose}
+                        style={[styles.footerButton, { backgroundColor: theme.secondary }]}
+                    >
+                        <Text style={styles.footerButtonText}>{cancelText}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => {
+                            onConfirm();
+                            onClose();
+                        }}
+                        style={[styles.footerButton, { backgroundColor: theme.primary }]}
+                    >
+                        <Text style={styles.footerButtonText}>{confirmText}</Text>
+                    </TouchableOpacity>
+                </View>
+            }
         >
-            <View style={styles.modalSection}>
-                <Text style={[styles.modalText, { color: theme.text, marginBottom: 20, textAlign: 'center' }]}>
+            <View style={{ marginVertical: 20 }}>
+                <Text style={[styles.modalText, { fontSize: 14, color: theme.text, textAlign: 'center' }]}>
                     {message}
                 </Text>
-            </View>
-
-            <View style={styles.actionRow}>
-                <TouchableOpacity
-                    onPress={onClose}
-                    style={[styles.modalButton, styles.modalButtonSecondary]}
-                >
-                    <Text style={[styles.modalButtonText, styles.modalButtonTextSecondary]}>
-                        {cancelText}
-                    </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                    onPress={() => {
-                        onConfirm();
-                        onClose();
-                    }}
-                    style={[styles.modalButton, { backgroundColor: theme.danger || '#dc2626' }]}
-                >
-                    <Text style={[styles.modalButtonText, { color: 'white' }]}>
-                        {confirmText}
-                    </Text>
-                </TouchableOpacity>
             </View>
         </BaseModal>
     );

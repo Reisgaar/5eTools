@@ -242,12 +242,13 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
 
     // Settings option styles
     settingsOption: {
-        flexDirection: 'row',
+        width: '48%',
+        marginBottom: 4,
+        flexDirection: 'column',
         alignItems: 'center',
-        paddingVertical: 16,
-        paddingHorizontal: 12,
+        paddingVertical: 12,
+        paddingHorizontal: 8,
         borderRadius: 8,
-        marginBottom: 8,
         backgroundColor: 'rgba(0,0,0,0.02)',
     },
     optionIcon: {
@@ -281,11 +282,9 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
     conditionBtn: {
         flexDirection: 'row',
         alignItems: 'center',
-        margin: 4,
+        marginVertical: 8,
         width: '48%',
         minWidth: 0,
-        paddingVertical: 8,
-        paddingHorizontal: 4,
     },
 
     // Color grid styles

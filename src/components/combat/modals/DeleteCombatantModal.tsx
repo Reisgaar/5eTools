@@ -61,44 +61,31 @@ export default function DeleteCombatantModal({
             theme={theme}
             title={modalTitle}
             subtitle={modalSubtitle}
+            footerContent={
+                <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
+                    <TouchableOpacity
+                        onPress={onClose}
+                        style={[styles.footerButton, { backgroundColor: theme.primary }]}
+                    >
+                        <Text style={styles.footerButtonText}>Cancel</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={handleConfirm}
+                        style={[styles.footerButton, { backgroundColor: theme.danger || '#f44336' }]}
+                    >
+                        <Text style={styles.footerButtonText}>Remove</Text>
+                    </TouchableOpacity>
+                </View>
+            }
         >
             {/* Delete Section */}
             <View style={styles.modalSection}>
-                <Text style={[styles.modalSectionTitle, { color: theme.danger || '#f44336' }]}>Combat Management</Text>
-                <Text style={[styles.modalNoticeText, { color: theme.noticeText }]}>
-                    Remove this creature from the combat tracker permanently.
+                <Text style={[styles.modalNoticeText, { fontSize: 14, color: theme.text }]}>
+                    Deleting the creature will remove it from the combat tracker permanently.
                 </Text>
-
-                {!showConfirmation ? (
-                    <TouchableOpacity
-                        onPress={handleDeleteClick}
-                        style={[styles.deleteBtn, { backgroundColor: theme.danger || '#f44336' }]}
-                    >
-                        <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold' }}>
-                            Remove from Combat
-                        </Text>
-                    </TouchableOpacity>
-                ) : (
-                    <View style={styles.confirmationContainer}>
-                        <Text style={[styles.confirmationText, { color: theme.text }]}>
-                            Are you sure you want to remove "{creatureName}" from combat?
-                        </Text>
-                        <View style={styles.confirmationButtons}>
-                            <TouchableOpacity
-                                onPress={handleCancel}
-                                style={[styles.confirmationBtn, { backgroundColor: theme.card, borderColor: theme.primary, borderWidth: 1 }]}
-                            >
-                                <Text style={{ color: theme.text, textAlign: 'center', fontWeight: 'bold' }}>Cancel</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                onPress={handleConfirm}
-                                style={[styles.confirmationBtn, { backgroundColor: theme.danger || '#f44336' }]}
-                            >
-                                <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold' }}>Confirm Delete</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                )}
+                <Text style={[styles.modalNoticeText, { fontSize: 14, color: theme.text, marginTop: 20 }]}>
+                    Are you sure you want to remove "{creatureName}"?
+                </Text>
             </View>
         </BaseModal>
     );

@@ -76,6 +76,22 @@ export default function PlayerModal({
             onClose={onClose}
             theme={theme}
             title="Add Players to Combat"
+            footerContent={
+                <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
+                    <TouchableOpacity
+                        onPress={onClose}
+                        style={[styles.footerButton, { backgroundColor: theme.secondary }]}
+                    >
+                        <Text style={styles.footerButtonText}>Cancel</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={onAddPlayers}
+                        style={[styles.footerButton, { backgroundColor: theme.primary }]}
+                    >
+                        <Text style={styles.footerButtonText}>Accept</Text>
+                    </TouchableOpacity>
+                </View>
+            }
         >
             {filteredPlayers.length === 0 ? (
                 <Text style={styles.modalNoticeText}>
@@ -122,13 +138,6 @@ export default function PlayerModal({
                     </TouchableOpacity>
                 ))
             )}
-
-            <TouchableOpacity
-                onPress={onAddPlayers}
-                style={[styles.modalButton, styles.modalButtonPrimary, { marginTop: 16 }]}
-            >
-                <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>Add</Text>
-            </TouchableOpacity>
         </BaseModal>
     );
 }

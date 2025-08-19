@@ -75,10 +75,25 @@ export default function ColorModal({
             theme={theme}
             title={modalTitle}
             subtitle={modalSubtitle}
+            footerContent={
+                <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
+                    <TouchableOpacity
+                        onPress={handleClear}
+                        style={[styles.footerButton, { backgroundColor: theme.secondary }]}
+                    >
+                        <Text style={styles.footerButtonText}>Clear</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={handleAccept}
+                        style={[styles.footerButton, { backgroundColor: theme.primary }]}
+                    >
+                        <Text style={styles.footerButtonText}>Accept</Text>
+                    </TouchableOpacity>
+                </View>
+            }
         >
             {/* Color Selection Section */}
             <View style={styles.modalSection}>
-                <Text style={[styles.modalSectionTitle, { color: theme.text }]}>Select Color</Text>
                 <Text style={[styles.modalNoticeText, { color: theme.noticeText }]}>
                     Choose a color to highlight this creature in the combat tracker.
                 </Text>
@@ -101,30 +116,6 @@ export default function ColorModal({
                         </TouchableOpacity>
                     ))}
                 </View>
-
-                {/* Current Selection */}
-                {selectedColor && (
-                    <View style={styles.currentSelection}>
-                        <Text style={[styles.currentText, { color: theme.text }]}>Selected:</Text>
-                        <View style={[styles.currentColor, { backgroundColor: selectedColor }]} />
-                    </View>
-                )}
-            </View>
-
-            {/* Action Buttons */}
-            <View style={styles.actionRow}>
-                <TouchableOpacity
-                    style={[styles.modalButton, { borderColor: theme.primary, borderWidth: 1 }]}
-                    onPress={handleClear}
-                >
-                    <Text style={[styles.modalButtonText, { color: theme.primary }]}>Clear</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={[styles.modalButton, styles.modalButtonPrimary]}
-                    onPress={handleAccept}
-                >
-                    <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>Save</Text>
-                </TouchableOpacity>
             </View>
         </BaseModal>
     );

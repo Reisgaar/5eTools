@@ -52,24 +52,21 @@ export default function CombatSettingsModal({
             subtitle={modalSubtitle}
         >
             {/* Settings Options */}
-            <View style={styles.modalSection}>
-                <Text style={[styles.modalSectionTitle, { color: theme.text }]}>What would you like to do?</Text>
-
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: '2%' }}>
                 {/* Status Conditions Option */}
                 <TouchableOpacity
                     style={styles.settingsOption}
                     onPress={onStatusPress}
                 >
-                    <View style={styles.optionIcon}>
-                        <Ionicons name="medical" size={24} color={theme.primary} />
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', width: '100%' }}>
+                        <Ionicons name="medical" size={18} color={theme.primary} />
+                        <Text style={[styles.optionTitle, { color: theme.text, marginLeft: 12 }]}>Status</Text>
                     </View>
                     <View style={styles.optionContent}>
-                        <Text style={[styles.optionTitle, { color: theme.text }]}>Status Conditions</Text>
                         <Text style={[styles.optionDescription, { color: theme.noticeText }]}>
-              Add or remove status effects
+                            Add or remove status effects
                         </Text>
                     </View>
-                    <Ionicons name="chevron-forward" size={20} color={theme.noticeText} />
                 </TouchableOpacity>
 
                 {/* Color Option */}
@@ -77,16 +74,16 @@ export default function CombatSettingsModal({
                     style={styles.settingsOption}
                     onPress={onColorPress}
                 >
-                    <View style={styles.optionIcon}>
-                        <Ionicons name="color-palette" size={24} color={theme.primary} />
+                    
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', width: '100%' }}>
+                        <Ionicons name="color-palette" size={18} color={theme.primary} />
+                        <Text style={[styles.optionTitle, { color: theme.text, marginLeft: 12 }]}>Color</Text>
                     </View>
                     <View style={styles.optionContent}>
-                        <Text style={[styles.optionTitle, { color: theme.text }]}>Color</Text>
                         <Text style={[styles.optionDescription, { color: theme.noticeText }]}>
-              Change creature highlight color
+                            Change creature highlight color
                         </Text>
                     </View>
-                    <Ionicons name="chevron-forward" size={20} color={theme.noticeText} />
                 </TouchableOpacity>
 
                 {/* Notes Option */}
@@ -94,16 +91,16 @@ export default function CombatSettingsModal({
                     style={styles.settingsOption}
                     onPress={onNotePress}
                 >
-                    <View style={styles.optionIcon}>
-                        <Ionicons name="document-text" size={24} color={theme.primary} />
+                    
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', width: '100%' }}>
+                        <Ionicons name="document-text" size={18} color={theme.primary} />
+                        <Text style={[styles.optionTitle, { color: theme.text, marginLeft: 12 }]}>Notes</Text>
                     </View>
                     <View style={styles.optionContent}>
-                        <Text style={[styles.optionTitle, { color: theme.text }]}>Notes</Text>
                         <Text style={[styles.optionDescription, { color: theme.noticeText }]}>
-              Add or edit creature notes
+                            Add or edit creature notes
                         </Text>
                     </View>
-                    <Ionicons name="chevron-forward" size={20} color={theme.noticeText} />
                 </TouchableOpacity>
 
                 {/* Delete Option */}
@@ -111,16 +108,16 @@ export default function CombatSettingsModal({
                     style={styles.settingsOption}
                     onPress={onDeletePress}
                 >
-                    <View style={[styles.optionIcon, { backgroundColor: (theme.danger || '#f44336') + '20' }]}>
-                        <Ionicons name="trash" size={24} color={theme.danger || '#f44336'} />
+                    
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', width: '100%' }}>
+                        <Ionicons name="trash" size={18} color={theme.danger || '#f44336'} />
+                        <Text style={[styles.optionTitle, { color: theme.danger || '#f44336', marginLeft: 12 }]}>Remove</Text>
                     </View>
                     <View style={styles.optionContent}>
-                        <Text style={[styles.optionTitle, { color: theme.danger || '#f44336' }]}>Remove from Combat</Text>
                         <Text style={[styles.optionDescription, { color: theme.noticeText }]}>
-              Permanently remove this creature
+                            Permanently remove this creature
                         </Text>
                     </View>
-                    <Ionicons name="chevron-forward" size={20} color={theme.noticeText} />
                 </TouchableOpacity>
             </View>
         </BaseModal>
