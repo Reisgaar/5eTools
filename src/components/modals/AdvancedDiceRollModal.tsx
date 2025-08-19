@@ -1,6 +1,6 @@
 // REACT
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, TextInput, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, TouchableWithoutFeedback, Keyboard, Switch } from 'react-native';
 
 // CONTEXT
 import { useModal } from 'src/context/ModalContext';
@@ -163,13 +163,12 @@ export default function AdvancedDiceRollModal({
         // Calculate total bonus for display
         let situationalBonusNum = 0;
         if (situationalBonus) {
-            if (situationalBonus.startsWith('+')) {
+            if (situationalBonus.startsWith('+'))
                 situationalBonusNum = parseInt(situationalBonus.slice(1)) || 0;
-            } else if (situationalBonus.startsWith('-')) {
+            else if (situationalBonus.startsWith('-'))
                 situationalBonusNum = -parseInt(situationalBonus.slice(1)) || 0;
-            } else {
+            else
                 situationalBonusNum = parseInt(situationalBonus) || 0;
-            }
         }
         const totalBonus = d20Config!.bonus + situationalBonusNum;
 
@@ -313,67 +312,25 @@ export default function AdvancedDiceRollModal({
 
             {/* Critical Hit */}
             <View style={unifiedStyles.modalSection}>
-                <Text style={[unifiedStyles.modalText, { marginBottom: 12 }]}>Critical Hit:</Text>
-                <View style={unifiedStyles.actionRow}>
-                    <TouchableOpacity
-                        style={[
-                            unifiedStyles.modalButton,
-                            unifiedStyles.modalButtonSecondary,
-                            isCritical && unifiedStyles.modalButtonPrimary
-                        ]}
-                        onPress={() => setIsCritical(!isCritical)}
-                    >
-                        <Text style={[
-                            unifiedStyles.modalButtonText,
-                            isCritical ? unifiedStyles.modalButtonTextPrimary : unifiedStyles.modalButtonTextSecondary
-                        ]}>
-                            {isCritical ? 'Critical ✓' : 'Normal'}
-                        </Text>
-                    </TouchableOpacity>
+                <View style={[unifiedStyles.actionRow, { alignItems: 'center', marginTop: 0 }]}>
+                    <Text style={unifiedStyles.modalText}>Critical hit?</Text>
+                    <Switch value={isCritical} onValueChange={() => setIsCritical(!isCritical)} />
                 </View>
             </View>
 
             {/* Repeat 1s */}
             <View style={unifiedStyles.modalSection}>
-                <Text style={[unifiedStyles.modalText, { marginBottom: 12 }]}>Repeat 1s:</Text>
-                <View style={unifiedStyles.actionRow}>
-                    <TouchableOpacity
-                        style={[
-                            unifiedStyles.modalButton,
-                            unifiedStyles.modalButtonSecondary,
-                            repeatOnes && unifiedStyles.modalButtonPrimary
-                        ]}
-                        onPress={() => setRepeatOnes(!repeatOnes)}
-                    >
-                        <Text style={[
-                            unifiedStyles.modalButtonText,
-                            repeatOnes ? unifiedStyles.modalButtonTextPrimary : unifiedStyles.modalButtonTextSecondary
-                        ]}>
-                            {repeatOnes ? 'Repeat 1s ✓' : 'Keep 1s'}
-                        </Text>
-                    </TouchableOpacity>
+                <View style={[unifiedStyles.actionRow, { alignItems: 'center', marginTop: 0 }]}>
+                    <Text style={unifiedStyles.modalText}>Repeat 1s?</Text>
+                    <Switch value={repeatOnes} onValueChange={() => setRepeatOnes(!repeatOnes)} />
                 </View>
             </View>
 
             {/* Repeat 2s */}
             <View style={unifiedStyles.modalSection}>
-                <Text style={[unifiedStyles.modalText, { marginBottom: 12 }]}>Repeat 2s:</Text>
-                <View style={unifiedStyles.actionRow}>
-                    <TouchableOpacity
-                        style={[
-                            unifiedStyles.modalButton,
-                            unifiedStyles.modalButtonSecondary,
-                            repeatTwos && unifiedStyles.modalButtonPrimary
-                        ]}
-                        onPress={() => setRepeatTwos(!repeatTwos)}
-                    >
-                        <Text style={[
-                            unifiedStyles.modalButtonText,
-                            repeatTwos ? unifiedStyles.modalButtonTextPrimary : unifiedStyles.modalButtonTextSecondary
-                        ]}>
-                            {repeatTwos ? 'Repeat 2s ✓' : 'Keep 2s'}
-                        </Text>
-                    </TouchableOpacity>
+                <View style={[unifiedStyles.actionRow, { alignItems: 'center', marginTop: 0 }]}>
+                    <Text style={unifiedStyles.modalText}>Repeat 2s?</Text>
+                    <Switch value={repeatTwos} onValueChange={() => setRepeatTwos(!repeatTwos)} />
                 </View>
             </View>
 
@@ -387,19 +344,12 @@ export default function AdvancedDiceRollModal({
     );
 
     const renderResult = () => {
-        if (!result) return null;
+        if (!result) return renderRollButton();
 
         return (
-            <View>
-                <Text style={[unifiedStyles.modalText, { fontSize: 16, fontWeight: 'bold', marginBottom: 8 }]}>
-                    Roll Result:
-                </Text>
+            <View style={{ borderWidth: 1, borderColor: theme.border, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 10 }}>
                 <View style={[unifiedStyles.modalSection, {
                     alignItems: 'center',
-                    padding: 16,
-                    borderWidth: 1,
-                    borderColor: theme.border,
-                    borderRadius: 8,
                     backgroundColor: theme.card + '20'
                 }]}>
                     <Text style={[unifiedStyles.modalText, {
@@ -412,12 +362,34 @@ export default function AdvancedDiceRollModal({
                         Total: {result.total}
                     </Text>
                     <Text style={[unifiedStyles.modalText, { marginBottom: 4 }]}>
-                        Dice rolls: {result.rolls.join(', ')}
+                        Dice roll: {result.rolls.join(', ')}
                     </Text>
                     <Text style={[unifiedStyles.modalText, { fontSize: 12, fontStyle: 'italic' }]}>
                         {result.expression}
                     </Text>
                 </View>
+                {renderRollButton()}
+            </View>
+        );
+    };
+
+    const renderRollButton = () => {
+        return (
+            <View
+                style={[
+                    unifiedStyles.actionRow,
+                    { marginTop: 6, marginBottom: 12 },
+                    result && { marginTop: 0, marginBottom: 0 }
+                ]}
+            >
+                <TouchableOpacity
+                    style={[unifiedStyles.modalButton, unifiedStyles.modalButtonPrimary]}
+                    onPress={handleRoll}
+                >
+                    <Text style={[unifiedStyles.modalButtonText, unifiedStyles.modalButtonTextPrimary]}>
+                        {result ? 'Re-roll' : 'Roll Dice'}
+                    </Text>
+                </TouchableOpacity>
             </View>
         );
     };
@@ -433,20 +405,10 @@ export default function AdvancedDiceRollModal({
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <View style={unifiedStyles.modalBody}>
                     {d20Config && renderD20Config()}
+                    
                     {damageConfig && renderDamageConfig()}
 
                     {renderResult()}
-
-                    <View style={unifiedStyles.actionRow}>
-                        <TouchableOpacity
-                            style={[unifiedStyles.modalButton, unifiedStyles.modalButtonPrimary]}
-                            onPress={handleRoll}
-                        >
-                            <Text style={[unifiedStyles.modalButtonText, unifiedStyles.modalButtonTextPrimary]}>
-                                Roll Dice
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
                 </View>
             </TouchableWithoutFeedback>
         </BaseModal>

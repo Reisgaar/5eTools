@@ -10,16 +10,14 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         right: 0,
         bottom: 0,
         backgroundColor: 'rgba(0,0,0,0.6)',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-        zIndex: 10,
-        paddingTop: 40,
+        zIndex: 10
     },
     modalContainer: {
         justifyContent: 'center',
-        alignItems: 'center',
-        width: '100%',
-        height: '100%',
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: [{ translateX: '-50%' }, { translateY: '-50%' }],
     },
 
     // Main modal content
@@ -63,12 +61,11 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         fontSize: 17,
         fontWeight: 'bold',
         color: theme.text,
-        marginBottom: 3,
     },
     modalSubtitle: {
         fontSize: 12,
         color: theme.noticeText,
-        marginBottom: 5,
+        marginTop: 3,
     },
     modalCloseButton: {
         padding: 4,
@@ -83,21 +80,12 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
     modalSeparator: {
         height: 1,
         backgroundColor: theme.border,
-        marginBottom: 16,
     },
 
     // Content sections
     modalBody: {
-        flex: 1,
-        paddingHorizontal: 16,
-        paddingBottom: 16,
-    },
-    modalScrollView: {
-        flex: 1,
-        paddingHorizontal: 16,
-    },
-    modalScrollContent: {
-        paddingBottom: 16,
+        paddingHorizontal: 10,
+        paddingVertical: 10,
     },
 
     // Footer section

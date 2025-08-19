@@ -66,19 +66,11 @@ export default function BaseModal({
             <View style={styles.modalHeader}>
                 <View style={styles.modalHeaderContent}>
                     {tokenUrl && (
-                        <Image
-                            source={{ uri: tokenUrl }}
-                            style={styles.modalToken}
-                            resizeMode="contain"
-                        />
+                        <Image source={{ uri: tokenUrl }} style={styles.modalToken} resizeMode="contain" />
                     )}
                     <View style={styles.modalHeaderInfo}>
-                        {title && (
-                            <Text style={styles.modalTitle}>{title}</Text>
-                        )}
-                        {subtitle && (
-                            <Text style={styles.modalSubtitle}>{subtitle}</Text>
-                        )}
+                        {title && ( <Text style={styles.modalTitle}>{title}</Text> )}
+                        {subtitle && ( <Text style={styles.modalSubtitle}>{subtitle}</Text> )}
                     </View>
                 </View>
                 <TouchableOpacity onPress={onClose} style={styles.modalCloseButton}>
@@ -90,23 +82,22 @@ export default function BaseModal({
             <View style={styles.modalSeparator} />
 
             {/* Content */}
-            {scrollable ? (
-                <ScrollView
-                    style={styles.modalScrollView}
-                    contentContainerStyle={[styles.modalScrollContent, scrollContentStyle]}
-                    showsVerticalScrollIndicator={true}
-                    nestedScrollEnabled={true}
-                    scrollEventThrottle={16}
-                    bounces={false}
-                    alwaysBounceVertical={false}
-                >
-                    {children}
-                </ScrollView>
-            ) : (
-                <View style={[styles.modalBody]}>
-                    {children}
-                </View>
-            )}
+            <View style={[styles.modalBody]}>
+                {scrollable ? (
+                    <ScrollView
+                        contentContainerStyle={scrollContentStyle}
+                        showsVerticalScrollIndicator={true}
+                        nestedScrollEnabled={true}
+                        scrollEventThrottle={16}
+                        bounces={false}
+                        alwaysBounceVertical={false}
+                    >
+                        {children}
+                    </ScrollView>
+                ) : (
+                    <>{children}</>
+                )}
+            </View>
 
             {/* Footer */}
             {showFooter && (
