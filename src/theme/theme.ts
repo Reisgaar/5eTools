@@ -12,6 +12,7 @@ export type Theme = {
     confirmButtonBackground: string;
     disabledButtonBackground: string;
     primary: string;
+    secondary: string;
     card: string;
     cardTitle: string;
     cardText: string;
@@ -37,6 +38,7 @@ export const lightTheme: Theme = {
     confirmButtonBackground: '#38b000',
     disabledButtonBackground: '#cccccc',
     primary: '#5e60ce',
+    secondary: '#999999',
     card: '#ffffff',
     cardTitle: '#ffffff',
     cardText: '#cccccc',
@@ -62,6 +64,7 @@ export const darkTheme: Theme = {
     confirmButtonBackground: '#38b000',
     disabledButtonBackground: '#2d6a05',
     primary: '#5e60ce',
+    secondary: '#999999',
     card: '#1E1E1E',
     cardTitle: '#ffffff',
     cardText: '#cccccc',

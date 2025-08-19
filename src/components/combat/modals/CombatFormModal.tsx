@@ -56,8 +56,6 @@ export default function CombatFormModal({
     const styles = createBaseModalStyles(theme);
 
     const isEditMode = mode === 'edit';
-    const title = isEditMode ? 'Edit Combat' : 'Create New Combat';
-    const saveButtonText = isEditMode ? 'Save' : 'Create';
 
     useEffect(() => {
         if (visible) {
@@ -105,11 +103,33 @@ export default function CombatFormModal({
                 visible={visible}
                 onClose={onClose}
                 theme={theme}
-                title={title}
+                title={isEditMode ? 'Edit Combat' : 'Create New Combat'}
+                footerContent={
+                    <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
+                        <TouchableOpacity
+                            onPress={onClose}
+                            style={[styles.footerButton, { backgroundColor: theme.secondary }, isEditMode && { width: '30%' }]}
+                        >
+                            <Text style={styles.footerButtonText}>Cancel</Text>
+                        </TouchableOpacity>
+                        {isEditMode && (
+                            <TouchableOpacity
+                                onPress={handleDelete}
+                                style={[styles.footerButton, { backgroundColor: '#f44336', width: '30%' }]}
+                            >
+                                <Text style={styles.footerButtonText}>Delete</Text>
+                            </TouchableOpacity>
+                        )}
+                        <TouchableOpacity
+                            onPress={handleSave}
+                            style={[styles.footerButton, { backgroundColor: theme.primary }, isEditMode && { width: '30%' }]}
+                        >
+                            <Text style={styles.footerButtonText}>{isEditMode ? 'Save' : 'Create'}</Text>
+                        </TouchableOpacity>
+                    </View>
+                }
             >
                 <View style={styles.modalSection}>
-                    <Text style={styles.modalSectionTitle}>Combat Details</Text>
-
                     {/* Name Input */}
                     <Text style={[styles.modalText, { marginBottom: 8 }]}>Combat Name *</Text>
                     <TextInput
@@ -153,32 +173,6 @@ export default function CombatFormModal({
                             Campaign automatically selected from current context
                         </Text>
                     )}
-                </View>
-
-                {/* Action Buttons */}
-                <View style={styles.modalSection}>
-                    <View style={styles.actionRow}>
-                        {isEditMode && (
-                            <TouchableOpacity
-                                onPress={handleDelete}
-                                style={[styles.modalButton, { backgroundColor: theme.danger || '#f44336' }]}
-                            >
-                                <Text style={[styles.modalButtonText, { color: 'white' }]}>
-                                    Delete Combat
-                                </Text>
-                            </TouchableOpacity>
-                        )}
-
-                        <TouchableOpacity
-                            onPress={handleSave}
-                            style={[styles.modalButton, styles.modalButtonPrimary]}
-                            disabled={!name.trim()}
-                        >
-                            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>
-                                {saveButtonText}
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
                 </View>
             </BaseModal>
 

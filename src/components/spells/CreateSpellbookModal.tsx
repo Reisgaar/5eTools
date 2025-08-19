@@ -13,6 +13,7 @@ import { BaseModal } from 'src/components/ui';
 
 // STYLES
 import { createBaseModalStyles } from 'src/styles/baseModalStyles';
+import CampaignSelector from '../ui/CampaignSelector';
 
 // INTERFACES
 interface CreateSpellbookModalProps {
@@ -75,12 +76,6 @@ export default function CreateSpellbookModal({
         }
     };
 
-    const getCampaignName = (campaignId?: string) => {
-        if (!campaignId) return 'Don\'t link to a campaign';
-        const campaign = campaigns.find(c => c.id === campaignId);
-        return campaign ? campaign.name : 'Unknown campaign';
-    };
-
     return (
         <BaseModal
             visible={visible}
@@ -123,43 +118,13 @@ export default function CreateSpellbookModal({
                     numberOfLines={3}
                 />
 
-                <Text style={[styles.modalText, { marginBottom: 8 }]}>Campaign (optional)</Text>
+                {/* Campaign Selection */}
+                <CampaignSelector
+                    selectedCampaignId={selectedCampaignId}
+                    onCampaignChange={setSelectedCampaignId}
+                    theme={theme}
+                />
 
-                {showCampaignSelector ? (
-                    <View style={[styles.modalInput, { marginBottom: 0 }]}>
-                        <TouchableOpacity
-                            style={[{marginBottom: 8, paddingVertical: 4 }]}
-                            onPress={() => {
-                                setSelectedCampaignId(undefined);
-                                setShowCampaignSelector(false);
-                            }}
-                        >
-                            <Text style={styles.modalText}>Don't link to a campaign</Text>
-                        </TouchableOpacity>
-                        {campaigns.map((campaign, index) => (
-                            <TouchableOpacity
-                                key={campaign.id}
-                                style={[{marginBottom: index === campaigns.length - 1 ? 0 : 8, paddingVertical: 4, borderTopWidth: 1, borderColor: theme.border }]}
-                                onPress={() => {
-                                    setSelectedCampaignId(campaign.id);
-                                    setShowCampaignSelector(false);
-                                }}
-                            >
-                                <Text style={styles.modalText}>{campaign.name}</Text>
-                            </TouchableOpacity>
-                        ))}
-                    </View>
-                ) : (
-                    <TouchableOpacity
-                        style={[styles.modalInput, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 0 }]}
-                        onPress={() => setShowCampaignSelector(!showCampaignSelector)}
-                    >
-                        <Text style={styles.modalText}>
-                            {getCampaignName(selectedCampaignId)}
-                        </Text>
-                        <Ionicons name={showCampaignSelector ? 'chevron-up' : 'chevron-down'} size={20} color={theme.text} />
-                    </TouchableOpacity>    
-                )}
             </View>
         </BaseModal>
     );

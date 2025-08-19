@@ -164,11 +164,11 @@ export default function CombatScreen() {
 
             {/* Create Combat Modal */}
             <CombatFormModal
-              visible={createCombatModalVisible}
-              onClose={() => setCreateCombatModalVisible(false)}
-              mode="create"
-              onCreateCombat={handleCreateCombatWithName}
-              theme={currentTheme}
+                visible={createCombatModalVisible}
+                onClose={() => setCreateCombatModalVisible(false)}
+                mode="create"
+                onCreateCombat={handleCreateCombatWithName}
+                theme={currentTheme}
             />
         </View>
     );

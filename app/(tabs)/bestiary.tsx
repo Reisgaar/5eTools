@@ -129,7 +129,6 @@ export default function BestiaryScreen() {
                 onClose={() => setCombatSelectionModalVisible(false)}
                 beastToAdd={beastToAdd}
                 combats={sortedCombats}
-                currentCombatId={null} // Removed currentCombatId from props
                 quantity={quantity}
                 onQuantityChange={setQuantity}
                 onSelectCombat={handleSelectCombat}

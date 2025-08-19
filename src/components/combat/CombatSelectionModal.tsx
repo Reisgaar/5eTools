@@ -14,6 +14,12 @@ import { CombatSelectionModalProps } from 'src/models/interfaces/combat';
 // UTILS
 import { formatDate } from 'src/utils/combatUtils';
 
+// COMPONENTS
+import { BaseModal } from 'src/components/ui';
+
+// STYLES
+import { createBaseModalStyles } from 'src/styles/baseModalStyles';
+
 /**
  * Modal for selecting a combat.
  */
@@ -22,7 +28,6 @@ export default function CombatSelectionModal({
     onClose,
     beastToAdd,
     combats,
-    currentCombatId,
     quantity,
     onQuantityChange,
     onSelectCombat,
@@ -31,6 +36,8 @@ export default function CombatSelectionModal({
     const { campaigns } = useCampaignStore();
     const [searchQuery, setSearchQuery] = useState('');
     const [tokenUrl, setTokenUrl] = useState<string | null>(null);
+    const [selectedCombatId, setSelectedCombatId] = useState<string | null>(null);
+    const baseModalStyles = createBaseModalStyles(theme);
 
     // Load token URL when beast changes
     React.useEffect(() => {
@@ -68,86 +75,85 @@ export default function CombatSelectionModal({
         return campaign ? `Campaign ${campaign.name}` : 'Unknown campaign';
     };
 
-    // Create title with beast name
-    const modalTitle = 'Add to Combat';
-
     return (
-        <Modal visible={visible} animationType="slide" transparent>
-            <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={onClose}>
-                <TouchableOpacity style={[styles.modalContent, { backgroundColor: theme.card }]} activeOpacity={1} onPress={() => {}}>
-                    <View style={styles.modalHeader}>
-                        <Text style={[styles.modalTitle, { color: theme.text }]}>
-                            {modalTitle}
-                        </Text>
-                        <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                            <Ionicons name="close" size={24} color={theme.text} />
+        <BaseModal
+            visible={visible}
+            onClose={onClose}
+            theme={theme}
+            title={`Add ${beastToAdd?.name + ' '}to Combat`}
+            footerContent={
+                <View style={styles.beastInfoRow}>
+                    {/* Quantity Selector */}
+                    <View style={styles.quantityContainer}>
+                        <View style={styles.quantityRow}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    const currentQty = parseInt(quantity, 10) || 1;
+                                    if (currentQty > 1) {
+                                        onQuantityChange(String(currentQty - 1));
+                                    }
+                                }}
+                                style={[styles.quantityButton, { backgroundColor: theme.primary }]}
+                            >
+                                <Text style={styles.quantityButtonText}>-</Text>
+                            </TouchableOpacity>
+
+                            <TextInput
+                                style={[styles.quantityInput, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.primary }]}
+                                value={quantity}
+                                onChangeText={onQuantityChange}
+                                keyboardType="numeric"
+                                textAlign="center"
+                            />
+
+                            <TouchableOpacity
+                                onPress={() => {
+                                    const currentQty = parseInt(quantity, 10) || 1;
+                                    onQuantityChange(String(currentQty + 1));
+                                }}
+                                style={[styles.quantityButton, { backgroundColor: theme.primary }]}
+                            >
+                                <Text style={styles.quantityButtonText}>+</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+
+                    {/* Beast Token */}
+                    {beastToAdd && tokenUrl && (
+                        <View style={styles.beastTokenContainer}>
+                            <Image
+                                source={{ uri: tokenUrl }}
+                                style={styles.beastToken}
+                                onError={() => {
+                                    console.warn('Failed to load token image for:', beastToAdd.name);
+                                }}
+                            />
+                        </View>
+                    )}
+
+                    {/* Add Button */}
+                    <View>
+                        <TouchableOpacity
+                            onPress={() => { selectedCombatId && onSelectCombat(selectedCombatId) }}
+                            style={[
+                                baseModalStyles.footerButton,
+                                {
+                                    width: 80,
+                                    backgroundColor: selectedCombatId ? theme.primary : theme.secondary,
+                                    opacity: selectedCombatId ? 1 : 0.5
+                                }
+                            ]}
+                            disabled={!selectedCombatId}
+                        >
+                            <Text style={baseModalStyles.footerButtonText}>Add</Text>
                         </TouchableOpacity>
                     </View>
-                    <View style={[styles.separator, { backgroundColor: theme.border }]} />
-
-                    <View style={styles.modalBody}>
-                        {/* Beast Info and Quantity Selector */}
-                        <View style={styles.beastInfoSection}>
-                            <View style={styles.beastInfoRow}>
-                                {/* Beast Token */}
-                                {beastToAdd && tokenUrl && (
-                                    <View style={styles.beastTokenContainer}>
-                                        <Image
-                                            source={{ uri: tokenUrl }}
-                                            style={styles.beastToken}
-                                            onError={() => {
-                                                console.warn('Failed to load token image for:', beastToAdd.name);
-                                            }}
-                                        />
-                                    </View>
-                                )}
-
-                                {/* Beast Name */}
-                                <View style={styles.beastNameContainer}>
-                                    <Text style={[styles.beastName, { color: theme.text }]} numberOfLines={2}>
-                                        {beastToAdd?.name || 'Unknown Beast'}
-                                    </Text>
-                                </View>
-
-                                {/* Quantity Selector */}
-                                <View style={styles.quantityContainer}>
-                                    <Text style={[styles.quantityLabel, { color: theme.text }]}>Quantity</Text>
-                                    <View style={styles.quantityRow}>
-                                        <TouchableOpacity
-                                            onPress={() => {
-                                                const currentQty = parseInt(quantity, 10) || 1;
-                                                if (currentQty > 1) {
-                                                    onQuantityChange(String(currentQty - 1));
-                                                }
-                                            }}
-                                            style={[styles.quantityButton, { backgroundColor: theme.primary }]}
-                                        >
-                                            <Text style={styles.quantityButtonText}>-</Text>
-                                        </TouchableOpacity>
-
-                                        <TextInput
-                                            style={[styles.quantityInput, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.primary }]}
-                                            value={quantity}
-                                            onChangeText={onQuantityChange}
-                                            keyboardType="numeric"
-                                            textAlign="center"
-                                        />
-
-                                        <TouchableOpacity
-                                            onPress={() => {
-                                                const currentQty = parseInt(quantity, 10) || 1;
-                                                onQuantityChange(String(currentQty + 1));
-                                            }}
-                                            style={[styles.quantityButton, { backgroundColor: theme.primary }]}
-                                        >
-                                            <Text style={styles.quantityButtonText}>+</Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                </View>
-                            </View>
-                        </View>
-
+                </View>
+            }
+        >
+                    <View>
                         {/* Search Filter */}
+                        <Text style={[styles.sectionTitle, { color: theme.text }]}>Search</Text>
                         <View style={styles.searchSection}>
                             <TextInput
                                 style={[styles.searchInput, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.border }]}
@@ -164,16 +170,16 @@ export default function CombatSelectionModal({
                             {filteredCombats.length === 0 ? (
                                 <Text style={[styles.emptyText, { color: theme.noticeText }]}>No combats found</Text>
                             ) : (
-                                <ScrollView style={styles.combatListScroll}>
+                                <>
                                     {filteredCombats.map((combat) => (
                                         <TouchableOpacity
                                             key={combat.id}
                                             style={[
                                                 styles.combatItem,
                                                 { borderColor: theme.border },
-                                                combat.id === currentCombatId && { backgroundColor: theme.primary + '20' }
+                                                combat.id === selectedCombatId && { backgroundColor: theme.primary + '20' }
                                             ]}
-                                            onPress={() => onSelectCombat(combat.id)}
+                                            onPress={() => setSelectedCombatId(combat.id)}
                                         >
                                             <View style={styles.combatContent}>
                                                 <Text style={[styles.combatName, { color: theme.text }]}>{combat.name}</Text>
@@ -181,61 +187,20 @@ export default function CombatSelectionModal({
                                                     {getCampaignName(combat.campaignId)} • {formatDate(combat.createdAt)}
                                                 </Text>
                                             </View>
-                                            {combat.id === currentCombatId && (
+                                            {combat.id === selectedCombatId && (
                                                 <Ionicons name="checkmark-circle" size={20} color={theme.primary} />
                                             )}
                                         </TouchableOpacity>
                                     ))}
-                                </ScrollView>
+                                </>
                             )}
                         </View>
                     </View>
-                </TouchableOpacity>
-            </TouchableOpacity>
-        </Modal>
+        </BaseModal>
     );
 }
 
 const styles = StyleSheet.create({
-    modalOverlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    modalContent: {
-        borderRadius: 12,
-        padding: 0,
-        marginHorizontal: 20,
-        width: '90%',
-        maxWidth: 400,
-        maxHeight: '80%',
-    },
-    modalHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: '#eee',
-    },
-    modalTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-    },
-    closeButton: {
-        padding: 4,
-    },
-    separator: {
-        height: 1,
-        marginBottom: 0,
-    },
-    modalBody: {
-        padding: 20,
-    },
-    quantitySection: {
-        marginBottom: 16,
-    },
     sectionTitle: {
         fontSize: 16,
         fontWeight: '600',
@@ -247,8 +212,8 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
     },
     quantityButton: {
-        width: 40,
-        height: 40,
+        width: 32,
+        height: 32,
         borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
@@ -259,8 +224,9 @@ const styles = StyleSheet.create({
         fontSize: 18,
     },
     quantityInput: {
-        width: 60,
-        height: 40,
+        minWidth: 50,
+        paddingVertical: 6,
+        paddingHorizontal: 12,
         borderWidth: 1,
         borderRadius: 8,
         textAlign: 'center',
@@ -278,9 +244,6 @@ const styles = StyleSheet.create({
     },
     combatListSection: {
         marginBottom: 16,
-    },
-    combatListScroll: {
-        maxHeight: 200,
     },
     combatItem: {
         flexDirection: 'row',
@@ -307,36 +270,29 @@ const styles = StyleSheet.create({
         fontStyle: 'italic',
         marginVertical: 8,
     },
-    beastInfoSection: {
-        marginBottom: 16,
-    },
     beastInfoRow: {
+        width: '100%',
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'flex-start',
+        justifyContent: 'space-between',
     },
     beastTokenContainer: {
-        width: 40,
-        height: 40,
+        width: 50,
+        height: 50,
         borderRadius: 20,
         overflow: 'hidden',
-        marginRight: 10,
     },
     beastToken: {
         width: '100%',
         height: '100%',
     },
-    beastNameContainer: {
-        flex: 1,
-        marginRight: 10,
-    },
     beastName: {
         fontSize: 16,
         fontWeight: '600',
-        maxWidth: '80%',
     },
     quantityContainer: {
-        marginLeft: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     quantityLabel: {
         fontSize: 14,

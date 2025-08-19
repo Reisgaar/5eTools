@@ -61,7 +61,7 @@ export default function SpellbookSelectorModal({
                 <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
                     <TouchableOpacity
                         onPress={onClose}
-                        style={[styles.footerButton, { backgroundColor: currentTheme.primary }]}
+                        style={[styles.footerButton, { backgroundColor: currentTheme.secondary }]}
                     >
                         <Text style={styles.footerButtonText}>Cancel</Text>
                     </TouchableOpacity>

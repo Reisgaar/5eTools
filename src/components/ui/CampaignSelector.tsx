@@ -1,12 +1,15 @@
 // REACT
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 
 // EXPO
 import { Ionicons } from '@expo/vector-icons';
 
 // STORES
 import { useCampaignStore } from 'src/stores';
+
+// STYLES
+import { createBaseModalStyles } from 'src/styles/baseModalStyles';
 
 // INTERFACES
 interface CampaignSelectorProps {
@@ -23,83 +26,56 @@ export default function CampaignSelector({
     selectedCampaignId,
     onCampaignChange,
     theme,
-    label = 'Campaign (optional)'
 }: CampaignSelectorProps): JSX.Element {
     const { campaigns } = useCampaignStore();
     const [showCampaignSelector, setShowCampaignSelector] = useState(false);
+    const styles = createBaseModalStyles(theme);
 
     const getCampaignName = (campaignId?: string) => {
-        if (!campaignId) return 'No campaign';
+        if (!campaignId) return 'Don\'t link to a campaign';
         const campaign = campaigns.find(c => c.id === campaignId);
         return campaign ? campaign.name : 'Unknown campaign';
     };
 
     return (
         <View>
-            <Text style={{ color: theme.text, marginBottom: 8, fontSize: 14, fontWeight: '500' }}>
-                {label}
+            <Text style={[styles.modalText, { marginBottom: 8 }]}>
+                {showCampaignSelector ? 'Select one option' : 'Campaign (optional)'}
             </Text>
-            <TouchableOpacity
-                style={{
-                    backgroundColor: theme.inputBackground,
-                    borderWidth: 1,
-                    borderColor: theme.card,
-                    borderRadius: 8,
-                    paddingVertical: 12,
-                    paddingHorizontal: 16,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    marginBottom: 16
-                }}
-                onPress={() => setShowCampaignSelector(!showCampaignSelector)}
-            >
-                <Text style={{ color: theme.text, flex: 1 }}>
-                    {getCampaignName(selectedCampaignId)}
-                </Text>
-                <Ionicons name={showCampaignSelector ? 'chevron-up' : 'chevron-down'} size={20} color={theme.text} />
-            </TouchableOpacity>
-
-            {showCampaignSelector && (
-                <ScrollView style={{ maxHeight: 200, marginBottom: 16 }}>
+            {showCampaignSelector ? (
+                <View style={[styles.modalInput, { marginBottom: 0 }]}>
                     <TouchableOpacity
-                        style={{
-                            backgroundColor: theme.inputBackground,
-                            borderWidth: 1,
-                            borderColor: theme.card,
-                            borderRadius: 8,
-                            marginBottom: 8,
-                            paddingVertical: 12,
-                            paddingHorizontal: 16
-                        }}
+                        style={[{marginBottom: 8, paddingVertical: 4 }]}
                         onPress={() => {
                             onCampaignChange(undefined);
                             setShowCampaignSelector(false);
                         }}
                     >
-                        <Text style={{ color: theme.text }}>No campaign</Text>
+                        <Text style={styles.modalText}>Don't link to a campaign</Text>
                     </TouchableOpacity>
-                    {campaigns.map(campaign => (
+                    {campaigns.map((campaign, index) => (
                         <TouchableOpacity
                             key={campaign.id}
-                            style={{
-                                backgroundColor: theme.inputBackground,
-                                borderWidth: 1,
-                                borderColor: theme.card,
-                                borderRadius: 8,
-                                marginBottom: 8,
-                                paddingVertical: 12,
-                                paddingHorizontal: 16
-                            }}
+                            style={[{marginBottom: index === campaigns.length - 1 ? 0 : 8, paddingVertical: 4, borderTopWidth: 1, borderColor: theme.border }]}
                             onPress={() => {
                                 onCampaignChange(campaign.id);
                                 setShowCampaignSelector(false);
                             }}
                         >
-                            <Text style={{ color: theme.text }}>{campaign.name}</Text>
+                            <Text style={styles.modalText}>{campaign.name}</Text>
                         </TouchableOpacity>
                     ))}
-                </ScrollView>
+                </View>
+            ) : (
+                <TouchableOpacity
+                    style={[styles.modalInput, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 0 }]}
+                    onPress={() => setShowCampaignSelector(!showCampaignSelector)}
+                >
+                    <Text style={styles.modalText}>
+                        {getCampaignName(selectedCampaignId)}
+                    </Text>
+                    <Ionicons name={showCampaignSelector ? 'chevron-up' : 'chevron-down'} size={20} color={theme.text} />
+                </TouchableOpacity>    
             )}
         </View>
     );

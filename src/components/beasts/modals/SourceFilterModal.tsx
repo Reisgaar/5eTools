@@ -45,7 +45,7 @@ export default function SourceFilterModal({
                 <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
                     <TouchableOpacity
                         onPress={onClear}
-                        style={[styles.footerButton, { backgroundColor: theme.primary }]}
+                        style={[styles.footerButton, { backgroundColor: theme.secondary }]}
                     >
                         <Text style={styles.footerButtonText}>Clear</Text>
                     </TouchableOpacity>
