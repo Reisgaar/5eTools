@@ -64,12 +64,6 @@ export default function HPEditModal({
             footerContent={
                 <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
                     <TouchableOpacity
-                        onPress={onClose}
-                        style={[styles.footerButton, { backgroundColor: theme.secondary }]}
-                    >
-                        <Text style={styles.footerButtonText}>Cancel</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
                         onPress={handleAccept}
                         style={[styles.footerButton, { backgroundColor: theme.primary }]}
                     >

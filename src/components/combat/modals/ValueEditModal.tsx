@@ -47,12 +47,8 @@ export default function ValueEditModal({
         setValue(initialValue);
     }, [initialValue]);
 
-    const handleIncrement = (amount: number) => {
-        setValue(prev => prev + amount);
-    };
-
-    const handleDecrement = (amount: number) => {
-        setValue(prev => Math.max(0, prev - amount));
+    const handleValueChange = (amount: number) => {
+        setValue(prev => Math.max(0, prev + amount));
     };
 
     const handleAccept = () => {
@@ -83,83 +79,63 @@ export default function ValueEditModal({
             theme={theme}
             title={modalTitle}
             subtitle={modalSubtitle}
-            maxHeight="85%"
+            footerContent={
+                <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
+                    <TouchableOpacity
+                        onPress={onClose}
+                        style={[styles.footerButton, { backgroundColor: theme.secondary }]}
+                    >
+                        <Text style={styles.footerButtonText}>Cancel</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={handleAccept}
+                        style={[styles.footerButton, { backgroundColor: theme.primary }]}
+                    >
+                        <Text style={styles.footerButtonText}>Accept</Text>
+                    </TouchableOpacity>
+                </View>
+            }
         >
             {/* Value Display and Input */}
-            <View style={styles.modalSection}>
-                <TextInput
-                    style={[styles.modalInput, {
-                        backgroundColor: theme.inputBackground,
-                        color: theme.text,
-                        borderColor: theme.primary,
-                        fontSize: 24,
-                        fontWeight: 'bold',
-                        textAlign: 'center',
-                        paddingVertical: 12,
-                        paddingHorizontal: 16,
-                        borderWidth: 2,
-                        borderRadius: 8
-                    }]}
-                    value={String(value)}
-                    onChangeText={(text) => {
-                        const num = parseInt(text, 10);
-                        if (!isNaN(num)) {
-                            setValue(Math.max(0, num));
-                        } else if (text === '') {
-                            setValue(0);
-                        }
-                    }}
-                    keyboardType="numeric"
-                    textAlign="center"
-                />
-            </View>
+            <TextInput
+                style={[styles.modalInput, {
+                    backgroundColor: theme.inputBackground,
+                    color: theme.text,
+                    borderColor: theme.primary,
+                    fontSize: 18,
+                    fontWeight: 'bold',
+                    textAlign: 'center',
+                    paddingVertical: 6,
+                    borderWidth: 2,
+                    borderRadius: 8
+                }]}
+                value={String(value)}
+                onChangeText={(text) => {
+                    const num = parseInt(text, 10);
+                    if (!isNaN(num)) {
+                        setValue(Math.max(0, num));
+                    } else if (text === '') {
+                        setValue(0);
+                    }
+                }}
+                keyboardType="numeric"
+                textAlign="center"
+            />
 
             {/* Increment/Decrement Buttons */}
-            <View style={styles.modalSection}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginBottom: 20, gap: 12 }}>
-                    {/* Decrement Buttons - Left Column */}
-                    <View style={{ flex: 1, gap: 6 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginBottom: 20, gap: 12 }}>
+                <View style={{ flex: 1, gap: 6, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
+                    {[-10, 10, -5, 5, -1, 1].map((value) => (
                         <TouchableOpacity
-                            style={[styles.modalButton, styles.modalButtonPrimary]}
-                            onPress={() => handleDecrement(10)}
+                            key={value}
+                            style={[styles.footerButton, { backgroundColor: theme.primary }]}
+                            onPress={() => handleValueChange(value)}
                         >
-                            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-10</Text>
+                            <Text style={[styles.footerButtonText]}>
+                                {value > 0 ? `+${value}` : value}
+                            </Text>
                         </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.modalButton, styles.modalButtonPrimary]}
-                            onPress={() => handleDecrement(5)}
-                        >
-                            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-5</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.modalButton, styles.modalButtonPrimary]}
-                            onPress={() => handleDecrement(1)}
-                        >
-                            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-1</Text>
-                        </TouchableOpacity>
-                    </View>
-
-                    {/* Increment Buttons - Right Column */}
-                    <View style={{ flex: 1, gap: 6 }}>
-                        <TouchableOpacity
-                            style={[styles.modalButton, styles.modalButtonPrimary]}
-                            onPress={() => handleIncrement(10)}
-                        >
-                            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>+10</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.modalButton, styles.modalButtonPrimary]}
-                            onPress={() => handleIncrement(5)}
-                        >
-                            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>+5</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.modalButton, styles.modalButtonPrimary]}
-                            onPress={() => handleIncrement(1)}
-                        >
-                            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>+1</Text>
-                        </TouchableOpacity>
-                    </View>
+                    ))}
                 </View>
             </View>
 
@@ -176,16 +152,6 @@ export default function ValueEditModal({
                     </TouchableOpacity>
                 </View>
             )}
-
-            {/* Action Buttons */}
-            <View style={styles.actionRow}>
-                <TouchableOpacity
-                    style={[styles.modalButton, styles.modalButtonPrimary]}
-                    onPress={handleAccept}
-                >
-                    <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>Accept</Text>
-                </TouchableOpacity>
-            </View>
         </BaseModal>
     );
 }

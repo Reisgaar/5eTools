@@ -307,6 +307,7 @@ export default function CombatContent({
     };
 
     const handleMaxHpEdit = () => {
+        setHpEditModalVisible(false); // Close HP modal first
         setMaxHpEditModalVisible(true);
     };
 
@@ -737,6 +738,7 @@ export default function CombatContent({
                 visible={maxHpEditModalVisible}
                 onClose={handleMaxHpCancel}
                 onAccept={handleMaxHpAccept}
+                onReopenHpModal={() => setHpEditModalVisible(true)}
                 creatureName={editingHp?.name || 'Creature'}
                 combatantNumber={editingHp?.combatantNumber || 1}
                 currentHp={editingHp?.currentHp || 0}

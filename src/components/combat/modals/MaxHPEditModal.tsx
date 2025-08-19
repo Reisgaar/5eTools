@@ -13,6 +13,7 @@ interface MaxHPEditModalProps {
     visible: boolean;
     onClose: () => void;
     onAccept: (maxHp: number) => void;
+    onReopenHpModal: () => void;
     creatureName: string;
     combatantNumber: number;
     initialMaxHp: number;
@@ -27,6 +28,7 @@ export default function MaxHPEditModal({
     visible,
     onClose,
     onAccept,
+    onReopenHpModal,
     creatureName,
     combatantNumber,
     initialMaxHp,
@@ -41,17 +43,20 @@ export default function MaxHPEditModal({
         setMaxHp(initialMaxHp);
     }, [initialMaxHp]);
 
-    const handleIncrement = (amount: number) => {
-        setMaxHp(prev => prev + amount);
-    };
-
-    const handleDecrement = (amount: number) => {
-        setMaxHp(prev => Math.max(1, prev - amount));
+    const handleValueChange = (amount: number) => {
+        setMaxHp(prev => Math.max(1, prev + amount));
     };
 
     const handleAccept = () => {
         onAccept(maxHp);
         onClose();
+        onReopenHpModal();
+    };
+
+    const handleCancel = () => {
+        setMaxHp(initialMaxHp);
+        onClose();
+        onReopenHpModal();
     };
 
     // Create title with current HP info
@@ -65,98 +70,68 @@ export default function MaxHPEditModal({
             theme={theme}
             title={modalTitle}
             subtitle={modalSubtitle}
-            maxHeight="85%"
+            footerContent={
+                <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
+                    <TouchableOpacity
+                        onPress={handleCancel}
+                        style={[styles.footerButton, { backgroundColor: theme.secondary }]}
+                    >
+                        <Text style={styles.footerButtonText}>Cancel</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={handleAccept}
+                        style={[styles.footerButton, { backgroundColor: theme.primary }]}
+                    >
+                        <Text style={styles.footerButtonText}>Accept</Text>
+                    </TouchableOpacity>
+                </View>
+            }
         >
             {/* Max HP Display */}
-            <View style={styles.modalSection}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 20, gap: 12 }}>
-                    <Text style={[styles.modalText, { fontWeight: 'bold' }]}>Max HP:</Text>
-                    <TextInput
-                        style={{
-                            borderWidth: 2,
-                            borderRadius: 8,
-                            paddingHorizontal: 16,
-                            paddingVertical: 12,
-                            fontSize: 24,
-                            fontWeight: 'bold',
-                            textAlign: 'center',
-                            minWidth: 80,
-                            backgroundColor: theme.inputBackground,
-                            color: theme.text,
-                            borderColor: theme.primary
-                        }}
-                        value={String(maxHp)}
-                        onChangeText={(text) => {
-                            const num = parseInt(text, 10);
-                            if (!isNaN(num)) {
-                                setMaxHp(Math.max(1, num));
-                            } else if (text === '') {
-                                setMaxHp(1);
-                            }
-                        }}
-                        keyboardType="numeric"
-                        textAlign="center"
-                    />
-                </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 20, gap: 12 }}>
+                <Text style={[styles.modalText, { fontWeight: 'bold' }]}>Max HP:</Text>
+                <TextInput
+                    style={{
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        paddingHorizontal: 16,
+                        paddingVertical: 12,
+                        fontSize: 24,
+                        fontWeight: 'bold',
+                        textAlign: 'center',
+                        minWidth: 80,
+                        backgroundColor: theme.inputBackground,
+                        color: theme.text,
+                        borderColor: theme.primary
+                    }}
+                    value={String(maxHp)}
+                    onChangeText={(text) => {
+                        const num = parseInt(text, 10);
+                        if (!isNaN(num)) {
+                            setMaxHp(Math.max(1, num));
+                        } else if (text === '') {
+                            setMaxHp(1);
+                        }
+                    }}
+                    keyboardType="numeric"
+                    textAlign="center"
+                />
             </View>
-
-            {/* Max HP Adjustment Buttons */}
-            <View style={styles.modalSection}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginBottom: 20, gap: 12 }}>
-                    {/* Decrement Buttons - Left Column */}
-                    <View style={{ flex: 1, gap: 6 }}>
+                
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginBottom: 20, gap: 12 }}>
+                <View style={{ flex: 1, gap: 6, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
+                    {[-10, 10, -5, 5, -1, 1].map((value) => (
                         <TouchableOpacity
-                            style={[styles.modalButton, styles.modalButtonPrimary]}
-                            onPress={() => handleDecrement(10)}
+                            key={value}
+                            style={[styles.footerButton, { backgroundColor: theme.primary }]}
+                            onPress={() => handleValueChange(value)}
                         >
-                            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-10</Text>
+                            <Text style={[styles.footerButtonText]}>
+                                {value > 0 ? `+${value}` : value}
+                            </Text>
                         </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.modalButton, styles.modalButtonPrimary]}
-                            onPress={() => handleDecrement(5)}
-                        >
-                            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-5</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.modalButton, styles.modalButtonPrimary]}
-                            onPress={() => handleDecrement(1)}
-                        >
-                            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>-1</Text>
-                        </TouchableOpacity>
-                    </View>
-
-                    {/* Increment Buttons - Right Column */}
-                    <View style={{ flex: 1, gap: 6 }}>
-                        <TouchableOpacity
-                            style={[styles.modalButton, styles.modalButtonPrimary]}
-                            onPress={() => handleIncrement(10)}
-                        >
-                            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>+10</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.modalButton, styles.modalButtonPrimary]}
-                            onPress={() => handleIncrement(5)}
-                        >
-                            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>+5</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.modalButton, styles.modalButtonPrimary]}
-                            onPress={() => handleIncrement(1)}
-                        >
-                            <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>+1</Text>
-                        </TouchableOpacity>
-                    </View>
+                    ))}
                 </View>
-            </View>
-
-            {/* Action Buttons */}
-            <View style={styles.actionRow}>
-                <TouchableOpacity
-                    style={[styles.modalButton, styles.modalButtonPrimary]}
-                    onPress={handleAccept}
-                >
-                    <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>Accept</Text>
-                </TouchableOpacity>
             </View>
         </BaseModal>
     );
