@@ -76,7 +76,7 @@ export default function CreateSpellbookModal({
     };
 
     const getCampaignName = (campaignId?: string) => {
-        if (!campaignId) return 'No campaign selected';
+        if (!campaignId) return 'Don\'t link to a campaign';
         const campaign = campaigns.find(c => c.id === campaignId);
         return campaign ? campaign.name : 'Unknown campaign';
     };
@@ -89,11 +89,19 @@ export default function CreateSpellbookModal({
             title="Create New Spellbook"
             width='90%'
             maxHeight="80%"
-            scrollable={true}
+            footerContent={
+                <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
+                    <TouchableOpacity
+                        onPress={handleCreateSpellbook}
+                        style={[styles.footerButton, { backgroundColor: theme.primary }]}
+                        disabled={!spellbookName.trim()}
+                    >
+                        <Text style={styles.footerButtonText}>Create</Text>
+                    </TouchableOpacity>
+                </View>
+            }
         >
             <View style={styles.modalSection}>
-                <Text style={styles.modalSectionTitle}>Spellbook Details</Text>
-
                 <Text style={[styles.modalText, { marginBottom: 8 }]}>Name *</Text>
                 <TextInput
                     style={styles.modalInput}
@@ -116,31 +124,22 @@ export default function CreateSpellbookModal({
                 />
 
                 <Text style={[styles.modalText, { marginBottom: 8 }]}>Campaign (optional)</Text>
-                <TouchableOpacity
-                    style={[styles.modalInput, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }]}
-                    onPress={() => setShowCampaignSelector(!showCampaignSelector)}
-                >
-                    <Text style={styles.modalText}>
-                        {getCampaignName(selectedCampaignId)}
-                    </Text>
-                    <Ionicons name={showCampaignSelector ? 'chevron-up' : 'chevron-down'} size={20} color={theme.text} />
-                </TouchableOpacity>
 
-                {showCampaignSelector && (
-                    <ScrollView style={{ maxHeight: 200, marginBottom: 24 }}>
+                {showCampaignSelector ? (
+                    <View style={[styles.modalInput, { marginBottom: 0 }]}>
                         <TouchableOpacity
-                            style={[styles.modalInput, { marginBottom: 8, paddingVertical: 12 }]}
+                            style={[{marginBottom: 8, paddingVertical: 4 }]}
                             onPress={() => {
                                 setSelectedCampaignId(undefined);
                                 setShowCampaignSelector(false);
                             }}
                         >
-                            <Text style={styles.modalText}>No campaign selected</Text>
+                            <Text style={styles.modalText}>Don't link to a campaign</Text>
                         </TouchableOpacity>
-                        {campaigns.map(campaign => (
+                        {campaigns.map((campaign, index) => (
                             <TouchableOpacity
                                 key={campaign.id}
-                                style={[styles.modalInput, { marginBottom: 8, paddingVertical: 12 }]}
+                                style={[{marginBottom: index === campaigns.length - 1 ? 0 : 8, paddingVertical: 4, borderTopWidth: 1, borderColor: theme.border }]}
                                 onPress={() => {
                                     setSelectedCampaignId(campaign.id);
                                     setShowCampaignSelector(false);
@@ -149,18 +148,18 @@ export default function CreateSpellbookModal({
                                 <Text style={styles.modalText}>{campaign.name}</Text>
                             </TouchableOpacity>
                         ))}
-                    </ScrollView>
+                    </View>
+                ) : (
+                    <TouchableOpacity
+                        style={[styles.modalInput, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 0 }]}
+                        onPress={() => setShowCampaignSelector(!showCampaignSelector)}
+                    >
+                        <Text style={styles.modalText}>
+                            {getCampaignName(selectedCampaignId)}
+                        </Text>
+                        <Ionicons name={showCampaignSelector ? 'chevron-up' : 'chevron-down'} size={20} color={theme.text} />
+                    </TouchableOpacity>    
                 )}
-            </View>
-
-            <View style={styles.modalSection}>
-                <TouchableOpacity
-                    onPress={handleCreateSpellbook}
-                    style={[styles.modalButton, styles.modalButtonPrimary]}
-                    disabled={!spellbookName.trim()}
-                >
-                    <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>Create</Text>
-                </TouchableOpacity>
             </View>
         </BaseModal>
     );

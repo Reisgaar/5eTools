@@ -122,7 +122,7 @@ export default function BestiaryScreen() {
     };
 
     return (
-        <View style={{ flex: 1, backgroundColor: currentTheme.background, padding: 20, paddingBottom: 0 }}>
+        <View style={[commonStyles.container, { flex: 1, backgroundColor: currentTheme.background, paddingBottom: 0, paddingHorizontal: 8 }]}>
             {/* Combat Selection Modal */}
             <CombatSelectionModal
                 visible={combatSelectionModalVisible}
@@ -172,7 +172,7 @@ export default function BestiaryScreen() {
             {/* Filter Buttons */}
             <View style={[{ marginBottom: 12, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start'}]}>
                 <Text style={[{ fontSize: 16, fontWeight: 'bold', color: currentTheme.text, marginRight: 12}]}>Filters:</Text>
-                <View style={{ flex: 1, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <View style={{ flex: 1, display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly', alignItems: 'center', gap: 8 }}>
                     <TouchableOpacity
                         onPress={filters.openCRFilterModal}
                         style={[commonStyles.filterBtn, { borderColor: filters.selectedCRs.length > 0 ? currentTheme.primary : currentTheme.text }]}

@@ -58,6 +58,7 @@ export default function SpellDetailModal({
     const { simpleBeasts, simpleSpells } = useData();
     const { useAdvancedDiceRoll } = useAppSettingsStore();
     const styles = createSpellStyles(theme);
+    console.log('SpellDetailModal - spell:', JSON.stringify(spell, null, 2));
 
     // Modal state
     const [spellNotFoundVisible, setSpellNotFoundVisible] = React.useState(false);
@@ -324,25 +325,25 @@ export default function SpellDetailModal({
                                 {/* Spell Details Grid - 2x2 */}
                                 <View style={styles.spellDetailGridContainer}>
                                     <View style={styles.spellDetailGrid}>
-                                        <View style={styles.spellDetailGridItem}>
+                                        <View style={[styles.spellDetailGridItem, {borderRightWidth: 1, borderBottomWidth: 1}]}>
                                             <Text style={styles.spellDetailGridLabel}>Casting Time</Text>
                                             <View style={styles.spellDetailGridValueContainer}>
                                                 {formatTime(spell.time, theme, handleCreaturePressLocal, handleSpellPressLocal, spell.meta?.ritual)}
                                             </View>
                                         </View>
-                                        <View style={styles.spellDetailGridItem}>
+                                        <View style={[styles.spellDetailGridItem, {borderBottomWidth: 1}]}>
                                             <Text style={styles.spellDetailGridLabel}>Range</Text>
                                             <View style={styles.spellDetailGridValueContainer}>
                                                 {formatRange(spell.range, theme, handleCreaturePressLocal, handleSpellPressLocal)}
                                             </View>
                                         </View>
-                                        <View style={styles.spellDetailGridItem}>
+                                        <View style={[styles.spellDetailGridItem, {borderRightWidth: 1}]}>
                                             <Text style={styles.spellDetailGridLabel}>Components</Text>
                                             <View style={styles.spellDetailGridValueContainer}>
                                                 {formatComponents(spell.components, theme, handleCreaturePressLocal, handleSpellPressLocal)}
                                             </View>
                                         </View>
-                                        <View style={styles.spellDetailGridItemLast}>
+                                        <View style={styles.spellDetailGridItem}>
                                             <Text style={styles.spellDetailGridLabel}>Duration</Text>
                                             <View style={styles.spellDetailGridValueContainer}>
                                                 {formatDuration(spell.duration, theme, handleCreaturePressLocal, handleSpellPressLocal, isConcentration)}

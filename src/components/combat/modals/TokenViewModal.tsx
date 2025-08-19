@@ -53,7 +53,6 @@ export default function TokenViewModal({
             onClose={onClose}
             theme={theme}
             title={displayTitle}
-            showFooter={true}
             footerContent={
                 <Text style={baseStyles.modalNoticeText}>
                     Tap outside to close

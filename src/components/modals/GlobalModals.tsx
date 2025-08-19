@@ -74,7 +74,7 @@ export default function GlobalModals() {
                         theme={currentTheme}
                     />
                 </>
-            )};
+            )}
         </>
     );
 }

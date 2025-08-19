@@ -76,7 +76,6 @@ export default function PlayerModal({
             onClose={onClose}
             theme={theme}
             title="Add Players to Combat"
-            scrollable={true}
         >
             {filteredPlayers.length === 0 ? (
                 <Text style={styles.modalNoticeText}>

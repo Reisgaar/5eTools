@@ -67,7 +67,6 @@ export default function StatusModal({
             theme={theme}
             title={modalTitle}
             subtitle={modalSubtitle}
-            scrollable={true}
         >
             {/* Status Conditions Section */}
             <View style={styles.modalSection}>

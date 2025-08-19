@@ -94,7 +94,6 @@ export default function StorageManagementModal({
             theme={currentTheme}
             title="Storage Management"
             maxHeight="90%"
-            scrollable={true}
         >
             {isLoading ? (
                 <View style={styles.modalSection}>

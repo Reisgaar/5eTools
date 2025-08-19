@@ -1,6 +1,6 @@
 // REACT
 import React, { useState } from 'react';
-import { View, Text, TextInput, FlatList, Platform } from 'react-native';
+import { View, Text, TextInput, FlatList, Platform, TouchableOpacity } from 'react-native';
 
 // STORES
 import { useCampaignStore, useSpellbookStore } from 'src/stores';
@@ -102,7 +102,16 @@ export default function AddToSpellbookModal({
                 subtitle={spell ? `Level ${spell.level === 0 ? 'Cantrip' : spell.level} • ${spell.school} • ${spell.source}` : undefined}
                 width='90%'
                 maxHeight="80%"
-                scrollable={true}
+                footerContent={
+                    <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
+                        <TouchableOpacity
+                            onPress={onClose}
+                            style={[styles.footerButton, { backgroundColor: theme.primary }]}
+                        >
+                            <Text style={styles.footerButtonText}>Done</Text>
+                        </TouchableOpacity>
+                    </View>
+                }
             >
                 {/* Search */}
                 <View style={styles.modalSection}>
@@ -124,12 +133,13 @@ export default function AddToSpellbookModal({
                             {searchQuery.trim() ? 'No spellbooks found matching your search.' : 'No spellbooks available. Create one first!'}
                         </Text>
                     ) : (
-                        <FlatList
-                            data={searchedSpellbooks}
-                            renderItem={renderSpellbookItem}
-                            keyExtractor={(item) => item.id}
-                            showsVerticalScrollIndicator={false}
-                        />
+                        <>
+                            {searchedSpellbooks.map((spellbook) => (
+                                <View key={spellbook.id}>
+                                    {renderSpellbookItem({ item: spellbook })}
+                                </View>
+                            ))}
+                        </>
                     )}
                 </View>
             </BaseModal>

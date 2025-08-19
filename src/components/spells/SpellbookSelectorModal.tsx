@@ -1,12 +1,15 @@
 // REACT
 import React from 'react';
-import { Modal, View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 // EXPO
 import { Ionicons } from '@expo/vector-icons';
 
 // STORES
 import { useAppSettingsStore, useCampaignStore, useSpellbookStore } from 'src/stores';
+
+// COMPONENTS
+import { BaseModal } from 'src/components/ui';
 
 // INTERFACES
 interface SpellbookSelectorModalProps {
@@ -49,119 +52,96 @@ export default function SpellbookSelectorModal({
     };
 
     return (
-        <Modal visible={visible} animationType="slide" transparent>
-            <View style={styles.modalOverlay}>
-                <View style={[styles.modalContent, { backgroundColor: currentTheme.card }]}>
-                    <View style={styles.modalHeader}>
-                        <Text style={[styles.modalTitle, { color: currentTheme.text }]}>
-                            Select Spellbook
-                        </Text>
-                        <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                            <Ionicons name="close" size={24} color={currentTheme.text} />
-                        </TouchableOpacity>
-                    </View>
-
-                    <View style={[styles.separator, { backgroundColor: currentTheme.border }]} />
-
-                    <FlatList
-                        data={filteredSpellbooks}
-                        keyExtractor={item => item.id}
-                        renderItem={({ item }) => (
-                            <TouchableOpacity
-                                style={[
-                                    styles.spellbookItem,
-                                    { backgroundColor: currentSpellbookId === item.id ? currentTheme.primary + '20' : 'transparent' }
-                                ]}
-                                onPress={() => handleSelectSpellbook(item.id)}
-                            >
-                                <View style={styles.spellbookContent}>
-                                    <Text style={[styles.spellbookName, { color: currentTheme.text }]}>
-                                        {item.name}
-                                    </Text>
-                                    <Text style={[styles.spellbookDescription, { color: currentTheme.noticeText }]}>
-                                        {item.description && `${item.description} • `}
-                                        {(item.spellsIndex || []).length} spells
-                                    </Text>
-                                </View>
-                                {currentSpellbookId === item.id && (
-                                    <Ionicons name="checkmark-circle" size={20} color={currentTheme.primary} />
-                                )}
-                            </TouchableOpacity>
-                        )}
-                        ListHeaderComponent={
-                            <TouchableOpacity
-                                style={[
-                                    styles.spellbookItem,
-                                    { backgroundColor: currentSpellbookId === null ? currentTheme.primary + '20' : 'transparent' }
-                                ]}
-                                onPress={handleClearFilter}
-                            >
-                                <View style={styles.spellbookContent}>
-                                    <Text style={[styles.spellbookName, { color: currentTheme.text }]}>
-                                        All Spells
-                                    </Text>
-                                    <Text style={[styles.spellbookDescription, { color: currentTheme.noticeText }]}>
-                                        Show all spells without filter
-                                    </Text>
-                                </View>
-                                {currentSpellbookId === null && (
-                                    <Ionicons name="checkmark-circle" size={20} color={currentTheme.primary} />
-                                )}
-                            </TouchableOpacity>
-                        }
-                        ListEmptyComponent={
-                            <View style={styles.emptyState}>
-                                <Text style={[styles.emptyText, { color: currentTheme.noticeText }]}>
-                                    No spellbooks available
-                                </Text>
-                            </View>
-                        }
-                    />
-
+        <BaseModal
+            visible={visible}
+            onClose={onClose}
+            theme={currentTheme}
+            title='Select Spellbook'
+            footerContent={
+                <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
+                    <TouchableOpacity
+                        onPress={onClose}
+                        style={[styles.footerButton, { backgroundColor: currentTheme.primary }]}
+                    >
+                        <Text style={styles.footerButtonText}>Cancel</Text>
+                    </TouchableOpacity>
                     <TouchableOpacity
                         onPress={onCreateSpellbook}
-                        style={[styles.createButton, { backgroundColor: currentTheme.primary }]}
+                        style={[styles.footerButton, { backgroundColor: currentTheme.primary }]}
                     >
-                        <Ionicons name="add" size={20} color="white" style={{ marginRight: 8 }} />
-                        <Text style={[styles.createButtonText, { color: 'white' }]}>
-                            Create New Spellbook
-                        </Text>
+                        <Text style={styles.footerButtonText}>Create New</Text>
                     </TouchableOpacity>
                 </View>
-            </View>
-        </Modal>
+            }
+        >
+            {filteredSpellbooks.length > 0 ? (
+                <>
+                    <TouchableOpacity
+                        style={[
+                            styles.spellbookItem,
+                            { backgroundColor: currentSpellbookId === null ? currentTheme.primary + '20' : 'transparent' }
+                        ]}
+                        onPress={handleClearFilter}
+                    >
+                        <View style={styles.spellbookContent}>
+                            <Text style={[styles.spellbookName, { color: currentTheme.text }]}>
+                                All Spells
+                            </Text>
+                            <Text style={[styles.spellbookDescription, { color: currentTheme.noticeText }]}>
+                                Show all spells without filter
+                            </Text>
+                        </View>
+                        {currentSpellbookId === null && (
+                            <Ionicons name="checkmark-circle" size={20} color={currentTheme.primary} />
+                        )}
+                    </TouchableOpacity>
+
+                    {filteredSpellbooks.map((spellbook) => (
+                        <TouchableOpacity
+                            key={`${spellbook.id}_${spellbook.name}`}
+                            style={[
+                                styles.spellbookItem,
+                                { backgroundColor: currentSpellbookId === spellbook.id ? currentTheme.primary + '20' : 'transparent' }
+                            ]}
+                            onPress={() => handleSelectSpellbook(spellbook.id)}
+                        >
+                            <View style={styles.spellbookContent}>
+                                <Text style={[styles.spellbookName, { color: currentTheme.text }]}>
+                                    {spellbook.name}
+                                </Text>
+                                <Text style={[styles.spellbookDescription, { color: currentTheme.noticeText }]}>
+                                    {spellbook.description && `${spellbook.description} • `}
+                                    {(spellbook.spellsIndex || []).length} spells
+                                </Text>
+                            </View>
+                            {currentSpellbookId === spellbook.id && (
+                                <Ionicons name="checkmark-circle" size={20} color={currentTheme.primary} />
+                            )}
+                        </TouchableOpacity>
+                    ))}
+                </>
+            ) : (
+                <View style={styles.emptyState}>
+                    <Text style={[styles.emptyText, { color: currentTheme.noticeText }]}>
+                        No spellbooks available
+                    </Text>
+                </View>
+            )}
+        </BaseModal>
     );
 };
 
 const styles = StyleSheet.create({
-    modalOverlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        justifyContent: 'center',
+    footerButton: {
+        width: '48%',
+        borderRadius: 8,
+        paddingVertical: 12,
         alignItems: 'center',
     },
-    modalContent: {
-        borderRadius: 12,
-        padding: 0,
-        marginHorizontal: 20,
-        width: '90%',
-        maxWidth: 400,
-        maxHeight: '80%',
-    },
-    modalHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: '#eee',
-    },
-    modalTitle: {
-        fontSize: 20,
+    footerButtonText: {
+        color: 'white',
         fontWeight: 'bold',
-    },
-    closeButton: {
-        padding: 4,
+        fontSize: 16,
     },
     spellbookItem: {
         flexDirection: 'row',
@@ -189,19 +169,6 @@ const styles = StyleSheet.create({
     emptyText: {
         fontSize: 16,
         textAlign: 'center',
-    },
-    createButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 16,
-        paddingHorizontal: 20,
-        margin: 20,
-        borderRadius: 8,
-    },
-    createButtonText: {
-        fontSize: 16,
-        fontWeight: '600',
     },
     separator: {
         height: 1,

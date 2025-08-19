@@ -126,7 +126,7 @@ export const createSpellStyles = (theme: any) => {
         },
         spellDetailGridContainer: {
             paddingHorizontal: 20,
-            marginBottom: 8, // Reduced from 15
+            marginBottom: 0,
         },
         spellDetailCloseBtn: baseStyles.detailCloseBtn,
         spellDetailTitle: {
@@ -153,22 +153,14 @@ export const createSpellStyles = (theme: any) => {
         },
         spellDetailGridItem: {
             width: '50%',
-            borderWidth: 1,
             borderColor: theme.border,
-            padding: 16,
+            padding: 2,
             alignItems: 'center',
-        },
-        spellDetailGridItemLast: {
-            ...baseStyles.detailGridItemLast,
-            width: '50%',
-            borderRightColor: 'transparent',
-            borderBottomColor: 'transparent',
         },
         spellDetailGridLabel: {
             fontWeight: 'bold',
             fontSize: 14,
             color: theme.text,
-            marginBottom: 6,
             textAlign: 'center',
         },
         spellDetailGridValue: {
@@ -179,7 +171,6 @@ export const createSpellStyles = (theme: any) => {
         spellDetailGridValueContainer: {
             alignItems: 'center',
             justifyContent: 'center',
-            minHeight: 24,
         },
         spellDetailScrollView: {
             flex: 1,

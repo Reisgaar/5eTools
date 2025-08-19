@@ -204,10 +204,10 @@ export default function SpellsScreen() {
 
     return (
         <View style={[commonStyles.container, { flex: 1, backgroundColor: currentTheme.background, paddingBottom: 0, paddingHorizontal: 8 }]}>
-            <View style={{ position: 'absolute', right: 10, bottom: 10, zIndex: 1 }}>
+            <View style={[styles.spellbookAbsoluteButtonWrapper, { backgroundColor: currentTheme.card, borderColor: currentTheme.text + '70' }]}>
                 <TouchableOpacity
                     onPress={() => setSpellbookSelectorModalVisible(true)}
-                    style={{ backgroundColor: currentTheme.primary, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8 }}
+                    style={[styles.spellbookAbsoluteButton, { backgroundColor: currentTheme.primary }]}
                 >
                     <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 12 }}>
                         {currentSpellbookId ? getCurrentSpellbook()?.name || 'Spellbook' : 'Spellbook'}
@@ -259,7 +259,7 @@ export default function SpellsScreen() {
                         key={level}
                         style={[
                             styles.levelButton,
-                            { backgroundColor: selectedLevels.includes(level) ? currentTheme.primary : 'white', borderColor: currentTheme.primary }
+                            { backgroundColor: selectedLevels.includes(level) ? currentTheme.primary : currentTheme.innerBackground, borderColor: currentTheme.primary }
                         ]}
                         onPress={() => handleLevelPress(level)}
                     >
@@ -274,7 +274,7 @@ export default function SpellsScreen() {
             </View>
             
             {/* Search Input with Clear Button */}
-            <View style={{ flexDirection: 'row', marginBottom: 8 }}>
+            <View style={{ flexDirection: 'row', marginBottom: 0 }}>
                 <TextInput
                     style={[commonStyles.input, { backgroundColor: currentTheme.inputBackground, color: currentTheme.text, borderColor: currentTheme.card, flex: 1, marginRight: 8 }]}
                     placeholder="Search by name..."
@@ -321,7 +321,7 @@ export default function SpellsScreen() {
                 {/* Main content */}
                 {!isLoading && pageReady && (
                     <FlatList
-                        data={filteredSpells}
+                        data={filteredSpells.sort((a, b) => a.name.localeCompare(b.name))}
                         keyExtractor={(item, idx) => item.name + idx}
                         renderItem={renderSpellItem}
                         contentContainerStyle={{ paddingBottom: 40 }}
@@ -435,7 +435,6 @@ const styles = StyleSheet.create({
     levelButton: {
         borderWidth: 1,
         borderRadius: 16,
-        paddingHorizontal: 10,
         paddingVertical: 6,
         justifyContent: 'center',
         alignItems: 'center',
@@ -456,14 +455,33 @@ const styles = StyleSheet.create({
     },
     spellbookButton: {
         borderWidth: 1,
-        borderRadius: 6,
-        paddingHorizontal: 8,
-        paddingVertical: 4,
+        width: 32,
+        height: 32,
+        borderRadius: 100,
+
         minHeight: 28,
         justifyContent: 'center',
         alignItems: 'center',
         marginHorizontal: 2,
     },
+    spellbookAbsoluteButtonWrapper: {
+        position: 'absolute',
+        right: 0,
+        bottom: 0,
+        zIndex: 1,
+        borderTopWidth: 1,
+        borderLeftWidth: 1,
+        borderTopLeftRadius: 8,
+        paddingTop: 8,
+        paddingRight: 6,
+        paddingBottom: 6,
+        paddingLeft: 8,
+    },
+    spellbookAbsoluteButton: {
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 8,
+    }
 });
 
 

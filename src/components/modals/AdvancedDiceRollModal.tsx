@@ -1,6 +1,6 @@
 // REACT
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, TextInput, TouchableWithoutFeedback, Keyboard, Switch } from 'react-native';
+import { View, Text, TouchableOpacity, TouchableWithoutFeedback, Keyboard, Switch } from 'react-native';
 
 // CONTEXT
 import { useModal } from 'src/context/ModalContext';
@@ -400,7 +400,6 @@ export default function AdvancedDiceRollModal({
             onClose={handleClose}
             theme={theme}
             title={getTitle()}
-            scrollable={true}
         >
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <View style={unifiedStyles.modalBody}>

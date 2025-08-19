@@ -1,6 +1,6 @@
 // REACT
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 // COMPONENTS
 import { BaseModal } from 'src/components/ui';
@@ -35,7 +35,7 @@ export default function OtherFilterModal({
     onApply,
     isApplying
 }: OtherFilterModalProps) {
-    const unifiedStyles = createBaseModalStyles(theme);
+    const styles = createBaseModalStyles(theme);
     const allSelected = selectedOptions.length === options.length;
 
     return (
@@ -44,62 +44,46 @@ export default function OtherFilterModal({
             onClose={onClose}
             theme={theme}
             title="Filter by Type"
-            width={350}
             maxHeight="80%"
-            scrollable={true}
-            showFooter={true}
             footerContent={
-                <View style={unifiedStyles.actionRow}>
+                <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
                     <TouchableOpacity
                         onPress={onSelectAll}
-                        style={[unifiedStyles.modalButton, unifiedStyles.modalButtonSecondary]}
+                        style={[styles.footerButton, { backgroundColor: theme.primary }]}
                     >
-                        <Text style={[unifiedStyles.modalButtonText, unifiedStyles.modalButtonTextSecondary]}>
-                            {allSelected ? 'Clear All' : 'Select All'}
-                        </Text>
+                        <Text style={styles.footerButtonText}>{allSelected ? 'Clear All' : 'Select All'}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={onApply}
-                        style={[unifiedStyles.modalButton, unifiedStyles.modalButtonPrimary]}
-                        disabled={isApplying}
+                        style={[styles.footerButton, { backgroundColor: theme.primary }]}
                     >
-                        <Text style={[unifiedStyles.modalButtonText, unifiedStyles.modalButtonTextPrimary]}>
-                            {isApplying ? 'Applying...' : 'Apply'}
-                        </Text>
+                        <Text style={styles.footerButtonText}>{isApplying ? 'Applying...' : 'Apply'}</Text>
                     </TouchableOpacity>
                 </View>
             }
         >
-            <View style={unifiedStyles.modalSection}>
-                <Text style={[unifiedStyles.modalText, { marginBottom: 16 }]}>
-                    Select the spell types you want to include in the filter:
-                </Text>
-
+            <View style={styles.optionsGrid}>
                 {options.map((option) => (
-                    <TouchableOpacity
-                        key={option.value}
-                        style={[
-                            unifiedStyles.modalListItem,
-                            { marginBottom: 8, borderRadius: 8, paddingVertical: 12 },
-                            selectedOptions.includes(option.value) && unifiedStyles.modalListItemSelected
-                        ]}
-                        onPress={() => onToggleOption(option.value)}
-                    >
-                        <View style={[
-                            unifiedStyles.checkbox,
-                            {
-                                borderColor: theme.primary,
-                                backgroundColor: selectedOptions.includes(option.value) ? theme.primary : 'transparent'
-                            }
-                        ]}>
-                            {selectedOptions.includes(option.value) && (
-                                <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}>✓</Text>
-                            )}
-                        </View>
-                        <Text style={[unifiedStyles.modalListItemText, { fontSize: 16 }]}>
-                            {option.label}
-                        </Text>
-                    </TouchableOpacity>
+                    <View key={option.value} style={styles.optionContainer}>
+                        <TouchableOpacity
+                            style={[
+                                styles.optionRow,
+                                { borderColor: theme.border },
+                                selectedOptions.includes(option.value) && { backgroundColor: theme.primary + '20' }
+                            ]}
+                            onPress={() => onToggleOption(option.value)}
+                        >
+                            <View style={[
+                                styles.checkbox,
+                                { borderColor: theme.primary },
+                                selectedOptions.includes(option.value) && { backgroundColor: theme.primary }
+                            ]}
+                            />
+                            <Text style={[styles.optionText, { color: theme.text }]}>
+                                {option.label}
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
                 ))}
             </View>
         </BaseModal>

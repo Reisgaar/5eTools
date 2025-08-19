@@ -12,12 +12,20 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,0.6)',
         zIndex: 10
     },
-    modalContainer: {
+    baseModalContainer: {
         justifyContent: 'center',
         position: 'absolute',
         top: '50%',
         left: '50%',
         transform: [{ translateX: '-50%' }, { translateY: '-50%' }],
+        backgroundColor: theme.card,
+        borderRadius: 12,
+        overflow: 'hidden',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        zIndex: 10,
     },
 
     // Main modal content
@@ -470,5 +478,35 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         paddingVertical: 12,
         borderTopWidth: 1,
         alignItems: 'flex-end',
+    },
+
+    footerButton: {
+        width: '48%',
+        borderRadius: 8,
+        paddingVertical: 12,
+        alignItems: 'center',
+    },
+    footerButtonText: {
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: 16,
+    },
+    optionsGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+    },
+    optionContainer: {
+        width: '50%',
+    },
+    optionRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 8,
+        paddingHorizontal: 6,
+        marginBottom: 4,
+    },
+    optionText: {
+        fontSize: 14,
     },
 });

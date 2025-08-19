@@ -144,11 +144,11 @@ export default function SettingsScreen() {
                             onPress={() => setStorageModalVisible(true)} 
                             style={[commonStyles.button, { backgroundColor: currentTheme.primary, marginTop: 0, flex: 0.5 }]}
                         > 
-                            <Text style={[commonStyles.buttonText, { fontSize: 14, textAlign: 'center', color: currentTheme.buttonText || 'white' }]}>Storage Management</Text>
+                            <Text style={[commonStyles.buttonText, { fontSize: 14, textAlign: 'center', color: 'white' }]}>Storage Management</Text>
                         </Pressable>
                         <Pressable 
                             onPress={handleRegenerateIndexes} 
-                            style={[commonStyles.button, { backgroundColor: '#f59e0b', marginTop: 0, flex: 0.5 }]}
+                            style={[commonStyles.button, { backgroundColor: '#ea8300', marginTop: 0, flex: 0.5 }]}
                         > 
                             <Text style={[commonStyles.buttonText, { fontSize: 14, textAlign: 'center', color: 'white' }]}>Regenerate All Indexes</Text>
                         </Pressable>

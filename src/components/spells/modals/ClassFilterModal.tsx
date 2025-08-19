@@ -48,53 +48,45 @@ export default function ClassFilterModal({
             onClose={onClose}
             theme={theme}
             title="Filter by Class"
-            scrollable={true}
-            showFooter={true}
             footerContent={
-                <View style={styles.actionRow}>
+                <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
                     <TouchableOpacity
                         onPress={onClear}
-                        style={[styles.modalButton, styles.modalButtonSecondary]}
+                        style={[styles.footerButton, { backgroundColor: theme.primary }]}
                     >
-                        <Text style={[styles.modalButtonText, styles.modalButtonTextSecondary]}>Clear</Text>
+                        <Text style={styles.footerButtonText}>Clear</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={onApply}
-                        style={[styles.modalButton, styles.modalButtonPrimary]}
+                        style={[styles.footerButton, { backgroundColor: theme.primary }]}
                     >
-                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>Apply</Text>
+                        <Text style={styles.footerButtonText}>Apply</Text>
                     </TouchableOpacity>
                 </View>
             }
         >
-            <View style={styles.modalSection}>
-                <Text style={[styles.modalText, { marginBottom: 16 }]}>
-                    Select the classes you want to include in the filter:
-                </Text>
-
+            <View style={styles.optionsGrid}>
                 {validClassOptions.map(className => (
-                    <TouchableOpacity
-                        key={className}
-                        style={[
-                            styles.modalListItem,
-                            { marginBottom: 8, borderRadius: 8, paddingVertical: 12 },
-                            selectedClasses.includes(className) && styles.modalListItemSelected
-                        ]}
-                        onPress={() => onToggleClass(className)}
-                    >
-                        <View style={[
-                            styles.checkbox,
-                            {
-                                borderColor: theme.primary,
-                                backgroundColor: selectedClasses.includes(className) ? theme.primary : 'transparent'
-                            }
-                        ]}>
-                            {selectedClasses.includes(className) && (
-                                <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}>✓</Text>
-                            )}
-                        </View>
-                        <Text style={[styles.modalListItemText, { fontSize: 16 }]}>{capitalize(className)}</Text>
-                    </TouchableOpacity>
+                    <View key={className} style={styles.optionContainer}>
+                        <TouchableOpacity
+                            style={[
+                                styles.optionRow,
+                                { borderColor: theme.border },
+                                selectedClasses.includes(className) && { backgroundColor: theme.primary + '20' }
+                            ]}
+                            onPress={() => onToggleClass(className)}
+                        >
+                            <View style={[
+                                styles.checkbox,
+                                { borderColor: theme.primary },
+                                selectedClasses.includes(className) && { backgroundColor: theme.primary }
+                            ]}
+                            />
+                            <Text style={[styles.optionText, { color: theme.text }]}>
+                            {capitalize(className)}
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
                 ))}
             </View>
         </BaseModal>

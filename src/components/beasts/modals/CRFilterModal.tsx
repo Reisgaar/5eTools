@@ -1,12 +1,12 @@
 // REACT
 import React, { useMemo } from 'react';
-import { Modal, ScrollView, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
-
-// EXPO
-import { Ionicons } from '@expo/vector-icons';
+import { Text, TouchableOpacity, View, StyleSheet } from 'react-native';
 
 // CONTEXTS
 import { useModal } from 'src/context/ModalContext';
+
+// COMPONENTS
+import { BaseModal } from 'src/components/ui';
 
 // INTERFACES
 interface CRFilterModalProps {
@@ -47,123 +47,70 @@ export default function CRFilterModal({
     );
 
     return (
-        <Modal visible={visible} animationType="slide" transparent>
-            <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={onClose}>
-                <TouchableOpacity style={[styles.modalContent, { backgroundColor: theme.card }]} activeOpacity={1} onPress={() => {}}>
-                    <View style={styles.modalHeader}>
-                        <Text style={[styles.modalTitle, { color: theme.text }]}>
-                            Filter by CR
-                        </Text>
-                        <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                            <Ionicons name="close" size={24} color={theme.text} />
-                        </TouchableOpacity>
-                    </View>
-
-                    <View style={[styles.separator, { backgroundColor: theme.border }]} />
-
-                    <View style={styles.modalBody}>
-                        <TouchableOpacity
-                            onPress={onSelectAll}
-                            style={[styles.clearButton, { borderColor: theme.primary }]}
-                        >
-                            <Text style={[styles.clearButtonText, { color: theme.primary }]}>Clear</Text>
-                        </TouchableOpacity>
-
-                        <ScrollView style={styles.scrollView}>
-                            <View style={styles.optionsGrid}>
-                                {filteredOptions.map(cr => {
-                                    const isSelected = selectedSet.has(cr);
-                                    return (
-                                        <View key={String(cr)} style={styles.optionContainer}>
-                                            <TouchableOpacity
-                                                style={[
-                                                    styles.optionRow,
-                                                    { borderColor: theme.border },
-                                                    isSelected && { backgroundColor: theme.primary + '20' }
-                                                ]}
-                                                onPress={() => onToggleCR(cr)}
-                                            >
-                                                <View style={[
-                                                    styles.checkbox,
-                                                    { borderColor: theme.primary },
-                                                    isSelected && { backgroundColor: theme.primary }
-                                                ]}
-                                                />
-                                                <Text style={[styles.optionText, { color: theme.text }]}>
-                                                    {sourceIdToNameMap && sourceIdToNameMap[cr] ? sourceIdToNameMap[cr] : (cr === 'Unknown' ? 'Unknown' : cr)}
-                                                </Text>
-                                            </TouchableOpacity>
-                                        </View>
-                                    );
-                                })}
-                            </View>
-                        </ScrollView>
-
-                        <TouchableOpacity
-                            onPress={onApply}
-                            style={[styles.applyButton, { backgroundColor: theme.primary }]}
-                        >
-                            <Text style={styles.applyButtonText}>Apply</Text>
-                        </TouchableOpacity>
-                    </View>
-                </TouchableOpacity>
-            </TouchableOpacity>
-        </Modal>
+        <BaseModal
+            visible={visible}
+            onClose={onClose}
+            theme={theme}
+            title='Filter by CR'
+            footerContent={
+                <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
+                    <TouchableOpacity
+                        onPress={onSelectAll}
+                        style={[styles.footerButton, { backgroundColor: theme.primary }]}
+                    >
+                        <Text style={styles.footerButtonText}>Clear</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={onApply}
+                        style={[styles.footerButton, { backgroundColor: theme.primary }]}
+                    >
+                        <Text style={styles.footerButtonText}>Apply</Text>
+                    </TouchableOpacity>
+                </View>
+            }
+        >
+            <View style={styles.optionsGrid}>
+                {filteredOptions.map(cr => {
+                    const isSelected = selectedSet.has(cr);
+                    return (
+                        <View key={String(cr)} style={styles.optionContainer}>
+                            <TouchableOpacity
+                                style={[
+                                    styles.optionRow,
+                                    { borderColor: theme.border },
+                                    isSelected && { backgroundColor: theme.primary + '20' }
+                                ]}
+                                onPress={() => onToggleCR(cr)}
+                            >
+                                <View style={[
+                                    styles.checkbox,
+                                    { borderColor: theme.primary },
+                                    isSelected && { backgroundColor: theme.primary }
+                                ]}
+                                />
+                                <Text style={[styles.optionText, { color: theme.text }]}>
+                                    {sourceIdToNameMap && sourceIdToNameMap[cr] ? sourceIdToNameMap[cr] : (cr === 'Unknown' ? 'Unknown' : cr)}
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    );
+                })}
+            </View>
+        </BaseModal>
     );
 }
 
 const styles = StyleSheet.create({
-    modalOverlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        justifyContent: 'center',
+    footerButton: {
+        width: '48%',
+        borderRadius: 8,
+        paddingVertical: 12,
         alignItems: 'center',
     },
-    modalContent: {
-        borderRadius: 12,
-        padding: 0,
-        marginHorizontal: 20,
-        width: '90%',
-        maxWidth: 400,
-        maxHeight: '80%',
-    },
-    modalHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: '#eee',
-    },
-    modalTitle: {
-        fontSize: 20,
+    footerButtonText: {
+        color: 'white',
         fontWeight: 'bold',
-    },
-    closeButton: {
-        padding: 4,
-    },
-    separator: {
-        height: 1,
-        marginBottom: 0,
-    },
-    modalBody: {
-        padding: 20,
-    },
-    clearButton: {
-        borderWidth: 1,
-        borderRadius: 6,
-        paddingHorizontal: 6,
-        paddingVertical: 2,
-        alignSelf: 'flex-end',
-        marginBottom: 16,
-        minHeight: 24,
-        minWidth: 48,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    clearButtonText: {
-        fontWeight: 'bold',
-        fontSize: 12,
+        fontSize: 16,
     },
     scrollView: {
         maxHeight: 300,
@@ -182,9 +129,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 8,
         paddingHorizontal: 6,
-        borderRadius: 6,
         marginBottom: 4,
-        borderWidth: 1,
     },
     checkbox: {
         width: 18,
@@ -195,15 +140,5 @@ const styles = StyleSheet.create({
     },
     optionText: {
         fontSize: 14,
-    },
-    applyButton: {
-        borderRadius: 8,
-        paddingVertical: 12,
-        alignItems: 'center',
-    },
-    applyButtonText: {
-        color: 'white',
-        fontWeight: 'bold',
-        fontSize: 16,
     },
 });

@@ -192,7 +192,6 @@ export default function StatusPickerModal({
             theme={theme}
             title="Creature Settings"
             subtitle={modalSubtitle}
-            scrollable={true}
         >
             {/* Tab Navigation */}
             <View style={styles.tabContainer}>

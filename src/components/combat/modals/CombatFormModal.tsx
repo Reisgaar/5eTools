@@ -106,7 +106,6 @@ export default function CombatFormModal({
                 onClose={onClose}
                 theme={theme}
                 title={title}
-                scrollable={true}
             >
                 <View style={styles.modalSection}>
                     <Text style={styles.modalSectionTitle}>Combat Details</Text>

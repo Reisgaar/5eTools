@@ -1,5 +1,5 @@
 // REACT
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal, View, Text, TouchableOpacity, ScrollView, Image, TouchableWithoutFeedback, Keyboard, Dimensions } from 'react-native';
 
 // STYLES
@@ -30,13 +30,7 @@ interface BaseModalProps {
     zIndex?: number;
 
     // Footer configuration
-    showFooter?: boolean;
     footerContent?: React.ReactNode;
-
-    // Scroll configuration
-    scrollable?: boolean;
-    scrollContentStyle?: any;
-
 }
 
 /**
@@ -50,83 +44,67 @@ export default function BaseModal({
     title,
     subtitle,
     tokenUrl,
-    showFooter = false,
-    footerContent,
-    scrollable = false,
-    scrollContentStyle
+    footerContent
 }: BaseModalProps) {
     const styles = createBaseModalStyles(theme);
+    const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
-    const modalContent = (
-        <View style={[
-            styles.modalContent,
-            { zIndex: 10 , maxHeight: SCREEN_HEIGHT * 0.8, maxWidth: SCREEN_WIDTH * 0.9 }
-        ]}>
-            {/* Header */}
-            <View style={styles.modalHeader}>
-                <View style={styles.modalHeaderContent}>
-                    {tokenUrl && (
-                        <Image source={{ uri: tokenUrl }} style={styles.modalToken} resizeMode="contain" />
-                    )}
-                    <View style={styles.modalHeaderInfo}>
-                        {title && ( <Text style={styles.modalTitle}>{title}</Text> )}
-                        {subtitle && ( <Text style={styles.modalSubtitle}>{subtitle}</Text> )}
-                    </View>
-                </View>
-                <TouchableOpacity onPress={onClose} style={styles.modalCloseButton}>
-                    <Text style={styles.modalCloseText}>✕</Text>
-                </TouchableOpacity>
-            </View>
+    useEffect(() => {
+        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+            setIsKeyboardVisible(true);
+        });
+        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+            setIsKeyboardVisible(false);
+        });
 
-            {/* Separator */}
-            <View style={styles.modalSeparator} />
-
-            {/* Content */}
-            <View style={[styles.modalBody]}>
-                {scrollable ? (
-                    <ScrollView
-                        contentContainerStyle={scrollContentStyle}
-                        showsVerticalScrollIndicator={true}
-                        nestedScrollEnabled={true}
-                        scrollEventThrottle={16}
-                        bounces={false}
-                        alwaysBounceVertical={false}
-                    >
-                        {children}
-                    </ScrollView>
-                ) : (
-                    <>{children}</>
-                )}
-            </View>
-
-            {/* Footer */}
-            {showFooter && (
-                <View style={styles.modalFooter}>
-                    {footerContent}
-                </View>
-            )}
-        </View>
-    );
+        return () => {
+            keyboardDidShowListener?.remove();
+            keyboardDidHideListener?.remove();
+        };
+    }, []);
 
     return (
-        <Modal
-            visible={visible}
-            animationType="slide"
-            transparent={true}
-            onRequestClose={onClose}
-        >
-            <TouchableWithoutFeedback onPress={() => {
-                Keyboard.dismiss();
-                onClose();
-            }}>
-                <View style={[styles.modalOverlay]}>
-                    <TouchableWithoutFeedback onPress={() => {}}>
-                        <View style={styles.modalContainer}>
-                            {modalContent}
+        <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
+            <View style={[styles.modalOverlay]}>
+                <View
+                    style={[
+                        styles.baseModalContainer,
+                        { maxHeight: SCREEN_HEIGHT * 0.8, width: SCREEN_WIDTH * 0.9 },
+                        isKeyboardVisible && { transform: [{ translateX: '-50%' }, { translateY: '-85%' }] }
+                    ]}
+                >
+                    {/* Header */}
+                    <View style={styles.modalHeader}>
+                        <View style={styles.modalHeaderContent}>
+                            {tokenUrl && (<Image source={{ uri: tokenUrl }} style={styles.modalToken} resizeMode="contain" />)}
+                            <View style={styles.modalHeaderInfo}>
+                                {title && ( <Text style={styles.modalTitle}>{title}</Text> )}
+                                {subtitle && ( <Text style={styles.modalSubtitle}>{subtitle}</Text> )}
+                            </View>
                         </View>
-                    </TouchableWithoutFeedback>
+                        <TouchableOpacity onPress={onClose} style={styles.modalCloseButton}>
+                            <Text style={styles.modalCloseText}>✕</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    {/* Separator */}
+                    <View style={styles.modalSeparator} />
+
+                    {/* Content */}
+                    <View style={[styles.modalBody, { flex: 1, maxHeight: 300 }]}>
+                        <ScrollView showsVerticalScrollIndicator={true}>
+                            {children}
+                        </ScrollView>
+                    </View>
+
+                    {/* Footer */}
+                    {footerContent && (
+                        <View style={styles.modalFooter}>
+                            {footerContent}
+                        </View>
+                    )}
                 </View>
-            </TouchableWithoutFeedback>
+            </View>
         </Modal>
     );
 }

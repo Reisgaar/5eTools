@@ -300,6 +300,86 @@ export function renderEntries(
             );
         }
 
+        if (entries.type === 'table' && entries.rows) {
+            // Calculate column widths based on content
+            const calculateColumnWidths = () => {
+                const numCols = entries.rows[0]?.length || 0;
+                const columnWidths = new Array(numCols).fill(1); // Default equal width
+                
+                // Analyze content to determine optimal widths
+                entries.rows.forEach((row: any[]) => {
+                    row.forEach((cell: any, colIdx: number) => {
+                        const cellText = typeof cell === 'string' ? cell : String(cell);
+                        const cellLength = cellText.length;
+                        
+                        // If column has mostly short content (like numbers), give it less width
+                        if (cellLength < 20) {
+                            columnWidths[colIdx] = Math.min(columnWidths[colIdx], 0.3);
+                        } else if (cellLength > 100) {
+                            // If column has very long content, give it more width
+                            columnWidths[colIdx] = Math.max(columnWidths[colIdx], 2);
+                        }
+                    });
+                });
+                
+                // Normalize widths to sum to numCols
+                const totalWidth = columnWidths.reduce((sum, width) => sum + width, 0);
+                return columnWidths.map(width => (width / totalWidth) * numCols);
+            };
+            
+            const columnWidths = calculateColumnWidths();
+            
+            return (
+                <View style={{ marginLeft: indent, marginBottom: 8 }}>
+                    {entries.caption && (
+                        <Text style={[{ fontWeight: 'bold', marginBottom: 4, color: theme.text, fontSize: 12 }, textStyle]}>
+                            {entries.caption}
+                        </Text>
+                    )}
+                    <View style={{ borderWidth: 1, borderColor: theme.border, borderRadius: 4 }}>
+                        {entries.colLabels && (
+                            <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: theme.border }}>
+                                {entries.colLabels.map((label: string, idx: number) => (
+                                    <View key={idx} style={{ 
+                                        flex: columnWidths[idx] || 1, 
+                                        padding: 8, 
+                                        backgroundColor: theme.innerBackground || '#f5f5f5',
+                                        borderRightWidth: idx < entries.colLabels.length - 1 ? 1 : 0,
+                                        borderRightColor: theme.border
+                                    }}>
+                                        <Text style={[{ fontWeight: 'bold', color: theme.text, fontSize: 11 }, textStyle]}>
+                                            {label}
+                                        </Text>
+                                    </View>
+                                ))}
+                            </View>
+                        )}
+                        {entries.rows.map((row: any[], rowIdx: number) => (
+                            <View key={rowIdx} style={{ flexDirection: 'row', borderBottomWidth: rowIdx < entries.rows.length - 1 ? 1 : 0, borderBottomColor: theme.border }}>
+                                {row.map((cell: any, cellIdx: number) => (
+                                    <View key={cellIdx} style={{ 
+                                        flex: columnWidths[cellIdx] || 1, 
+                                        padding: 8,
+                                        borderRightWidth: cellIdx < row.length - 1 ? 1 : 0,
+                                        borderRightColor: theme.border,
+                                        justifyContent: 'center',
+                                        alignItems: 'center'
+                                    }}>
+                                        <Text style={[{ color: theme.text, fontSize: 11, flexWrap: 'wrap' }, textStyle]}>
+                                            {typeof cell === 'string' ? 
+                                                replaceTags(cell, theme, onCreaturePress, onSpellPress, onDamagePress, onHitPress) : 
+                                                cell
+                                            }
+                                        </Text>
+                                    </View>
+                                ))}
+                            </View>
+                        ))}
+                    </View>
+                </View>
+            );
+        }
+
         if (entries.entries) {
             return renderEntries(entries.entries, indent, theme, onCreaturePress, onSpellPress, textStyle, onDamagePress, onHitPress);
         }

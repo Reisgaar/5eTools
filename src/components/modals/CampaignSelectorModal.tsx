@@ -2,7 +2,7 @@
 import React from 'react';
 import { Modal, View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 
-// EXOPO
+// EXPO
 import { Ionicons } from '@expo/vector-icons';
 
 // STORES
@@ -11,6 +11,12 @@ import { useAppSettingsStore, useCampaignStore, useSpellbookStore } from 'src/st
 // CONTEXTS
 import { useCombat } from 'src/context/CombatContext';
 import { useModal } from 'src/context/ModalContext';
+
+// COMPONENTS
+import { BaseModal } from 'src/components/ui';
+
+// STYLES
+import { createBaseModalStyles } from 'src/styles/baseModalStyles';
 
 // INTERFACES
 interface CampaignSelectorModalProps {
@@ -23,9 +29,11 @@ interface CampaignSelectorModalProps {
 export default function CampaignSelectorModal({ visible }: CampaignSelectorModalProps): JSX.Element {
     const { campaigns, selectedCampaignId, selectCampaign, clearSelectedCampaign } = useCampaignStore();
     const { currentTheme } = useAppSettingsStore();
+    const styles = createBaseModalStyles(currentTheme);
     const { getSortedCombats, reloadCombats } = useCombat();
     const { getSpellbooksByCampaign, clearSpellbookSelection } = useSpellbookStore();
     const { closeCampaignSelectorModal } = useModal();
+
 
     const handleSelectCampaign = async (campaignId: string | null) => {
         // 1. Combats - Reload combats when changing campaign
@@ -58,109 +66,80 @@ export default function CampaignSelectorModal({ visible }: CampaignSelectorModal
     };
 
     return (
-        <Modal visible={visible} animationType="slide" transparent>
-            <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={closeCampaignSelectorModal}>
-                <TouchableOpacity style={[styles.modalContent, { backgroundColor: currentTheme.card }]} activeOpacity={1} onPress={() => {}}>
-                    <View style={styles.modalHeader}>
-                        <Text style={[styles.modalTitle, { color: currentTheme.text }]}>
-                            Select Campaign
-                        </Text>
-                        <TouchableOpacity onPress={closeCampaignSelectorModal} style={styles.closeButton}>
-                            <Ionicons name="close" size={24} color={currentTheme.text} />
-                        </TouchableOpacity>
-                    </View>
-                    <View style={[styles.separator, { backgroundColor: currentTheme.border }]} />
-
-                    <FlatList
-                        data={campaigns}
-                        keyExtractor={item => item.id}
-                        renderItem={({ item }) => (
-                            <TouchableOpacity
-                                style={[
-                                    styles.campaignItem,
-                                    { backgroundColor: selectedCampaignId === item.id ? currentTheme.primary + '20' : 'transparent' }
-                                ]}
-                                onPress={() => handleSelectCampaign(item.id)}
-                            >
-                                <View style={styles.campaignContent}>
-                                    <Text style={[styles.campaignName, { color: currentTheme.text }]}>
-                                        {item.name}
-                                    </Text>
-                                    <Text style={[styles.campaignDescription, { color: currentTheme.noticeText }]}>
-                                        {item.description && `${item.description} • `}
-                                        {getSortedCombats(item.id).length} combats • {getSpellbooksByCampaign(item.id).length} spellbooks
-                                    </Text>
-                                </View>
-                                {selectedCampaignId === item.id && (
-                                    <Ionicons name="checkmark-circle" size={20} color={currentTheme.primary} />
-                                )}
-                            </TouchableOpacity>
+        <BaseModal
+            visible={visible}
+            onClose={closeCampaignSelectorModal}
+            theme={currentTheme}
+            title="Select Campaign"
+            width='90%'
+            maxHeight="80%"
+            footerContent={
+                <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
+                    <TouchableOpacity
+                        onPress={closeCampaignSelectorModal}
+                        style={[styles.footerButton, { backgroundColor: currentTheme.primary }]}
+                    >
+                        <Text style={styles.footerButtonText}>Cancel</Text>
+                    </TouchableOpacity>
+                </View>
+            }
+        >
+            {campaigns && campaigns.length > 0 ? (
+                <>
+                    <TouchableOpacity
+                        style={[
+                            localStyles.campaignItem,
+                            { backgroundColor: !selectedCampaignId ? currentTheme.primary + '20' : 'transparent' }
+                        ]}
+                        onPress={handleShowAll}
+                    >
+                        <View style={localStyles.campaignContent}>
+                            <Text style={[localStyles.campaignName, { color: currentTheme.text }]}>
+                                All Campaigns
+                            </Text>
+                            <Text style={[localStyles.campaignDescription, { color: currentTheme.noticeText }]}>
+                                Show all campaigns • {getSortedCombats(null).length} combats • {getSpellbooksByCampaign(undefined).length} spellbooks
+                            </Text>
+                        </View>
+                        {!selectedCampaignId && (
+                            <Ionicons name="checkmark-circle" size={20} color={currentTheme.primary} />
                         )}
-                        ListHeaderComponent={
-                            <TouchableOpacity
-                                style={[
-                                    styles.campaignItem,
-                                    { backgroundColor: !selectedCampaignId ? currentTheme.primary + '20' : 'transparent' }
-                                ]}
-                                onPress={handleShowAll}
-                            >
-                                <View style={styles.campaignContent}>
-                                    <Text style={[styles.campaignName, { color: currentTheme.text }]}>
-                                        All Campaigns
-                                    </Text>
-                                    <Text style={[styles.campaignDescription, { color: currentTheme.noticeText }]}>
-                                        Show all campaigns • {getSortedCombats(null).length} combats • {getSpellbooksByCampaign(undefined).length} spellbooks
-                                    </Text>
-                                </View>
-                                {!selectedCampaignId && (
-                                    <Ionicons name="checkmark-circle" size={20} color={currentTheme.primary} />
-                                )}
-                            </TouchableOpacity>
-                        }
-                        ListEmptyComponent={
-                            <View style={styles.emptyState}>
-                                <Text style={[styles.emptyText, { color: currentTheme.noticeText }]}>
-                                    No campaigns available
+                    </TouchableOpacity>
+                    {campaigns.map(campaign => (
+                        <TouchableOpacity
+                            key={campaign.id}
+                            style={[
+                                localStyles.campaignItem,
+                                { backgroundColor: selectedCampaignId === campaign.id ? currentTheme.primary + '20' : 'transparent' }
+                            ]}
+                            onPress={() => handleSelectCampaign(campaign.id)}
+                        >
+                            <View style={localStyles.campaignContent}>
+                                <Text style={[localStyles.campaignName, { color: currentTheme.text }]}>
+                                    {campaign.name}
+                                </Text>
+                                <Text style={[localStyles.campaignDescription, { color: currentTheme.noticeText }]}>
+                                    {campaign.description && `${campaign.description} • `}
+                                    {getSortedCombats(campaign.id).length} combats • {getSpellbooksByCampaign(campaign.id).length} spellbooks
                                 </Text>
                             </View>
-                        }
-                    />
-                </TouchableOpacity>
-            </TouchableOpacity>
-        </Modal>
+                            {selectedCampaignId === campaign.id && (
+                                <Ionicons name="checkmark-circle" size={20} color={currentTheme.primary} />
+                            )}
+                        </TouchableOpacity>
+                    ))}
+                </>) : (
+                    <View style={localStyles.emptyState}>
+                        <Text style={[localStyles.emptyText, { color: currentTheme.noticeText }]}>
+                            No campaigns available
+                        </Text>
+                    </View>
+                )}
+        </BaseModal>
     );
 };
 
-const styles = StyleSheet.create({
-    modalOverlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    modalContent: {
-        borderRadius: 12,
-        padding: 0,
-        marginHorizontal: 20,
-        width: '90%',
-        maxWidth: 400,
-        maxHeight: '80%',
-    },
-    modalHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: '#eee',
-    },
-    modalTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-    },
-    closeButton: {
-        padding: 4,
-    },
+const localStyles = StyleSheet.create({
     campaignItem: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -187,9 +166,5 @@ const styles = StyleSheet.create({
     emptyText: {
         fontSize: 16,
         textAlign: 'center',
-    },
-    separator: {
-        height: 1,
-        marginBottom: 0,
     },
 });

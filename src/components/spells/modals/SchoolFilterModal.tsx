@@ -1,6 +1,6 @@
 // REACT
 import React from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View, StyleSheet } from 'react-native';
 
 // COMPONENTS
 import { BaseModal } from 'src/components/ui';
@@ -48,53 +48,45 @@ export default function SchoolFilterModal({
             onClose={onClose}
             theme={theme}
             title="Filter by School"
-            scrollable={true}
-            showFooter={true}
             footerContent={
-                <View style={styles.actionRow}>
+                <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
                     <TouchableOpacity
                         onPress={onClear}
-                        style={[styles.modalButton, styles.modalButtonSecondary]}
+                        style={[styles.footerButton, { backgroundColor: theme.primary }]}
                     >
-                        <Text style={[styles.modalButtonText, styles.modalButtonTextSecondary]}>Clear</Text>
+                        <Text style={styles.footerButtonText}>Clear</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={onApply}
-                        style={[styles.modalButton, styles.modalButtonPrimary]}
+                        style={[styles.footerButton, { backgroundColor: theme.primary }]}
                     >
-                        <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>Apply</Text>
+                        <Text style={styles.footerButtonText}>Apply</Text>
                     </TouchableOpacity>
                 </View>
             }
         >
-            <View style={styles.modalSection}>
-                <Text style={[styles.modalText, { marginBottom: 16 }]}>
-                    Select the schools you want to include in the filter:
-                </Text>
-
+            <View style={styles.optionsGrid}>
                 {validSchoolOptions.map(school => (
-                    <TouchableOpacity
-                        key={school}
-                        style={[
-                            styles.modalListItem,
-                            { marginBottom: 8, borderRadius: 8, paddingVertical: 12 },
-                            selectedSchools.includes(school) && styles.modalListItemSelected
-                        ]}
-                        onPress={() => onToggleSchool(school)}
-                    >
-                        <View style={[
-                            styles.checkbox,
-                            {
-                                borderColor: theme.primary,
-                                backgroundColor: selectedSchools.includes(school) ? theme.primary : 'transparent'
-                            }
-                        ]}>
-                            {selectedSchools.includes(school) && (
-                                <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}>✓</Text>
-                            )}
-                        </View>
-                        <Text style={[styles.modalListItemText, { fontSize: 16 }]}>{capitalize(school)}</Text>
-                    </TouchableOpacity>
+                    <View key={school} style={styles.optionContainer}>
+                        <TouchableOpacity
+                            style={[
+                                styles.optionRow,
+                                { borderColor: theme.border },
+                                selectedSchools.includes(school) && { backgroundColor: theme.primary + '20' }
+                            ]}
+                            onPress={() => onToggleSchool(school)}
+                        >
+                            <View style={[
+                                styles.checkbox,
+                                { borderColor: theme.primary },
+                                selectedSchools.includes(school) && { backgroundColor: theme.primary }
+                            ]}
+                            />
+                            <Text style={[styles.optionText, { color: theme.text }]}>
+                                {capitalize(school)}
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
                 ))}
             </View>
         </BaseModal>
