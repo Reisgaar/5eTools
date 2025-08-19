@@ -101,12 +101,12 @@ export default function CombatPlayer({
                             onPress={() => onValueEdit('initiative', combatant.initiative, combatant.id, combatant.name, false)}
                             style={styles.tokenButton}
                         >
-                            <Ionicons name='flash' size={ICON_SIZE} color={theme.buttonText || 'white'} style={styles.tokenButtonIcon} />
+                            <Ionicons name='flash' size={ICON_SIZE} color={'white'} style={styles.tokenButtonIcon} />
                             <Text style={styles.tokenButtonText}>
                                 {combatant.initiative}
                             </Text>
                             {combatant.initiativeBonus !== undefined && combatant.initiativeBonus !== null && (
-                                <Text style={[styles.tokenButtonText, { fontSize: 10, marginLeft: 2, color: theme.buttonText || 'white' }]}>
+                                <Text style={[styles.tokenButtonText, { fontSize: 10, marginLeft: 2, color: 'white' }]}>
                                     {`(${combatant.initiativeBonus >= 0 ? '+' : ''}${combatant.initiativeBonus})`}
                                 </Text>
                             )}
@@ -117,7 +117,7 @@ export default function CombatPlayer({
                 {/* Right Column: Name and Player Info */}
                 <View style={styles.rightColumn}>
                     {/* Name */}
-                    <View style={styles.groupNameRow}>
+                    <View style={[styles.groupNameRow, { marginBottom: 0 }]}>
                         <View style={styles.groupName}>
                             <Text style={[styles.groupNameText, { color: theme.text }]}>
                                 {combatant.name}
@@ -128,42 +128,28 @@ export default function CombatPlayer({
                     {/* Player Info in two columns */}
                     {(combatant.race || combatant.class || combatant.passivePerception) && (
                         <View style={{ marginBottom: 4 }}>
-                            <View style={{ flexDirection: 'row' }}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingRight: 4 }}>
                                 {/* First column */}
-                                <View style={{ flex: 1 }}>
-                                    {combatant.race && (
-                                        <View style={{ flexDirection: 'row', marginBottom: 2 }}>
-                                            <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, fontWeight: 'bold', width: 40 }]}>
-                                                Race:
-                                            </Text>
-                                            <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8 }]}>
-                                                {combatant.race}
-                                            </Text>
-                                        </View>
-                                    )}
-                                    {combatant.class && (
-                                        <View style={{ flexDirection: 'row' }}>
-                                            <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, fontWeight: 'bold', width: 40 }]}>
-                                                Class:
-                                            </Text>
-                                            <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8 }]}>
-                                                {combatant.class}
-                                            </Text>
-                                        </View>
-                                    )}
-                                </View>
-
-                                {/* Second column */}
-                                <View style={{ flex: 1 }}>
-                                    {combatant.passivePerception && (
-                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                            <Ionicons name='eye' size={12} color={theme.text} style={{ opacity: 0.8, marginRight: 4 }} />
-                                            <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8 }]}>
-                                                {combatant.passivePerception}
-                                            </Text>
-                                        </View>
-                                    )}
-                                </View>
+                                {combatant.race && (
+                                    <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, fontWeight: 'bold' }]}>
+                                        Race: {combatant.race}
+                                    </Text>
+                                )}
+                                {combatant.class && (
+                                    <View style={{ flexDirection: 'row' }}>
+                                        <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, fontWeight: 'bold' }]}>
+                                            Class: {combatant.class}
+                                        </Text>
+                                    </View>
+                                )}
+                                {combatant.passivePerception && (
+                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <Ionicons name='eye' size={12} color={theme.text} style={{ opacity: 0.8, marginRight: 4 }} />
+                                        <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8 }]}>
+                                            {combatant.passivePerception}
+                                        </Text>
+                                    </View>
+                                )}
                             </View>
                         </View>
                     )}
@@ -210,7 +196,7 @@ export default function CombatPlayer({
                                             onPress={() => onValueEdit('ac', combatant.ac, combatant.id, combatant.name, false)}
                                             style={[styles.memberButton, styles.memberButtonPrimary]}
                                         >
-                                            <Ionicons name='shield' size={ICON_SIZE} color={theme.buttonText || 'white'} style={styles.memberIcon} />
+                                            <Ionicons name='shield' size={ICON_SIZE} color={'#eaeaea'} style={styles.memberIcon} />
                                             <Text style={[styles.memberButtonText, styles.memberButtonTextLight]}>
                                                 {combatant.ac}
                                             </Text>
@@ -244,7 +230,7 @@ export default function CombatPlayer({
                                         }}
                                         style={[styles.memberButton, styles.memberButtonSmall, styles.memberButtonSettings]}
                                     >
-                                        <Ionicons name='medical' size={ICON_SIZE} color={theme.buttonText || 'white'} style={styles.memberIcon} />
+                                        <Ionicons name='settings' size={ICON_SIZE} color={'white'} />
                                     </TouchableOpacity>
                                 </View>
                             </View>

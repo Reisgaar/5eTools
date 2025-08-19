@@ -184,17 +184,16 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
         alignItems: 'center',
     },
     memberNumber: {
-        fontSize: 14,
+        fontSize: 12,
         fontWeight: 'bold',
-        marginRight: 12,
-        minWidth: 28,
-        textAlign: 'center',
+        marginRight: 8,
         color: theme.text,
     },
     memberBox: {
         backgroundColor: theme.card,
+        overflow: 'hidden',
         borderRadius: 8,
-        padding: 8,
+        padding: 4,
         borderWidth: 1,
         borderColor: theme.border,
         flex: 1,
@@ -203,7 +202,7 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: 6,
+        marginBottom: 0,
     },
     memberButton: {
         borderRadius: 4,
@@ -240,7 +239,7 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
         fontWeight: 'bold',
     },
     memberButtonTextLight: {
-        color: theme.buttonText || 'white',
+        color: 'white',
     },
     memberButtonTextWhite: {
         color: 'white',
@@ -258,11 +257,8 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 6,
-        paddingVertical: 4,
-        borderBottomWidth: 1,
-        borderBottomColor: 'rgba(255, 255, 255, 0.15)',
+        paddingVertical: 2,
         backgroundColor: 'rgba(0, 0, 0, 0.1)',
-        borderRadius: 4,
         marginHorizontal: -4,
         marginTop: -4,
     },
@@ -281,26 +277,27 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
         fontSize: 11,
         flex: 1,
         fontStyle: 'italic',
-        fontWeight: 'bold',
-        textAlign: 'center',
+        fontWeight: '600',
     },
 
     // Status Conditions Styles
     statusContainer: {
         marginTop: 4,
-        minHeight: 20, // Ensure container has minimum height
+        minHeight: 20,
     },
     statusContainerTop: {
         marginBottom: 4,
-        minHeight: 16, // Slightly smaller for top placement
+        minHeight: 12,
     },
     statusConditions: {
         flexDirection: 'row',
         flexWrap: 'wrap',
+        alignItems: 'center',
+        justifyContent: 'flex-start'
     },
     statusBadge: {
-        backgroundColor: '#4A5568', // Better contrast gray for dark mode
-        borderRadius: 10,
+        backgroundColor: '#4A5568',
+        borderRadius: 4,
         paddingHorizontal: 6,
         paddingVertical: 1,
         marginRight: 3,
@@ -325,7 +322,7 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
         backgroundColor: theme.card,
         borderRadius: 8,
         marginBottom: 4,
-        padding: 8,
+        padding: 12,
         borderWidth: 1,
         borderColor: theme.border,
     },
@@ -368,7 +365,7 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
         marginRight: 3,
     },
     tokenButtonText: {
-        color: theme.buttonText || 'white',
+        color: 'white',
         fontSize: 12,
         fontWeight: 'bold',
     },
@@ -606,6 +603,7 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
     },
     combatList: {
         flex: 1,
+        padding: 10
     },
 
     // Combat Selection Modal Styles

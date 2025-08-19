@@ -42,7 +42,7 @@ import { getCachedTokenUrl } from 'src/utils/tokenCache';
 /**
  * Main component for the combat content.
  */
-export default function CombatContentNew({
+export default function CombatContent({
     combatants,
     combatName,
     onUpdateHp,
@@ -584,9 +584,9 @@ export default function CombatContentNew({
                                 />
                             ) : (
                                 <View>
-                                    {group.groupMembers.map((member: any, memberIndex: number) => {
+                                    {group.groupMembers.map((member: any, memberIndex: number) => 
                                         // Use CombatPlayer for players, CombatIndividual for creatures
-                                        {member.source === 'player' ? (
+                                        member.source === 'player' ? (
                                             <CombatPlayer
                                                 key={member.id}
                                                 combatant={member}
@@ -613,10 +613,10 @@ export default function CombatContentNew({
                                                 cachedTokenUrls={cachedTokenUrls}
                                                 theme={theme}
                                             />
-                                        );};
-                                    })}
+                                        )
+                                    )}
                                 </View>
-                            )};
+                            )}
                         </>
                     );
                 }}
@@ -632,7 +632,6 @@ export default function CombatContentNew({
             />
 
             {/* Modals */}
-            {console.log('🎭 PlayerModal render state:', { visible: playerModalVisible, playersCount: allPlayers.length })}
             <PlayerModal
                 visible={playerModalVisible}
                 onClose={() => {

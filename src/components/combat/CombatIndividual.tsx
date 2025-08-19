@@ -77,12 +77,12 @@ export default function CombatIndividual({
                             onPress={() => onValueEdit('initiative', combatant.initiative, combatant.id, combatant.name, false)}
                             style={styles.tokenButton}
                         >
-                            <Ionicons name='flash' size={ICON_SIZE} color={theme.buttonText || 'white'} style={styles.tokenButtonIcon} />
+                            <Ionicons name='flash' size={ICON_SIZE} color={'white'} style={styles.tokenButtonIcon} />
                             <Text style={styles.tokenButtonText}>
                                 {combatant.initiative}
                             </Text>
                             {combatant.initiativeBonus !== undefined && combatant.initiativeBonus !== null && (
-                                <Text style={[styles.tokenButtonText, { fontSize: 10, marginLeft: 2, color: theme.buttonText || 'white' }]}>
+                                <Text style={[styles.tokenButtonText, { fontSize: 10, marginLeft: 2, color: 'white' }]}>
                                     {`(${combatant.initiativeBonus >= 0 ? '+' : ''}${combatant.initiativeBonus})`}
                                 </Text>
                             )}
@@ -195,7 +195,7 @@ export default function CombatIndividual({
                                             onPress={() => onValueEdit('ac', combatant.ac, combatant.id, combatant.name, false)}
                                             style={[styles.memberButton, styles.memberButtonPrimary]}
                                         >
-                                            <Ionicons name='shield' size={ICON_SIZE} color={theme.buttonText || 'white'} style={styles.memberIcon} />
+                                            <Ionicons name='shield' size={ICON_SIZE} color={'#eaeaea'} style={styles.memberIcon} />
                                             <Text style={[styles.memberButtonText, styles.memberButtonTextLight]}>
                                                 {combatant.ac}
                                             </Text>
@@ -229,7 +229,7 @@ export default function CombatIndividual({
                                         }}
                                         style={[styles.memberButton, styles.memberButtonSmall, styles.memberButtonSettings]}
                                     >
-                                        <Ionicons name='medical' size={ICON_SIZE} color={theme.buttonText || 'white'} style={styles.memberIcon} />
+                                        <Ionicons name='settings' size={ICON_SIZE} color={'white'} />
                                     </TouchableOpacity>
                                 </View>
                             </View>

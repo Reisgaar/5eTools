@@ -72,30 +72,29 @@ export default function CombatGroup({
                         />
                     </TouchableOpacity>
 
-                    {/* Initiative and Passive Perception below token */}
+                    {/* Initiative */}
                     <View style={styles.tokenButtonsRow}>
                         <TouchableOpacity
                             onPress={() => onValueEdit('initiative', group.initiative, '', group.name, true, 1)}
                             style={styles.tokenButton}
                         >
-                            <Ionicons name='flash' size={ICON_SIZE} color={theme.buttonText || 'white'} style={styles.tokenButtonIcon} />
+                            <Ionicons name='flash' size={ICON_SIZE} color={'white'} style={styles.tokenButtonIcon} />
                             <Text style={styles.tokenButtonText}>
                                 {group.initiative}
                             </Text>
                             {group.initiativeBonus !== undefined && group.initiativeBonus !== null && (
-                                <Text style={[styles.tokenButtonText, { fontSize: 10, marginLeft: 2, color: theme.buttonText || 'white' }]}>
+                                <Text style={[styles.tokenButtonText, { fontSize: 10, marginLeft: 2, color: 'white' }]}>
                                     {`(${group.initiativeBonus >= 0 ? '+' : ''}${group.initiativeBonus})`}
                                 </Text>
                             )}
                         </TouchableOpacity>
-
                     </View>
                 </View>
 
                 {/* Right Column: Name and Combatants */}
                 <View style={styles.rightColumn}>
                     {/* Name and Group Toggle */}
-                    <View style={styles.groupNameRow}>
+                    <View style={[styles.groupNameRow, { marginBottom: 0 }]}>
                         <TouchableOpacity
                             onPress={() => onCreaturePress(group.name, group.source)}
                             style={styles.groupName}
@@ -123,7 +122,7 @@ export default function CombatGroup({
 
                     {/* Speed and Senses - Below name */}
                     {(group.speed || group.senses) && (
-                        <View style={{ marginBottom: 4 }}>
+                        <View style={{ marginBottom: 8 }}>
                             {group.speed && (
                                 <View style={{ flexDirection: 'row' }}>
                                     <View>

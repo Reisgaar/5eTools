@@ -74,7 +74,7 @@ export default function CombatMember({
                                 onPress={() => onValueEdit('ac', member.ac, member.id, member.name, false, memberIndex)}
                                 style={[styles.memberButton, styles.memberButtonPrimary]}
                             >
-                                <Ionicons name='shield' size={ICON_SIZE} color={theme.buttonText || 'white'} style={styles.memberIcon} />
+                                <Ionicons name='shield' size={ICON_SIZE} color={'#eaeaea'} style={styles.memberIcon} />
                                 <Text style={[styles.memberButtonText, styles.memberButtonTextLight]}>
                                     {member.ac}
                                 </Text>
@@ -90,7 +90,7 @@ export default function CombatMember({
                                 <Ionicons
                                     name={member.currentHp <= 0 ? 'skull' : 'heart'}
                                     size={12}
-                                    color={member.currentHp <= 0 ? (theme.buttonText || 'white') : '#ff4444'}
+                                    color={member.currentHp <= 0 ? ('white') : '#ff4444'}
                                     style={styles.memberIcon}
                                 />
                                 <Text style={[styles.memberButtonText, styles.memberButtonTextLight]}>
@@ -108,7 +108,7 @@ export default function CombatMember({
                             }}
                             style={[styles.memberButton, styles.memberButtonSmall, styles.memberButtonSettings]}
                         >
-                            <Ionicons name='medical' size={ICON_SIZE} color={theme.buttonText || 'white'} style={styles.memberIcon} />
+                            <Ionicons name='settings' size={ICON_SIZE} color={'white'} />
                         </TouchableOpacity>
                     </View>
                 </View>
