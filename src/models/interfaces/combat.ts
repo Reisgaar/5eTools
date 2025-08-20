@@ -99,30 +99,3 @@ export interface CombatSelectionModalProps {
     onSelectCombat: (combatId: string) => void;
     theme: any;
 }
-
-export interface CombatContentProps {
-    combatants: Combatant[];
-    combatName: string;
-    onUpdateHp: (id: string, newHp: number) => void;
-    onUpdateMaxHp: (id: string, newMaxHp: number) => void;
-    onUpdateAc: (id: string, newAc: number) => void;
-    onUpdateInitiative: (id: string, newInit: number) => void;
-    onUpdateInitiativeForGroup: (name: string, newInit: number) => void;
-    onUpdateColor: (id: string, color: string | null) => void;
-    onUpdateConditions: (id: string, conditions: string[]) => void;
-    onUpdateNote: (id: string, note: string) => void;
-    onRemoveCombatant: (id: string) => void;
-    onRandomizeInitiative: () => void;
-    onStopCombat: () => void;
-    onBackToList: () => void;
-    onEditCombat: () => void;
-    theme: any;
-    isGroupEnabled: (nameOrigin: string) => boolean;
-    toggleGroupForName: (nameOrigin: string) => void;
-    groupByName: { [nameOrigin: string]: boolean };
-    round: number;
-    turnIndex: number;
-    started: boolean;
-    onStartCombat: () => void;
-    onNextTurn: () => void;
-}

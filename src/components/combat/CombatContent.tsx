@@ -6,6 +6,9 @@ import { FlatList, View } from 'react-native';
 import { useCombat } from 'src/context/CombatContext';
 import { useModal } from 'src/context/ModalContext';
 
+// STORES
+import { useAppSettingsStore } from 'src/stores';
+
 // COMPONENTS
 import CombatHeader from 'src/components/combat/CombatHeader';
 import CombatControls from 'src/components/combat/CombatControls';
@@ -30,9 +33,6 @@ import { ConfirmModal, ColorModal } from 'src/components/modals';
 // STYLES
 import { createCombatStyles } from 'src/styles/combat';
 
-// INTERFACES
-import { CombatContentProps } from 'src/models/interfaces/combat';
-
 // UTILS
 import { getCombatDisplayList } from 'src/utils/combatUtils';
 import { loadCombatImages } from 'src/utils/combatUtils';
@@ -42,34 +42,39 @@ import { getCachedTokenUrl } from 'src/utils/tokenCache';
 /**
  * Main component for the combat content.
  */
-export default function CombatContent({
-    combatants,
-    combatName,
-    onUpdateHp,
-    onUpdateMaxHp,
-    onUpdateAc,
-    onUpdateInitiative,
-    onUpdateInitiativeForGroup,
-    onUpdateColor,
-    onUpdateConditions,
-    onUpdateNote,
-    onRemoveCombatant,
-    onRandomizeInitiative,
-    onStopCombat,
-    onBackToList,
-    onEditCombat,
-    theme,
-    isGroupEnabled,
-    toggleGroupForName,
-    groupByName,
-    round,
-    turnIndex,
-    started,
-    onStartCombat,
-    onNextTurn
-}: CombatContentProps) {
-    const { getTurnOrder, addPlayerCombatant, resetCombatGroups, currentCombat, currentCombatId } = useCombat();
+export default function CombatContent() {
+    const { currentTheme } = useAppSettingsStore();
+    const {
+        updateHp,
+        updateMaxHp,
+        updateAc,
+        updateColor,
+        updateInitiative,
+        updateInitiativeForGroup,
+        updateCombatantConditions,
+        updateCombatantNote,
+        startCombat,
+        nextTurn,
+        stopCombat,
+        clearCurrentCombat,
+        getTurnOrder,
+        addPlayerCombatant,
+        resetCombatGroups,
+        removeCombatant,
+        isGroupEnabled,
+        toggleGroupForName,
+        combatants,
+        currentCombat,
+        currentCombatId,
+        groupByName
+    } = useCombat();
     const { openBeastModal, openSpellModal } = useModal();
+
+    // State for combat data
+    const [combatName, setCombatName] = React.useState('Combat');
+    const [round, setRound] = React.useState(1);
+    const [turnIndex, setTurnIndex] = React.useState(0);
+    const [started, setStarted] = React.useState(false);
 
     // State for modals
     const [playerModalVisible, setPlayerModalVisible] = React.useState(false);
@@ -139,6 +144,16 @@ export default function CombatContent({
 
     // Refs
     const flatListRef = React.useRef<FlatList>(null);
+
+    // Load data on mount
+    React.useEffect(() => {
+        if (currentCombat) {
+            setCombatName(currentCombat?.name || 'Combat');
+            setRound(currentCombat?.round || 1);
+            setTurnIndex(currentCombat?.turnIndex || 0);
+            setStarted(!!currentCombat?.started);
+        }
+    }, [currentCombat]);
 
     // Load cached token URLs
     const loadCachedTokenUrls = async () => {
@@ -221,6 +236,11 @@ export default function CombatContent({
         }
     }, [turnIndex, started, combatants, groupByName, groupedCombatants]);
 
+
+    const onUpdateConditions = (id: string, conditions: string[]) => {
+        updateCombatantConditions(id, conditions);
+    };
+
     // Open player modal
     const openPlayerModal = async () => {
         console.log('🔍 openPlayerModal called');
@@ -269,13 +289,13 @@ export default function CombatContent({
         if (editingValue) {
             if (editingValue.type === 'initiative') {
                 if (editingValue.isGroup)
-                    onUpdateInitiativeForGroup(editingValue.name, newValue);
+                    updateInitiativeForGroup(editingValue.name, newValue);
                 else
-                    onUpdateInitiative(editingValue.id, newValue);
+                    updateInitiative(editingValue.id, newValue);
             } else if (editingValue.type === 'hp') {
-                onUpdateHp(editingValue.id, newValue);
+                updateHp(editingValue.id, newValue);
             } else if (editingValue.type === 'ac') {
-                onUpdateAc(editingValue.id, newValue);
+                updateAc(editingValue.id, newValue);
             }
         }
         setValueEditModalVisible(false);
@@ -295,7 +315,7 @@ export default function CombatContent({
 
     const handleHpAccept = (newCurrentHp: number) => {
         if (editingHp)
-            onUpdateHp(editingHp.id, newCurrentHp);
+            updateHp(editingHp.id, newCurrentHp);
 
         setHpEditModalVisible(false);
         setEditingHp(null);
@@ -313,7 +333,7 @@ export default function CombatContent({
 
     const handleMaxHpAccept = (newMaxHp: number) => {
         if (editingHp) {
-            onUpdateMaxHp(editingHp.id, newMaxHp);
+            updateMaxHp(editingHp.id, newMaxHp);
 
             // Calculate the adjusted currentHp based on the logic:
             // - If MaxHP goes down below CurrentHP → CurrentHP = MaxHP
@@ -393,7 +413,7 @@ export default function CombatContent({
     // Handle color modal actions
     const handleColorSelect = (color: string | null) => {
         if (editingStatus)
-            onUpdateColor(editingStatus.id, color);
+            updateColor(editingStatus.id, color);
 
         setColorModalVisible(false);
     };
@@ -405,7 +425,7 @@ export default function CombatContent({
     // Handle note modal actions
     const handleNoteUpdate = (note: string) => {
         if (editingStatus)
-            onUpdateNote(editingStatus.id, note);
+            updateCombatantNote(editingStatus.id, note);
 
         setNoteModalVisible(false);
     };
@@ -417,7 +437,7 @@ export default function CombatContent({
     // Handle delete modal actions
     const handleDeleteConfirm = () => {
         if (editingStatus)
-            onRemoveCombatant(editingStatus.id);
+            removeCombatant(editingStatus.id);
 
         setDeleteCombatantModalVisible(false);
         setEditingStatus(null);
@@ -524,7 +544,7 @@ export default function CombatContent({
                     console.log(`${combatant.name}: roll=${initiativeRoll}, bonus=${initiativeBonus}, total=${totalInitiative}`);
 
                     // Update the combatant's initiative
-                    onUpdateInitiative(combatant.id, totalInitiative);
+                    updateInitiative(combatant.id, totalInitiative);
                 });
 
                 console.log('=== RANDOMIZE INITIATIVE COMPLETED ===');
@@ -534,20 +554,20 @@ export default function CombatContent({
     };
 
     const turnOrder = getTurnOrder(combatants, groupByName);
-    const styles = createCombatStyles(theme);
+    const styles = createCombatStyles(currentTheme);
 
     return (
-        <View style={{ flex: 1, backgroundColor: theme.background }}>
+        <View style={{ flex: 1, backgroundColor: currentTheme.background }}>
             <CombatHeader
                 combatName={combatName}
-                onBackToList={onBackToList}
+                onBackToList={clearCurrentCombat}
                 onRandomizeInitiative={handleRandomizeInitiativeWithConfirm}
                 onOpenPlayerModal={() => {
                     console.log('🔗 onOpenPlayerModal prop called');
                     openPlayerModal();
                 }}
                 onEditCombat={() => setEditCombatModalVisible(true)}
-                theme={theme}
+                theme={currentTheme}
             />
 
             {/* Combat List */}
@@ -581,7 +601,7 @@ export default function CombatContent({
                                     onCreaturePress={handleCreaturePress}
                                     onTokenPress={handleTokenPress}
                                     cachedTokenUrls={cachedTokenUrls}
-                                    theme={theme}
+                                    theme={currentTheme}
                                 />
                             ) : (
                                 <View>
@@ -597,7 +617,7 @@ export default function CombatContent({
                                                 onCreaturePress={handleCreaturePress}
                                                 onTokenPress={handleTokenPress}
                                                 cachedTokenUrls={cachedTokenUrls}
-                                                theme={theme}
+                                                theme={currentTheme}
                                             />
                                         ) : (
                                             <CombatIndividual
@@ -612,7 +632,7 @@ export default function CombatContent({
                                                 onCreaturePress={handleCreaturePress}
                                                 onTokenPress={handleTokenPress}
                                                 cachedTokenUrls={cachedTokenUrls}
-                                                theme={theme}
+                                                theme={currentTheme}
                                             />
                                         )
                                     )}
@@ -626,10 +646,10 @@ export default function CombatContent({
             <CombatControls
                 started={started}
                 round={round}
-                onStopCombat={onStopCombat}
-                onNextTurn={onNextTurn}
-                onStartCombat={onStartCombat}
-                theme={theme}
+                onStopCombat={stopCombat}
+                onNextTurn={nextTurn}
+                onStartCombat={startCombat}
+                theme={currentTheme}
             />
 
             {/* Modals */}
@@ -648,7 +668,7 @@ export default function CombatContent({
                         ? sel.filter(n => n !== playerName)
                         : [...sel, playerName]);
                 }}
-                theme={theme}
+                theme={currentTheme}
             />
 
             <ValueEditModal
@@ -660,7 +680,7 @@ export default function CombatContent({
                 creatureName={editingValue?.name}
                 combatantNumber={editingValue?.combatantNumber}
                 initialValue={editingValue?.value || 0}
-                theme={theme}
+                theme={currentTheme}
                 isInitiative={editingValue?.type === 'initiative'}
                 initiativeBonus={(() => {
                     if (editingValue?.type !== 'initiative') return 0;
@@ -684,7 +704,7 @@ export default function CombatContent({
                 onNotePress={handleNotePress}
                 onDeletePress={handleDeletePress}
                 creatureName={editingStatus?.name || 'Creature'}
-                theme={theme}
+                theme={currentTheme}
             />
 
             <StatusModal
@@ -693,7 +713,7 @@ export default function CombatContent({
                 onAccept={handleStatusSelect}
                 currentConditions={editingStatus?.currentConditions || []}
                 creatureName={editingStatus?.name || 'Creature'}
-                theme={theme}
+                theme={currentTheme}
             />
 
             <ColorModal
@@ -702,7 +722,7 @@ export default function CombatContent({
                 onAccept={handleColorSelect}
                 currentColor={editingStatus?.currentColor}
                 creatureName={editingStatus?.name || 'Creature'}
-                theme={theme}
+                theme={currentTheme}
             />
 
             <NoteModal
@@ -711,7 +731,7 @@ export default function CombatContent({
                 onAccept={handleNoteUpdate}
                 currentNote={editingStatus?.currentNote || ''}
                 creatureName={editingStatus?.name || 'Creature'}
-                theme={theme}
+                theme={currentTheme}
             />
 
             <DeleteCombatantModal
@@ -719,7 +739,7 @@ export default function CombatContent({
                 onClose={handleDeleteCancel}
                 onConfirm={handleDeleteConfirm}
                 creatureName={editingStatus?.name || 'Creature'}
-                theme={theme}
+                theme={currentTheme}
             />
 
             <HPEditModal
@@ -731,7 +751,7 @@ export default function CombatContent({
                 combatantNumber={editingHp?.combatantNumber || 1}
                 initialCurrentHp={editingHp?.currentHp || 0}
                 maxHp={editingHp?.maxHp || 1}
-                theme={theme}
+                theme={currentTheme}
             />
 
             <MaxHPEditModal
@@ -743,7 +763,7 @@ export default function CombatContent({
                 combatantNumber={editingHp?.combatantNumber || 1}
                 currentHp={editingHp?.currentHp || 0}
                 initialMaxHp={editingHp?.maxHp || 1}
-                theme={theme}
+                theme={currentTheme}
             />
 
             {/* Token View Modal */}
@@ -753,7 +773,7 @@ export default function CombatContent({
                 tokenUrl={tokenModalData?.tokenUrl || ''}
                 fallbackUrl={tokenModalData?.fallbackUrl || ''}
                 creatureName={tokenModalData?.creatureName || ''}
-                theme={theme}
+                theme={currentTheme}
             />
 
             {/* Edit Combat Modal */}
@@ -765,7 +785,7 @@ export default function CombatContent({
                 initialName={combatName}
                 initialDescription={currentCombat?.description}
                 initialCampaignId={currentCombat?.campaignId}
-                theme={theme}
+                theme={currentTheme}
             />
 
             {/* Confirm Modal */}
@@ -775,7 +795,7 @@ export default function CombatContent({
                 onConfirm={() => confirmModalData?.onConfirm()}
                 title={confirmModalData?.title || ''}
                 message={confirmModalData?.message || ''}
-                theme={theme}
+                theme={currentTheme}
             />
         </View>
     );
