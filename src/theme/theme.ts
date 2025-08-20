@@ -24,6 +24,8 @@ export type Theme = {
     tabInactive: string;
     tabBorder: string;
     border: string;
+    settingsContainer: string;
+    settingsButton: string;
   };
 
 export const lightTheme: Theme = {
@@ -52,6 +54,8 @@ export const lightTheme: Theme = {
     tabInactive: '#00000070',
     tabBorder: '#aaaaaa',
     border: '#dddddd',
+    settingsContainer: '#ffffff',
+    settingsButton: '#eeeeee',
 };
 
 export const darkTheme: Theme = {
@@ -80,4 +84,6 @@ export const darkTheme: Theme = {
     tabInactive: '#ffffff70',
     tabBorder: '#777777',
     border: '#333333',
+    settingsContainer: '#666666',
+    settingsButton: '#555555',
 };

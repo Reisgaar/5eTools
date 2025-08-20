@@ -77,65 +77,71 @@ export default function SettingsScreen() {
 
     return (
         <ScrollView style={{ flex: 1, backgroundColor: currentTheme.background }}>
-            <View style={[commonStyles.container, { backgroundColor: currentTheme.background, paddingTop: 0 }]}>
+            <View style={[commonStyles.container, { backgroundColor: currentTheme.background }]}>
 
                 <Text style={[styles.sectionTitle, { color: currentTheme.text }]}>Theme</Text>
-                <View style={[commonStyles.row, { justifyContent: 'center', marginBottom: 12 }]}>
-                    <View style={[commonStyles.row, { flex: 1 }]}>
+                <View style={[styles.sectionContainer, { backgroundColor: currentTheme.settingsContainer }]}>
+                    <View style={[commonStyles.row, { marginTop: 0 }]}>
                         <Pressable
                             onPress={() => setTheme('light')}
                             style={[
                                 commonStyles.langButton,
+                                { backgroundColor: currentTheme.settingsButton },
                                 themeName === 'light' && [commonStyles.selected, { borderColor: currentTheme.buttonBackground }],
                             ]}
                         >
-                            <Text style={{ color: currentTheme.text }}>Light</Text>
+                            <Text style={{ color: currentTheme.text, opacity: themeName === 'light' ? 1 : 0.3 }}>Light</Text>
                         </Pressable>
                         <Pressable
                             onPress={() => setTheme('dark')}
                             style={[
                                 commonStyles.langButton,
+                                { backgroundColor: currentTheme.settingsButton },
                                 themeName === 'dark' && [commonStyles.selected, { borderColor: currentTheme.buttonBackground }],
                             ]}
                         >
-                            <Text style={{ color: currentTheme.text }}>Dark</Text>
+                            <Text style={{ color: currentTheme.text, opacity: themeName === 'dark' ? 1 : 0.3 }}>Dark</Text>
                         </Pressable>
                     </View>
                 </View>
-                
+
                 <Text style={[styles.sectionTitle, { color: currentTheme.text }]}>Dice Rolling:</Text>
-                <View style={[commonStyles.row, { justifyContent: 'center', marginBottom: 8 }]}>
-                    <View style={[commonStyles.row, { flex: 1 }]}>
+                <View style={[styles.sectionContainer, { backgroundColor: currentTheme.settingsContainer }]}>
+                    <View style={[commonStyles.row, { marginTop: 0 }]}>
                         <Pressable
                             onPress={() => setUseAdvancedDiceRoll(false)}
                             style={[
                                 commonStyles.langButton,
+                                { backgroundColor: currentTheme.settingsButton },
                                 !useAdvancedDiceRoll && [commonStyles.selected, { borderColor: currentTheme.buttonBackground }],
                             ]}
                         >
-                            <Text style={{ color: currentTheme.text }}>Simple</Text>
+                            <Text style={{ color: currentTheme.text, opacity: !useAdvancedDiceRoll ? 1 : 0.3 }}>Simple</Text>
                         </Pressable>
                         <Pressable
                             onPress={() => setUseAdvancedDiceRoll(true)}
                             style={[
                                 commonStyles.langButton,
+                                { backgroundColor: currentTheme.settingsButton },
                                 useAdvancedDiceRoll && [commonStyles.selected, { borderColor: currentTheme.buttonBackground }],
                             ]}
                         >
-                            <Text style={{ color: currentTheme.text }}>Advanced</Text>
+                            <Text style={{ color: currentTheme.text, opacity: useAdvancedDiceRoll ? 1 : 0.3 }}>Advanced</Text>
                         </Pressable>
                     </View>
                 </View>
-                <Text style={[styles.settingDescription, { color: currentTheme.noticeText, marginTop: 0, marginBottom: 12 }]}>
-                    {useAdvancedDiceRoll 
-                        ? 'Advanced mode allows you to configure advantage/disadvantage and situational bonuses before rolling.'
-                        : 'Simple mode rolls dice immediately without configuration options.'
-                    }
-                </Text>
+                <View style={[styles.sectionTip]}>
+                    <Text style={[styles.sectionTipText, { color: currentTheme.noticeText }]}>
+                        {useAdvancedDiceRoll 
+                            ? 'Advanced mode allows you to configure advantage/disadvantage and situational bonuses before rolling.'
+                            : 'Simple mode rolls dice immediately without configuration options.'
+                        }
+                    </Text>
+                </View>
                 
-                <View style={{ justifyContent: 'center', marginBottom: 12 }}>
-                    <Text style={[styles.sectionTitle, { color: currentTheme.text }]}>Data Management</Text>
-                    <View style={[commonStyles.row]}>
+                <Text style={[styles.sectionTitle, { color: currentTheme.text }]}>Data Management</Text>
+                <View style={[styles.sectionContainer, { backgroundColor: currentTheme.settingsContainer }]}>
+                    <View style={[commonStyles.row, { marginTop: 0 }]}>
                         <Pressable 
                             onPress={() => setStorageModalVisible(true)} 
                             style={[commonStyles.button, { backgroundColor: currentTheme.primary, marginTop: 0, flex: 0.5 }]}
@@ -149,26 +155,21 @@ export default function SettingsScreen() {
                             <Text style={[commonStyles.buttonText, { fontSize: 14, textAlign: 'center', color: 'white' }]}>Regenerate All Indexes</Text>
                         </Pressable>
                     </View>
-                    <Text style={[styles.settingDescription, { color: currentTheme.noticeText, marginTop: 4 }]}>
+                </View>
+                <View style={[styles.sectionTip]}>
+                    <Text style={[styles.sectionTipText, { color: currentTheme.noticeText}]}>
                         Regenerates all indexes (beasts, spells, combats, relations, classes, filter indexes) from existing data files. This improves filter performance on Android.
                     </Text>
                 </View>
 
                 {/* Data Loading Section */}
-                <View style={{ justifyContent: 'center', marginBottom: 12 }}>
-                    <Text style={[styles.sectionTitle, { color: currentTheme.text }]}>Data Loading</Text>
-                    <View style={commonStyles.row}>
+                <Text style={[styles.sectionTitle, { color: currentTheme.text }]}>Data Loading</Text>
+                <View style={[styles.sectionContainer, { backgroundColor: currentTheme.settingsContainer }]}>
+                    <View style={[commonStyles.row, { marginTop: 0 }]}>
                         <TouchableOpacity 
                             onPress={handleReload}
                             disabled={isLoading}
-                            style={[
-                                commonStyles.button,
-                                { 
-                                    backgroundColor: currentTheme.primary,
-                                    opacity: isLoading ? 0.6 : 1,
-                                    flex: 1
-                                }
-                            ]}
+                            style={[commonStyles.button, { marginTop: 0, backgroundColor: currentTheme.primary, opacity: isLoading ? 0.6 : 1, flex: 1 } ]}
                         >
                             {isLoading
                                 ? ( <ActivityIndicator color="white" size="small" />)
@@ -181,14 +182,7 @@ export default function SettingsScreen() {
                         <TouchableOpacity 
                             onPress={handleClear}
                             disabled={isLoading}
-                            style={[
-                                commonStyles.button,
-                                { 
-                                    backgroundColor: '#dc2626',
-                                    opacity: isLoading ? 0.6 : 1,
-                                    flex: 1
-                                }
-                            ]}
+                            style={[commonStyles.button, { marginTop: 0, backgroundColor: '#dc2626', opacity: isLoading ? 0.6 : 1, flex: 1 }]}
                         >
                             <Text style={[commonStyles.buttonText, { color: 'white' }]}>
                                 Clear Data
@@ -261,16 +255,26 @@ export default function SettingsScreen() {
 
 const styles = StyleSheet.create({
     sectionTitle: {
-        fontSize: 20,
+        fontSize: 14,
         fontWeight: '600',
-        marginTop: 12,
-        marginBottom: 0,
-        textAlign: 'center',
+        textTransform: 'uppercase',
+        marginLeft: 4
     },
-    settingDescription: {
-        fontSize: 12,
-        textAlign: 'center',
-        marginTop: 8,
+    sectionContainer: {
+        marginTop: 4,
+        marginBottom: 26,
+        backgroundColor: 'white',
+        borderRadius: 8,
+        padding: 8
+    },
+    sectionTip: {
+        marginTop: -24,
+        marginBottom: 26
+    },
+    sectionTipText: {
+        fontSize: 11,
+        textAlign: 'left',
         fontStyle: 'italic',
+        marginLeft: 4
     },
 });
