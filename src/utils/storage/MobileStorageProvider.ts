@@ -208,23 +208,49 @@ export class MobileStorageProvider extends BaseStorageProvider {
 
     // Platform-specific operations with migration support
     public async ensureDataDirectory(): Promise<void> {
-        const dirs = [DATA_DIR, MONSTERS_DIR, SPELLS_DIR, COMBATS_DIR];
-
-        for (const dir of dirs) {
-            const dirInfo = await FileSystem.getInfoAsync(dir);
-            if (!dirInfo.exists) {
-                await FileSystem.makeDirectoryAsync(dir, { intermediates: true });
-            }
+        // Prevent multiple simultaneous directory checks
+        if (MobileStorageProvider.ensureDataDirectoryInProgress) {
+            return;
         }
 
-        // Check for and migrate legacy data
-        await this.migrateLegacyData();
+        MobileStorageProvider.ensureDataDirectoryInProgress = true;
+
+        try {
+            const dirs = [DATA_DIR, MONSTERS_DIR, SPELLS_DIR, COMBATS_DIR];
+
+            for (const dir of dirs) {
+                const dirInfo = await FileSystem.getInfoAsync(dir);
+                if (!dirInfo.exists) {
+                    await FileSystem.makeDirectoryAsync(dir, { intermediates: true });
+                }
+            }
+
+            // Only check for legacy data migration once per app session
+            if (!MobileStorageProvider.migrationInProgress && !MobileStorageProvider.migrationCompleted) {
+                await this.migrateLegacyData();
+            }
+        } finally {
+            MobileStorageProvider.ensureDataDirectoryInProgress = false;
+        }
     }
+
+    // Static flags to prevent multiple simultaneous operations across all instances
+    private static migrationInProgress = false;
+    private static migrationCompleted = false;
+    private static ensureDataDirectoryInProgress = false;
 
     /**
      * Migrate data from legacy directories to new persistent structure
      */
     private async migrateLegacyData(): Promise<void> {
+        // Prevent multiple simultaneous migration attempts
+        if (MobileStorageProvider.migrationInProgress) {
+            console.log('🔄 Migration already in progress, skipping...');
+            return;
+        }
+
+        MobileStorageProvider.migrationInProgress = true;
+
         try {
             console.log('🔍 Checking for legacy data to migrate...');
 
@@ -269,6 +295,10 @@ export class MobileStorageProvider extends BaseStorageProvider {
         } catch (error) {
             console.error('❌ Error during legacy data migration:', error);
             // Don't throw - migration failure shouldn't break the app
+        } finally {
+            // Reset the flag and mark migration as completed
+            MobileStorageProvider.migrationInProgress = false;
+            MobileStorageProvider.migrationCompleted = true;
         }
     }
 
@@ -385,5 +415,12 @@ export class MobileStorageProvider extends BaseStorageProvider {
     public override async storeSpellsIndex(spells: any[]): Promise<void> {
         console.log('storeSpellsIndex (mobile) called with', spells.length, 'spells');
         await super.storeSpellsIndex(spells);
+    }
+
+    // Override deleteCombat to add mobile-specific logging
+    public override async deleteCombat(id: string): Promise<void> {
+        console.log(`🗑️ deleteCombat (mobile) called for combat ID: ${id}`);
+        await super.deleteCombat(id);
+        console.log(`✅ deleteCombat (mobile) completed for combat ID: ${id}`);
     }
 }

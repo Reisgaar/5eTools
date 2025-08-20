@@ -76,6 +76,8 @@ export interface CombatListProps {
     currentCombatId: string | null;
     onSelectCombat: (combatId: string) => void;
     onCreateCombat: () => void;
+    onEditCombat?: (combat: Combat) => void;
+    onDeleteCombat?: (combatId: string) => void;
     theme: any;
 }
 

@@ -143,7 +143,6 @@ export default function PlayerFormModal({
             onClose={handleCancel}
             theme={theme}
             title={player ? 'Edit Player' : 'Add Player'}
-            maxHeight="90%"
             footerContent={(
                 <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-around' }}>
                     <TouchableOpacity

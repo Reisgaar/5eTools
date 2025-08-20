@@ -25,6 +25,8 @@ export default function CombatList({
     currentCombatId,
     onSelectCombat,
     onCreateCombat,
+    onEditCombat,
+    onDeleteCombat,
     theme
 }: CombatListProps): JSX.Element {
     const styles = createCombatStyles(theme);
@@ -92,35 +94,63 @@ export default function CombatList({
                         <ScrollView style={{ height: '100%' }}>
                             <View style={{ flex: 1, padding: 0 }}>
                                 {filteredCombats.map(combat => (
-                                    <TouchableOpacity
-                                        key={combat.id}
-                                        onPress={() => onSelectCombat(combat.id)}
-                                        style={styles.listCombatOption}
-                                    >
-                                        <View style={{ flex: 1 }}>
-                                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                                                <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                                    <View key={combat.id} style={styles.listCombatOption}>
+                                        <TouchableOpacity
+                                            onPress={() => onSelectCombat(combat.id)}
+                                            style={{ flex: 1 }}
+                                        >
+                                            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                <View style={{ flex: 1, flexDirection: 'column', alignItems: 'flex-start'}}>
                                                     <Text style={[styles.listCombatName, { color: theme.text }]}>{combat.name}</Text>
-                                                    {combat.isActive && (
-                                                        <View style={styles.listActiveBadge}>
-                                                            <Text style={styles.listActiveBadgeText}>ACTIVE</Text>
+                                                    <Text style={[styles.listCombatCount, { color: theme.noticeText, fontSize: 12, marginLeft: 0 }]}>
+                                                        Campaign: {getCampaignName(combat.campaignId)}
+                                                    </Text>
+                                                    <Text style={[styles.listCombatCount, { color: theme.noticeText, marginLeft: 0 }]}>
+                                                        {`(${combat.combatants?.length || 0} creatures)`}
+                                                    </Text>
+                                                </View>
+                                                <View style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                    {/* Edit and Delete Buttons */}
+                                                    {(onEditCombat || onDeleteCombat) && (
+                                                        <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 8 }}>
+                                                            {onEditCombat && (
+                                                                <TouchableOpacity 
+                                                                    onPress={() => onEditCombat(combat)} 
+                                                                    style={{
+                                                                        backgroundColor: theme.primary,
+                                                                        width: 28,
+                                                                        height: 28,
+                                                                        borderRadius: 14,
+                                                                        alignItems: 'center',
+                                                                        justifyContent: 'center',
+                                                                        marginRight: 8
+                                                                    }}
+                                                                >
+                                                                    <Ionicons name="pencil" size={16} color="white" />
+                                                                </TouchableOpacity>
+                                                            )}
+                                                            {onDeleteCombat && (
+                                                                <TouchableOpacity 
+                                                                    onPress={() => onDeleteCombat(combat.id)}
+                                                                    style={{
+                                                                        backgroundColor: '#dc2626',
+                                                                        width: 28,
+                                                                        height: 28,
+                                                                        borderRadius: 14,
+                                                                        alignItems: 'center',
+                                                                        justifyContent: 'center'
+                                                                    }}
+                                                                >
+                                                                    <Ionicons name="trash" size={16} color="white" />
+                                                                </TouchableOpacity>
+                                                            )}
                                                         </View>
                                                     )}
                                                 </View>
-                                                <Text style={[styles.listCombatCount, { color: theme.noticeText }]}>
-                                                    {`(${combat.combatants?.length || 0} creatures)`}
-                                                </Text>
                                             </View>
-                                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                                                <Text style={[styles.listCombatCount, { marginLeft: 0, color: theme.noticeText, fontSize: 10 }]}>
-                                                    {formatDate(combat.createdAt)}
-                                                </Text>
-                                                <Text style={[styles.listCombatCount, { color: theme.noticeText, fontSize: 12 }]}>
-                                                    {getCampaignName(combat.campaignId)}
-                                                </Text>
-                                            </View>
-                                        </View>
-                                    </TouchableOpacity>
+                                        </TouchableOpacity>
+                                        
+                                    </View>
                                 ))}
                             </View>
                         </ScrollView>

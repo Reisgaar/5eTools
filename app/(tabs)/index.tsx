@@ -4,7 +4,7 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Image } from 'rea
 import { Ionicons } from '@expo/vector-icons';
 
 // STORES
-import { useAppSettingsStore, useCampaignStore } from 'src/stores';
+import { useAppSettingsStore, useCampaignStore, usePlayerStore } from 'src/stores';
 
 // STYLES
 import { commonStyles } from 'src/styles/commonStyles';
@@ -20,13 +20,13 @@ const DEFAULT_TOKEN_URL = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2w
 export default function HomeScreen() {
     const { currentTheme } = useAppSettingsStore();
     const { campaigns, selectedCampaign, createCampaign, deleteCampaign, updateCampaign } = useCampaignStore();
+    const { players, loadPlayers, createPlayer, deletePlayer, updatePlayer } = usePlayerStore();
 
     // Campaign modal state
     const [campaignModalVisible, setCampaignModalVisible] = React.useState(false);
     const [editCampaign, setEditCampaign] = React.useState<any | null>(null);
 
-    // Player management state
-    const [players, setPlayers] = React.useState<any[]>([]);
+    // Player modal state
     const [playerModalVisible, setPlayerModalVisible] = React.useState(false);
     const [editPlayer, setEditPlayer] = React.useState<any | null>(null);
 
@@ -38,12 +38,10 @@ export default function HomeScreen() {
 
     // Load players on mount and when campaign changes
     React.useEffect(() => {
-        (async () => {
-            const { loadPlayersList } = await import('src/utils/fileStorage');
-            const list = await loadPlayersList();
-            setPlayers(list);
-        })();
-    }, [selectedCampaign?.id]); // Reload players when campaign changes
+        loadPlayers();
+    }, [selectedCampaign?.id, loadPlayers]); // Reload players when campaign changes
+
+
 
     // Filter players by selected campaign
     const filteredPlayers = React.useMemo(() => {
@@ -97,16 +95,12 @@ export default function HomeScreen() {
 
     // Player functions
     const handleSavePlayer = async (playerData: any) => {
-        const { addPlayer, updatePlayer, loadPlayersList } = await import('src/utils/fileStorage');
-        
         if (editPlayer) {
-            await updatePlayer(editPlayer.name, playerData);
+            updatePlayer(editPlayer.name, playerData);
         } else {
-            await addPlayer(playerData);
+            createPlayer(playerData);
         }
         
-        const list = await loadPlayersList();
-        setPlayers(list);
         setPlayerModalVisible(false);
         setEditPlayer(null);
     };
@@ -114,11 +108,8 @@ export default function HomeScreen() {
     const handleDeletePlayer = async (name: string) => {
         setConfirmTitle('Delete Player');
         setConfirmMessage(`Are you sure you want to delete the player "${name}"?`);
-        setConfirmAction(() => async () => {
-            const { removePlayer, loadPlayersList } = await import('src/utils/fileStorage');
-            await removePlayer(name);
-            const list = await loadPlayersList();
-            setPlayers(list);
+        setConfirmAction(() => () => {
+            deletePlayer(name);
         });
         setConfirmModalVisible(true);
     };

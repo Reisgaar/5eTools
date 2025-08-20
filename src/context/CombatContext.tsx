@@ -55,7 +55,7 @@ interface CombatContextType {
   createCombat: (name: string, campaignId?: string, description?: string) => string;
   selectCombat: (id: string) => void;
   clearCurrentCombat: () => void;
-  deleteCombat: (id: string) => void;
+  deleteCombat: (id: string) => Promise<void>;
   archiveCombat: (id: string) => void;
   resetCombat: (id: string) => void;
   addCombatant: (monster: any) => Promise<void>;
@@ -290,11 +290,27 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         setCurrentCombatId(null);
     };
 
-    const deleteCombat = (id: string) => {
-        setCombats(prev => prev.filter(c => c.id !== id));
-        deleteCombatFile(id);
-        if (currentCombatId === id) {
-            setCurrentCombatId(combats.length > 1 ? combats[0]?.id || null : null);
+    const deleteCombat = async (id: string) => {
+        try {
+            // Remove from file storage first
+            await deleteCombatFile(id);
+            
+            // Then update in-memory state
+            setCombats(prev => {
+                const filteredCombats = prev.filter(c => c.id !== id);
+                
+                // If we're deleting the current combat, select a new one
+                if (currentCombatId === id) {
+                    const newCurrentCombatId = filteredCombats.length > 0 ? filteredCombats[0].id : null;
+                    setCurrentCombatId(newCurrentCombatId);
+                }
+                
+                return filteredCombats;
+            });
+            
+            console.log(`✅ Combat ${id} deleted successfully`);
+        } catch (error) {
+            console.error(`❌ Error deleting combat ${id}:`, error);
         }
     };
 
@@ -1150,6 +1166,8 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             console.error('Error reloading combats:', error);
         }
     };
+
+
 
     return (
         <CombatContext.Provider value={{

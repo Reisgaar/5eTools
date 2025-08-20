@@ -6,7 +6,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
 // STORES
-import { useAppSettingsStore, useCampaignStore, useSpellbookStore } from 'src/stores';
+import { useAppSettingsStore, useCampaignStore, useSpellbookStore, usePlayerStore } from 'src/stores';
 
 // CONTEXTS
 import { CombatProvider } from 'src/context/CombatContext';
@@ -21,12 +21,16 @@ export default function RootLayout() {
     const { initializeSettings, themeName } = useAppSettingsStore();
     const { initializeCampaigns } = useCampaignStore();
     const { loadSpellbooks } = useSpellbookStore();
+    const { initializePlayers } = usePlayerStore();
+    // Combat initialization is handled by CombatContext
 
     useEffect(() => {
         initializeSettings();
         initializeCampaigns();
         loadSpellbooks();
-    }, [initializeSettings, initializeCampaigns, loadSpellbooks]);
+        initializePlayers();
+        // Combat initialization is handled by CombatContext
+    }, [initializeSettings, initializeCampaigns, loadSpellbooks, initializePlayers]);
 
     return (
         <ErrorBoundary>

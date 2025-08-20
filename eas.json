@@ -6,22 +6,12 @@
     "build": {
         "development": {
             "developmentClient": true,
-            "distribution": "internal",
-            "env": {
-                "GOOGLE_MAPS_API_KEY": "AIzaSyD_qGx1zH29uqFh6WalTMEFMCpv3lVJ0eQ",
-                "NODES_API_BASE_URL": "http://camaro:52100/",
-                "BACKEND_API_BASE_URL": "http://camaro.fsedome.com:52110/"
-            }
+            "distribution": "internal"
         },
         "preview": {
             "distribution": "internal",
             "android": {
                 "buildType": "apk"
-            },
-            "env": {
-                "GOOGLE_MAPS_API_KEY": "AIzaSyD_qGx1zH29uqFh6WalTMEFMCpv3lVJ0eQ",
-                "NODES_API_BASE_URL": "http://camaro:52100/",
-                "BACKEND_API_BASE_URL": "http://camaro.fsedome.com:52110/"
             }
         },
         "production": {
@@ -31,19 +21,6 @@
             },
             "ios": {
                 "simulator": false
-            },
-            "env": {
-                "GOOGLE_MAPS_API_KEY": "AIzaSyD_qGx1zH29uqFh6WalTMEFMCpv3lVJ0eQ",
-                "NODES_API_BASE_URL": "https://z.denodl.com/napi/",
-                "BACKEND_API_BASE_URL": "https://z.denodl.com/bk/"
-            }
-        }
-    },
-    "submit": {
-        "production": {
-            "ios": {
-                "appleId": "sistemas@denodl.com",
-                "ascAppId": "6746484283"
             }
         }
     }

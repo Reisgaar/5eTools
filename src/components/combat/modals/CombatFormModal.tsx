@@ -14,7 +14,6 @@ import { createBaseModalStyles } from 'src/styles/baseModalStyles';
 // COMPONENTS
 import { BaseModal } from 'src/components/ui';
 import CampaignSelector from 'src/components/ui/CampaignSelector';
-import ConfirmModal from 'src/components/modals/ConfirmModal';
 
 // INTERFACES
 interface CombatFormModalProps {
@@ -44,12 +43,11 @@ export default function CombatFormModal({
     theme
 }: CombatFormModalProps): JSX.Element {
     const { selectedCampaignId: contextSelectedCampaignId } = useCampaignStore();
-    const { updateCombat, deleteCombat } = useCombat();
+    const { updateCombat } = useCombat();
 
     const [name, setName] = useState(initialName);
     const [description, setDescription] = useState(initialDescription);
     const [selectedCampaignId, setSelectedCampaignId] = useState<string | undefined>(initialCampaignId);
-    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     const styles = createBaseModalStyles(theme);
 
@@ -83,17 +81,7 @@ export default function CombatFormModal({
         onClose();
     };
 
-    const handleDelete = () => {
-        setShowDeleteConfirm(true);
-    };
 
-    const confirmDelete = () => {
-        if (combatId) {
-            deleteCombat(combatId);
-        }
-        setShowDeleteConfirm(false);
-        onClose();
-    };
 
     return (
         <>
@@ -106,21 +94,13 @@ export default function CombatFormModal({
                     <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
                         <TouchableOpacity
                             onPress={onClose}
-                            style={[styles.footerButton, { backgroundColor: theme.secondary }, isEditMode && { width: '30%' }]}
+                            style={[styles.footerButton, { backgroundColor: theme.secondary }]}
                         >
                             <Text style={styles.footerButtonText}>Cancel</Text>
                         </TouchableOpacity>
-                        {isEditMode && (
-                            <TouchableOpacity
-                                onPress={handleDelete}
-                                style={[styles.footerButton, { backgroundColor: '#f44336', width: '30%' }]}
-                            >
-                                <Text style={styles.footerButtonText}>Delete</Text>
-                            </TouchableOpacity>
-                        )}
                         <TouchableOpacity
                             onPress={handleSave}
-                            style={[styles.footerButton, { backgroundColor: theme.primary }, isEditMode && { width: '30%' }]}
+                            style={[styles.footerButton, { backgroundColor: theme.primary }]}
                         >
                             <Text style={styles.footerButtonText}>{isEditMode ? 'Save' : 'Create'}</Text>
                         </TouchableOpacity>
@@ -174,17 +154,7 @@ export default function CombatFormModal({
                 </View>
             </BaseModal>
 
-            {/* Delete Confirmation Modal */}
-            <ConfirmModal
-                visible={showDeleteConfirm}
-                onClose={() => setShowDeleteConfirm(false)}
-                onConfirm={confirmDelete}
-                title="Delete Combat"
-                message="Are you sure you want to delete this combat? This action cannot be undone."
-                confirmText="Delete"
-                cancelText="Cancel"
-                theme={theme}
-            />
+
         </>
     );
 };

@@ -93,7 +93,22 @@ export default function StorageManagementModal({
             onClose={onClose}
             theme={currentTheme}
             title="Storage Management"
-            maxHeight="90%"
+            footerContent={
+                <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
+                    <TouchableOpacity
+                        onPress={loadStorageInfo}
+                        style={[styles.footerButton, { backgroundColor: currentTheme.primary }]}
+                    >
+                        <Text style={styles.footerButtonText}>Refresh</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={handleCleanup}
+                        style={[styles.footerButton, { backgroundColor: isCleaning ? currentTheme.disabledButtonBackground : '#ff9800' }]}
+                    >
+                        <Text style={styles.footerButtonText}>Clean</Text>
+                    </TouchableOpacity>
+                </View>
+            }
         >
             {isLoading ? (
                 <View style={styles.modalSection}>
@@ -176,33 +191,6 @@ export default function StorageManagementModal({
                     </Text>
                 </View>
             )}
-
-            <View style={styles.actionRow}>
-                <TouchableOpacity
-                    onPress={loadStorageInfo}
-                    style={[styles.modalButton, styles.modalButtonPrimary]}
-                >
-                    <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>
-                        Refresh
-                    </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                    onPress={handleCleanup}
-                    disabled={isCleaning}
-                    style={[
-                        styles.modalButton,
-                        {
-                            backgroundColor: isCleaning ? currentTheme.disabledButtonBackground : '#ff9800',
-                            opacity: isCleaning ? 0.6 : 1
-                        }
-                    ]}
-                >
-                    <Text style={[styles.modalButtonText, { color: 'white' }]}>
-                        {isCleaning ? 'Cleaning...' : 'Clean All Caches'}
-                    </Text>
-                </TouchableOpacity>
-            </View>
         </BaseModal>
     );
 };

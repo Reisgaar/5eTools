@@ -15,7 +15,8 @@ import { useData } from 'src/context/DataContext';
 import { regenerateAllIndexes } from 'src/utils/fileStorage';
 
 // COMPONENTS
-import { StorageManagementModal, ConfirmModal } from 'src/components/modals';
+import { StorageManagementModal, ConfirmModal, DataExportModal, DataImportModal } from 'src/components/modals';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function SettingsScreen() {
     const { currentTheme, themeName, setTheme, useAdvancedDiceRoll, setUseAdvancedDiceRoll } = useAppSettingsStore();
@@ -26,6 +27,10 @@ export default function SettingsScreen() {
     const [confirmModalVisible, setConfirmModalVisible] = React.useState(false);
     const [confirmAction, setConfirmAction] = React.useState<(() => Promise<void>) | null>(null);
     const [confirmMessage, setConfirmMessage] = React.useState('');
+    
+    // Data export/import state
+    const [exportModalVisible, setExportModalVisible] = React.useState(false);
+    const [importModalVisible, setImportModalVisible] = React.useState(false);
 
     const showConfirmModal = (message: string, action: () => Promise<void>) => {
         setConfirmMessage(message);
@@ -138,27 +143,35 @@ export default function SettingsScreen() {
                         }
                     </Text>
                 </View>
-                
-                <Text style={[styles.sectionTitle, { color: currentTheme.text }]}>Data Management</Text>
+
+                {/* Data Export/Import Section */}
+                <Text style={[styles.sectionTitle, { color: currentTheme.text }]}>Data Export/Import</Text>
                 <View style={[styles.sectionContainer, { backgroundColor: currentTheme.settingsContainer }]}>
                     <View style={[commonStyles.row, { marginTop: 0 }]}>
-                        <Pressable 
-                            onPress={() => setStorageModalVisible(true)} 
-                            style={[commonStyles.button, { backgroundColor: currentTheme.primary, marginTop: 0, flex: 0.5 }]}
-                        > 
-                            <Text style={[commonStyles.buttonText, { fontSize: 14, textAlign: 'center', color: 'white' }]}>Storage Management</Text>
-                        </Pressable>
-                        <Pressable 
-                            onPress={handleRegenerateIndexes} 
-                            style={[commonStyles.button, { backgroundColor: '#ea8300', marginTop: 0, flex: 0.5 }]}
-                        > 
-                            <Text style={[commonStyles.buttonText, { fontSize: 14, textAlign: 'center', color: 'white' }]}>Regenerate All Indexes</Text>
-                        </Pressable>
+                        <TouchableOpacity 
+                            onPress={() => setExportModalVisible(true)}
+                            style={[commonStyles.button, { marginTop: 0, backgroundColor: currentTheme.primary, flex: 1 }]}
+                        >
+                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                                <Ionicons name="share-outline" size={20} color="white" />
+                                <Text style={[commonStyles.buttonText, { color: 'white', marginLeft: 6 }]}>Export</Text>
+                            </View>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity 
+                            onPress={() => setImportModalVisible(true)}
+                            style={[commonStyles.button, { marginTop: 0, backgroundColor: currentTheme.primary, flex: 1 }]}
+                        >
+                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                                <Ionicons name="download-outline" size={20} color="white" />
+                                <Text style={[commonStyles.buttonText, { color: 'white', marginLeft: 6 }]}>Import</Text>
+                            </View>
+                        </TouchableOpacity>
                     </View>
                 </View>
                 <View style={[styles.sectionTip]}>
-                    <Text style={[styles.sectionTipText, { color: currentTheme.noticeText}]}>
-                        Regenerates all indexes (beasts, spells, combats, relations, classes, filter indexes) from existing data files. This improves filter performance on Android.
+                    <Text style={[styles.sectionTipText, { color: currentTheme.noticeText }]}>
+                        Export your campaigns, players, spellbooks, and combats to share or backup. Import data from other devices or backups.
                     </Text>
                 </View>
 
@@ -192,7 +205,6 @@ export default function SettingsScreen() {
                     
                     {/* Data Status - Fixed height container to prevent layout shift */}
                     <View style={{ 
-                        height: 60, 
                         marginTop: 12,
                         justifyContent: 'center',
                         alignItems: 'center'
@@ -225,14 +237,64 @@ export default function SettingsScreen() {
                                     Loading data...
                                 </Text>
                             </View>
-                        ) : null}
+                        ) : (
+                            <View style={{ 
+                                backgroundColor: currentTheme.innerBackground, 
+                                padding: 12, 
+                                borderRadius: 8, 
+                                alignItems: 'center',
+                                width: '100%'
+                            }}>
+                                <Text style={{ color: currentTheme.noticeText, fontSize: 12, marginTop: 4 }}>
+                                    Data has not been loaded. Please, for a correct functioning of the application, load data.
+                                </Text>
+                            </View>
+                        )}
                     </View>
+                </View>
+                
+                {/* Data Management Section */}
+                <Text style={[styles.sectionTitle, { color: currentTheme.text }]}>Data Management</Text>
+                <View style={[styles.sectionContainer, { backgroundColor: currentTheme.settingsContainer }]}>
+                    <View style={[commonStyles.row, { marginTop: 0 }]}>
+                        <Pressable 
+                            onPress={() => setStorageModalVisible(true)} 
+                            style={[commonStyles.button, { backgroundColor: currentTheme.primary, marginTop: 0, flex: 0.5 }]}
+                        > 
+                            <Text style={[commonStyles.buttonText, { fontSize: 14, textAlign: 'center', color: 'white' }]}>Storage Management</Text>
+                        </Pressable>
+                        <Pressable 
+                            onPress={handleRegenerateIndexes} 
+                            style={[commonStyles.button, { backgroundColor: '#ea8300', marginTop: 0, flex: 0.5 }]}
+                        > 
+                            <Text style={[commonStyles.buttonText, { fontSize: 14, textAlign: 'center', color: 'white' }]}>Regenerate All Indexes</Text>
+                        </Pressable>
+                    </View>
+                </View>
+                <View style={[styles.sectionTip]}>
+                    <Text style={[styles.sectionTipText, { color: currentTheme.noticeText}]}>
+                        Regenerates all indexes (beasts, spells, combats, relations, classes, filter indexes) from existing data files. This improves filter performance on Android.
+                    </Text>
                 </View>
                 
                 {/* Storage Management Modal */}
                 <StorageManagementModal
                     visible={storageModalVisible}
                     onClose={() => setStorageModalVisible(false)}
+                />
+
+                {/* Data Export Modal */}
+                <DataExportModal
+                    visible={exportModalVisible}
+                    onClose={() => setExportModalVisible(false)}
+                    theme={currentTheme}
+                />
+
+                {/* Data Import Modal */}
+                <DataImportModal
+                    visible={importModalVisible}
+                    onClose={() => setImportModalVisible(false)}
+                    theme={currentTheme}
                 />
 
                 {/* Confirm Modal */}

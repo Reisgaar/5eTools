@@ -326,16 +326,20 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             // Store data to files
             console.log('Storing beasts to individual files...');
             await storeBeastsToFile(beastsData);
+            console.log('✅ Beasts stored successfully');
 
             console.log('Storing spells to individual files with class information...');
             await storeSpellsToFile(updatedSpells);
+            console.log('✅ Spells stored successfully');
 
             // Store spell-class relations and available classes indexes
             console.log('Storing spell-class relations index...');
             await storeSpellClassRelationsToFile(relations);
+            console.log('✅ Spell-class relations stored successfully');
 
             console.log('Storing available classes index...');
             await storeAvailableClassesToFile(classes);
+            console.log('✅ Available classes stored successfully');
 
             // Set spell source lookup data and derived data
             setSpellSourceLookup(spellSourceLookupData);

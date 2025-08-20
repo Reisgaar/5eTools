@@ -12,7 +12,7 @@ import { BaseModal } from 'src/components/ui';
 interface ConfirmModalProps {
     visible: boolean;
     onClose: () => void;
-    onConfirm: () => void;
+    onConfirm: () => void | Promise<void>;
     title: string;
     message: string;
     confirmText?: string;
@@ -34,6 +34,8 @@ export default function ConfirmModal({
     theme
 }: ConfirmModalProps): JSX.Element {
     const styles = createBaseModalStyles(theme);
+    
+
 
     return (
         <BaseModal
@@ -50,9 +52,8 @@ export default function ConfirmModal({
                         <Text style={styles.footerButtonText}>{cancelText}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                        onPress={() => {
-                            onConfirm();
-                            onClose();
+                        onPress={async () => {
+                            await onConfirm();
                         }}
                         style={[styles.footerButton, { backgroundColor: theme.primary }]}
                     >
