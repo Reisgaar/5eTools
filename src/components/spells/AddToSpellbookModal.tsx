@@ -9,7 +9,6 @@ import { useCampaignStore, useSpellbookStore } from 'src/stores';
 import { BaseModal } from 'src/components/ui';
 import SpellbookItem from 'src/components/spells/SpellbookItem';
 import useSpellbookSearch from 'src/components/spells/useSpellbookSearch';
-import { ConfirmModal } from 'src/components/modals/';
 
 // STYLES
 import { createBaseModalStyles } from 'src/styles/baseModalStyles';
@@ -37,28 +36,12 @@ export default function AddToSpellbookModal({
     const { searchQuery, setSearchQuery, filteredSpellbooks: searchedSpellbooks } = useSpellbookSearch(filteredSpellbooks);
     const styles = createBaseModalStyles(theme);
 
-    // Confirm modal state
-    const [confirmModalVisible, setConfirmModalVisible] = useState(false);
-    const [pendingRemoval, setPendingRemoval] = useState<{
-        spellbookId: string;
-        spellName: string;
-        spellbookName: string;
-    } | null>(null);
-
     const handleToggleSpellbook = (spellbookId: string) => {
         if (!spell) return;
 
         if (isSpellInSpellbook(spellbookId, spell.name, spell.source)) {
-            // Show confirmation before removing
-            const spellbook = spellbooks.find(sb => sb.id === spellbookId);
-            setPendingRemoval({
-                spellbookId,
-                spellName: spell.name,
-                spellbookName: spellbook?.name || 'Unknown'
-            });
-            setConfirmModalVisible(true);
+            removeSpellFromSpellbook(spellbookId, spell.name, spell.source);
         } else {
-            // Add spell with details
             addSpellToSpellbook(spellbookId, spell.name, spell.source, {
                 level: spell.level,
                 school: spell.school,
@@ -66,13 +49,6 @@ export default function AddToSpellbookModal({
                 concentration: spell.concentration,
                 availableClasses: spell.availableClasses
             });
-        }
-    };
-
-    const handleConfirmRemoval = () => {
-        if (pendingRemoval && spell) {
-            removeSpellFromSpellbook(pendingRemoval.spellbookId, spell.name, spell.source);
-            setPendingRemoval(null);
         }
     };
 
@@ -143,21 +119,6 @@ export default function AddToSpellbookModal({
                     )}
                 </View>
             </BaseModal>
-
-            {/* Confirm Removal Modal */}
-            <ConfirmModal
-                visible={confirmModalVisible}
-                onClose={() => {
-                    setConfirmModalVisible(false);
-                    setPendingRemoval(null);
-                }}
-                onConfirm={handleConfirmRemoval}
-                title="Remove Spell"
-                message={`Are you sure you want to remove "${pendingRemoval?.spellName}" from "${pendingRemoval?.spellbookName}"?`}
-                confirmText="Remove"
-                cancelText="Cancel"
-                theme={theme}
-            />
         </>
     );
 }

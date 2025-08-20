@@ -50,7 +50,7 @@ export default function CombatList({
 
     return (
         <View style={styles.listContainer}>
-            {/* Header with search and create button */}
+            {/* Create Combat Floating Button */}
             <TouchableOpacity
                 onPress={onCreateCombat}
                 style={{
@@ -90,43 +90,37 @@ export default function CombatList({
                         </View>
                     ) : (
                         <ScrollView style={{ height: '100%' }}>
-                            <View style={{ flex: 1, padding: 12 }}>
+                            <View style={{ flex: 1, padding: 0 }}>
                                 {filteredCombats.map(combat => (
-                                    <View key={combat.id} style={styles.listCombatListItem}>
-                                        <TouchableOpacity
-                                            onPress={() => onSelectCombat(combat.id)}
-                                            style={[
-                                                styles.listCombatOption,
-                                                { backgroundColor: theme.inputBackground },
-                                                currentCombatId === combat.id && { borderColor: theme.primary, borderWidth: 2 },
-                                                combat.isActive && { borderColor: '#4CAF50', borderWidth: 2 }
-                                            ]}
-                                        >
-                                            <View style={{ flex: 1 }}>
-                                                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                                                    <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-                                                        <Text style={[styles.listCombatName, { color: theme.text }]}>{combat.name}</Text>
-                                                        {combat.isActive && (
-                                                            <View style={styles.listActiveBadge}>
-                                                                <Text style={styles.listActiveBadgeText}>ACTIVE</Text>
-                                                            </View>
-                                                        )}
-                                                    </View>
-                                                    <Text style={[styles.listCombatCount, { color: theme.noticeText }]}>
-                                                        {`(${combat.combatants?.length || 0} creatures)`}
-                                                    </Text>
+                                    <TouchableOpacity
+                                        key={combat.id}
+                                        onPress={() => onSelectCombat(combat.id)}
+                                        style={styles.listCombatOption}
+                                    >
+                                        <View style={{ flex: 1 }}>
+                                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                                                <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                                                    <Text style={[styles.listCombatName, { color: theme.text }]}>{combat.name}</Text>
+                                                    {combat.isActive && (
+                                                        <View style={styles.listActiveBadge}>
+                                                            <Text style={styles.listActiveBadgeText}>ACTIVE</Text>
+                                                        </View>
+                                                    )}
                                                 </View>
-                                                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                                                    <Text style={[styles.listCombatCount, { color: theme.noticeText, fontSize: 12 }]}>
-                                                        {formatDate(combat.createdAt)}
-                                                    </Text>
-                                                    <Text style={[styles.listCombatCount, { color: theme.noticeText, fontSize: 12 }]}>
-                                                        {getCampaignName(combat.campaignId)}
-                                                    </Text>
-                                                </View>
+                                                <Text style={[styles.listCombatCount, { color: theme.noticeText }]}>
+                                                    {`(${combat.combatants?.length || 0} creatures)`}
+                                                </Text>
                                             </View>
-                                        </TouchableOpacity>
-                                    </View>
+                                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                <Text style={[styles.listCombatCount, { marginLeft: 0, color: theme.noticeText, fontSize: 10 }]}>
+                                                    {formatDate(combat.createdAt)}
+                                                </Text>
+                                                <Text style={[styles.listCombatCount, { color: theme.noticeText, fontSize: 12 }]}>
+                                                    {getCampaignName(combat.campaignId)}
+                                                </Text>
+                                            </View>
+                                        </View>
+                                    </TouchableOpacity>
                                 ))}
                             </View>
                         </ScrollView>

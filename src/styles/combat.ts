@@ -557,11 +557,10 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
     },
     listCombatOption: {
         flex: 1,
-        padding: 12,
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: 'transparent',
-        backgroundColor: 'white', // Will be overridden by theme.inputBackground
+        paddingHorizontal: 12,
+        paddingVertical: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.primary,
     },
     listCombatName: {
         fontSize: 16,

@@ -193,7 +193,7 @@ export default function SpellsScreen() {
                     }]}
                 >
                     <Ionicons 
-                        name={currentSpellbookId ? "remove" : "add"} 
+                        name={currentSpellbookId ? "trash-outline" : "add"} 
                         size={16} 
                         color="white" 
                     />
@@ -326,7 +326,7 @@ export default function SpellsScreen() {
                         renderItem={renderSpellItem}
                         contentContainerStyle={{ paddingBottom: 40 }}
                         ListEmptyComponent={
-                                <Text style={[commonStyles.loading, { color: currentTheme.noticeText }]}>No spells found.</Text>
+                            <Text style={[commonStyles.loading, { color: currentTheme.noticeText }]}>No spells found.</Text>
                         }
                     />
                 )}
@@ -350,12 +350,10 @@ export default function SpellsScreen() {
                 visible={spellbookSelectorModalVisible}
                 onClose={() => setSpellbookSelectorModalVisible(false)}
                 onSelectSpellbook={(spellbookId) => {
-                    if (spellbookId) {
+                    if (spellbookId)
                         selectSpellbook(spellbookId);
-                    } else {
+                    else
                         clearSpellbookSelection();
-                    }
-                    setSpellbookSelectorModalVisible(false);
                 }}
                 onCreateSpellbook={() => {
                     setSpellbookSelectorModalVisible(false);
@@ -368,7 +366,10 @@ export default function SpellsScreen() {
                 visible={createSpellbookModalVisible}
                 onClose={() => setCreateSpellbookModalVisible(false)}
                 onSpellbookCreated={(spellbookId) => {
+                    if (spellbookId)
+                        selectSpellbook(spellbookId);
                     setCreateSpellbookModalVisible(false);
+                    setSpellbookSelectorModalVisible(true);
                 }}
                 theme={currentTheme}
             />

@@ -28,13 +28,16 @@ export default function SpellbookSelectorModal({
     onSelectSpellbook,
     onCreateSpellbook
 }: SpellbookSelectorModalProps) {
-    const { spellbooks, currentSpellbookId, selectSpellbook, clearSpellbookSelection, getSpellbooksByCampaign } = useSpellbookStore();
+    const { spellbooks, currentSpellbookId, selectSpellbook, clearSpellbookSelection, getSpellbooksByCampaign, deleteSpellbook } = useSpellbookStore();
     const { selectedCampaignId } = useCampaignStore();
     const { currentTheme } = useAppSettingsStore();
 
     // Get spellbooks filtered by selected campaign
     const filteredSpellbooks = getSpellbooksByCampaign(selectedCampaignId);
 
+    /**
+     * Handles the selection of a spellbook.
+     */
     const handleSelectSpellbook = (spellbookId: string | null) => {
         if (spellbookId) {
             selectSpellbook(spellbookId);
@@ -42,13 +45,34 @@ export default function SpellbookSelectorModal({
             clearSpellbookSelection();
         }
         onSelectSpellbook(spellbookId);
-        onClose();
     };
 
+    /**
+     * Handles the clearing of the spellbook filter.
+     */
     const handleClearFilter = () => {
         clearSpellbookSelection();
         onSelectSpellbook(null);
-        onClose();
+    };
+
+    /**
+     * Handles the deletion of a spellbook.
+     */
+    const handleDeleteSpellbook = () => {
+        if (!currentSpellbookId) return;
+
+        const spellbookToDelete = spellbooks.find(sb => sb.id === currentSpellbookId);
+        if (!spellbookToDelete) return;
+
+        if (currentSpellbookId === spellbookToDelete.id)
+            clearSpellbookSelection();
+
+        try {
+            deleteSpellbook(currentSpellbookId);
+            onSelectSpellbook(null);
+        } catch (error) {
+            console.error('Error deleting spellbook:', error);
+        }
     };
 
     return (
@@ -60,16 +84,22 @@ export default function SpellbookSelectorModal({
             footerContent={
                 <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
                     <TouchableOpacity
-                        onPress={onClose}
-                        style={[styles.footerButton, { backgroundColor: currentTheme.secondary }]}
+                        onPress={handleDeleteSpellbook}
+                        style={[styles.footerButton, { backgroundColor: '#dc2626', width: '33%' }]}
                     >
-                        <Text style={styles.footerButtonText}>Cancel</Text>
+                        <Text style={[styles.footerButtonText, { fontSize: 14 }]}>Delete</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={onCreateSpellbook}
-                        style={[styles.footerButton, { backgroundColor: currentTheme.primary }]}
+                        style={[styles.footerButton, { backgroundColor: '#008000', width: '33%' }]}
                     >
-                        <Text style={styles.footerButtonText}>Create New</Text>
+                        <Text style={[styles.footerButtonText, { fontSize: 14 }]}>Create New</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={onClose}
+                        style={[styles.footerButton, { backgroundColor: currentTheme.primary, width: '33%' }]}
+                    >
+                        <Text style={[styles.footerButtonText, { fontSize: 14 }]}>Confirm</Text>
                     </TouchableOpacity>
                 </View>
             }
