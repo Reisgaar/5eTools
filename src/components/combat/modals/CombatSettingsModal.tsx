@@ -58,9 +58,9 @@ export default function CombatSettingsModal({
                     style={styles.settingsOption}
                     onPress={onStatusPress}
                 >
-                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', width: '100%' }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
                         <Ionicons name="medical" size={18} color={theme.primary} />
-                        <Text style={[styles.optionTitle, { color: theme.text, marginLeft: 12 }]}>Status</Text>
+                        <Text style={[styles.optionTitle, { color: theme.text, marginLeft: 4 }]}>Status</Text>
                     </View>
                     <View style={styles.optionContent}>
                         <Text style={[styles.optionDescription, { color: theme.noticeText }]}>
@@ -75,9 +75,9 @@ export default function CombatSettingsModal({
                     onPress={onColorPress}
                 >
                     
-                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', width: '100%' }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
                         <Ionicons name="color-palette" size={18} color={theme.primary} />
-                        <Text style={[styles.optionTitle, { color: theme.text, marginLeft: 12 }]}>Color</Text>
+                        <Text style={[styles.optionTitle, { color: theme.text, marginLeft: 4 }]}>Color</Text>
                     </View>
                     <View style={styles.optionContent}>
                         <Text style={[styles.optionDescription, { color: theme.noticeText }]}>
@@ -92,9 +92,9 @@ export default function CombatSettingsModal({
                     onPress={onNotePress}
                 >
                     
-                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', width: '100%' }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
                         <Ionicons name="document-text" size={18} color={theme.primary} />
-                        <Text style={[styles.optionTitle, { color: theme.text, marginLeft: 12 }]}>Notes</Text>
+                        <Text style={[styles.optionTitle, { color: theme.text, marginLeft: 4 }]}>Notes</Text>
                     </View>
                     <View style={styles.optionContent}>
                         <Text style={[styles.optionDescription, { color: theme.noticeText }]}>
@@ -109,9 +109,9 @@ export default function CombatSettingsModal({
                     onPress={onDeletePress}
                 >
                     
-                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', width: '100%' }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
                         <Ionicons name="trash" size={18} color={theme.danger || '#f44336'} />
-                        <Text style={[styles.optionTitle, { color: theme.danger || '#f44336', marginLeft: 12 }]}>Remove</Text>
+                        <Text style={[styles.optionTitle, { color: theme.danger || '#f44336', marginLeft: 4 }]}>Remove</Text>
                     </View>
                     <View style={styles.optionContent}>
                         <Text style={[styles.optionDescription, { color: theme.noticeText }]}>

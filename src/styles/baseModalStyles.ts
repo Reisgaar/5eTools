@@ -250,6 +250,8 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         paddingHorizontal: 8,
         borderRadius: 8,
         backgroundColor: 'rgba(0,0,0,0.02)',
+        borderWidth: 1,
+        borderColor: theme.border,
     },
     optionIcon: {
         width: 40,
@@ -270,6 +272,7 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
     },
     optionDescription: {
         fontSize: 12,
+        textAlign: 'center',
     },
 
     // Conditions grid styles
