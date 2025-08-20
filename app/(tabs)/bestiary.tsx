@@ -111,7 +111,7 @@ export default function BestiaryScreen() {
     };
 
     return (
-        <View style={[commonStyles.container, { flex: 1, backgroundColor: currentTheme.background, paddingBottom: 0, paddingHorizontal: 8 }]}>
+        <View style={[commonStyles.container, { flex: 1, backgroundColor: currentTheme.background, paddingTop: 10, paddingBottom: 0, paddingHorizontal: 8 }]}>
             {/* Combat Selection Modal */}
             <CombatSelectionModal
                 visible={combatSelectionModalVisible}
@@ -208,15 +208,17 @@ export default function BestiaryScreen() {
                 onChangeText={filters.setSearch}
             />
             {/* Filter Summary */}
-            {filters.getFilterSummary().length > 0 && (
-                <View style={styles.filterSummaryContainer}>
-                    {filters.getFilterSummary().map((filterLine, index) => (
-                        <Text key={index} style={styles.filterSummaryText}>
-                            {filterLine}
-                        </Text>
-                    ))}
-                </View>
-            )}
+            <View style={styles.filterSummaryContainer}>
+                {filters.getFilterSummary().length > 0 && (
+                    <>
+                        {filters.getFilterSummary().map((filterLine, index) => (
+                            <Text key={index} style={styles.filterSummaryText}>
+                                {filterLine}
+                            </Text>
+                        ))}
+                    </>
+                )}
+            </View>
 
             <View style={{ height: 1, width: '150%', marginLeft: -25, backgroundColor: currentTheme.primary }}/>
 

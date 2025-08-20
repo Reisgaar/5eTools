@@ -181,7 +181,7 @@ export default function SpellsScreen() {
     };
 
     return (
-        <View style={[commonStyles.container, { flex: 1, backgroundColor: currentTheme.background, paddingBottom: 0, paddingHorizontal: 8 }]}>
+        <View style={[commonStyles.container, { flex: 1, backgroundColor: currentTheme.background, paddingTop: 10, paddingBottom: 0, paddingHorizontal: 8 }]}>
             <View style={[styles.spellbookAbsoluteButtonWrapper, { backgroundColor: currentTheme.card, borderColor: currentTheme.text + '70' }]}>
                 <TouchableOpacity
                     onPress={() => setSpellbookSelectorModalVisible(true)}
@@ -265,15 +265,17 @@ export default function SpellsScreen() {
             </View>
             
             {/* Applied Filters Text */}
-            {filters.hasActiveFilters && (
-                <View style={styles.filterSummaryContainer}>
-                    {filters.getFilterSummary().map((filterLine, index) => (
-                        <Text key={index} style={styles.filterSummaryText}>
-                            {filterLine}
-                        </Text>
-                    ))}
-                </View>
-            )}
+            <View style={styles.filterSummaryContainer}>
+                {filters.hasActiveFilters && (
+                    <>
+                        {filters.getFilterSummary().map((filterLine, index) => (
+                            <Text key={index} style={styles.filterSummaryText}>
+                                {filterLine}
+                            </Text>
+                        ))}
+                    </>
+                )}
+            </View>
 
             <View style={{ height: 1, width: '150%', marginLeft: -25, backgroundColor: currentTheme.primary }}/>
             
