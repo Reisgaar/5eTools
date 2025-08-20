@@ -25,32 +25,32 @@ export default function CombatControls({
     const styles = createCombatStyles(theme);
 
     return (
-        <View style={[styles.controls, { borderTopColor: theme.border }]}>
-            {!started ? (
+        <View style={[styles.controls, !started && { borderColor: theme.text }]}>
+            {!started && (
                 // Start Combat Button
                 <TouchableOpacity
                     onPress={onStartCombat}
-                    style={[styles.controlsStartButton, { backgroundColor: theme.primary }]}
+                    style={[styles.controlsStartButton]}
                 >
                     <Ionicons name='play' size={18} color="white" style={styles.controlsStartIcon} />
                     <Text style={styles.controlsStartText}>Start</Text>
-                </TouchableOpacity>
-            ) : (
-                // Finish Combat Button
-                <TouchableOpacity
-                    onPress={onStopCombat}
-                    style={styles.controlsFinishButton}
-                >
-                    <Ionicons name='stop' size={18} color={'#c00'} style={styles.controlsFinishIcon} />
-                    <Text style={styles.controlsFinishText}>Finish</Text>
                 </TouchableOpacity>
             )}
 
             {started && (
                 <>
-                    <Text style={[styles.controlsRoundText, { color: theme.text }]}>
-                        {`Round ${round}`}
-                    </Text>
+                    <TouchableOpacity
+                        onPress={onStopCombat}
+                        style={styles.controlsFinishButton}
+                    >
+                        <Ionicons name='stop' size={18} color={'#c00'} style={styles.controlsFinishIcon} />
+                        <Text style={styles.controlsFinishText}>Finish</Text>
+                    </TouchableOpacity>
+
+                    <View style={styles.controlRoundButton}>
+                        <Text style={styles.controlsRoundText}>Round</Text>
+                        <Text style={styles.controlsRoundNumberText}>{round}</Text>
+                    </View>
 
                     <TouchableOpacity
                         onPress={onNextTurn}
@@ -58,7 +58,7 @@ export default function CombatControls({
                     >
                         <Ionicons name='refresh' size={16} color="white" style={styles.controlsNextIcon} />
                         <Text style={styles.controlsNextText}>
-                            Next Turn
+                            Next
                         </Text>
                     </TouchableOpacity>
                 </>

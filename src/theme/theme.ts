@@ -2,6 +2,7 @@ export type Theme = {
     background: string;
     innerBackground: string;
     text: string;
+    textInverse: string;
     headerText: string;
     headerBackground: string;
     buttonBackground: string;
@@ -26,12 +27,14 @@ export type Theme = {
     border: string;
     settingsContainer: string;
     settingsButton: string;
+    combatControls: string;
   };
 
 export const lightTheme: Theme = {
     background: '#eeeeee',
     innerBackground: '#dddddd',
     text: '#000000',
+    textInverse: '#ffffff',
     headerText: '#ffffff',
     headerBackground: '#cad3ff',
     buttonBackground: '#5e60ce',
@@ -56,12 +59,14 @@ export const lightTheme: Theme = {
     border: '#dddddd',
     settingsContainer: '#ffffff',
     settingsButton: '#eeeeee',
+    combatControls: '#555555',
 };
 
 export const darkTheme: Theme = {
     background: '#121212',
     innerBackground: '#333333',
     text: '#ffffff',
+    textInverse: '#000000',
     headerText: '#ffffff',
     headerBackground: '#5e60ce',
     buttonBackground: '#5e60ce',
@@ -86,4 +91,5 @@ export const darkTheme: Theme = {
     border: '#333333',
     settingsContainer: '#666666',
     settingsButton: '#555555',
+    combatControls: '#cccccc',
 };

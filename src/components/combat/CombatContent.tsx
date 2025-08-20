@@ -562,6 +562,7 @@ export default function CombatContent() {
             {/* Combat List */}
             <FlatList
                 style={styles.combatList}
+                contentContainerStyle={{ paddingVertical: 60 }}
                 ref={flatListRef}
                 data={groupedCombatants}
                 keyExtractor={(item) => item.key}
