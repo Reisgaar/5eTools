@@ -1,6 +1,3 @@
-// REACT
-import { Platform } from 'react-native';
-
 // UTILS
 import { getTokenUrl, getCachedTokenUrl, getCachedLargeImageUrl } from 'src/utils/tokenCache';
 

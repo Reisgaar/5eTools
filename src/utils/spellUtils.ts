@@ -57,7 +57,7 @@ function formatMonetaryValues(text: string): string {
             // Extract the original currency type from the match
             const currencyMatch = match.match(/(?:gp|gold\s*pieces?|gold|GPP?|sp|silver\s*pieces?|silver|CS|cp|copper\s*pieces?|copper|ep|electrum\s*pieces?|electrum|GE|pp|platinum\s*pieces?|platinum)/i);
             const currency = currencyMatch ? currencyMatch[0] : '';
-
+            console.log('currency', currency);
             // Return the formatted version with bold amount
             return match.replace(amount, `**${amount}**`);
         });

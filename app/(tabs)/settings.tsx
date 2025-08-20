@@ -1,9 +1,6 @@
 // REACT
 import React from 'react';
-import { ActivityIndicator, Alert, Dimensions, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-
-// EXPO
-import { useRouter } from 'expo-router';
+import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 // STORES
 import { useAppSettingsStore } from 'src/stores';
@@ -23,7 +20,6 @@ import { StorageManagementModal, ConfirmModal } from 'src/components/modals';
 export default function SettingsScreen() {
     const { currentTheme, themeName, setTheme, useAdvancedDiceRoll, setUseAdvancedDiceRoll } = useAppSettingsStore();
     const { simpleBeasts, simpleSpells, isLoading, isInitialized, reloadData, clearData } = useData();
-    const router = useRouter();
 
     // Storage management state
     const [storageModalVisible, setStorageModalVisible] = React.useState(false);
@@ -80,7 +76,7 @@ export default function SettingsScreen() {
     };
 
     return (
-        <View style={{ flex: 1, backgroundColor: currentTheme.background }}>
+        <ScrollView style={{ flex: 1, backgroundColor: currentTheme.background }}>
             <View style={[commonStyles.container, { backgroundColor: currentTheme.background, paddingTop: 0 }]}>
 
                 <Text style={[styles.sectionTitle, { color: currentTheme.text }]}>Theme</Text>
@@ -259,7 +255,7 @@ export default function SettingsScreen() {
                     theme={currentTheme}
                 />
             </View>
-        </View>
+        </ScrollView>
     );
 }
 

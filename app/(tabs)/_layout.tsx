@@ -32,8 +32,8 @@ export default function TabsLayout() {
                     const screen = screens.find(s => s.name === route.name);
                     return {
                         headerShown: false,
-                        tabBarActiveTintColor: '#5e60ce',
-                        tabBarInactiveTintColor: '#888',
+                        tabBarActiveTintColor: currentTheme.tabActive,
+                        tabBarInactiveTintColor: currentTheme.tabInactive,
                         tabBarStyle: {
                             paddingBottom: 0,
                             height: 60,

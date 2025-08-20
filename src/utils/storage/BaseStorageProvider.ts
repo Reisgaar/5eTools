@@ -446,7 +446,7 @@ export abstract class BaseStorageProvider implements IStorageProvider {
                 try {
                     const resolved = resolveMonster(beast, [...allResolvedMonsters, ...unresolved]);
                     allResolvedMonsters.push(resolved);
-                } catch (e) {
+                } catch {
                     stillUnresolved.push(beast);
                 }
             }
@@ -650,7 +650,7 @@ export abstract class BaseStorageProvider implements IStorageProvider {
     public async loadFilterIndexes(): Promise<{ cr: string[], type: string[], source: string[] } | null> {
         try {
             return await this.loadIndex('filter_indexes');
-        } catch (error) {
+        } catch {
             console.log('ℹ️ No filter indexes found, will be generated on next reindex');
             return null;
         }

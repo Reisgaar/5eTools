@@ -39,7 +39,7 @@ export default function useBestiaryFilters({ simpleBeasts, beasts }: BestiaryFil
                 const storage = getStorage();
                 const indexes = await storage.loadFilterIndexes();
                 setFilterIndexes(indexes);
-            } catch (error) {
+            } catch {
                 console.log('Filter indexes not available, using fallback method');
             }
         };

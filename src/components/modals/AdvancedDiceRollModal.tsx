@@ -2,9 +2,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, TouchableWithoutFeedback, Keyboard, Switch } from 'react-native';
 
-// CONTEXT
-import { useModal } from 'src/context/ModalContext';
-
 // STYLES
 import { createBaseModalStyles } from 'src/styles/baseModalStyles';
 
@@ -44,7 +41,6 @@ export default function AdvancedDiceRollModal({
     d20Config,
     damageConfig
 }: AdvancedDiceRollModalProps): JSX.Element {
-    const { beastStackDepth, spellStackDepth } = useModal();
     const unifiedStyles = createBaseModalStyles(theme);
 
     const [advantageType, setAdvantageType] = useState<AdvantageType>('normal');

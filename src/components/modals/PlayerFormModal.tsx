@@ -27,7 +27,7 @@ interface PlayerFormModalProps {
     onClose: () => void;
     onSave: (playerData: PlayerData) => Promise<void>;
     player?: PlayerData | null; // For editing existing player
-    campaigns: Array<{ id: string; name: string }>;
+    campaigns: { id: string; name: string }[];
     theme: any;
 }
 

@@ -1,6 +1,6 @@
 // REACT
 import React, { useEffect, useState } from 'react';
-import { Modal, View, Text, TouchableOpacity, ScrollView, Image, TouchableWithoutFeedback, Keyboard, Dimensions } from 'react-native';
+import { Modal, View, Text, TouchableOpacity, ScrollView, Image, Keyboard, Dimensions } from 'react-native';
 
 // STYLES
 import { createBaseModalStyles } from 'src/styles/baseModalStyles';

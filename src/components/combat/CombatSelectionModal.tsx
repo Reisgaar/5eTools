@@ -1,6 +1,6 @@
 // REACT
 import React, { useState, useMemo } from 'react';
-import { Modal, ScrollView, Text, TextInput, TouchableOpacity, View, StyleSheet, Image } from 'react-native';
+import { Text, TextInput, TouchableOpacity, View, StyleSheet, Image } from 'react-native';
 
 // EXPO
 import { Ionicons } from '@expo/vector-icons';

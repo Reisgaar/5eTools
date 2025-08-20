@@ -16,9 +16,10 @@ import { useModal } from 'src/context/ModalContext';
  * Header component.
  */
 export default function Header() {
-    const { selectedCampaign, selectedCampaignId, clearSelectedCampaign } = useCampaignStore();
-    const { currentTheme } = useAppSettingsStore();
+    const { selectedCampaign, selectedCampaignId } = useCampaignStore();
+    const { currentTheme, themeName } = useAppSettingsStore();
     const { openCampaignSelectorModal } = useModal();
+    const path = usePathname();
 
     const handleCampaignPress = () => {
         openCampaignSelectorModal();
@@ -26,7 +27,6 @@ export default function Header() {
 
     // Map pathname to tab name
     const getTabName = () => {
-        const path = usePathname();
         const name = path.substring(path.lastIndexOf('/') + 1).charAt(0).toUpperCase() + path.substring(path.lastIndexOf('/') + 2);
         return !name || name === '' ? 'Home' : name.toLowerCase() === 'combat' ? 'Combat Manager' : name;
     };
@@ -34,7 +34,7 @@ export default function Header() {
     return (
         <>
             <SafeAreaView style={{
-                backgroundColor: currentTheme.background,
+                backgroundColor: currentTheme.headerBackground,
                 flexDirection: 'row',
                 alignItems: 'center',
                 justifyContent: 'space-between',
@@ -44,12 +44,17 @@ export default function Header() {
                 borderBottomColor: currentTheme.text,
             }} edges={['top']}>
                 <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', gap: 10 }}>
-                    <Image source={require('../../../assets/images/logo_lg.png')} style={[styles.logo, { height: 30, width: 30, borderRadius: 6 }]} />
+                    <Image
+                        source={ themeName === 'light' ?
+                            require('../../../assets/images/logo_bb_lg.png')
+                            : require('../../../assets/images/logo_wbu_lg.png')
+                        }
+                        style={[styles.logo, { height: 30, width: 30, borderRadius: 6 }]} />
                     <Text style={{ fontSize: 18, fontWeight: 'bold', color: currentTheme.text }}>{getTabName()}</Text>
                 </View>
 
-                <TouchableOpacity onPress={handleCampaignPress} style={[styles.filterBtn, { borderColor: selectedCampaignId ? currentTheme.primary : currentTheme.text }]}>
-                    <Text style={[styles.filterBtnText, { color: selectedCampaignId ? currentTheme.primary : currentTheme.text }]}>
+                <TouchableOpacity onPress={handleCampaignPress} style={[styles.filterBtn, { borderColor: currentTheme.text }]}>
+                    <Text style={[styles.filterBtnText, { color: currentTheme.text }]}>
                         {selectedCampaignId && selectedCampaign ? selectedCampaign.name : 'All Campaigns'}
                     </Text>
                 </TouchableOpacity>

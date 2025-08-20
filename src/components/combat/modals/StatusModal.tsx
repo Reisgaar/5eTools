@@ -1,6 +1,6 @@
 // REACT
 import React, { useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, ScrollView } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 
 // EXPO
 import { Ionicons } from '@expo/vector-icons';

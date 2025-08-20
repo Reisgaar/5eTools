@@ -76,7 +76,7 @@ export default function StorageManagementModal({
                             const result = await cleanupAllCaches();
                             Alert.alert('Cleanup Complete', result.message);
                             await loadStorageInfo();
-                        } catch (error) {
+                        } catch {
                             Alert.alert('Error', 'Failed to clean caches. Please try again.');
                         } finally {
                             setIsCleaning(false);

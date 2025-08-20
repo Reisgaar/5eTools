@@ -1,6 +1,3 @@
-// REACT
-import { Platform } from 'react-native';
-
 // UTILS
 import { getTokenCacheStats, cleanTokenCache, clearImageCache } from 'src/utils/tokenCache';
 import { getStorageInfo } from 'src/utils/fileStorage';

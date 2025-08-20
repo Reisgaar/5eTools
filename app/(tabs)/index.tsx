@@ -1,6 +1,6 @@
 // REACT
 import React from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 // STORES
@@ -157,10 +157,10 @@ export default function HomeScreen() {
                     
                     <View style={{ flex: 1, paddingBottom: 25 }}>
                         {campaigns.length > 0 ? (
-                            <ScrollView style={{ flex: 1, borderWidth: 1, borderColor: currentTheme.primary, borderRadius: 8, overflow: 'hidden' }}>
-                                {campaigns.map((item, index) => (
+                            <ScrollView style={[styles.container, { borderColor: currentTheme.primary, backgroundColor: currentTheme.card }]}>
+                                {campaigns.map(item => (
                                     <View key={item.id} style={[styles.campaignItem, { 
-                                        borderBottomWidth: index === campaigns.length - 1 ? 0 : 1, 
+                                        borderBottomWidth: 1, 
                                         borderBottomColor: currentTheme.primary,
                                         backgroundColor: currentTheme.card
                                     }]}>
@@ -194,7 +194,7 @@ export default function HomeScreen() {
                                 ))}
                             </ScrollView>
                         ) : (
-                            <View style={[styles.emptyState, { flex: 1, backgroundColor: currentTheme.card }]}>
+                            <View style={[styles.emptyContainer, styles.container, { borderColor: currentTheme.primary, backgroundColor: currentTheme.card }]}>
                                 <Text style={{ color: currentTheme.noticeText, textAlign: 'center' }}>
                                     No campaigns created. Create your first campaign to get started.
                                 </Text>
@@ -217,10 +217,10 @@ export default function HomeScreen() {
                     
                     <View style={{ flex: 1, paddingBottom: 25 }}>
                         {filteredPlayers.length > 0 ? (
-                            <ScrollView style={{ flex: 1, borderWidth: 1, borderColor: currentTheme.primary, borderRadius: 8, overflow: 'hidden' }}>
-                                {filteredPlayers.map((item, index) => (
+                            <ScrollView style={[styles.container, { borderColor: currentTheme.primary, backgroundColor: currentTheme.card }]}>
+                                {filteredPlayers.map(item => (
                                     <View key={item.name} style={[styles.playerItem, { 
-                                        borderBottomWidth: index === filteredPlayers.length - 1 ? 0 : 1, 
+                                        borderBottomWidth: 1, 
                                         borderBottomColor: currentTheme.primary,
                                         backgroundColor: currentTheme.card
                                     }]}>
@@ -268,7 +268,7 @@ export default function HomeScreen() {
                                 ))}
                             </ScrollView>
                         ) : (
-                            <View style={[styles.emptyState, { flex: 1, backgroundColor: currentTheme.card }]}>
+                            <View style={[styles.emptyContainer, styles.container, { borderColor: currentTheme.primary, backgroundColor: currentTheme.card }]}>
                                 <Text style={{ color: currentTheme.noticeText, textAlign: 'center' }}>
                                     No players created. Create your first player to get started.
                                 </Text>
@@ -371,9 +371,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
     },
-    emptyState: {
-        padding: 20,
+    container: {
+        flex: 1,
+        borderWidth: 1,
         borderRadius: 8,
+        overflow: 'hidden'
+    },
+    emptyContainer: {
+        padding: 20,
         alignItems: 'center',
         justifyContent: 'center',
     },

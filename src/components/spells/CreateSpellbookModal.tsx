@@ -1,9 +1,6 @@
 // REACT
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView, Platform } from 'react-native';
-
-// EXPO
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 
 // STORES
 import { useCampaignStore, useSpellbookStore } from 'src/stores';
@@ -33,11 +30,10 @@ export default function CreateSpellbookModal({
     theme
 }: CreateSpellbookModalProps) {
     const { createSpellbook } = useSpellbookStore();
-    const { selectedCampaign, campaigns } = useCampaignStore();
+    const { selectedCampaign } = useCampaignStore();
     const [spellbookName, setSpellbookName] = useState('');
     const [spellbookDescription, setSpellbookDescription] = useState('');
     const [selectedCampaignId, setSelectedCampaignId] = useState<string | undefined>(selectedCampaign?.id || undefined);
-    const [showCampaignSelector, setShowCampaignSelector] = useState(false);
     const styles = createBaseModalStyles(theme);
 
     // Keep selectedCampaignId synchronized with selectedCampaign
@@ -51,7 +47,6 @@ export default function CreateSpellbookModal({
             setSpellbookName('');
             setSpellbookDescription('');
             setSelectedCampaignId(selectedCampaign?.id || undefined);
-            setShowCampaignSelector(false);
         }
     }, [visible, selectedCampaign?.id]);
 
@@ -71,7 +66,7 @@ export default function CreateSpellbookModal({
             if (onSpellbookCreated) {
                 onSpellbookCreated(newSpellbookId);
             }
-        } catch (error) {
+        } catch {
             Alert.alert('Error', 'Failed to create spellbook. Please try again.');
         }
     };

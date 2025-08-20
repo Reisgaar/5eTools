@@ -1,6 +1,6 @@
 // REACT
 import React from 'react';
-import { Image, Platform, Text, TouchableOpacity, View } from 'react-native';
+import { Image, Text, TouchableOpacity, View } from 'react-native';
 
 // EXPO
 import { Ionicons } from '@expo/vector-icons';
@@ -51,6 +51,7 @@ export default function CombatGroup({
             }
         };
         loadToken();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [group.groupMembers[0]?.tokenUrl, group.groupMembers[0]?.source, group.groupMembers[0]?.name]);
 
     return (

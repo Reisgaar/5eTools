@@ -1,6 +1,3 @@
-// REACT
-import { Platform } from 'react-native';
-
 // PROVIDERS
 import { IStorageProvider } from 'src/utils/storage/IStorageProvider';
 import { MobileStorageProvider } from 'src/utils/storage/MobileStorageProvider';

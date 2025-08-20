@@ -20,6 +20,8 @@ export type Theme = {
     storyText: string;
     modelBackground: string;
     tabBackground: string;
+    tabActive: string;
+    tabInactive: string;
     tabBorder: string;
     border: string;
   };
@@ -29,7 +31,7 @@ export const lightTheme: Theme = {
     innerBackground: '#dddddd',
     text: '#000000',
     headerText: '#ffffff',
-    headerBackground: '#5e60ce',
+    headerBackground: '#cad3ff',
     buttonBackground: '#5e60ce',
     buttonText: '#fffff',
     inputBackground: '#ffffff',
@@ -45,7 +47,9 @@ export const lightTheme: Theme = {
     storyBackground: '#dddddd',
     storyText: '#000000',
     modelBackground: '#eeeeee',
-    tabBackground: '#ffffff',
+    tabBackground: '#cad3ff',
+    tabActive: '#7200b3',
+    tabInactive: '#00000070',
     tabBorder: '#aaaaaa',
     border: '#dddddd',
 };
@@ -71,7 +75,9 @@ export const darkTheme: Theme = {
     storyBackground: '#222222',
     storyText: '#eeeeee',
     modelBackground: '#eeeeee',
-    tabBackground: '#111111',
+    tabBackground: '#5e60ce',
+    tabActive: '#f0b74a',
+    tabInactive: '#ffffff70',
     tabBorder: '#777777',
     border: '#333333',
 };

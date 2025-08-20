@@ -7,7 +7,6 @@ import { useCampaignStore } from 'src/stores';
 
 // CONTEXTS
 import { useCombat } from 'src/context/CombatContext';
-import { useModal } from 'src/context/ModalContext';
 
 // STYLES
 import { createBaseModalStyles } from 'src/styles/baseModalStyles';
@@ -44,9 +43,8 @@ export default function CombatFormModal({
     onCreateCombat,
     theme
 }: CombatFormModalProps): JSX.Element {
-    const { campaigns, selectedCampaignId: contextSelectedCampaignId } = useCampaignStore();
+    const { selectedCampaignId: contextSelectedCampaignId } = useCampaignStore();
     const { updateCombat, deleteCombat } = useCombat();
-    const { beastStackDepth, spellStackDepth } = useModal();
 
     const [name, setName] = useState(initialName);
     const [description, setDescription] = useState(initialDescription);

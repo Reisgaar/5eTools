@@ -59,7 +59,6 @@ export default function CombatContent() {
         clearCurrentCombat,
         getTurnOrder,
         addPlayerCombatant,
-        resetCombatGroups,
         removeCombatant,
         isGroupEnabled,
         toggleGroupForName,
@@ -68,7 +67,7 @@ export default function CombatContent() {
         currentCombatId,
         groupByName
     } = useCombat();
-    const { openBeastModal, openSpellModal } = useModal();
+    const { openBeastModal } = useModal();
 
     // State for combat data
     const [combatName, setCombatName] = React.useState('Combat');
@@ -79,7 +78,6 @@ export default function CombatContent() {
     // State for modals
     const [playerModalVisible, setPlayerModalVisible] = React.useState(false);
     const [valueEditModalVisible, setValueEditModalVisible] = React.useState(false);
-    const [settingsModalVisible, setSettingsModalVisible] = React.useState(false);
     const [hpEditModalVisible, setHpEditModalVisible] = React.useState(false);
     const [maxHpEditModalVisible, setMaxHpEditModalVisible] = React.useState(false);
 
@@ -199,6 +197,7 @@ export default function CombatContent() {
     React.useEffect(() => {
         loadCachedTokenUrls();
         loadPlayers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [combatants]);
 
     // Auto-scroll to active combatant when turn changes
@@ -234,6 +233,7 @@ export default function CombatContent() {
                 }
             }
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [turnIndex, started, combatants, groupByName, groupedCombatants]);
 
 
@@ -502,17 +502,6 @@ export default function CombatContent() {
                 setTokenModalVisible(true);
             }
         }
-    };
-
-    // Handle spell press
-    const handleSpellPress = async (name: string, source: string) => {
-        openSpellModal({ name, source });
-    };
-
-    // Function to show confirm modal
-    const showConfirmModal = (title: string, message: string, onConfirm: () => void) => {
-        setConfirmModalData({ title, message, onConfirm });
-        setConfirmModalVisible(true);
     };
 
     // Handle randomize initiative with confirm modal

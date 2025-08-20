@@ -29,8 +29,6 @@ const LEVELS = [
 ];
 const ALL_LEVEL_VALUES = LEVELS.map(lvl => lvl.value);
 
-type SpellLevel = 'all' | number;
-
 const SCHOOL_MAP: Record<string, string> = {
     A: 'Abjuration',
     C: 'Conjuration',
@@ -49,19 +47,12 @@ function getFullSchool(school: string) {
     return SCHOOL_MAP[key] || school;
 }
 
-function formatComponents(components: any) {
-    if (!components) return '';
-    if (Array.isArray(components)) return components.join(', ');
-    if (typeof components === 'object') return Object.keys(components).join(', ');
-    return String(components);
-}
-
 export default function SpellsScreen() {
     const { currentTheme } = useAppSettingsStore();
     const { selectedCampaign } = useCampaignStore();
-    const { simpleBeasts, simpleSpells, spells, spellSourceLookup, availableClasses, isLoading, isInitialized, getFullBeast, getFullSpell } = useData();
-    const { openBeastModal, openSpellModal } = useModal();
-    const { spellbooks, currentSpellbookId, getCurrentSpellbook, getSpellbooksByCampaign, addSpellToSpellbook, removeSpellFromSpellbook, isSpellInSpellbook, selectSpellbook, clearSpellbookSelection, getSpellbookSpells } = useSpellbookStore();
+    const { simpleSpells, spells, spellSourceLookup, availableClasses, isLoading } = useData();
+    const { openSpellModal } = useModal();
+    const { currentSpellbookId, getCurrentSpellbook, removeSpellFromSpellbook, selectSpellbook, clearSpellbookSelection, getSpellbookSpells } = useSpellbookStore();
     const [selectedLevels, setSelectedLevels] = useState<number[]>([]); // multi-select
     const [pageReady, setPageReady] = useState(false);
     const [addToSpellbookModalVisible, setAddToSpellbookModalVisible] = useState(false);
@@ -73,9 +64,6 @@ export default function SpellsScreen() {
     
     // Use the spell filters hook for UI state management
     const filters = useSpellFilters(simpleSpells, spells, spellSourceLookup, availableClasses);
-
-    // Get spellbooks filtered by selected campaign
-    const filteredSpellbooks = getSpellbooksByCampaign(selectedCampaign?.id);
 
     // Defer heavy computations to after navigation
     useEffect(() => {
@@ -133,18 +121,9 @@ export default function SpellsScreen() {
         setSelectedLevels(newLevels);
     }
 
-    const handleCreaturePress = async (name: string, source: string) => {
-        const beast = simpleBeasts.find(b => b.name.trim().toLowerCase() === name.trim().toLowerCase() && b.source.trim().toLowerCase() === source.trim().toLowerCase());
-        if (beast) {
-            openBeastModal(beast);
-        }
-    };
-
     const handleSpellPress = async (spell: any) => {
         openSpellModal(spell);
     };
-
-    const selectedSpellFullSchool = ''; // No longer needed as modal handles display
 
     const handleAddToSpellbook = (spell: any) => {
         if (currentSpellbookId) {
@@ -169,7 +148,6 @@ export default function SpellsScreen() {
     const renderSpellItem = ({ item }: { item: any }) => {
         const spell = item;
         const isRitual = spell.ritual === true;
-        const isInCurrentSpellbook = currentSpellbookId ? isSpellInSpellbook(currentSpellbookId, spell.name, spell.source) : false;
         
         return (
             <View style={[commonStyles.itemCard, { backgroundColor: currentTheme.card, borderColor: currentTheme.primary }]}>
@@ -276,7 +254,7 @@ export default function SpellsScreen() {
             {/* Search Input with Clear Button */}
             <View style={{ flexDirection: 'row', marginBottom: 0 }}>
                 <TextInput
-                    style={[commonStyles.input, { backgroundColor: currentTheme.inputBackground, color: currentTheme.text, borderColor: currentTheme.card, flex: 1, marginRight: 8 }]}
+                    style={[commonStyles.input, { backgroundColor: currentTheme.inputBackground, color: currentTheme.text, borderColor: currentTheme.card, flex: 1, marginBottom: 0 }]}
                     placeholder="Search by name..."
                     value={filters.search}
                     onChangeText={filters.setSearch}
@@ -290,12 +268,14 @@ export default function SpellsScreen() {
             {filters.hasActiveFilters && (
                 <View style={styles.filterSummaryContainer}>
                     {filters.getFilterSummary().map((filterLine, index) => (
-                        <Text key={index} style={[styles.filterSummaryText, { color: currentTheme.noticeText }]}>
+                        <Text key={index} style={styles.filterSummaryText}>
                             {filterLine}
                         </Text>
                     ))}
                 </View>
             )}
+
+            <View style={{ height: 1, width: '150%', marginLeft: -25, backgroundColor: currentTheme.primary }}/>
             
             {/* Content Area */}
             <View style={{ flex: 1 }}>
@@ -321,6 +301,7 @@ export default function SpellsScreen() {
                 {/* Main content */}
                 {!isLoading && pageReady && (
                     <FlatList
+                        style={{paddingVertical: 6 }}
                         data={filteredSpells.sort((a, b) => a.name.localeCompare(b.name))}
                         keyExtractor={(item, idx) => item.name + idx}
                         renderItem={renderSpellItem}
@@ -448,11 +429,22 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     filterSummaryContainer: {
-        paddingVertical: 4,
+        paddingTop: 6,
+        paddingBottom: 4,
+        display: 'flex',
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        gap: 4,
     },
     filterSummaryText: {
-        fontSize: 12,
-        fontStyle: 'italic',
+        fontSize: 11,
+        backgroundColor: '#666666',
+        color: '#ffffff',
+        borderRadius: 8,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
     },
     spellbookButton: {
         borderWidth: 1,

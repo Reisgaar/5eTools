@@ -22,37 +22,6 @@ function getFullSchool(school: string) {
     return SCHOOL_MAP[key] || school;
 }
 
-function extractSpellClasses(spell: any, spellSourceLookup: any): string[] {
-    const allClasses = new Set<string>();
-
-    // First try to get classes from the spell source lookup
-    if (spellSourceLookup && spell.source && spellSourceLookup[spell.source]) {
-        const sourceData = spellSourceLookup[spell.source];
-        if (sourceData[spell.name] && sourceData[spell.name].class) {
-            Object.values(sourceData[spell.name].class).forEach((bookData: any) => {
-                if (typeof bookData === 'object') {
-                    Object.keys(bookData).forEach((className: string) => {
-                        if (bookData[className]) {
-                            allClasses.add(className);
-                        }
-                    });
-                }
-            });
-        }
-    }
-
-    // Fallback to spell.classes if available
-    if (spell.classes) {
-        if (typeof spell.classes === 'object') {
-            Object.keys(spell.classes).forEach((className: string) => allClasses.add(className));
-        } else if (Array.isArray(spell.classes)) {
-            spell.classes.forEach((className: string) => allClasses.add(className));
-        }
-    }
-
-    return Array.from(allClasses);
-}
-
 export function useSpellFilters(simpleSpells: any[], spells: any[], spellSourceLookup: any, availableClasses: string[]) {
     // Search and filter states
     const [search, setSearch] = useState('');
@@ -135,6 +104,7 @@ export function useSpellFilters(simpleSpells: any[], spells: any[], spellSourceL
 
             return matchesName && matchesSchool && matchesClass && matchesOthers;
         });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [simpleSpells, spells, spellSourceLookup, search, selectedSchools, selectedClasses, selectedOthers]);
 
     // Modal handlers

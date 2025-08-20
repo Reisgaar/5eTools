@@ -177,12 +177,10 @@ const saveCombatToFile = (combat: Combat) => {
 export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [combats, setCombats] = useState<Combat[]>([]);
     const [currentCombatId, setCurrentCombatId] = useState<string | null>(null);
-    const [loading, setLoading] = useState(true);
 
     // Load combats from file storage on mount
     useEffect(() => {
         (async () => {
-            setLoading(true);
             console.log('Loading combats from storage...');
             const combatIndexes = await loadCombatsIndexFromFile();
             console.log('Loaded combat indexes:', combatIndexes);
@@ -255,7 +253,6 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             } else {
                 console.log('No combats found');
             }
-            setLoading(false);
         })();
     }, []);
 
@@ -916,7 +913,6 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             if (c.id !== currentCombatId) return c;
             // Sort combatants considering groups
             const sorted = sortCombatantsWithGroups(c.combatants || [], c.groupByName || {});
-            const turnOrder = getTurnOrder(sorted, c.groupByName || {});
             return {
                 ...c,
                 combatants: sorted,
@@ -1095,7 +1091,6 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     // Reload combats from storage
     const reloadCombats = async (): Promise<void> => {
-        setLoading(true);
         try {
             console.log('Reloading combats from storage...');
             const combatIndexes = await loadCombatsIndexFromFile();
@@ -1153,8 +1148,6 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             }
         } catch (error) {
             console.error('Error reloading combats:', error);
-        } finally {
-            setLoading(false);
         }
     };
 

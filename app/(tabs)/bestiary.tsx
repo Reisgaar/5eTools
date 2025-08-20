@@ -33,9 +33,9 @@ import { commonStyles } from 'src/styles/commonStyles';
  */
 export default function BestiaryScreen() {
     const { currentTheme } = useAppSettingsStore();
-    const { simpleBeasts, simpleSpells, isLoading, isInitialized, getFullBeast, getFullSpell } = useData();
+    const { simpleBeasts, isLoading,  getFullBeast } = useData();
     const { addCombatantToCombat, getSortedCombats } = useCombat();
-    const { openBeastModal, openSpellModal } = useModal();
+    const { openBeastModal } = useModal();
     const { selectedCampaignId } = useCampaignStore();
     const [combatSelectionModalVisible, setCombatSelectionModalVisible] = useState(false);
     const [beastToAdd, setBeastToAdd] = useState<any | null>(null);
@@ -93,6 +93,7 @@ export default function BestiaryScreen() {
         setQuantity('1');
         setCombatSelectionModalVisible(true);
     };
+    
     const handleSelectCombat = (combatId: string) => {
         if (beastToAdd) {
             const qty = parseInt(quantity, 10) || 1;
@@ -104,21 +105,9 @@ export default function BestiaryScreen() {
         setBeastToAdd(null);
         setQuantity('1');
     };
+
     const handleViewBeastDetails = async (beast: any) => {
         openBeastModal(beast);
-    };
-    const handleCreaturePress = async (name: string, source: string) => {
-        const beast = simpleBeasts.find(b => equalsNormalized(b.name, name) && equalsNormalized(b.source, source));
-        if (beast) {
-            openBeastModal(beast);
-        }
-    };
-
-    const handleSpellPress = async (name: string, source: string) => {
-        const spell = simpleSpells.find(s => equalsNormalized(s.name, name) && equalsNormalized(s.source, source));
-        if (spell) {
-            openSpellModal(spell);
-        }
     };
 
     return (
@@ -212,7 +201,7 @@ export default function BestiaryScreen() {
             </View>
             {/* Search Input */}
             <TextInput
-                style={[styles.input, { backgroundColor: currentTheme.inputBackground, color: currentTheme.text, borderColor: currentTheme.card }]}
+                style={[styles.input, { backgroundColor: currentTheme.inputBackground, color: currentTheme.text, borderColor: currentTheme.card, marginBottom: 0 }]}
                 placeholder="Search by name..."
                 placeholderTextColor={currentTheme.noticeText}
                 value={filters.search}
@@ -222,12 +211,15 @@ export default function BestiaryScreen() {
             {filters.getFilterSummary().length > 0 && (
                 <View style={styles.filterSummaryContainer}>
                     {filters.getFilterSummary().map((filterLine, index) => (
-                        <Text key={index} style={[styles.filterSummaryText, { color: currentTheme.noticeText }]}>
+                        <Text key={index} style={styles.filterSummaryText}>
                             {filterLine}
                         </Text>
                     ))}
                 </View>
             )}
+
+            <View style={{ height: 1, width: '150%', marginLeft: -25, backgroundColor: currentTheme.primary }}/>
+
             {/* Content Area */}
             <View style={{ flex: 1 }}>
                 {/* Loading states */}
@@ -262,6 +254,7 @@ export default function BestiaryScreen() {
                     <Text style={{ color: currentTheme.noticeText, marginVertical: 16 }}>No beasts found.</Text>
                 ) : (
                     <FlatList
+                        style={{paddingVertical: 6 }}
                         data={groupedBeasts}
                         keyExtractor={(item, idx) => `${item[0].name}-${item[0].source}-${idx}`}
                         renderItem={({ item }) => (
@@ -318,14 +311,21 @@ const styles = StyleSheet.create({
         paddingVertical: 20,
     },
     filterSummaryContainer: {
-        marginTop: 8,
-        paddingHorizontal: 12,
-        paddingVertical: 4,
-        backgroundColor: 'rgba(0,0,0,0.1)',
-        borderRadius: 8,
+        paddingTop: 6,
+        paddingBottom: 4,
+        display: 'flex',
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        gap: 4,
     },
     filterSummaryText: {
-        fontSize: 12,
-        textAlign: 'left',
+        fontSize: 11,
+        backgroundColor: '#666666',
+        color: '#ffffff',
+        borderRadius: 8,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
     },
 });

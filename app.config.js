@@ -14,9 +14,9 @@ const androidSdkVersion = 35;
 // Project id is linked to expo.dev account project.
 const projectId = '1ddd7043-f41e-4abe-96bd-ccc5948e57a2';
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
+// eslint-disable-next-line no-unused-vars
 const withNetworkSecurityConfigDev = require('./withNetworkSecurityConfigDev');
-// eslint-disable-next-line @typescript-eslint/no-require-imports
+// eslint-disable-next-line no-unused-vars
 const withHttpAllowedPlistPlugin = require('./withHttpAllowedPlistPlugin.cjs');
 
 const plugins = [

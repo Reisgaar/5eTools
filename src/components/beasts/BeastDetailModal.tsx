@@ -1,6 +1,6 @@
 // REACT
 import React from 'react';
-import { ActivityIndicator, Image, Modal, ScrollView, Text, TouchableOpacity, View, Pressable, Platform } from 'react-native';
+import { ActivityIndicator, Image, Modal, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 
 // STORES
 import { useAppSettingsStore } from 'src/stores';
@@ -181,15 +181,6 @@ function formatSenses(senses: any, passive: any) {
     return s;
 }
 
-function formatSaves(saves: any): string {
-    if (!saves) return '';
-
-    if (typeof saves === 'object')
-        return Object.entries(saves).map(([ability, bonus]) => `${ability.toUpperCase()} ${bonus}`).join(', ');
-
-    return String(saves);
-}
-
 function formatSkills(skills: any): string {
     if (!skills) return '';
 
@@ -282,88 +273,6 @@ function formatSpellcasting(spellcasting: any, theme: any, onCreaturePress?: (na
     ));
 }
 
-function preprocessSpellcastingBlock(sc: any) {
-    const entries: any[] = [];
-    if (sc.headerEntries) {
-        if (Array.isArray(sc.headerEntries))
-            entries.push(...sc.headerEntries);
-        else
-            entries.push(sc.headerEntries);
-    }
-
-    if (sc.will)
-        entries.push({ type: 'list', name: 'At will', items: sc.will });
-
-    if (sc.daily) {
-        Object.entries(sc.daily).forEach(([freq, spells]) => {
-            entries.push({ type: 'list', name: `${freq}/day`, items: spells });
-        });
-    }
-
-    if (sc.spells) {
-        Object.entries(sc.spells).forEach(([level, data]: [string, any]) => {
-            if (data && data.spells)
-                entries.push({ type: 'list', name: `Level ${level}${data.slots ? ` (${data.slots} slots)` : ''}`, items: data.spells });
-        });
-    }
-
-    if (sc.routine)
-        entries.push({ type: 'list', name: 'Routine', items: sc.routine });
-
-    if (sc.ritual)
-        entries.push({ type: 'list', name: 'Ritual', items: sc.ritual });
-
-    if (sc.innate)
-        entries.push({ type: 'list', name: 'Innate', items: sc.innate });
-
-    // Add any other custom fields as needed
-    return {
-        type: 'entries',
-        name: sc.name || 'Spellcasting',
-        entries,
-    };
-}
-
-function formatTraits(traits: any, theme: any, onCreaturePress?: (name: string, source: string) => void, onSpellPress?: (name: string, source: string) => void) {
-    if (!traits) return null;
-
-    if (!Array.isArray(traits))
-        traits = [traits];
-
-    return traits.map((trait: any, i: number) => (
-        <View key={i} style={{ marginBottom: 8 }}>
-            <Text style={{ fontWeight: 'bold', color: theme.text }}>{trait.name}.</Text>
-            {Array.isArray(trait.entries)
-                ? trait.entries.map((e: any, j: number) => (
-                    <React.Fragment key={j}>{renderEntries(e, 0, theme, onCreaturePress, onSpellPress)}</React.Fragment>
-                ))
-                : renderEntries(trait.entries, 0, theme, onCreaturePress, onSpellPress)}
-        </View>
-    ));
-}
-
-function formatActions(actions: any, label = 'Actions', theme: any, onCreaturePress?: (name: string, source: string) => void, onSpellPress?: (name: string, source: string) => void) {
-    if (!actions) return null;
-
-    if (!Array.isArray(actions))
-        actions = [actions];
-
-    return (
-        <View style={{ marginBottom: 10 }}>
-            {actions.map((action: any, i: number) => (
-                <View key={i} style={{ marginBottom: 8 }}>
-                    <Text style={{ fontWeight: 'bold', color: theme.text }}>{action.name}.</Text>
-                    {Array.isArray(action.entries)
-                        ? action.entries.map((e: any, j: number) => (
-                            <React.Fragment key={j}>{renderEntries(e, 0, theme, onCreaturePress, onSpellPress)}</React.Fragment>
-                        ))
-                        : renderEntries(action.entries, 0, theme, onCreaturePress, onSpellPress)}
-                </View>
-            ))}
-        </View>
-    );
-}
-
 function formatCR(cr: any) {
     if (!cr) return '';
 
@@ -384,10 +293,13 @@ function formatCR(cr: any) {
     return String(cr);
 }
 
+/**
+ * Modal for displaying a beast's details.
+ */
 export default function BeastDetailModal({ visible, beast, onClose, theme, onCreaturePress, onSpellPress }: BeastDetailModalProps) {
     const { currentTheme, useAdvancedDiceRoll } = useAppSettingsStore();
-    const { simpleBeasts, simpleSpells, availableClasses, spellClassRelations, isInitialized } = useData();
-    const { beastStackDepth, openSpellModal, openBeastModal, openDiceModal, openAdvancedDiceModal } = useModal();
+    const { simpleBeasts, simpleSpells } = useData();
+    const { openSpellModal, openBeastModal, openDiceModal, openAdvancedDiceModal } = useModal();
     const styles = createBaseModalStyles(currentTheme);
 
     // All hooks must be at the top level, before any conditional returns
@@ -457,7 +369,8 @@ export default function BeastDetailModal({ visible, beast, onClose, theme, onCre
             loadingRef.current = null;
             lastBeastRef.current = null;
         }
-    }, [beast?.['source'], beast?.['name']]); // Only depend on source and name, not the entire beast object
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [beast?.['source'], beast?.['name']]);
 
     // Reset to details view when modal opens
     React.useEffect(() => {

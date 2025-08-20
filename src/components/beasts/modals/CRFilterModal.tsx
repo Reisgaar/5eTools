@@ -2,9 +2,6 @@
 import React, { useMemo } from 'react';
 import { Text, TouchableOpacity, View, StyleSheet } from 'react-native';
 
-// CONTEXTS
-import { useModal } from 'src/context/ModalContext';
-
 // COMPONENTS
 import { BaseModal } from 'src/components/ui';
 
@@ -35,8 +32,6 @@ export default function CRFilterModal({
     theme,
     sourceIdToNameMap
 }: CRFilterModalProps) {
-    const { beastStackDepth, spellStackDepth } = useModal();
-
     // Pre-compute selected state for better performance
     const selectedSet = useMemo(() => new Set(selectedCRs), [selectedCRs]);
 

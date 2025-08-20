@@ -1,6 +1,6 @@
 // REACT
-import React, { useState } from 'react';
-import { View, Text, TextInput, FlatList, Platform, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 
 // STORES
 import { useCampaignStore, useSpellbookStore } from 'src/stores';
@@ -30,7 +30,7 @@ export default function AddToSpellbookModal({
     spell,
     theme
 }: AddToSpellbookModalProps) {
-    const { spellbooks, getSpellbooksByCampaign, addSpellToSpellbook, removeSpellFromSpellbook, isSpellInSpellbook } = useSpellbookStore();
+    const { getSpellbooksByCampaign, addSpellToSpellbook, removeSpellFromSpellbook, isSpellInSpellbook } = useSpellbookStore();
     const { selectedCampaign } = useCampaignStore();
     const filteredSpellbooks = getSpellbooksByCampaign(selectedCampaign?.id);
     const { searchQuery, setSearchQuery, filteredSpellbooks: searchedSpellbooks } = useSpellbookSearch(filteredSpellbooks);

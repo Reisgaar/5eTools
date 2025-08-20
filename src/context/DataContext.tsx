@@ -178,28 +178,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
     }, [spellsIndex]);
 
-    // Utility to extract all unique '{@...}' tags from an object
-    function extractCurlyTags(obj: any, tagSet: Set<string>) {
-        if (typeof obj === 'string') {
-            const regex = /\{@(.*?)\}/g;
-            let match;
-            while ((match = regex.exec(obj)) !== null) {
-                tagSet.add(`{@${match[1]}}`);
-            }
-        } else if (Array.isArray(obj)) {
-            obj.forEach(item => extractCurlyTags(item, tagSet));
-        } else if (typeof obj === 'object' && obj !== null) {
-            // Recursively scan all properties
-            Object.entries(obj).forEach(([key, val]) => {
-                if (key === 'entries' || key === 'headerEntries' || key === 'footerEntries') {
-                    // Skip these properties as they contain the most tags and are processed separately
-                    return;
-                }
-                extractCurlyTags(val, tagSet);
-            });
-        }
-    }
-
     // Process spell source lookup data to extract available classes and spell-class relations
     function processSpellSourceLookup(spellSourceLookupData: SpellSourceLookup, spellsData: Spell[]) {
         const allClasses = new Set<string>();
@@ -536,7 +514,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const initializeData = async () => {
             try {
                 await loadData();
-            } catch (error) {
+            } catch {
                 console.error('Failed to load data from files, fetching from API...');
                 try {
                     await fetchAllData();
@@ -547,6 +525,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
 
         initializeData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (

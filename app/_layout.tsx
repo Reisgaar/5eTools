@@ -1,6 +1,9 @@
+// REACT
+import { useEffect } from 'react';
+
 // EXPO
 import { Stack } from 'expo-router';
-import { useEffect } from 'react';
+import { StatusBar } from 'expo-status-bar';
 
 // STORES
 import { useAppSettingsStore, useCampaignStore, useSpellbookStore } from 'src/stores';
@@ -15,7 +18,7 @@ import { ErrorBoundary, GlobalModals, Header } from 'src/components';
 
 // Root layout for the app, providing all global providers and navigation stack.
 export default function RootLayout() {
-    const { initializeSettings } = useAppSettingsStore();
+    const { initializeSettings, themeName } = useAppSettingsStore();
     const { initializeCampaigns } = useCampaignStore();
     const { loadSpellbooks } = useSpellbookStore();
 
@@ -37,6 +40,7 @@ export default function RootLayout() {
                             <Stack.Screen name="(tabs)" />
                         </Stack>
                         <GlobalModals />
+                        <StatusBar style={themeName === 'dark' ? 'light' : 'dark'} />
                     </ModalProvider>
                 </DataProvider>
             </CombatProvider>

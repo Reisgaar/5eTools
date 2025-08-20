@@ -1,5 +1,5 @@
 // REACT
-import React, { useState } from 'react';
+import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 
 // STYLES
@@ -29,25 +29,14 @@ export default function DeleteCombatantModal({
     combatantNumber,
     theme
 }: DeleteCombatantModalProps): JSX.Element {
-    const [showConfirmation, setShowConfirmation] = useState(false);
     const styles = createBaseModalStyles(theme);
-
-    React.useEffect(() => {
-        setShowConfirmation(false);
-    }, [visible]);
-
-    const handleDeleteClick = () => {
-        setShowConfirmation(true);
-    };
 
     const handleConfirm = () => {
         onConfirm();
-        setShowConfirmation(false);
         onClose();
     };
 
     const handleCancel = () => {
-        setShowConfirmation(false);
         onClose();
     };
 

@@ -1,6 +1,6 @@
 // REACT
 import React from 'react';
-import { Platform, Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 
 // EXPO
 import { Ionicons } from '@expo/vector-icons';

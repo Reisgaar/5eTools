@@ -37,6 +37,7 @@ export function replaceTags(
                 nodes.push(<Text key={key++} style={{ color: theme.text }}>{textBefore}</Text>);
             }
         }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const [full, tag, rest] = match;
         const params = rest.split('|').map(s => s.trim());
         // Tag handling

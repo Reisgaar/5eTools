@@ -1,6 +1,6 @@
 // REACT
 import React from 'react';
-import { View, Text, Image, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, Image, StyleSheet } from 'react-native';
 
 // EXPO
 import { Ionicons } from '@expo/vector-icons';
@@ -20,9 +20,6 @@ interface TokenViewModalProps {
   creatureName: string;
   theme: any;
 }
-
-// CONSTANTS
-const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 /**
  * Modal used to view a token image.

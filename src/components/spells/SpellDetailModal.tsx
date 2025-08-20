@@ -1,6 +1,6 @@
 // REACT
 import React from 'react';
-import { ActivityIndicator, Dimensions, ScrollView, Text, TouchableOpacity, View, Modal, Platform, Pressable } from 'react-native';
+import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View, Modal, Pressable } from 'react-native';
 
 // STORES
 import { useAppSettingsStore } from 'src/stores';
@@ -31,9 +31,6 @@ import {
 } from 'src/utils/spellUtils';
 import { normalizeString, is2024Source } from 'src/utils/stringUtils';
 
-// CONSTANTS
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
-
 /**
  * Modal for displaying spell details.
  */
@@ -54,7 +51,7 @@ export default function SpellDetailModal({
     onCreaturePress?: (name: string, source: string) => void,
     onSpellPress?: (name: string, source: string) => void,
 }) {
-    const { openDiceModal, openAdvancedDiceModal, openBeastModal, openSpellModal, spellStackDepth } = useModal();
+    const { openDiceModal, openAdvancedDiceModal, openBeastModal, openSpellModal } = useModal();
     const { simpleBeasts, simpleSpells } = useData();
     const { useAdvancedDiceRoll } = useAppSettingsStore();
     const styles = createSpellStyles(theme);
