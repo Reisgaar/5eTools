@@ -20,7 +20,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 export default function SettingsScreen() {
     const { currentTheme, themeName, setTheme, useAdvancedDiceRoll, setUseAdvancedDiceRoll } = useAppSettingsStore();
-    const { simpleBeasts, simpleSpells, isLoading, isInitialized, reloadData, clearData } = useData();
+    const { simpleBeasts, simpleSpells, isLoading, isInitialized } = useData();
 
     // Storage management state
     const [storageModalVisible, setStorageModalVisible] = React.useState(false);
@@ -38,32 +38,7 @@ export default function SettingsScreen() {
         setConfirmModalVisible(true);
     };
 
-    const handleReload = async () => {
-        try {
-            await reloadData();
-            // After reloading data, regenerate all indexes for better performance
-            await regenerateAllIndexes();
-            Alert.alert('Success', 'Data loaded and indexes regenerated successfully.');
-        } catch (error) {
-            console.error('❌ Error during data reload:', error);
-            Alert.alert('Error', 'Failed to reload data. Please try again.');
-        }
-    };
 
-    const handleClear = async () => {
-        showConfirmModal(
-            'This will clear all data (beasts, spells, combats, players, spellbooks, campaigns). This action cannot be undone.',
-            async () => {
-                try {
-                    await clearData();
-                    Alert.alert('Success', 'All data has been cleared successfully.');
-                } catch (error) {
-                    console.error('❌ Error clearing data:', error);
-                    Alert.alert('Error', 'Failed to clear data. Please try again.');
-                }
-            }
-        );
-    };
 
     const handleRegenerateIndexes = async () => {
         showConfirmModal(
@@ -175,54 +150,31 @@ export default function SettingsScreen() {
                     </Text>
                 </View>
 
-                {/* Data Loading Section */}
-                <Text style={[styles.sectionTitle, { color: currentTheme.text }]}>Data Loading</Text>
+                {/* Data Status Section */}
+                <Text style={[styles.sectionTitle, { color: currentTheme.text }]}>Data Amount</Text>
                 <View style={[styles.sectionContainer, { backgroundColor: currentTheme.settingsContainer }]}>
-                    <View style={[commonStyles.row, { marginTop: 0 }]}>
-                        <TouchableOpacity 
-                            onPress={handleReload}
-                            disabled={isLoading}
-                            style={[commonStyles.button, { marginTop: 0, backgroundColor: currentTheme.primary, opacity: isLoading ? 0.6 : 1, flex: 1 } ]}
-                        >
-                            {isLoading
-                                ? ( <ActivityIndicator color="white" size="small" />)
-                                : (<Text style={[commonStyles.buttonText, { color: 'white' }]}>
-                                    {(!isInitialized || (simpleBeasts.length === 0 && simpleSpells.length === 0)) ? 'Load Data' : 'Reload Data'}
-                                  </Text>)
-                            }
-                        </TouchableOpacity>
-
-                        <TouchableOpacity 
-                            onPress={handleClear}
-                            disabled={isLoading}
-                            style={[commonStyles.button, { marginTop: 0, backgroundColor: '#dc2626', opacity: isLoading ? 0.6 : 1, flex: 1 }]}
-                        >
-                            <Text style={[commonStyles.buttonText, { color: 'white' }]}>
-                                Clear Data
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
-                    
-                    {/* Data Status - Fixed height container to prevent layout shift */}
                     <View style={{ 
-                        marginTop: 12,
                         justifyContent: 'center',
                         alignItems: 'center'
                     }}>
                         {isInitialized && !isLoading && (simpleBeasts.length > 0 || simpleSpells.length > 0) ? (
-                            <View style={{ 
-                                backgroundColor: currentTheme.confirmButtonBackground, 
-                                padding: 12, 
-                                borderRadius: 8, 
-                                alignItems: 'center',
-                                width: '100%'
-                            }}>
-                                <Text style={{ color: 'white', fontWeight: '600', textAlign: 'center' }}>
-                                    ✓ Data loaded successfully
-                                </Text>
-                                <Text style={{ color: 'white', fontSize: 12, marginTop: 4, textAlign: 'center' }}>
-                                    {simpleBeasts.length} beasts, {simpleSpells.length} spells
-                                </Text>
+                            <View style={{ alignItems: 'center', width: '100%', display: 'flex', flexDirection: 'row', gap: 4 }}>
+                                <View style={{ width: '50%', backgroundColor: currentTheme.innerBackground, borderRadius: 8, padding: 8 }}>
+                                    <Text style={{ color: currentTheme.text, fontSize: 11, textAlign: 'center', textTransform: 'uppercase' }}>
+                                        beasts
+                                    </Text>
+                                    <Text style={{ color: currentTheme.text, fontSize: 22, fontWeight: 'bold', textAlign: 'center' }}>
+                                        {simpleBeasts.length}
+                                    </Text>
+                                </View>
+                                <View style={{ width: '50%', backgroundColor: currentTheme.innerBackground, borderRadius: 8, padding: 8 }}>
+                                    <Text style={{ color: currentTheme.text, fontSize: 11, textAlign: 'center', textTransform: 'uppercase' }}>
+                                        spells
+                                    </Text>
+                                    <Text style={{ color: currentTheme.text, fontSize: 22, fontWeight: 'bold', textAlign: 'center' }}>
+                                        {simpleSpells.length}
+                                    </Text>
+                                </View>
                             </View>
                         ) : isLoading ? (
                             <View style={{ 
@@ -234,7 +186,7 @@ export default function SettingsScreen() {
                             }}>
                                 <ActivityIndicator size="small" color={currentTheme.primary} />
                                 <Text style={{ color: currentTheme.noticeText, fontSize: 12, marginTop: 4 }}>
-                                    Loading data...
+                                    Loading local data...
                                 </Text>
                             </View>
                         ) : (
@@ -246,7 +198,7 @@ export default function SettingsScreen() {
                                 width: '100%'
                             }}>
                                 <Text style={{ color: currentTheme.noticeText, fontSize: 12, marginTop: 4 }}>
-                                    Data has not been loaded. Please, for a correct functioning of the application, load data.
+                                    Local data is being loaded automatically.
                                 </Text>
                             </View>
                         )}

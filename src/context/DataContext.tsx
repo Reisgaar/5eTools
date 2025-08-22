@@ -1,25 +1,30 @@
 // REACT
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-// CONSTANTS
-import { bestiaryGetRequests, spellsGetRequests, spellSourceLookupRequest } from 'src/constants/requests';
+// CONSTANTS - No longer needed with local data
 
 // UTILS
 import { equalsNormalized } from 'src/utils/stringUtils';
 import { getTokenUrl } from 'src/utils/tokenCache';
 import {
     clearBeastsAndSpellsOnly,
-    loadBeastsIndexFromFile,
     loadMonsterFromFile,
     loadSpellFromFile,
-    loadSpellsIndexFromFile,
     loadSpellClassRelationsIndexFromFile,
     loadAvailableClassesIndexFromFile,
-    storeBeastsToFile,
-    storeSpellsToFile,
     storeSpellClassRelationsToFile,
     storeAvailableClassesToFile
 } from 'src/utils/fileStorage';
+
+// LOCAL DATA LOADING
+import { 
+    loadAllBestiaryData, 
+    loadAllSpellData, 
+    createBestiaryIndex, 
+    createSpellIndex,
+    findMonster,
+    findSpell
+} from 'src/data/localDataLoader';
 
 // INTERFACES
 interface Beast {
@@ -92,8 +97,6 @@ interface DataContextType {
   isLoading: boolean;
   isInitialized: boolean;
   loadData: () => Promise<void>;
-  reloadData: () => Promise<void>;
-  clearData: () => Promise<void>;
   getFullBeast: (name: string, source: string) => Promise<Beast | null>;
   getFullSpell: (name: string, source: string) => Promise<Spell | null>;
 }
@@ -234,199 +237,73 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
     }
 
-    // Fetch all data from the API
-    const fetchAllData = async () => {
-        setIsLoading(true);
-        try {
-            console.log('Fetching beasts data...');
 
-            // Fetch beasts data from all URLs
-            const beastsPromises = bestiaryGetRequests.map(async (url: string) => {
-                try {
-                    const response = await fetch(url);
-                    if (!response.ok) {
-                        console.warn(`Failed to fetch ${url}: ${response.status}`);
-                        return [];
-                    }
-                    const data = await response.json();
-                    return data.monster || [];
-                } catch (error) {
-                    console.warn(`Error fetching ${url}:`, error);
-                    return [];
-                }
-            });
 
-            console.log('Fetching spells data...');
-
-            // Fetch spells data from all URLs
-            const spellsPromises = spellsGetRequests.map(async (url: string) => {
-                try {
-                    const response = await fetch(url);
-                    if (!response.ok) {
-                        console.warn(`Failed to fetch ${url}: ${response.status}`);
-                        return [];
-                    }
-                    const data = await response.json();
-                    return data.spell || [];
-                } catch (error) {
-                    console.warn(`Error fetching ${url}:`, error);
-                    return [];
-                }
-            });
-
-            console.log('Fetching spell source lookup data...');
-
-            // Fetch spell source lookup data
-            const spellSourceLookupPromise = spellSourceLookupRequest.map(async (url: string) => {
-                try {
-                    const response = await fetch(url);
-                    if (!response.ok) {
-                        console.warn(`Failed to fetch ${url}: ${response.status}`);
-                        return {};
-                    }
-                    const data = await response.json();
-                    return data;
-                } catch (error) {
-                    console.warn(`Error fetching ${url}:`, error);
-                    return {};
-                }
-            });
-
-            // Wait for all requests to complete
-            const [beastsResults, spellsResults, spellSourceLookupResults] = await Promise.all([
-                Promise.all(beastsPromises),
-                Promise.all(spellsPromises),
-                Promise.all(spellSourceLookupPromise)
-            ]);
-
-            // Flatten and combine results
-            const beastsData = beastsResults.flat().sort((a, b) => {
-                if (!a.name) return 1;
-                if (!b.name) return -1;
-                return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
-            });
-
-            const spellsData = spellsResults.flat().sort((a, b) => {
-                if (!a.name) return 1;
-                if (!b.name) return -1;
-                return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
-            });
-
-            console.log(`Fetched ${beastsData.length} beasts and ${spellsData.length} spells`);
-
-            // Process spell source lookup data
-            const spellSourceLookupData = spellSourceLookupResults[0] || {};
-            console.log('Spell source lookup data loaded');
-
-            // Process the spell source lookup to extract classes and relations
-            const { availableClasses: classes, spellClassRelations: relations, updatedSpells } = processSpellSourceLookup(spellSourceLookupData, spellsData);
-            console.log(`Extracted ${classes.length} available classes and ${relations.length} spell-class relations`);
-            console.log(`Updated ${updatedSpells.length} spells with class information`);
-
-            // Store data to files
-            console.log('Storing beasts to individual files...');
-            await storeBeastsToFile(beastsData);
-            console.log('✅ Beasts stored successfully');
-
-            console.log('Storing spells to individual files with class information...');
-            await storeSpellsToFile(updatedSpells);
-            console.log('✅ Spells stored successfully');
-
-            // Store spell-class relations and available classes indexes
-            console.log('Storing spell-class relations index...');
-            await storeSpellClassRelationsToFile(relations);
-            console.log('✅ Spell-class relations stored successfully');
-
-            console.log('Storing available classes index...');
-            await storeAvailableClassesToFile(classes);
-            console.log('✅ Available classes stored successfully');
-
-            // Set spell source lookup data and derived data
-            setSpellSourceLookup(spellSourceLookupData);
-            setAvailableClasses(classes);
-            setSpellClassRelations(relations);
-
-            // Load indexes for immediate use
-            const [beastsIndexData, spellsIndexData, spellClassRelationsData, availableClassesData] = await Promise.all([
-                loadBeastsIndexFromFile(),
-                loadSpellsIndexFromFile(),
-                loadSpellClassRelationsIndexFromFile(),
-                loadAvailableClassesIndexFromFile()
-            ]);
-
-            if (beastsIndexData) {
-                setBeastsIndex(beastsIndexData);
-            }
-
-            if (spellsIndexData) {
-                setSpellsIndex(spellsIndexData);
-            }
-
-            if (spellClassRelationsData) {
-                setSpellClassRelations(spellClassRelationsData);
-            }
-
-            if (availableClassesData) {
-                setAvailableClasses(availableClassesData);
-            }
-
-            setIsInitialized(true);
-            console.log('Data loading completed successfully');
-        } catch (error) {
-            console.error('Error fetching data:', error);
-            throw error;
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    // Load data from files
+    // Load data from local files
     const loadData = async () => {
         setIsLoading(true);
         try {
-            console.log('Loading data from files...');
+            console.log('Loading data from local files...');
 
-            // Load indexes
-            const [beastsIndexData, spellsIndexData, spellClassRelationsData, availableClassesData] = await Promise.all([
-                loadBeastsIndexFromFile(),
-                loadSpellsIndexFromFile(),
-                loadSpellClassRelationsIndexFromFile(),
-                loadAvailableClassesIndexFromFile()
+            // Load all bestiary and spell data
+            const [bestiaryData, spellData] = await Promise.all([
+                loadAllBestiaryData(),
+                loadAllSpellData()
             ]);
 
-            if (beastsIndexData) {
-                setBeastsIndex(beastsIndexData);
-                console.log(`Loaded index with ${beastsIndexData.length} monsters`);
-            }
+            // Create indexes from the loaded data
+            const beastsIndexData = createBestiaryIndex(bestiaryData);
+            const spellsIndexData = createSpellIndex(spellData);
 
-            if (spellsIndexData) {
-                setSpellsIndex(spellsIndexData);
-                console.log(`Loaded index with ${spellsIndexData.length} spells`);
-            }
+            // Set the indexes
+            setBeastsIndex(beastsIndexData);
+            setSpellsIndex(spellsIndexData);
 
-            if (spellClassRelationsData) {
-                setSpellClassRelations(spellClassRelationsData);
-                console.log(`Loaded index with ${spellClassRelationsData.length} spell-class relations`);
-            }
+            console.log(`Loaded ${beastsIndexData.length} monsters from local data`);
+            console.log(`Loaded ${spellsIndexData.length} spells from local data`);
 
-            if (availableClassesData) {
-                setAvailableClasses(availableClassesData);
-                console.log(`Loaded index with ${availableClassesData.length} available classes`);
-            }
+            // Process spell class information
+            const allClasses = new Set<string>();
+            const relations: SpellClassRelation[] = [];
+
+            Object.values(spellData).flat().forEach((spell: any) => {
+                if (spell.classes && typeof spell.classes === 'object') {
+                    Object.entries(spell.classes).forEach(([book, classData]: [string, any]) => {
+                        if (typeof classData === 'object' && classData !== null) {
+                            Object.entries(classData).forEach(([className, canCast]: [string, any]) => {
+                                if (canCast === true) {
+                                    allClasses.add(className);
+                                    relations.push({
+                                        spellName: spell.name,
+                                        source: spell.source || 'PHB',
+                                        className,
+                                        book
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+
+            setAvailableClasses(Array.from(allClasses).sort());
+            setSpellClassRelations(relations);
+
+            console.log(`Extracted ${allClasses.size} available classes and ${relations.length} spell-class relations`);
 
             setIsInitialized(true);
-            console.log('Data loading from files completed');
+            console.log('Local data loading completed successfully');
         } catch (error) {
-            console.error('Error loading data from files:', error);
+            console.error('Error loading data from local files:', error);
             throw error;
         } finally {
             setIsLoading(false);
         }
     };
 
-    // Reload data (fetch from API)
+    // Reload data (load from local files)
     const reloadData = async () => {
-        await fetchAllData();
+        await loadData();
     };
 
     // Clear all data
@@ -449,7 +326,29 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Get full beast data by name and source
     const getFullBeast = async (name: string, source: string): Promise<Beast | null> => {
         try {
-            // Find the beast in the index
+            // Try to find the beast using local data loader first
+            const beast = await findMonster(name, source);
+            if (beast) {
+                // If the beast has a token URL, try to cache it
+                if (beast.tokenUrl) {
+                    try {
+                        const cachedTokenUrl = await getTokenUrl(source, name, beast.tokenUrl);
+                        // Ensure we have a valid string URL
+                        if (cachedTokenUrl && typeof cachedTokenUrl === 'string') {
+                            beast.tokenUrl = cachedTokenUrl;
+                        } else {
+                            console.warn('Invalid token URL received for', name, ':', cachedTokenUrl);
+                            // Keep original URL if caching returns invalid result
+                        }
+                    } catch (error) {
+                        console.error(`Error caching token for ${name}:`, error);
+                        // Keep original URL if caching fails
+                    }
+                }
+                return beast;
+            }
+
+            // Fallback to index-based loading
             const beastIndex = beastsIndex.find(b =>
                 equalsNormalized(b.name, name) && equalsNormalized(b.source, source)
             );
@@ -488,7 +387,13 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Get full spell data by name and source
     const getFullSpell = async (name: string, source: string): Promise<Spell | null> => {
         try {
-            // Find the spell in the index
+            // Try to find the spell using local data loader first
+            const spell = await findSpell(name, source);
+            if (spell) {
+                return spell;
+            }
+
+            // Fallback to index-based loading
             const spellIndex = spellsIndex.find(s =>
                 equalsNormalized(s.name, name) && equalsNormalized(s.source, source)
             );
@@ -518,13 +423,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const initializeData = async () => {
             try {
                 await loadData();
-            } catch {
-                console.error('Failed to load data from files, fetching from API...');
-                try {
-                    await fetchAllData();
-                } catch (fetchError) {
-                    console.error('Failed to fetch data from API:', fetchError);
-                }
+            } catch (error) {
+                console.error('Failed to load data from local files:', error);
+                // No fallback needed since we're using local data only
             }
         };
 
@@ -544,8 +445,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             isLoading,
             isInitialized,
             loadData,
-            reloadData,
-            clearData,
             getFullBeast,
             getFullSpell
         }}>

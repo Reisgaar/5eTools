@@ -95,7 +95,6 @@ export interface CombatSelectionModalProps {
     onClose: () => void;
     beastToAdd: any | null;
     combats: Combat[];
-    currentCombatId: string | null;
     quantity: string;
     onQuantityChange: (quantity: string) => void;
     onSelectCombat: (combatId: string) => void;

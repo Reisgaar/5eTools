@@ -189,6 +189,7 @@ export default function AdvancedDiceRollModal({
                             <Text style={[
                                 unifiedStyles.modalButtonText,
                                 advantageType === 'disadvantage' ? unifiedStyles.modalButtonTextPrimary : unifiedStyles.modalButtonTextSecondary,
+                                advantageType === 'disadvantage' && { color: 'white' },
                                 { fontSize: 12 }
                             ]}>
                                 Disadv.
@@ -206,6 +207,7 @@ export default function AdvancedDiceRollModal({
                             <Text style={[
                                 unifiedStyles.modalButtonText,
                                 advantageType === 'normal' ? unifiedStyles.modalButtonTextPrimary : unifiedStyles.modalButtonTextSecondary,
+                                advantageType === 'normal' && { color: 'white' },
                                 { fontSize: 12 }
                             ]}>
                                 Normal
@@ -223,6 +225,7 @@ export default function AdvancedDiceRollModal({
                             <Text style={[
                                 unifiedStyles.modalButtonText,
                                 advantageType === 'advantage' ? unifiedStyles.modalButtonTextPrimary : unifiedStyles.modalButtonTextSecondary,
+                                advantageType === 'advantage' && { color: 'white' },
                                 { fontSize: 12 }
                             ]}>
                                 Adv.
@@ -343,25 +346,20 @@ export default function AdvancedDiceRollModal({
         if (!result) return renderRollButton();
 
         return (
-            <View style={{ borderWidth: 1, borderColor: theme.border, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 10 }}>
+            <View style={{ width: '100%' }}>
                 <View style={[unifiedStyles.modalSection, {
                     alignItems: 'center',
-                    backgroundColor: theme.card + '20'
                 }]}>
                     <Text style={[unifiedStyles.modalText, {
                         lineHeight: 24,
                         fontSize: 24,
                         fontWeight: 'bold',
-                        marginBottom: 8,
-                        color: theme.success || '#4ade80'
+                        color: theme.primary
                     }]}>
                         Total: {result.total}
                     </Text>
-                    <Text style={[unifiedStyles.modalText, { marginBottom: 4 }]}>
-                        Dice roll: {result.rolls.join(', ')}
-                    </Text>
-                    <Text style={[unifiedStyles.modalText, { fontSize: 12, fontStyle: 'italic' }]}>
-                        {result.expression}
+                    <Text style={[unifiedStyles.modalText, { marginBottom: 0, fontStyle: 'italic' }]}>
+                        Dice roll: {result.rolls.join(', ')} ({result.expression})
                     </Text>
                 </View>
                 {renderRollButton()}
@@ -382,7 +380,7 @@ export default function AdvancedDiceRollModal({
                     style={[unifiedStyles.modalButton, unifiedStyles.modalButtonPrimary]}
                     onPress={handleRoll}
                 >
-                    <Text style={[unifiedStyles.modalButtonText, unifiedStyles.modalButtonTextPrimary]}>
+                    <Text style={[unifiedStyles.modalButtonText, unifiedStyles.modalButtonTextPrimary, { color: 'white' }]}>
                         {result ? 'Re-roll' : 'Roll Dice'}
                     </Text>
                 </TouchableOpacity>
@@ -396,14 +394,13 @@ export default function AdvancedDiceRollModal({
             onClose={handleClose}
             theme={theme}
             title={getTitle()}
+            footerContent={renderResult()}
         >
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <View style={unifiedStyles.modalBody}>
                     {d20Config && renderD20Config()}
                     
                     {damageConfig && renderDamageConfig()}
-
-                    {renderResult()}
                 </View>
             </TouchableWithoutFeedback>
         </BaseModal>

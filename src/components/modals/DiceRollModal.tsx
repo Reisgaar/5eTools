@@ -2,6 +2,12 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
+// COMPONENTS
+import { BaseModal } from 'src/components/ui';
+
+// STYLES
+import { createBaseModalStyles } from 'src/styles/baseModalStyles';
+
 // INTERFACES
 interface DiceRollModalProps {
     visible: boolean;
@@ -19,6 +25,8 @@ interface DiceRollModalProps {
  * DiceRollModal component.
  */
 export default function DiceRollModal({ visible, expression, result, breakdown, modifier, type = 'damage', label, theme, onClose }: DiceRollModalProps): JSX.Element | null {
+    const baseModalStyles = createBaseModalStyles(theme);
+    
     if (!visible) return null;
 
     let title = label ? label
@@ -27,16 +35,29 @@ export default function DiceRollModal({ visible, expression, result, breakdown, 
                 : 'Damage Roll';
 
     return (
-        <View style={styles.overlay} pointerEvents="auto">
-            <View style={[styles.content, { backgroundColor: theme.card }]}>
-                <Text style={[styles.title, { color: theme.text }]}>{`${title}: ${expression}`}</Text>
-                <Text style={[styles.result, { color: theme.success || '#4ade80' }]}>{`Total: ${result}`}</Text>
-                <Text style={[styles.breakdown, { color: theme.text }]}>Rolls: {breakdown.join(', ')}{modifier ? `  + ${modifier}` : ''}</Text>
-                <TouchableOpacity onPress={onClose} style={[styles.closeBtn, { backgroundColor: theme.primary }]}>
-                    <Text style={[styles.closeText, { color: theme.buttonText || 'white' }]}>Close</Text>
-                </TouchableOpacity>
+        <BaseModal
+            visible={visible}
+            onClose={onClose}
+            theme={theme}
+            title={title}
+            footerContent={
+                <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
+                    <TouchableOpacity
+                        onPress={onClose}
+                        style={[baseModalStyles.footerButton, { backgroundColor: theme.primary }]}
+                    >
+                        <Text style={baseModalStyles.footerButtonText}>Close</Text>
+                    </TouchableOpacity>
+                </View>
+            }
+        >
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={[styles.result, { color: theme.primary }]}>{`Total: ${result}`}</Text>
+                <Text style={[styles.breakdown, { color: theme.text, fontStyle: 'italic' }]}>
+                    Roll: {breakdown.join(', ')}{modifier ? `  + ${modifier}` : ''} ({expression})
+                </Text>
             </View>
-        </View>
+        </BaseModal>
     );
 };
 
