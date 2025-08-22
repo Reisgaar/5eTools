@@ -1,192 +1,151 @@
+// REACT
 import React, { useState } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
-import CombatContent from 'src/components/CombatContent';
-import CombatList from 'src/components/CombatList';
-import { useAppSettings } from 'src/context/AppSettingsContext';
+import { View } from 'react-native';
+
+// STORES
+import { useAppSettingsStore, useCampaignStore } from 'src/stores';
+
+// CONTEXTS
 import { useCombat } from 'src/context/CombatContext';
-import { useData } from 'src/context/DataContext';
-import { useModal } from 'src/context/ModalContext';
 
+// COMPONENTS
+import { CombatContent, CombatList } from 'src/components/combat';
+import { CombatFormModal } from 'src/components/combat/modals';
+import ConfirmModal from 'src/components/modals/ConfirmModal';
+
+/**
+ * Combat screen.
+ */
 export default function CombatScreen() {
-  const { 
-    combats,
-    currentCombatId,
-    currentCombat,
-    combatants, 
-    createCombat,
-    selectCombat,
-    clearCurrentCombat,
-    deleteCombat,
-    updateHp, 
-    updateAc,
-    updateColor,
-    updateInitiative, 
-    updateInitiativeForGroup,
-    removeCombatant, 
-    clearCombat,
-    isGroupEnabled,
-    toggleGroupForName,
-    groupByName,
-    startCombat,
-    nextTurn,
-    updateCombatantConditions
-  } = useCombat();
-  const { currentTheme } = useAppSettings();
-  const { getFullBeast } = useData();
-  const { openBeastModal, openSpellModal } = useModal();
-  const [newCombatName, setNewCombatName] = useState('');
-  // Sync local state with context combatants if needed
-  React.useEffect(() => {
-    // setCombatantsState(combatants); // This line is removed as per the edit hint
-  }, [combatants]);
+    const { currentTheme } = useAppSettingsStore();
+    const { selectedCampaign } = useCampaignStore();
+    const { currentCombatId, createCombat, selectCombat, getSortedCombats, deleteCombat, updateCombat } = useCombat();
 
-  const onUpdateConditions = (id: string, conditions: string[]) => {
-    updateCombatantConditions(id, conditions);
-  };
+    const [createCombatModalVisible, setCreateCombatModalVisible] = useState(false);
+    const [editCombatModalVisible, setEditCombatModalVisible] = useState(false);
+    const [editCombat, setEditCombat] = useState<any | null>(null);
+    const [confirmModalVisible, setConfirmModalVisible] = useState(false);
+    const [confirmAction, setConfirmAction] = useState<(() => void) | null>(null);
+    const [confirmTitle, setConfirmTitle] = useState('');
+    const [confirmMessage, setConfirmMessage] = useState('');
 
-  // Find full beast by name and source (async)
-  const handleGetFullBeast = async (name: string, source: string) => {
-    try {
-      return await getFullBeast(name, source);
-    } catch (error) {
-      console.error('Error getting full beast:', error);
-      return null;
-    }
-  };
+    /**
+     * Opens modal to create a new combat.
+     */
+    const handleCreateCombat = () => {
+        setCreateCombatModalVisible(true);
+    };
 
-  // Menu handlers
-  const handleRandomInitiative = () => {
-    Alert.alert(
-      'Randomize Initiative',
-      'Do you want to overwrite all initiative values with a random roll?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'OK', onPress: () => {
-           // Per-creature grouping
-           const uniqueNames = [...new Set(combatants.map(c => c.name))];
-           uniqueNames.forEach(name => {
-             if (isGroupEnabled(name)) {
-               updateInitiativeForGroup(name, Math.floor(Math.random() * 21));
-             } else {
-               // Update each combatant with this name individually
-               combatants.filter(c => c.name === name).forEach(c => {
-                 updateInitiative(c.id, Math.floor(Math.random() * 21));
-               });
-             }
-           });
-          }
+    /**
+     * Creates a new combat.
+     */
+    const handleCreateCombatWithName = (name: string, campaignId?: string, description?: string) => {
+        createCombat(name, campaignId, description);
+    };
+
+    /**
+     * Selects a combat.
+     */
+    const handleSelectCombat = (combatId: string) => {
+        selectCombat(combatId);
+    };
+
+    /**
+     * Opens modal to edit a combat.
+     */
+    const handleEditCombat = (combat: any) => {
+        setEditCombat(combat);
+        setEditCombatModalVisible(true);
+    };
+
+    /**
+     * Handles saving combat edits.
+     */
+    const handleSaveCombatEdit = (name: string, campaignId?: string, description?: string) => {
+        if (editCombat) {
+            updateCombat(editCombat.id, {
+                name,
+                description,
+                campaignId
+            });
         }
-      ]
-    );
-  };
+        setEditCombatModalVisible(false);
+        setEditCombat(null);
+    };
 
-  const handleClearAll = () => {
-    Alert.alert(
-      'Clear All Combatants',
-      'Are you sure you want to remove all combatants?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Clear All', style: 'destructive', onPress: clearCombat }
-      ]
-    );
-  };
+    /**
+     * Handles deleting a combat.
+     */
+    const handleDeleteCombat = (combatId: string) => {
+        const combat = filteredCombats.find(c => c.id === combatId);
+        setConfirmTitle('Delete Combat');
+        setConfirmMessage(`Are you sure you want to delete the combat "${combat?.name}"?`);
+        setConfirmAction(() => () => {
+            deleteCombat(combatId);
+            setConfirmModalVisible(false);
+        });
+        setConfirmModalVisible(true);
+    };
 
-  const handleCreateCombat = () => {
-    if (newCombatName.trim()) {
-      createCombat(newCombatName.trim());
-      setNewCombatName('');
-    }
-  };
-
-  const handleDeleteCombat = (combatId: string) => {
-    Alert.alert(
-      'Delete Combat',
-      'Are you sure you want to delete this combat?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Delete', style: 'destructive', onPress: () => deleteCombat(combatId) }
-      ]
-    );
-  };
-
-  const handleSelectCombat = (combatId: string) => {
-    selectCombat(combatId);
-  };
-
-  const handleViewBeastDetails = (beast: any) => {
-    openBeastModal(beast);
-  };
-
-  const handleBackToList = () => {
-    clearCurrentCombat(); // Clear current combat selection
-  };
-
-  // Handler for finishing combat (when started)
-  const handleFinishCombat = () => {
-    Alert.alert(
-      'Finish Combat',
-      'Are you sure you want to finish this combat? This will stop combatants and reset the round counter.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Finish', style: 'destructive', onPress: clearCombat }
-      ]
-    );
-  };
+    // Get combats filtered by selected campaign
+    const filteredCombats = getSortedCombats(selectedCampaign?.id || null);
 
     return (
         <View style={{ flex: 1, backgroundColor: currentTheme.background }}>
-            {/* Header */}
-            {currentCombatId ? (<></>) : (
-                <View style={{ marginBottom: 16, borderBottomWidth: 1, paddingHorizontal: 16, paddingVertical: 8, borderBottomColor: currentTheme.primary }}>
-                    <Text style={{ fontSize: 24, fontWeight: 'bold', color: currentTheme.text }}>Combat Manager</Text>
-                </View>
-            )}
-
             <View style={{ flex: 1, backgroundColor: currentTheme.background, padding: 0, paddingBottom: 0 }}>
-              {/* Show Combat List or Combat Content */}
-              {currentCombatId ? (
-                  // Show combat content when a combat is selected
-                  <CombatContent
-                  combatants={combatants}
-                  combatName={currentCombat?.name || 'Combat'}
-                  onUpdateHp={updateHp}
-                  onUpdateAc={updateAc}
-                  onUpdateColor={updateColor}
-                  onUpdateInitiative={updateInitiative}
-                  onUpdateInitiativeForGroup={updateInitiativeForGroup}
-                  onUpdateConditions={onUpdateConditions}
-                  onRemoveCombatant={removeCombatant}
-                  onRandomizeInitiative={handleRandomInitiative}
-                  onClearCombat={currentCombat?.started ? handleFinishCombat : handleClearAll}
-                  onBackToList={handleBackToList}
-                  theme={currentTheme}
-                  isGroupEnabled={isGroupEnabled}
-                  toggleGroupForName={toggleGroupForName}
-                  groupByName={groupByName}
-                  round={currentCombat?.round || 1}
-                  turnIndex={currentCombat?.turnIndex || 0}
-                  started={!!currentCombat?.started}
-                  onStartCombat={startCombat}
-                  onNextTurn={nextTurn}
-                  />
-              ) : (
-                  // Show combat list when no combat is selected
-                  <CombatList
-                  combats={combats}
-                  currentCombatId={currentCombatId}
-                  newCombatName={newCombatName}
-                  onNewCombatNameChange={setNewCombatName}
-                  onSelectCombat={handleSelectCombat}
-                  onCreateCombat={handleCreateCombat}
-                  onDeleteCombat={handleDeleteCombat}
-                  theme={currentTheme}
-                  />
+                {/* Show Combat List or Combat Content */}
+                {currentCombatId ? (
+                    // Show combat content when a combat is selected
+                    <CombatContent />
+                ) : (
+                    // Show combat list when no combat is selected
+                    <CombatList
+                        combats={filteredCombats}
+                        currentCombatId={currentCombatId}
+                        onSelectCombat={handleSelectCombat}
+                        onCreateCombat={handleCreateCombat}
+                        onEditCombat={handleEditCombat}
+                        onDeleteCombat={handleDeleteCombat}
+                        theme={currentTheme}
+                    />
               )}
             </View>
+
+            {/* Create Combat Modal */}
+            <CombatFormModal
+                visible={createCombatModalVisible}
+                onClose={() => setCreateCombatModalVisible(false)}
+                mode="create"
+                onCreateCombat={handleCreateCombatWithName}
+                theme={currentTheme}
+            />
+
+            {/* Edit Combat Modal */}
+            <CombatFormModal
+                visible={editCombatModalVisible}
+                onClose={() => { setEditCombatModalVisible(false); setEditCombat(null); }}
+                mode="edit"
+                combatId={editCombat?.id}
+                initialName={editCombat?.name || ''}
+                initialDescription={editCombat?.description || ''}
+                initialCampaignId={editCombat?.campaignId}
+                onCreateCombat={handleSaveCombatEdit}
+                theme={currentTheme}
+            />
+
+            {/* Confirmation Modal */}
+            <ConfirmModal
+                visible={confirmModalVisible}
+                onClose={() => setConfirmModalVisible(false)}
+                onConfirm={() => {
+                    if (confirmAction) {
+                        confirmAction();
+                    }
+                }}
+                title={confirmTitle}
+                message={confirmMessage}
+                theme={currentTheme}
+            />
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-  // Styles moved to individual components
-}); 

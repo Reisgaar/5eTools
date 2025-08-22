@@ -1,60 +1,64 @@
 // REACT
 import React, { useEffect, useState } from 'react';
-
-// REACT NATIVE
 import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
-// COMPONENTS
-import BeastListItem, { GroupedBeastListItem } from 'src/components/BeastListItem';
-import CombatSelectionModal from 'src/components/CombatSelectionModal';
-import CRFilterModal from 'src/components/CRFilterModal';
-import SourceFilterModal from 'src/components/SourceFilterModal';
-import TypeFilterModal from 'src/components/TypeFilterModal';
+// STORES
+import { useAppSettingsStore, useCampaignStore } from 'src/stores';
 
 // CONTEXTS
-import { useAppSettings } from 'src/context/AppSettingsContext';
 import { useCombat } from 'src/context/CombatContext';
 import { useData } from 'src/context/DataContext';
 import { useModal } from 'src/context/ModalContext';
 
+// UTILS
+import { equalsNormalized } from 'src/utils/stringUtils';
+
+// COMPONENTS
+import { BeastListItem } from 'src/components/beasts';
+import { CombatSelectionModal } from 'src/components/combat';
+import { CRFilterModal, SourceFilterModal } from 'src/components/beasts/modals';
+import { TypeFilterModal } from 'src/components/modals';
+
 // HOOKS
-import { useBestiaryFilters } from 'src/hooks/useBestiaryFilters';
+import useBestiaryFilters from 'src/hooks/useBestiaryFilters';
 
 // CONSTANTS
 import { books as sourceIdToNameMap } from 'src/constants/books';
 
+// STYLES
+import { commonStyles } from 'src/styles/commonStyles';
+
+/**
+ * Screen that displays the bestiary.
+ */
 export default function BestiaryScreen() {
-    const { currentTheme } = useAppSettings();
-    const { simpleBeasts, simpleSpells, isLoading, isInitialized, getFullBeast, getFullSpell } = useData();
-    const { combats, currentCombatId, addCombatantToCombat, createCombat, selectCombat } = useCombat();
-    const { openBeastModal, openSpellModal } = useModal();
+    const { currentTheme } = useAppSettingsStore();
+    const { simpleBeasts, isLoading,  getFullBeast } = useData();
+    const { addCombatantToCombat, getSortedCombats } = useCombat();
+    const { openBeastModal } = useModal();
+    const { selectedCampaignId } = useCampaignStore();
     const [combatSelectionModalVisible, setCombatSelectionModalVisible] = useState(false);
     const [beastToAdd, setBeastToAdd] = useState<any | null>(null);
-    const [newCombatName, setNewCombatName] = useState('');
     const [quantity, setQuantity] = useState('1');
     const [pageReady, setPageReady] = useState(false);
 
     // Use custom hook for all filter logic - but defer initialization
-    const filters = useBestiaryFilters(simpleBeasts, []);
+    const filters = useBestiaryFilters({ simpleBeasts, beasts: simpleBeasts });
 
-    // Group beasts by name for display
+    // Memoize combats to avoid unnecessary recalculations
+    const sortedCombats = React.useMemo(() => {
+        return getSortedCombats(selectedCampaignId);
+    }, [getSortedCombats, selectedCampaignId]);
+
+    // Display beasts individually (no grouping)
     const groupedBeasts = React.useMemo(() => {
         if (!pageReady) return [];
         
-        const grouped = new Map<string, any[]>();
-        
-        filters.filteredBeasts.forEach(beast => {
-            const name = beast.name;
-            if (!grouped.has(name)) {
-                grouped.set(name, []);
-            }
-            grouped.get(name)!.push(beast);
-        });
-        
-        // Convert to array and sort by name
-        return Array.from(grouped.values()).sort((a, b) => 
-            a[0].name.localeCompare(b[0].name)
-        );
+        // Return each beast as an individual item, sorted by name
+        return filters.filteredBeasts
+            .slice()
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map(beast => [beast]); // Wrap each beast in an array to maintain compatibility
     }, [filters.filteredBeasts, pageReady]);
 
     // Defer heavy computations to after navigation
@@ -69,10 +73,10 @@ export default function BestiaryScreen() {
     }, [simpleBeasts.length]);
 
     // Find full beast by name (async)
-    const handleGetFullBeast = async (name: string) => {
+    const handleGetFullBeast = async (name: string, source: string) => {
         try {
             // Find the beast in simpleBeasts to get the source
-            const simpleBeast = simpleBeasts.find(b => b.name === name);
+            const simpleBeast = simpleBeasts.find(b => equalsNormalized(b.name, name) && equalsNormalized(b.source, source));
             if (!simpleBeast) return null;
             
             return await getFullBeast(name, simpleBeast.source);
@@ -84,13 +88,13 @@ export default function BestiaryScreen() {
 
     // Combat selection handlers
     const handleAddToCombat = async (beast: any) => {
-        const fullBeast = await handleGetFullBeast(beast.name);
+        const fullBeast = await handleGetFullBeast(beast.name, beast.source);
         setBeastToAdd(fullBeast || beast);
         setQuantity('1');
         setCombatSelectionModalVisible(true);
     };
+    
     const handleSelectCombat = (combatId: string) => {
-        selectCombat(combatId);
         if (beastToAdd) {
             const qty = parseInt(quantity, 10) || 1;
             for (let i = 0; i < qty; i++) {
@@ -101,69 +105,22 @@ export default function BestiaryScreen() {
         setBeastToAdd(null);
         setQuantity('1');
     };
-    const handleCreateNewCombat = () => {
-        if (newCombatName.trim()) {
-            const combatId = createCombat(newCombatName.trim());
-            if (beastToAdd) {
-                const qty = parseInt(quantity, 10) || 1;
-                for (let i = 0; i < qty; i++) {
-                    addCombatantToCombat(beastToAdd, combatId);
-                }
-            }
-            setCombatSelectionModalVisible(false);
-            setBeastToAdd(null);
-            setNewCombatName('');
-            setQuantity('1');
-        }
-    };
+
     const handleViewBeastDetails = async (beast: any) => {
         openBeastModal(beast);
     };
-    const handleCreaturePress = async (name: string) => {
-        const beast = simpleBeasts.find(b => b.name.trim().toLowerCase() === name.trim().toLowerCase());
-        if (beast) {
-            openBeastModal(beast);
-        }
-    };
-
-    const handleSpellPress = async (name: string) => {
-        const spell = simpleSpells.find(s => s.name.trim().toLowerCase() === name.trim().toLowerCase());
-        if (spell) {
-            openSpellModal(spell);
-        }
-    };
-
-    function getFullSchool(school: string) {
-        if (!school) return '';
-        const SCHOOL_MAP: Record<string, string> = {
-            A: 'Abjuration',
-            C: 'Conjuration',
-            D: 'Divination',
-            E: 'Enchantment',
-            V: 'Evocation',
-            I: 'Illusion',
-            N: 'Necromancy',
-            T: 'Transmutation',
-        };
-        const key = school.charAt(0).toUpperCase();
-        return SCHOOL_MAP[key] || school;
-    }
 
     return (
-        <View style={{ flex: 1, backgroundColor: currentTheme.background, padding: 20, paddingBottom: 0 }}>
+        <View style={[commonStyles.container, { flex: 1, backgroundColor: currentTheme.background, paddingTop: 10, paddingBottom: 0, paddingHorizontal: 8 }]}>
             {/* Combat Selection Modal */}
             <CombatSelectionModal
                 visible={combatSelectionModalVisible}
                 onClose={() => setCombatSelectionModalVisible(false)}
                 beastToAdd={beastToAdd}
-                combats={combats}
-                currentCombatId={currentCombatId}
-                newCombatName={newCombatName}
+                combats={sortedCombats}
                 quantity={quantity}
-                onNewCombatNameChange={setNewCombatName}
                 onQuantityChange={setQuantity}
                 onSelectCombat={handleSelectCombat}
-                onCreateNewCombat={handleCreateNewCombat}
                 theme={currentTheme}
             />
             {/* CR Filter Modal */}
@@ -200,40 +157,71 @@ export default function BestiaryScreen() {
                 theme={currentTheme}
                 sourceIdToNameMap={sourceIdToNameMap}
             />
-            {/* Title Row with Filter Buttons */}
-            <View style={[styles.titleRow, { justifyContent: 'space-between' }]}>
-                <Text style={[styles.title, { color: currentTheme.text }]}>Bestiary</Text>
-                <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+            {/* Filter Buttons */}
+            <View style={[{ marginBottom: 12, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start'}]}>
+                <Text style={[{ fontSize: 16, fontWeight: 'bold', color: currentTheme.text, marginRight: 12}]}>Filters:</Text>
+                <View style={{ flex: 1, display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly', alignItems: 'center', gap: 8 }}>
                     <TouchableOpacity
                         onPress={filters.openCRFilterModal}
-                        style={[styles.filterBtn, { borderColor: currentTheme.primary }]}
+                        style={[commonStyles.filterBtn, { borderColor: filters.selectedCRs.length > 0 ? currentTheme.primary : currentTheme.text }]}
                     >
-                        <Text style={{ color: currentTheme.primary, fontWeight: 'bold', fontSize: 12 }}>CR</Text>
+                        <Text style={{ color: filters.selectedCRs.length > 0 ? currentTheme.primary : currentTheme.text, fontWeight: 'bold', fontSize: 12 }}>
+                            CR
+                        </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={filters.openTypeFilterModal}
-                        style={[styles.filterBtn, { borderColor: currentTheme.primary }]}
+                        style={[commonStyles.filterBtn, { borderColor: filters.selectedTypes.length > 0 ? currentTheme.primary : currentTheme.text }]}
                     >
-                        <Text style={{ color: currentTheme.primary, fontWeight: 'bold', fontSize: 12 }}>Type</Text>
+                        <Text style={{ color: filters.selectedTypes.length > 0 ? currentTheme.primary : currentTheme.text, fontWeight: 'bold', fontSize: 12 }}>
+                            Type
+                        </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={filters.openSourceFilterModal}
-                        style={[styles.filterBtn, { borderColor: currentTheme.primary, marginRight: 0 }]}
+                        style={[commonStyles.filterBtn, { borderColor: filters.selectedSources.length > 0 ? currentTheme.primary : currentTheme.text }]}
                     >
-                        <Text style={{ color: currentTheme.primary, fontWeight: 'bold', fontSize: 12 }}>Source</Text>
+                        <Text style={{ color: filters.selectedSources.length > 0 ? currentTheme.primary : currentTheme.text, fontWeight: 'bold', fontSize: 12 }}>
+                            Source
+                        </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => {
+                            filters.setSelectedCRs([]);
+                            filters.setSelectedTypes([]);
+                            filters.setSelectedSources([]);
+                        }}
+                        style={[commonStyles.filterBtn, { borderColor: '#ef4444' }]}
+                    >
+                        <Text style={{ color: '#ef4444', fontWeight: 'bold', fontSize: 12 }}>
+                            Clear
+                        </Text>
                     </TouchableOpacity>
                     </View>
             </View>
             {/* Search Input */}
             <TextInput
-                style={[styles.input, { backgroundColor: currentTheme.inputBackground, color: currentTheme.text, borderColor: currentTheme.card }]}
+                style={[styles.input, { backgroundColor: currentTheme.inputBackground, color: currentTheme.text, borderColor: currentTheme.card, marginBottom: 0 }]}
                 placeholder="Search by name..."
                 placeholderTextColor={currentTheme.noticeText}
                 value={filters.search}
                 onChangeText={filters.setSearch}
-                autoCorrect={false}
-                autoCapitalize="none"
             />
+            {/* Filter Summary */}
+            <View style={styles.filterSummaryContainer}>
+                {filters.getFilterSummary().length > 0 && (
+                    <>
+                        {filters.getFilterSummary().map((filterLine, index) => (
+                            <Text key={index} style={styles.filterSummaryText}>
+                                {filterLine}
+                            </Text>
+                        ))}
+                    </>
+                )}
+            </View>
+
+            <View style={{ height: 1, width: '150%', marginLeft: -25, backgroundColor: currentTheme.primary }}/>
+
             {/* Content Area */}
             <View style={{ flex: 1 }}>
                 {/* Loading states */}
@@ -268,24 +256,16 @@ export default function BestiaryScreen() {
                     <Text style={{ color: currentTheme.noticeText, marginVertical: 16 }}>No beasts found.</Text>
                 ) : (
                     <FlatList
-                            data={groupedBeasts}
-                            keyExtractor={(item, idx) => item[0].name + idx}
+                        style={{paddingVertical: 6 }}
+                        data={groupedBeasts}
+                        keyExtractor={(item, idx) => `${item[0].name}-${item[0].source}-${idx}`}
                         renderItem={({ item }) => (
-                                item.length === 1 ? (
                             <BeastListItem
-                                        beast={item[0]}
-                                        onAddToCombat={handleAddToCombat}
-                                        onViewDetails={handleViewBeastDetails}
-                                        theme={currentTheme}
-                                    />
-                                ) : (
-                                    <GroupedBeastListItem
-                                        beasts={item}
+                                beast={item[0]}
                                 onAddToCombat={handleAddToCombat}
                                 onViewDetails={handleViewBeastDetails}
                                 theme={currentTheme}
                             />
-                                )
                         )}
                         contentContainerStyle={{ paddingBottom: 40 }}
                     />
@@ -301,15 +281,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         marginBottom: 16,
-    },
-    filterBtn: {
-        borderWidth: 2,
-        borderRadius: 8,
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        marginRight: 8,
-        alignItems: 'center',
-        justifyContent: 'center',
     },
     title: {
         fontSize: 24,
@@ -333,12 +304,30 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,0.2)',
         alignItems: 'center',
         justifyContent: 'center',
-        zIndex: 1000,
+        zIndex: 10,
     },
     loadingContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         paddingVertical: 20,
+    },
+    filterSummaryContainer: {
+        paddingTop: 6,
+        paddingBottom: 4,
+        display: 'flex',
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        gap: 4,
+    },
+    filterSummaryText: {
+        fontSize: 11,
+        backgroundColor: '#666666',
+        color: '#ffffff',
+        borderRadius: 8,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
     },
 });

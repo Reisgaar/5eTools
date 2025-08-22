@@ -2,6 +2,7 @@ export type Theme = {
     background: string;
     innerBackground: string;
     text: string;
+    textInverse: string;
     headerText: string;
     headerBackground: string;
     buttonBackground: string;
@@ -12,6 +13,7 @@ export type Theme = {
     confirmButtonBackground: string;
     disabledButtonBackground: string;
     primary: string;
+    secondary: string;
     card: string;
     cardTitle: string;
     cardText: string;
@@ -19,54 +21,75 @@ export type Theme = {
     storyText: string;
     modelBackground: string;
     tabBackground: string;
+    tabActive: string;
+    tabInactive: string;
     tabBorder: string;
+    border: string;
+    settingsContainer: string;
+    settingsButton: string;
+    combatControls: string;
   };
-  
-  export const lightTheme: Theme = {
-    background: '#eee',
-    innerBackground: '#ddd',
-    text: '#000',
-    headerText: '#fff',
-    headerBackground: '#5e60ce',
+
+export const lightTheme: Theme = {
+    background: '#eeeeee',
+    innerBackground: '#dddddd',
+    text: '#000000',
+    textInverse: '#ffffff',
+    headerText: '#ffffff',
+    headerBackground: '#cad3ff',
     buttonBackground: '#5e60ce',
-    buttonText: '#fff',
-    inputBackground: '#fff',
+    buttonText: '#fffff',
+    inputBackground: '#ffffff',
     linkColor: '#2563eb',
-    noticeText: '#444',
+    noticeText: '#444444',
     confirmButtonBackground: '#38b000',
     disabledButtonBackground: '#cccccc',
     primary: '#5e60ce',
-    card: "#ffffff",
-    cardTitle: '#fff',
-    cardText: '#ccc',
-    storyBackground: '#ddd',
-    storyText: '#000',
-    modelBackground: '#eee',
-    tabBackground: '#fff',
-    tabBorder: '#aaa',
-  };
-  
-  export const darkTheme: Theme = {
+    secondary: '#999999',
+    card: '#ffffff',
+    cardTitle: '#ffffff',
+    cardText: '#cccccc',
+    storyBackground: '#dddddd',
+    storyText: '#000000',
+    modelBackground: '#eeeeee',
+    tabBackground: '#cad3ff',
+    tabActive: '#7200b3',
+    tabInactive: '#00000070',
+    tabBorder: '#aaaaaa',
+    border: '#dddddd',
+    settingsContainer: '#ffffff',
+    settingsButton: '#eeeeee',
+    combatControls: '#555555',
+};
+
+export const darkTheme: Theme = {
     background: '#121212',
-    innerBackground: '#333',
-    text: '#fff',
-    headerText: '#fff',
+    innerBackground: '#333333',
+    text: '#ffffff',
+    textInverse: '#000000',
+    headerText: '#ffffff',
     headerBackground: '#5e60ce',
     buttonBackground: '#5e60ce',
-    buttonText: '#fff',
-    inputBackground: '#222',
+    buttonText: '#ffffff',
+    inputBackground: '#222222',
     linkColor: '#60a5fa',
-    noticeText: '#888',
+    noticeText: '#888888',
     confirmButtonBackground: '#38b000',
     disabledButtonBackground: '#2d6a05',
     primary: '#5e60ce',
+    secondary: '#999999',
     card: '#1E1E1E',
-    cardTitle: '#fff',
-    cardText: '#ccc',
-    storyBackground: '#222',
-    storyText: '#eee',
-    modelBackground: '#eee',
-    tabBackground: '#111',
-    tabBorder: '#777',
-  };
-  
+    cardTitle: '#ffffff',
+    cardText: '#cccccc',
+    storyBackground: '#222222',
+    storyText: '#eeeeee',
+    modelBackground: '#eeeeee',
+    tabBackground: '#5e60ce',
+    tabActive: '#f0b74a',
+    tabInactive: '#ffffff70',
+    tabBorder: '#777777',
+    border: '#333333',
+    settingsContainer: '#666666',
+    settingsButton: '#555555',
+    combatControls: '#cccccc',
+};

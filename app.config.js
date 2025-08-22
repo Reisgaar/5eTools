@@ -14,9 +14,9 @@ const androidSdkVersion = 35;
 // Project id is linked to expo.dev account project.
 const projectId = '1ddd7043-f41e-4abe-96bd-ccc5948e57a2';
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
+// eslint-disable-next-line no-unused-vars
 const withNetworkSecurityConfigDev = require('./withNetworkSecurityConfigDev');
-// eslint-disable-next-line @typescript-eslint/no-require-imports
+// eslint-disable-next-line no-unused-vars
 const withHttpAllowedPlistPlugin = require('./withHttpAllowedPlistPlugin.cjs');
 
 const plugins = [
@@ -45,6 +45,7 @@ export default {
                 CFBundleDisplayName: appName,
                 ITSAppUsesNonExemptEncryption: false,
                 NSPhotoLibraryAddUsageDescription: 'To save files or exported data to your media library.',
+                NSPhotoLibraryUsageDescription: 'To select character token images from your photo library.',
                 NSDocumentsFolderUsageDescription: 'Used to store and access data in the local device storage.'
             }
         },
@@ -61,7 +62,8 @@ export default {
             permissions: [
                 "android.permission.INTERNET",
                 "android.permission.READ_EXTERNAL_STORAGE",
-                "android.permission.WRITE_EXTERNAL_STORAGE"
+                "android.permission.WRITE_EXTERNAL_STORAGE",
+                "android.permission.READ_MEDIA_IMAGES"
             ],
             package: 'com.dnd.dndtools',
             resourceFiles: ['./assets/network_security_config.xml'],
@@ -69,7 +71,7 @@ export default {
         web: {
             bundler: 'metro',
             output: 'static',
-            favicon: './assets/images/favicon.ico'
+            favicon: './assets/images/logo_and_name.png'
         },
         plugins: plugins,
         experiments: {

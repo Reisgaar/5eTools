@@ -1,5 +1,5 @@
 export default {
-  unstable_settings: {
-    initialRouteName: 'index',
-  },
+    unstable_settings: {
+        initialRouteName: 'index',
+    },
 }; 

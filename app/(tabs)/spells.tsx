@@ -1,17 +1,33 @@
 // REACT
 import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { useAppSettings } from 'src/context/AppSettingsContext';
+
+// EXPO
+import { Ionicons } from '@expo/vector-icons';
+
+// STORES
+import { useAppSettingsStore, useCampaignStore, useSpellbookStore } from 'src/stores';
+
+// CONTEXTS
 import { useData } from 'src/context/DataContext';
 import { useModal } from 'src/context/ModalContext';
+
+// COMPONENTS
+import { AddToSpellbookModal, SpellbookSelectorModal, CreateSpellbookModal } from 'src/components/spells';
+import { SchoolFilterModal, ClassFilterModal, OtherFilterModal } from 'src/components/spells/modals';
+import { ConfirmModal } from 'src/components/modals';
+
+// STYLES
+import { commonStyles } from 'src/styles/commonStyles';
+
+// HOOKS
+import { useSpellFilters } from 'src/hooks/useSpellFilters';
 
 const LEVELS = [
     { label: 'C', value: 0 },
     ...Array.from({ length: 9 }, (_, i) => ({ label: String(i + 1), value: i + 1 }))
 ];
 const ALL_LEVEL_VALUES = LEVELS.map(lvl => lvl.value);
-
-type SpellLevel = 'all' | number;
 
 const SCHOOL_MAP: Record<string, string> = {
     A: 'Abjuration',
@@ -31,20 +47,23 @@ function getFullSchool(school: string) {
     return SCHOOL_MAP[key] || school;
 }
 
-function formatComponents(components: any) {
-    if (!components) return '';
-    if (Array.isArray(components)) return components.join(', ');
-    if (typeof components === 'object') return Object.keys(components).join(', ');
-    return String(components);
-}
-
 export default function SpellsScreen() {
-    const { simpleBeasts, simpleSpells, isLoading, isInitialized, getFullBeast, getFullSpell } = useData();
-    const { currentTheme: theme } = useAppSettings();
-    const { openBeastModal, openSpellModal } = useModal();
-    const [search, setSearch] = useState('');
+    const { currentTheme } = useAppSettingsStore();
+    const { selectedCampaign } = useCampaignStore();
+    const { simpleSpells, spells, spellSourceLookup, availableClasses, isLoading } = useData();
+    const { openSpellModal } = useModal();
+    const { currentSpellbookId, getCurrentSpellbook, removeSpellFromSpellbook, selectSpellbook, clearSpellbookSelection, getSpellbookSpells } = useSpellbookStore();
     const [selectedLevels, setSelectedLevels] = useState<number[]>([]); // multi-select
     const [pageReady, setPageReady] = useState(false);
+    const [addToSpellbookModalVisible, setAddToSpellbookModalVisible] = useState(false);
+    const [spellbookSelectorModalVisible, setSpellbookSelectorModalVisible] = useState(false);
+    const [createSpellbookModalVisible, setCreateSpellbookModalVisible] = useState(false);
+    const [selectedSpellForSpellbook, setSelectedSpellForSpellbook] = useState<any>(null);
+    const [confirmModalVisible, setConfirmModalVisible] = useState(false);
+    const [spellToRemove, setSpellToRemove] = useState<any>(null);
+    
+    // Use the spell filters hook for UI state management
+    const filters = useSpellFilters(simpleSpells, spells, spellSourceLookup, availableClasses);
 
     // Defer heavy computations to after navigation
     useEffect(() => {
@@ -57,124 +76,225 @@ export default function SpellsScreen() {
         }
     }, [simpleSpells.length]);
 
+    // Handle campaign changes - only clear spellbook if there's an actual campaign mismatch
+    useEffect(() => {
+        if (currentSpellbookId && selectedCampaign?.id) {
+            const currentSpellbook = getCurrentSpellbook();
+            if (currentSpellbook && currentSpellbook.campaignId && currentSpellbook.campaignId !== selectedCampaign.id) {
+                clearSpellbookSelection();
+            }
+        }
+    }, [currentSpellbookId, selectedCampaign?.id, getCurrentSpellbook, clearSpellbookSelection]);
+
     // Multi-select level filter logic
     const allSelected = selectedLevels.length === ALL_LEVEL_VALUES.length;
     const noneSelected = selectedLevels.length === 0;
 
-    function handleLevelPress(value: number | 'all') {
-        if (value === 'all') {
-            if (allSelected || noneSelected) {
-                // Unselect all levels, keep 'All' visually selected
-                setSelectedLevels([]);
-            } else {
-                // Select all levels
-                setSelectedLevels([...ALL_LEVEL_VALUES]);
-            }
+    // Filter spells by selected levels - show all if none or all are selected
+    const filteredSpells = useMemo(() => {
+        let baseSpells;
+        
+        // If a spellbook is selected, use its spells
+        if (currentSpellbookId) {
+            const spellbookSpells = getSpellbookSpells(currentSpellbookId);
+            baseSpells = spellbookSpells;
         } else {
-            let newLevels;
-            if (selectedLevels.includes(value)) {
-                newLevels = selectedLevels.filter(lvl => lvl !== value);
-            } else {
-                newLevels = [...selectedLevels, value];
-            }
-            setSelectedLevels(newLevels);
+            // Otherwise use all spells from the filter hook
+            baseSpells = filters.filteredSpells;
         }
+        
+        // Apply level filter
+        const levelFiltered = noneSelected || allSelected 
+            ? baseSpells 
+            : baseSpells.filter(spell => selectedLevels.includes(spell.level));
+        
+        return levelFiltered;
+    }, [filters.filteredSpells, selectedLevels, noneSelected, allSelected, currentSpellbookId, getSpellbookSpells]);
+
+    function handleLevelPress(value: number) {
+        let newLevels;
+        if (selectedLevels.includes(value)) {
+            newLevels = selectedLevels.filter(lvl => lvl !== value);
+        } else {
+            newLevels = [...selectedLevels, value];
+        }
+        setSelectedLevels(newLevels);
     }
 
-    const handleCreaturePress = async (name: string) => {
-        const beast = simpleBeasts.find(b => b.name.trim().toLowerCase() === name.trim().toLowerCase());
-        if (beast) {
-            openBeastModal(beast);
+    const handleSpellPress = async (spell: any) => {
+        openSpellModal(spell);
+    };
+
+    const handleAddToSpellbook = (spell: any) => {
+        if (currentSpellbookId) {
+            // If a spellbook is selected, ask for confirmation before removing
+            setSpellToRemove(spell);
+            setConfirmModalVisible(true);
+        } else {
+            // If no spellbook is selected, show modal to select which spellbook
+            setSelectedSpellForSpellbook(spell);
+            setAddToSpellbookModalVisible(true);
         }
     };
 
-    const handleSpellPress = async (name: string) => {
-        const spell = simpleSpells.find(s => s.name.trim().toLowerCase() === name.trim().toLowerCase());
-        if (spell) {
-            openSpellModal(spell);
+    const handleConfirmRemoveSpell = () => {
+        if (spellToRemove && currentSpellbookId) {
+            removeSpellFromSpellbook(currentSpellbookId, spellToRemove.name, spellToRemove.source);
         }
+        setConfirmModalVisible(false);
+        setSpellToRemove(null);
     };
 
-    // Filtered and sorted spells - only compute when page is ready
-    const filteredSpells = useMemo(() => {
-        if (!pageReady) return [];
+    const renderSpellItem = ({ item }: { item: any }) => {
+        const spell = item;
+        const isRitual = spell.ritual === true;
         
-        let result = simpleSpells;
-        if (!noneSelected && !allSelected) {
-            result = result.filter(spell => selectedLevels.includes(Number(spell.level)));
-        }
-        if (search.trim()) {
-            result = result.filter((spell: any) => {
-                const nameMatch = spell.name?.toLowerCase().includes(search.toLowerCase());
-                const schoolMatch = spell.school?.toLowerCase().includes(search.toLowerCase());
-                return nameMatch || schoolMatch;
-            });
-        }
-        // Sort alphabetically by name
-        return result.slice().sort((a: any, b: any) => a.name.localeCompare(b.name));
-    }, [simpleSpells, search, selectedLevels, pageReady]);
-
-    const selectedSpellFullSchool = ''; // No longer needed as modal handles display
-
-    const renderSpellItem = ({ item: spell, index }: { item: any, index: number }) => (
-        <TouchableOpacity key={spell.name + index} style={[styles.spellCard, { backgroundColor: theme.card, borderColor: theme.primary }]} onPress={() => handleSpellPress(spell.name)}>
-            <Text>
-                <Text style={[styles.spellLevel, { color: theme.text }]}>{spell.level === 0 ? 'C' : spell.level}{' - '}</Text>
-                <Text style={[styles.spellName, { color: theme.text }]}>{spell.name}{' '}</Text>
-                <Text style={[styles.spellInfo, { color: theme.text }]}>{getFullSchool(spell.school)} ({spell.source || spell._source || 'Unknown'})</Text>
-            </Text>
-        </TouchableOpacity>
-    );
+        return (
+            <View style={[commonStyles.itemCard, { backgroundColor: currentTheme.card, borderColor: currentTheme.primary }]}>
+                <TouchableOpacity 
+                    style={commonStyles.itemInfoContainer}
+                    onPress={() => handleSpellPress(spell)}
+                >
+                    <Text style={[commonStyles.itemName, { color: currentTheme.text }]}>
+                        <Text style={{ fontWeight: 'bold' }}>
+                            {spell.name}
+                            {isRitual && ' (R)'}
+                        </Text>
+                        <Text style={{ fontStyle: 'italic', fontWeight: 'normal' }}>{'\n'}{spell.level === 0 ? 'C' : spell.level} - {getFullSchool(spell.school)} ({spell.source || spell._source || 'Unknown'})</Text>
+                    </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={() => handleAddToSpellbook(spell)}
+                    style={[styles.spellbookButton, { 
+                        backgroundColor: currentSpellbookId ? '#dc2626' : currentTheme.primary,
+                        borderColor: currentSpellbookId ? '#dc2626' : currentTheme.primary
+                    }]}
+                >
+                    <Ionicons 
+                        name={currentSpellbookId ? "trash-outline" : "add"} 
+                        size={16} 
+                        color="white" 
+                    />
+                </TouchableOpacity>
+            </View>
+        );
+    };
 
     return (
-        <View style={[styles.container, { flex: 1, backgroundColor: theme.background, paddingBottom: 0 }]}>
-            <Text style={[styles.title, { color: theme.text }]}>Spells</Text>
-            <TextInput
-                style={[styles.input, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.card }]}
-                placeholder="Search by name or school..."
-                value={search}
-                onChangeText={setSearch}
-                autoCorrect={false}
-                autoCapitalize="none"
-                placeholderTextColor={theme.noticeText}
-            />
-            {/* Level Filter Bar */}
-            <View style={[styles.levelBar, { paddingVertical: 4, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }]}>
-                {/* All button */}
+        <View style={[commonStyles.container, { flex: 1, backgroundColor: currentTheme.background, paddingTop: 10, paddingBottom: 0, paddingHorizontal: 8 }]}>
+            <View style={[styles.spellbookAbsoluteButtonWrapper, { backgroundColor: currentTheme.card, borderColor: currentTheme.text + '70' }]}>
                 <TouchableOpacity
-                    key="all"
-                    style={[styles.levelBtn, (allSelected || noneSelected) && { backgroundColor: theme.primary, borderColor: theme.primary }]}
-                    onPress={() => handleLevelPress('all')}
+                    onPress={() => setSpellbookSelectorModalVisible(true)}
+                    style={[styles.spellbookAbsoluteButton, { backgroundColor: currentTheme.primary }]}
                 >
-                    <Text style={[styles.levelBtnText, { color: theme.text}, (allSelected || noneSelected) && { color: 'white', fontWeight: 'bold' }, { fontSize: 12 } ]}>All</Text>
+                    <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 12 }}>
+                        {currentSpellbookId ? getCurrentSpellbook()?.name || 'Spellbook' : 'Spellbook'}
+                    </Text>
                 </TouchableOpacity>
-                {LEVELS.map(lvl => (
+            </View>
+
+            {/* Title Row with Filter Buttons */}
+            <View style={[{ marginBottom: 12, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start'}]}>
+                <Text style={[{ fontSize: 16, fontWeight: 'bold', color: currentTheme.text, marginRight: 12}]}>Filters:</Text>
+                <View style={{ flex: 1, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                     <TouchableOpacity
-                        key={lvl.value}
-                        style={[styles.levelBtn, { backgroundColor: theme.card, borderColor: theme.text }, selectedLevels.includes(lvl.value) && { backgroundColor: theme.primary, borderColor: theme.primary }]}
-                        onPress={() => handleLevelPress(lvl.value)}
+                        onPress={filters.openSchoolFilterModal}
+                        style={[commonStyles.filterBtn, { borderColor: filters.selectedSchools.length > 0 ? currentTheme.primary : currentTheme.text, flex: 1, marginRight: 4 }]}
                     >
-                        <Text style={[styles.levelBtnText, { color: theme.text }, selectedLevels.includes(lvl.value) && { color: 'white', fontWeight: 'bold' }]}>{lvl.label}</Text>
+                        <Text style={{ color: filters.selectedSchools.length > 0 ? currentTheme.primary : currentTheme.text, fontWeight: 'bold', fontSize: 11 }}>
+                            School
+                        </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={filters.openClassFilterModal}
+                        style={[commonStyles.filterBtn, { borderColor: filters.selectedClasses.length > 0 ? currentTheme.primary : currentTheme.text, flex: 1, marginHorizontal: 2 }]}
+                    >
+                        <Text style={{ color: filters.selectedClasses.length > 0 ? currentTheme.primary : currentTheme.text, fontWeight: 'bold', fontSize: 11 }}>
+                            Class
+                        </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={filters.openOtherFilterModal}
+                        style={[commonStyles.filterBtn, { borderColor: filters.selectedOthers.length > 0 ? currentTheme.primary : currentTheme.text, flex: 1, marginHorizontal: 2 }]}
+                    >
+                        <Text style={{ color: filters.selectedOthers.length > 0 ? currentTheme.primary : currentTheme.text, fontWeight: 'bold', fontSize: 11 }}>
+                            Other
+                        </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={filters.clearAllFilters}
+                        style={[commonStyles.filterBtn, { borderColor: '#ef4444', flex: 1, marginLeft: 4 }]}
+                    >
+                        <Text style={{ color: '#ef4444', fontWeight: 'bold', fontSize: 11 }}>Clear</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+            
+            {/* Level Filter Bar */}
+            <View style={styles.levelFilterContainer}>
+                {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((level) => (
+                    <TouchableOpacity
+                        key={level}
+                        style={[
+                            styles.levelButton,
+                            { backgroundColor: selectedLevels.includes(level) ? currentTheme.primary : currentTheme.innerBackground, borderColor: currentTheme.primary }
+                        ]}
+                        onPress={() => handleLevelPress(level)}
+                    >
+                        <Text style={[
+                            styles.levelButtonText,
+                            { color: selectedLevels.includes(level) ? 'white' : currentTheme.text }
+                        ]}>
+                            {level === 0 ? 'C' : level}
+                        </Text>
                     </TouchableOpacity>
                 ))}
             </View>
+            
+            {/* Search Input with Clear Button */}
+            <View style={{ flexDirection: 'row', marginBottom: 0 }}>
+                <TextInput
+                    style={[commonStyles.input, { backgroundColor: currentTheme.inputBackground, color: currentTheme.text, borderColor: currentTheme.card, flex: 1, marginBottom: 0 }]}
+                    placeholder="Search by name..."
+                    value={filters.search}
+                    onChangeText={filters.setSearch}
+                    autoCorrect={false}
+                    autoCapitalize="none"
+                    placeholderTextColor={currentTheme.noticeText}
+                />
+            </View>
+            
+            {/* Applied Filters Text */}
+            <View style={styles.filterSummaryContainer}>
+                {filters.hasActiveFilters && (
+                    <>
+                        {filters.getFilterSummary().map((filterLine, index) => (
+                            <Text key={index} style={styles.filterSummaryText}>
+                                {filterLine}
+                            </Text>
+                        ))}
+                    </>
+                )}
+            </View>
+
+            <View style={{ height: 1, width: '150%', marginLeft: -25, backgroundColor: currentTheme.primary }}/>
             
             {/* Content Area */}
             <View style={{ flex: 1 }}>
                 {/* Loading states */}
                 {isLoading && (
-                    <View style={styles.loadingContainer}>
-                        <ActivityIndicator size="large" color={theme.primary} />
-                        <Text style={{ color: theme.noticeText, marginTop: 8 }}>
+                    <View style={commonStyles.loadingContainer}>
+                        <ActivityIndicator size="large" color={currentTheme.primary} />
+                        <Text style={{ color: currentTheme.noticeText, marginTop: 8 }}>
                             Loading data...
                         </Text>
                     </View>
                 )}
                 
                 {!isLoading && !pageReady && (
-                    <View style={styles.loadingContainer}>
-                        <ActivityIndicator size="large" color={theme.primary} />
-                        <Text style={{ color: theme.noticeText, marginTop: 8 }}>
+                    <View style={commonStyles.loadingContainer}>
+                        <ActivityIndicator size="large" color={currentTheme.primary} />
+                        <Text style={{ color: currentTheme.noticeText, marginTop: 8 }}>
                             Preparing spells...
                         </Text>
                     </View>
@@ -183,140 +303,181 @@ export default function SpellsScreen() {
                 {/* Main content */}
                 {!isLoading && pageReady && (
                     <FlatList
-                        data={filteredSpells}
+                        style={{paddingVertical: 6 }}
+                        data={filteredSpells.sort((a, b) => a.name.localeCompare(b.name))}
                         keyExtractor={(item, idx) => item.name + idx}
                         renderItem={renderSpellItem}
                         contentContainerStyle={{ paddingBottom: 40 }}
                         ListEmptyComponent={
-                                <Text style={[styles.loading, { color: theme.noticeText }]}>No spells found.</Text>
+                            <Text style={[commonStyles.loading, { color: currentTheme.noticeText }]}>No spells found.</Text>
                         }
                     />
                 )}
             </View>
             
             {/* BeastDetailModal and SpellDetailModal are now handled by context */}
+            
+            {/* Add to Spellbook Modal */}
+            <AddToSpellbookModal
+                visible={addToSpellbookModalVisible}
+                onClose={() => {
+                    setAddToSpellbookModalVisible(false);
+                    setSelectedSpellForSpellbook(null);
+                }}
+                spell={selectedSpellForSpellbook}
+                theme={currentTheme}
+            />
+            
+            {/* Spellbook Selector Modal */}
+            <SpellbookSelectorModal
+                visible={spellbookSelectorModalVisible}
+                onClose={() => setSpellbookSelectorModalVisible(false)}
+                onSelectSpellbook={(spellbookId) => {
+                    if (spellbookId)
+                        selectSpellbook(spellbookId);
+                    else
+                        clearSpellbookSelection();
+                }}
+                onCreateSpellbook={() => {
+                    setSpellbookSelectorModalVisible(false);
+                    setCreateSpellbookModalVisible(true);
+                }}
+            />
+            
+            {/* Create Spellbook Modal */}
+            <CreateSpellbookModal
+                visible={createSpellbookModalVisible}
+                onClose={() => setCreateSpellbookModalVisible(false)}
+                onSpellbookCreated={(spellbookId) => {
+                    if (spellbookId)
+                        selectSpellbook(spellbookId);
+                    setCreateSpellbookModalVisible(false);
+                    setSpellbookSelectorModalVisible(true);
+                }}
+                theme={currentTheme}
+            />
+            
+            {/* Other Filter Modal */}
+            <OtherFilterModal
+                visible={filters.otherFilterModalVisible}
+                onClose={() => filters.setOtherFilterModalVisible(false)}
+                theme={currentTheme}
+                options={filters.otherOptions}
+                selectedOptions={filters.pendingOthers}
+                onToggleOption={filters.togglePendingOther}
+                onSelectAll={filters.selectAllPendingOthers}
+                onApply={filters.applyOtherFilter}
+                isApplying={filters.filterApplying}
+            />
+            
+            {/* School Filter Modal */}
+            <SchoolFilterModal
+                visible={filters.schoolFilterModalVisible}
+                onClose={() => filters.setSchoolFilterModalVisible(false)}
+                schoolOptions={filters.schoolOptions}
+                selectedSchools={filters.pendingSchools}
+                onToggleSchool={filters.togglePendingSchool}
+                onClear={filters.selectAllPendingSchools}
+                onApply={filters.applySchoolFilter}
+                theme={currentTheme}
+            />
+            
+            {/* Class Filter Modal */}
+            <ClassFilterModal
+                visible={filters.classFilterModalVisible}
+                onClose={() => filters.setClassFilterModalVisible(false)}
+                classOptions={filters.classOptions}
+                selectedClasses={filters.pendingClasses}
+                onToggleClass={filters.togglePendingClass}
+                onClear={filters.selectAllPendingClasses}
+                onApply={filters.applyClassFilter}
+                theme={currentTheme}
+            />
+
+            {/* Confirm Remove Spell Modal */}
+            <ConfirmModal
+                visible={confirmModalVisible}
+                onClose={() => setConfirmModalVisible(false)}
+                onConfirm={handleConfirmRemoveSpell}
+                title="Remove Spell"
+                message={`Are you sure you want to remove "${spellToRemove?.name}" from the spellbook?`}
+                theme={currentTheme}
+            />
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        alignItems: 'stretch',
-        padding: 20,
-        backgroundColor: '#121212',
-        flexGrow: 1,
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: 'white',
-        marginBottom: 16,
-        alignSelf: 'flex-start',
-    },
-    input: {
-        borderWidth: 1,
-        borderRadius: 8,
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        fontSize: 16,
-        marginBottom: 16,
-        backgroundColor: '#222',
-        color: 'white',
-        borderColor: '#333',
-    },
-    loading: {
-        color: '#aaa',
-        marginVertical: 16,
-        textAlign: 'center',
-    },
-    spellCard: {
-        backgroundColor: '#232323',
-        borderRadius: 10,
-        padding: 8,
+    levelFilterContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
         marginBottom: 8,
+        gap: 6,
+        paddingHorizontal: 4,
+    },
+    levelButton: {
         borderWidth: 1,
-        borderColor: '#333',
-    },
-    spellLevel: {
-        fontSize: 12,
-        fontWeight: 'bold',
-    },
-    spellName: {
-        fontSize: 14,
-        fontWeight: 'bold',
-    },
-    spellInfo: {
-        fontSize: 10,
-        fontStyle: 'italic',
-    },
-    levelBar: {
-        marginBottom: 16,
-        flexGrow: 0,
-    },
-    levelBtn: {
-        width: '8%',
-        padding: 4,
-        borderRadius: 100,
-        borderWidth: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    levelBtnActive: {
-        backgroundColor: '#4a90e2',
-        borderColor: '#4a90e2',
-    },
-    levelBtnText: {
-        color: '#ccc',
-        fontWeight: 'bold',
-        textAlign: 'center',
-        fontSize: 15,
-    },
-    levelBtnTextActive: {
-        color: 'white',
-    },
-    modalOverlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.6)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    modalContent: {
-        width: '90%',
-        backgroundColor: '#232323',
         borderRadius: 16,
-        padding: 20,
-        alignItems: 'stretch',
-        elevation: 6,
-    },
-    modalTitle: {
-        fontSize: 22,
-        fontWeight: 'bold',
-        color: 'white',
-        marginBottom: 10,
-        textAlign: 'center',
-    },
-    modalField: {
-        color: '#ccc',
-        fontSize: 15,
-        marginBottom: 4,
-    },
-    modalEntry: {
-        color: '#eee',
-        fontSize: 15,
-        marginBottom: 6,
-    },
-    closeBtn: {
-        marginTop: 18,
-        backgroundColor: '#4a90e2',
-        borderRadius: 8,
-        alignSelf: 'center',
-        paddingHorizontal: 24,
-        paddingVertical: 8,
-    },
-    loadingContainer: {
-        flex: 1,
+        paddingVertical: 6,
         justifyContent: 'center',
         alignItems: 'center',
-        paddingVertical: 20,
+        marginHorizontal: 1,
+        flex: 1,
+        maxWidth: '9%',
     },
+    levelButtonText: {
+        fontSize: 13,
+        fontWeight: 'bold',
+    },
+    filterSummaryContainer: {
+        paddingTop: 6,
+        paddingBottom: 4,
+        display: 'flex',
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        gap: 4,
+    },
+    filterSummaryText: {
+        fontSize: 11,
+        backgroundColor: '#666666',
+        color: '#ffffff',
+        borderRadius: 8,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+    },
+    spellbookButton: {
+        borderWidth: 1,
+        width: 32,
+        height: 32,
+        borderRadius: 100,
+
+        minHeight: 28,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginHorizontal: 2,
+    },
+    spellbookAbsoluteButtonWrapper: {
+        position: 'absolute',
+        right: 0,
+        bottom: 0,
+        zIndex: 1,
+        borderTopWidth: 1,
+        borderLeftWidth: 1,
+        borderTopLeftRadius: 8,
+        paddingTop: 8,
+        paddingRight: 6,
+        paddingBottom: 6,
+        paddingLeft: 8,
+    },
+    spellbookAbsoluteButton: {
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 8,
+    }
 });
+
+
+

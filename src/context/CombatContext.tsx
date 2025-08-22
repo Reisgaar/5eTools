@@ -1,7 +1,16 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { extractACValue } from '../components/BeastDetailModal';
-import { deleteCombatFile, loadCombatFromFile, loadCombatsIndexFromFile, storeCombatToFile } from '../utils/fileStorage';
+// REACT
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 
+// UTILS
+import { calculatePassivePerception, calculateInitiativeBonus, extractSpeed, extractSenses, extractACValue } from 'src/utils/beastUtils';
+import { deleteCombatFile, loadCombatFromFile, loadCombatsIndexFromFile, storeCombatToFile } from 'src/utils/fileStorage';
+import { getTokenUrl, getCachedTokenUrl } from 'src/utils/tokenCache';
+import { normalizeString } from 'src/utils/stringUtils';
+
+// CONSTANTS
+import { DEFAULT_CREATURE_TOKEN, DEFAULT_PLAYER_TOKEN } from 'src/constants/tokens';
+
+// INTERFACES
 export interface Combatant {
   id: string; // unique (name+index or uuid)
   name: string;
@@ -10,20 +19,31 @@ export interface Combatant {
   maxHp: number;
   currentHp: number;
   initiative: number;
+  initiativeBonus: number; // Initiative bonus (dexterity modifier)
   ac: number; // Armor Class
+  passivePerception?: number; // Passive Perception
+  speed?: string; // Speed information
+  senses?: string; // Senses information
   color?: string; // Custom color for the beast container
   conditions?: string[]; // Status conditions for the combatant
+  note?: string; // Short note about the combatant
+  // Player-specific fields
+  race?: string; // Player race
+  class?: string; // Player class
 }
 
 export interface Combat {
   id: string;
   name: string;
+  description?: string;
   createdAt: number;
   combatants: Combatant[];
-  groupByName: { [name: string]: boolean };
+  groupByName: { [nameOrigin: string]: boolean };
   round?: number;
   turnIndex?: number;
   started?: boolean;
+  isActive?: boolean; // Marks if this combat is currently active/in progress
+  campaignId?: string; // Campaign this combat belongs to
 }
 
 interface CombatContextType {
@@ -31,565 +51,1172 @@ interface CombatContextType {
   currentCombatId: string | null;
   currentCombat: Combat | null;
   combatants: Combatant[];
-  groupByName: { [name: string]: boolean };
-  createCombat: (name: string) => string;
+  groupByName: { [nameOrigin: string]: boolean };
+  createCombat: (name: string, campaignId?: string, description?: string) => string;
   selectCombat: (id: string) => void;
   clearCurrentCombat: () => void;
-  deleteCombat: (id: string) => void;
-  addCombatant: (monster: any) => void;
-  addCombatantToCombat: (monster: any, combatId: string) => void;
+  deleteCombat: (id: string) => Promise<void>;
+  archiveCombat: (id: string) => void;
+  resetCombat: (id: string) => void;
+  addCombatant: (monster: any) => Promise<void>;
+  addCombatantToCombat: (monster: any, combatId: string) => Promise<void>;
   removeCombatant: (id: string) => void;
   updateHp: (id: string, newHp: number) => void;
+  updateMaxHp: (id: string, newMaxHp: number) => void;
   updateAc: (id: string, newAc: number) => void;
   updateColor: (id: string, color: string | null) => void;
   updateInitiative: (id: string, newInit: number) => void;
   updateInitiativeForGroup: (name: string, newInit: number) => void;
-  isGroupEnabled: (name: string) => boolean;
-  toggleGroupForName: (name: string) => void;
-  setGroupForName: (name: string, value: boolean) => void;
+  updateInitiativeBonus: (id: string, newBonus: number) => void;
+  isGroupEnabled: (nameOrigin: string) => boolean;
+  toggleGroupForName: (nameOrigin: string) => void;
+  setGroupForName: (nameOrigin: string, value: boolean) => void;
   clearCombat: () => void;
+  resetCombatGroups: () => void;
   startCombat: () => void;
+  stopCombat: () => void;
   nextTurn: () => void;
-  getTurnOrder: (combatants: Combatant[], groupByName: { [name: string]: boolean }) => { ids: string[], name: string, initiative: number }[];
-  addPlayerCombatant: (player: { name: string, race: string, class: string, maxHp?: number, ac?: number, tokenUrl?: string }) => void;
-  syncPlayerCombatants: (player: { name: string, race: string, class: string, maxHp?: number, ac?: number, tokenUrl?: string }) => void;
+  getTurnOrder: (combatants: Combatant[], groupByName: { [nameOrigin: string]: boolean }) => { ids: string[], name: string, initiative: number }[];
+  addPlayerCombatant: (player: { name: string, race: string, class: string, maxHp?: number, ac?: number, passivePerception?: number, initiativeBonus?: number, tokenUrl?: string }) => void;
+  syncPlayerCombatants: (player: { name: string, race: string, class: string, maxHp?: number, ac?: number, passivePerception?: number, initiativeBonus?: number, tokenUrl?: string }) => void;
   updateCombatantConditions: (id: string, conditions: string[]) => void;
+  updateCombatantNote: (id: string, note: string) => void;
+  setCombatActive: (id: string, active: boolean) => void;
+  updateCombat: (id: string, updates: { name?: string; description?: string; campaignId?: string }) => void;
+  getSortedCombats: (campaignId?: string | null) => Combat[];
+  reloadCombats: () => Promise<void>;
 }
 
 const CombatContext = createContext<CombatContextType | undefined>(undefined);
 
-// Provides combat state and actions for managing combats and combatants.
-export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [combats, setCombats] = useState<Combat[]>([]);
-  const [currentCombatId, setCurrentCombatId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  // Load combats from file storage on mount
-  useEffect(() => {
-    (async () => {
-      setLoading(true);
-      const index = await loadCombatsIndexFromFile();
-      if (index && index.length > 0) {
-        const loadedCombats: Combat[] = [];
-        for (const entry of index) {
-          const combat = await loadCombatFromFile(entry.file);
-          if (combat) loadedCombats.push(combat);
-        }
-        setCombats(loadedCombats);
-        setCurrentCombatId(loadedCombats[0]?.id || null);
-      }
-      setLoading(false);
-    })();
-  }, []);
-
-  // Save all combats to file storage whenever they change
-  useEffect(() => {
-    if (loading) return;
-    combats.forEach(combat => {
-      storeCombatToFile(combat);
-    });
-  }, [combats, loading]);
-
-  // Get current combat
-  const currentCombat = combats.find(c => c.id === currentCombatId) || null;
-  const combatants = currentCombat?.combatants || [];
-  const groupByName = currentCombat?.groupByName || {};
-
-  const createCombat = (name: string): string => {
-    const id = `combat-${Date.now()}-${Math.random()}`;
-    const newCombat: Combat = {
-      id,
-      name,
-      createdAt: Date.now(),
-      combatants: [],
-      groupByName: {}, // All names will be grouped by default as they are added
-    };
-    setCombats(prev => [...prev, newCombat]);
-    setCurrentCombatId(id);
-    // Save immediately
-    storeCombatToFile(newCombat);
-    return id;
-  };
-
-  const selectCombat = (id: string) => {
-    setCurrentCombatId(id);
-  };
-
-  const clearCurrentCombat = () => {
-    setCurrentCombatId(null);
-  };
-
-  const deleteCombat = (id: string) => {
-    setCombats(prev => prev.filter(c => c.id !== id));
-    deleteCombatFile(id);
-    if (currentCombatId === id) {
-      setCurrentCombatId(combats.length > 1 ? combats[0]?.id || null : null);
-    }
-  };
-
-  const addCombatant = (monster: any) => {
-    if (!currentCombatId) return;
-    
-    // Use name+source+index as id to allow duplicates
-    const id = `${monster.name}-${monster.source || ''}-${Date.now()}-${Math.random()}`;
-    // Get max HP
+// Helper function to extract max HP from monster data
+const extractMaxHp = (monster: any): number => {
     let maxHp = 0;
+
     if (monster.hp) {
-      if (typeof monster.hp === 'object') {
-        if (typeof monster.hp.average === 'number') maxHp = monster.hp.average;
-        else if (typeof monster.hp.max === 'number') maxHp = monster.hp.max;
-        else {
-          // Try to find the first number in the object
-          const values = Object.values(monster.hp).filter(v => typeof v === 'number');
-          if (values.length > 0) maxHp = values[0];
-        }
-      } else if (typeof monster.hp === 'number') maxHp = monster.hp;
-      else if (!isNaN(Number(monster.hp))) maxHp = Number(monster.hp);
-    }
-    if (!maxHp || maxHp <= 0) {
-      console.warn(`Could not determine maxHp for monster:`, monster);
-      maxHp = 1;
-    }
-    // Get token url
-    let tokenUrl = undefined;
-    if (monster.source && monster.name) {
-      // Most monsters from 5e.tools have tokens, so we'll try to load them
-      // The token URL follows the pattern: https://5e.tools/img/bestiary/tokens/{source}/{name}.webp
-      tokenUrl = `https://5e.tools/img/bestiary/tokens/${monster.source}/${encodeURIComponent(monster.name)}.webp`;
-    }
-    
-    const newCombatant: Combatant = {
-      id,
-      name: monster.name,
-      source: monster.source || '',
-      tokenUrl,
-      maxHp: maxHp,
-      currentHp: maxHp,
-      initiative: 0,
-      ac: extractACValue(monster.ac), // Extract AC from monster.ac
-    };
-
-    setCombats(prev => prev.map(c => 
-      c.id === currentCombatId 
-        ? { ...c, combatants: [...c.combatants, newCombatant] }
-        : c
-    ));
-    // Save
-    const updatedCombat = combats.find(c => c.id === currentCombatId);
-    if (updatedCombat) storeCombatToFile({ ...updatedCombat, combatants: [...updatedCombat.combatants, newCombatant] });
-  };
-
-  const addCombatantToCombat = (monster: any, combatId: string) => {
-    const combat = combats.find(c => c.id === combatId);
-    if (!combat) return;
-
-    // Use name+source+index as id to allow duplicates
-    const id = `${monster.name}-${monster.source || ''}-${Date.now()}-${Math.random()}`;
-    // Get max HP
-    let maxHp = 0;
-    if (monster.hp) {
-      if (typeof monster.hp === 'object') {
-        if (typeof monster.hp.average === 'number') maxHp = monster.hp.average;
-        else if (typeof monster.hp.max === 'number') maxHp = monster.hp.max;
-        else {
-          // Try to find the first number in the object
-          const values = Object.values(monster.hp).filter(v => typeof v === 'number');
-          if (values.length > 0) maxHp = values[0];
-        }
-      } else if (typeof monster.hp === 'number') maxHp = monster.hp;
-      else if (!isNaN(Number(monster.hp))) maxHp = Number(monster.hp);
-    }
-    if (!maxHp || maxHp <= 0) {
-      console.warn(`Could not determine maxHp for monster:`, monster);
-      maxHp = 1;
-    }
-    // Get token url
-    let tokenUrl = undefined;
-    if (monster.source && monster.name) {
-      // Most monsters from 5e.tools have tokens, so we'll try to load them
-      // The token URL follows the pattern: https://5e.tools/img/bestiary/tokens/{source}/{name}.webp
-      tokenUrl = `https://5e.tools/img/bestiary/tokens/${monster.source}/${encodeURIComponent(monster.name)}.webp`;
-    }
-    
-    const newCombatant: Combatant = {
-      id,
-      name: monster.name,
-      source: monster.source || '',
-      tokenUrl,
-      maxHp: maxHp,
-      currentHp: maxHp,
-      initiative: 0,
-      ac: extractACValue(monster.ac), // Extract AC from monster.ac
-    };
-
-    setCombats(prev => prev.map(c => 
-      c.id === combatId 
-        ? { ...c, combatants: [...c.combatants, newCombatant] }
-        : c
-    ));
-    // Save
-    storeCombatToFile({ ...combat, combatants: [...combat.combatants, newCombatant] });
-  };
-
-  const removeCombatant = (id: string) => {
-    if (!currentCombatId) return;
-    setCombats(prev => prev.map(c => 
-      c.id === currentCombatId 
-        ? { ...c, combatants: c.combatants.filter(comb => comb.id !== id) }
-        : c
-    ));
-    // Save
-    const updatedCombat = combats.find(c => c.id === currentCombatId);
-    if (updatedCombat) storeCombatToFile({ ...updatedCombat, combatants: updatedCombat.combatants.filter(comb => comb.id !== id) });
-  };
-
-  const updateHp = (id: string, newHp: number) => {
-    if (!currentCombatId) return;
-    setCombats(prev => prev.map(c => 
-      c.id === currentCombatId 
-        ? { 
-            ...c, 
-            combatants: c.combatants.map(comb => 
-              comb.id === id 
-                ? { ...comb, currentHp: Math.max(0, Math.min(newHp, comb.maxHp)) }
-                : comb
-            )
-          }
-        : c
-    ));
-    // Save
-    const updatedCombat = combats.find(c => c.id === currentCombatId);
-    if (updatedCombat) storeCombatToFile({ ...updatedCombat, combatants: updatedCombat.combatants.map(comb => comb.id === id ? { ...comb, currentHp: Math.max(0, Math.min(newHp, comb.maxHp)) } : comb) });
-  };
-
-  const updateAc = (id: string, newAc: number) => {
-    if (!currentCombatId) return;
-    setCombats(prev => prev.map(c => 
-      c.id === currentCombatId 
-        ? { 
-            ...c, 
-            combatants: c.combatants.map(comb => 
-              comb.id === id 
-                ? { ...comb, ac: Math.max(0, newAc) }
-                : comb
-            )
-          }
-        : c
-    ));
-    // Save
-    const updatedCombat = combats.find(c => c.id === currentCombatId);
-    if (updatedCombat) storeCombatToFile({ ...updatedCombat, combatants: updatedCombat.combatants.map(comb => comb.id === id ? { ...comb, ac: Math.max(0, newAc) } : comb) });
-  };
-
-  const updateColor = (id: string, color: string | null) => {
-    if (!currentCombatId) return;
-    setCombats(prev => prev.map(c => 
-      c.id === currentCombatId 
-        ? { 
-            ...c, 
-            combatants: c.combatants.map(comb => 
-              comb.id === id 
-                ? { ...comb, color: color || undefined }
-                : comb
-            )
-          }
-        : c
-    ));
-    // Save
-    const updatedCombat = combats.find(c => c.id === currentCombatId);
-    if (updatedCombat) storeCombatToFile({ ...updatedCombat, combatants: updatedCombat.combatants.map(comb => comb.id === id ? { ...comb, color: color || undefined } : comb) });
-  };
-
-  const updateInitiative = (id: string, newInit: number) => {
-    if (!currentCombatId) return;
-    setCombats(prev => prev.map(c => 
-      c.id === currentCombatId 
-        ? { 
-            ...c, 
-            combatants: c.combatants.map(comb => 
-              comb.id === id 
-                ? { ...comb, initiative: newInit }
-                : comb
-            )
-          }
-        : c
-    ));
-    // Save
-    const updatedCombat = combats.find(c => c.id === currentCombatId);
-    if (updatedCombat) storeCombatToFile({ ...updatedCombat, combatants: updatedCombat.combatants.map(comb => comb.id === id ? { ...comb, initiative: newInit } : comb) });
-  };
-
-  const updateInitiativeForGroup = (name: string, newInit: number) => {
-    if (!currentCombatId) return;
-    setCombats(prev => prev.map(c => 
-      c.id === currentCombatId 
-        ? { 
-            ...c, 
-            combatants: c.combatants.map(comb => 
-              comb.name === name 
-                ? { ...comb, initiative: newInit }
-                : comb
-            )
-          }
-        : c
-    ));
-    // Save
-    const updatedCombat = combats.find(c => c.id === currentCombatId);
-    if (updatedCombat) storeCombatToFile({ ...updatedCombat, combatants: updatedCombat.combatants.map(comb => comb.name === name ? { ...comb, initiative: newInit } : comb) });
-  };
-
-  const updateCombatantConditions = (id: string, conditions: string[]) => {
-    if (!currentCombatId) return;
-    setCombats(prev => prev.map(c =>
-      c.id === currentCombatId
-        ? {
-            ...c,
-            combatants: c.combatants.map(comb =>
-              comb.id === id
-                ? { ...comb, conditions }
-                : comb
-            )
-          }
-        : c
-    ));
-    // Save
-    const updatedCombat = combats.find(c => c.id === currentCombatId);
-    if (updatedCombat) {
-      storeCombatToFile({
-        ...updatedCombat,
-        combatants: updatedCombat.combatants.map(comb =>
-          comb.id === id ? { ...comb, conditions } : comb
-        )
-      });
-    }
-  };
-
-  // Grouping logic
-  const isGroupEnabled = (name: string) => {
-    if (!currentCombat) return true;
-    // Default to true (grouped) if not set
-    return currentCombat.groupByName[name] !== false;
-  };
-
-  const toggleGroupForName = (name: string) => {
-    if (!currentCombatId) return;
-    setCombats(prev => prev.map(c =>
-      c.id === currentCombatId
-        ? {
-            ...c,
-            groupByName: {
-              ...c.groupByName,
-              [name]: !isGroupEnabled(name)
+        if (typeof monster.hp === 'object') {
+            // If it has average, use that as max HP
+            if (typeof monster.hp.average === 'number') {
+                maxHp = monster.hp.average;
             }
-          }
-        : c
-    ));
-    // Save
-    const updatedCombat = combats.find(c => c.id === currentCombatId);
-    if (updatedCombat) storeCombatToFile({ ...updatedCombat, groupByName: { ...updatedCombat.groupByName, [name]: !isGroupEnabled(name) } });
-  };
-
-  const setGroupForName = (name: string, value: boolean) => {
-    if (!currentCombatId) return;
-    setCombats(prev => prev.map(c =>
-      c.id === currentCombatId
-        ? {
-            ...c,
-            groupByName: {
-              ...c.groupByName,
-              [name]: value
+            // If it has formula, calculate the maximum possible roll
+            else if (typeof monster.hp.formula === 'string') {
+                const rollMatch = monster.hp.formula.match(/(\d+)d(\d+)([+-]\d+)?/);
+                if (rollMatch) {
+                    const dice = parseInt(rollMatch[1]);
+                    const sides = parseInt(rollMatch[2]);
+                    const modifier = rollMatch[3] ? parseInt(rollMatch[3]) : 0;
+                    // Maximum roll: all dice roll their maximum value
+                    maxHp = (dice * sides) + modifier;
+                }
             }
-          }
-        : c
-    ));
-    // Save
-    const updatedCombat = combats.find(c => c.id === currentCombatId);
-    if (updatedCombat) storeCombatToFile({ ...updatedCombat, groupByName: { ...updatedCombat.groupByName, [name]: value } });
-  };
-
-  const clearCombat = () => {
-    if (!currentCombatId) return;
-    setCombats(prev => prev.map(c => {
-      if (c.id !== currentCombatId) return c;
-      if (c.started) {
-        // If combat is started, just reset round/turn and stop
-        return { ...c, started: false, round: 1, turnIndex: 0 };
-      } else {
-        // If not started, remove all combatants
-        return { ...c, combatants: [] };
-      }
-    }));
-    // Save
-    const updatedCombat = combats.find(c => c.id === currentCombatId);
-    if (updatedCombat) {
-      if (updatedCombat.started) {
-        storeCombatToFile({ ...updatedCombat, started: false, round: 1, turnIndex: 0 });
-      } else {
-        storeCombatToFile({ ...updatedCombat, combatants: [] });
-      }
+            // If it has roll (string format), calculate the maximum possible roll
+            else if (typeof monster.hp.roll === 'string') {
+                const rollMatch = monster.hp.roll.match(/(\d+)d(\d+)([+-]\d+)?/);
+                if (rollMatch) {
+                    const dice = parseInt(rollMatch[1]);
+                    const sides = parseInt(rollMatch[2]);
+                    const modifier = rollMatch[3] ? parseInt(rollMatch[3]) : 0;
+                    // Maximum roll: all dice roll their maximum value
+                    maxHp = (dice * sides) + modifier;
+                }
+            }
+            // Try to find any number in the object as fallback
+            else {
+                const values = Object.values(monster.hp).filter(v => typeof v === 'number');
+                if (values.length > 0) maxHp = values[0];
+            }
+        } else if (typeof monster.hp === 'number') {
+            maxHp = monster.hp;
+        } else if (typeof monster.hp === 'string') {
+            // Handle string format like "5d8+10"
+            const rollMatch = monster.hp.match(/(\d+)d(\d+)([+-]\d+)?/);
+            if (rollMatch) {
+                const dice = parseInt(rollMatch[1]);
+                const sides = parseInt(rollMatch[2]);
+                const modifier = rollMatch[3] ? parseInt(rollMatch[3]) : 0;
+                // Maximum roll: all dice roll their maximum value
+                maxHp = (dice * sides) + modifier;
+            } else if (!isNaN(Number(monster.hp))) {
+                maxHp = Number(monster.hp);
+            }
+        }
     }
-  };
 
-  const startCombat = () => {
-    if (!currentCombatId) return;
-    setCombats(prev => prev.map(c => {
-      if (c.id !== currentCombatId) return c;
-      // Sort combatants by initiative descending
-      const sorted = [...c.combatants].sort((a, b) => b.initiative - a.initiative);
-      const turnOrder = getTurnOrder(sorted, c.groupByName);
-      return {
-        ...c,
-        combatants: sorted,
-        round: 1,
-        turnIndex: 0,
-        started: true,
-      };
-    }));
-    // Save
-    const updatedCombat = combats.find(c => c.id === currentCombatId);
-    if (updatedCombat) storeCombatToFile({ ...updatedCombat, round: 1, turnIndex: 0, started: true });
-  };
-
-  const nextTurn = () => {
-    if (!currentCombatId) return;
-    setCombats(prev => prev.map(c => {
-      if (c.id !== currentCombatId) return c;
-      if (!c.started) return c;
-      const turnOrder = getTurnOrder(c.combatants, c.groupByName);
-      const numTurns = turnOrder.length;
-      if (numTurns === 0) return c;
-      let nextTurnIndex = (c.turnIndex ?? 0) + 1;
-      let nextRound = c.round ?? 1;
-      if (nextTurnIndex >= numTurns) {
-        nextTurnIndex = 0;
-        nextRound += 1;
-      }
-      return {
-        ...c,
-        turnIndex: nextTurnIndex,
-        round: nextRound,
-      };
-    }));
-    // Save
-    const updatedCombat = combats.find(c => c.id === currentCombatId);
-    if (updatedCombat) {
-      const turnOrder = getTurnOrder(updatedCombat.combatants, updatedCombat.groupByName);
-      const numTurns = turnOrder.length;
-      let nextTurnIndex = (updatedCombat.turnIndex ?? 0) + 1;
-      let nextRound = updatedCombat.round ?? 1;
-      if (nextTurnIndex >= numTurns) {
-        nextTurnIndex = 0;
-        nextRound += 1;
-      }
-      storeCombatToFile({ ...updatedCombat, turnIndex: nextTurnIndex, round: nextRound });
+    // If still no HP found, try alternative sources
+    if (!maxHp || maxHp <= 0) {
+    // Check if there's a formula or other HP-related field
+        if (monster.hpFormula && typeof monster.hpFormula === 'string') {
+            const rollMatch = monster.hpFormula.match(/(\d+)d(\d+)([+-]\d+)?/);
+            if (rollMatch) {
+                const dice = parseInt(rollMatch[1]);
+                const sides = parseInt(rollMatch[2]);
+                const modifier = rollMatch[3] ? parseInt(rollMatch[3]) : 0;
+                // Maximum roll: all dice roll their maximum value
+                maxHp = (dice * sides) + modifier;
+            }
+        }
     }
-  };
 
-  // Helper to get turn order based on grouping
-  function getTurnOrder(combatants: Combatant[], groupByName: { [name: string]: boolean }) {
-    // Group combatants by name
-    const groups = new Map<string, Combatant[]>();
-    combatants.forEach(c => {
-      if (!groups.has(c.name)) {
-        groups.set(c.name, []);
-      }
-      groups.get(c.name)!.push(c);
-    });
-    // Build turn order: grouped = one entry per group, ungrouped = each individual
-    let turnOrder: { ids: string[], name: string, initiative: number }[] = [];
-    Array.from(groups.entries()).forEach(([name, members]) => {
-      if (groupByName[name]) {
-        // Grouped: one turn for all
-        turnOrder.push({ ids: members.map(m => m.id), name, initiative: Math.max(...members.map(m => m.initiative)) });
-      } else {
-        // Ungrouped: each is its own turn
-        members.forEach(m => {
-          turnOrder.push({ ids: [m.id], name: m.name, initiative: m.initiative });
-        });
-      }
-    });
-    // Sort by initiative descending
-    turnOrder.sort((a, b) => b.initiative - a.initiative);
-    return turnOrder;
-  }
+    if (!maxHp || maxHp <= 0) {
+        console.warn('Could not determine maxHp for monster:', monster);
+        maxHp = 1;
+    }
 
-  const addPlayerCombatant = (player: { name: string, race: string, class: string, maxHp?: number, ac?: number, tokenUrl?: string }) => {
-    if (!currentCombatId) return;
-    const id = `player-${player.name}-${Date.now()}-${Math.random()}`;
-    const newCombatant = {
-      id,
-      name: player.name,
-      source: 'player',
-      maxHp: player.maxHp || 0,
-      currentHp: player.maxHp || 0,
-      initiative: 0,
-      ac: player.ac || 0,
-      color: undefined,
-      tokenUrl: player.tokenUrl || "data:image/jpeg;base64,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"
-    };
-    setCombats(prev => prev.map(c =>
-      c.id === currentCombatId
-        ? { ...c, combatants: [...c.combatants, newCombatant] }
-        : c
-    ));
+    return maxHp;
 };
 
-  // Sync all player combatants in all combats when a player is edited
-  const syncPlayerCombatants = (player: { name: string, race: string, class: string, maxHp?: number, ac?: number, tokenUrl?: string }) => {
-    setCombats(prev => prev.map(combat => ({
-      ...combat,
-      combatants: combat.combatants.map(comb =>
-        comb.source === 'player' && comb.name === player.name
-          ? {
-              ...comb,
-              race: player.race,
-              class: player.class,
-              maxHp: player.maxHp || 0,
-              ac: player.ac || 0,
-              tokenUrl: player.tokenUrl || comb.tokenUrl,
-            }
-          : comb
-      )
-    })));
-  };
+// Helper function to safely save a combat to file
+const saveCombatToFile = (combat: Combat) => {
+    setTimeout(() => {
+        storeCombatToFile(combat);
+    }, 0);
+};
 
-  return (
-    <CombatContext.Provider value={{ 
-      combats,
-      currentCombatId,
-      currentCombat,
-      combatants, 
-      groupByName,
-      createCombat,
-      selectCombat,
-      clearCurrentCombat,
-      deleteCombat,
-      addCombatant, 
-      addCombatantToCombat, 
-      removeCombatant, 
-      updateHp, 
-      updateAc,
-      updateColor,
-      updateInitiative, 
-      updateInitiativeForGroup,
-      isGroupEnabled,
-      toggleGroupForName,
-      setGroupForName,
-      clearCombat,
-      startCombat,
-      nextTurn,
-      getTurnOrder: (combatants: Combatant[], groupByName: { [name: string]: boolean }) => getTurnOrder(combatants, groupByName),
-      addPlayerCombatant,
-      syncPlayerCombatants,
-      updateCombatantConditions, // <-- expose here
-    }}>
-      {children}
-    </CombatContext.Provider>
-  );
+// Provides combat state and actions for managing combats and combatants.
+export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const [combats, setCombats] = useState<Combat[]>([]);
+    const [currentCombatId, setCurrentCombatId] = useState<string | null>(null);
+
+    // Load combats from file storage on mount
+    useEffect(() => {
+        (async () => {
+            console.log('Loading combats from storage...');
+            const combatIndexes = await loadCombatsIndexFromFile();
+            console.log('Loaded combat indexes:', combatIndexes);
+
+            if (combatIndexes && combatIndexes.length > 0) {
+                console.log('Total loaded combat indexes:', combatIndexes.length);
+                console.log('📁 Combat index files to load:', combatIndexes.map(ci => ({ name: ci.name, file: ci.file, id: ci.id })));
+
+                // Load full combat data for each combat
+                console.log(`🔄 Starting to load ${combatIndexes.length} combats...`);
+                const loadedCombats = await Promise.all(combatIndexes.map(async (combatIndex, index) => {
+                    console.log(`🔄 [${index + 1}/${combatIndexes.length}] Processing: ${combatIndex.name} (${combatIndex.file})`);
+                    try {
+                        console.log(`Attempting to load combat from file: ${combatIndex.file}`);
+                        const fullCombat = await loadCombatFromFile(combatIndex.file);
+                        if (fullCombat) {
+                            console.log(`✅ Successfully loaded combat: ${fullCombat.name} (ID: ${fullCombat.id}) with ${fullCombat.combatants?.length || 0} combatants`);
+                            return fullCombat;
+                        } else {
+                            console.warn(`❌ Failed to load full combat for ${combatIndex.name} from file: ${combatIndex.file} - loadCombatFromFile returned null/undefined`);
+                            return null;
+                        }
+                    } catch (error) {
+                        console.error(`❌ Error loading combat ${combatIndex.name} from file ${combatIndex.file}:`, error);
+                        console.error('❌ Error details:', {
+                            name: combatIndex.name,
+                            file: combatIndex.file,
+                            id: combatIndex.id,
+                            error: error instanceof Error ? error.message : String(error),
+                            stack: error instanceof Error ? error.stack : undefined
+                        });
+                        return null;
+                    }
+                }));
+
+                // Filter out null values and update token URLs
+                const validCombats = loadedCombats.filter(combat => combat !== null);
+                console.log(`📊 Loaded ${loadedCombats.length} combats, ${validCombats.length} are valid (not null)`);
+                console.log('📋 Valid combats:', validCombats.map(c => ({ id: c.id, name: c.name, campaignId: c.campaignId })));
+                const updatedCombats = await Promise.all(validCombats.map(async (combat) => {
+                    if (combat.combatants && combat.combatants.length > 0) {
+                        const updatedCombatants = await Promise.all(combat.combatants.map(async (combatant: Combatant) => {
+                            if (combatant.tokenUrl && combatant.tokenUrl.startsWith('http')) {
+                                try {
+                                    const cachedUrl = await getCachedTokenUrl(combatant.source, combatant.name);
+                                    if (cachedUrl) {
+                                        console.log(`Updated token URL for ${combatant.name}: ${cachedUrl}`);
+                                        return { ...combatant, tokenUrl: cachedUrl };
+                                    }
+                                } catch (error) {
+                                    console.error(`Error updating token URL for ${combatant.name}:`, error instanceof Error ? error.message : String(error));
+                                }
+                            }
+                            return combatant;
+                        }));
+                        return { ...combat, combatants: updatedCombatants };
+                    }
+                    return combat;
+                }));
+
+                // Log combat details for debugging
+                updatedCombats.forEach(combat => {
+                    console.log(`Combat ${combat.name}:`, combat);
+                    console.log(`Combatants count: ${combat.combatants?.length || 0}`);
+                });
+
+                setCombats(updatedCombats);
+                // Don't automatically select any combat - show the list instead
+                setCurrentCombatId(null);
+            } else {
+                console.log('No combats found');
+            }
+        })();
+    }, []);
+
+    // Get current combat
+    const currentCombat = combats.find(c => c.id === currentCombatId) || null;
+    const combatants = currentCombat?.combatants || [];
+    const groupByName = currentCombat?.groupByName || {};
+
+    const createCombat = (name: string, campaignId?: string, description?: string): string => {
+    // Use a more robust ID generation to avoid duplicates
+        const timestamp = Date.now();
+        const random = Math.random().toString(36).substring(2, 15);
+        const id = `combat-${timestamp}-${random}`;
+        const newCombat: Combat = {
+            id,
+            name,
+            description,
+            createdAt: Date.now(),
+            combatants: [],
+            groupByName: {}, // All names will be grouped by default as they are added
+            campaignId, // Add campaign ID if provided
+        };
+        setCombats(prev => [...prev, newCombat]);
+        // Save immediately
+        storeCombatToFile(newCombat);
+        return id;
+    };
+
+    const selectCombat = (id: string) => {
+        console.log('Selecting combat:', id);
+        setCurrentCombatId(id);
+    };
+
+    const clearCurrentCombat = () => {
+        setCurrentCombatId(null);
+    };
+
+    const deleteCombat = async (id: string) => {
+        try {
+            // Remove from file storage first
+            await deleteCombatFile(id);
+            
+            // Then update in-memory state
+            setCombats(prev => {
+                const filteredCombats = prev.filter(c => c.id !== id);
+                
+                // If we're deleting the current combat, select a new one
+                if (currentCombatId === id) {
+                    const newCurrentCombatId = filteredCombats.length > 0 ? filteredCombats[0].id : null;
+                    setCurrentCombatId(newCurrentCombatId);
+                }
+                
+                return filteredCombats;
+            });
+            
+            console.log(`✅ Combat ${id} deleted successfully`);
+        } catch (error) {
+            console.error(`❌ Error deleting combat ${id}:`, error);
+        }
+    };
+
+    const archiveCombat = (id: string) => {
+        setCombats(prev => prev.map(c =>
+            c.id === id
+                ? { ...c, archived: true, archivedAt: Date.now() }
+                : c
+        ));
+    };
+
+    const resetCombat = (id: string) => {
+        setCombats(prev => prev.map(c =>
+            c.id === id
+                ? {
+                    ...c,
+                    round: undefined,
+                    turnIndex: undefined,
+                    started: false,
+                    combatants: (c.combatants || []).map(comb => ({
+                        ...comb,
+                        currentHp: comb.maxHp, // Reset HP to max
+                        initiative: 0, // Reset initiative
+                        conditions: [] // Clear conditions
+                        // Note: initiativeBonus is preserved
+                    }))
+                }
+                : c
+        ));
+    };
+
+    const addCombatant = async (monster: any) => {
+        if (!currentCombatId) return;
+
+        // Use name+source+index as id to allow duplicates
+        const id = `${monster.name}-${monster.source || ''}-${Date.now()}-${Math.random()}`;
+        // Get max HP using helper function
+        const maxHp = extractMaxHp(monster);
+        // Get token url with caching
+        let tokenUrl = DEFAULT_CREATURE_TOKEN;
+        if (monster.source && monster.name) {
+            // Most monsters from 5e.tools have tokens, so we'll try to load them
+            // The token URL follows the pattern: https://5e.tools/img/bestiary/tokens/{source}/{name}.webp
+            const originalTokenUrl = `https://5e.tools/img/bestiary/tokens/${monster.source}/${encodeURIComponent(monster.name)}.webp`;
+
+            try {
+                const cachedTokenUrl = await getTokenUrl(monster.source, monster.name, originalTokenUrl);
+                // Ensure we have a valid string URL
+                if (cachedTokenUrl && typeof cachedTokenUrl === 'string') {
+                    tokenUrl = cachedTokenUrl;
+                } else {
+                    console.warn('Invalid token URL received for', monster.name, ':', cachedTokenUrl);
+                    tokenUrl = originalTokenUrl; // Fallback to original URL
+                }
+            } catch (error) {
+                console.error(`Error caching token for ${monster.name}:`, error);
+                // Fallback to original URL
+                tokenUrl = originalTokenUrl;
+            }
+        }
+
+        const newCombatant: Combatant = {
+            id,
+            name: monster.name,
+            source: monster.source || '',
+            tokenUrl,
+            maxHp: maxHp,
+            currentHp: maxHp,
+            initiative: 0,
+            initiativeBonus: calculateInitiativeBonus(monster), // Calculate initiative bonus
+            ac: extractACValue(monster.ac), // Extract AC from monster.ac
+            passivePerception: calculatePassivePerception(monster), // Calculate passive perception
+            speed: extractSpeed(monster), // Extract speed information
+            senses: extractSenses(monster), // Extract senses information
+        };
+
+        setCombats(prev => {
+            const updatedCombats = prev.map(c =>
+                c.id === currentCombatId
+                    ? { ...c, combatants: [...(c.combatants || []), newCombatant] }
+                    : c
+            );
+            // Save the updated combat immediately
+            const updatedCombat = updatedCombats.find(c => c.id === currentCombatId);
+            if (updatedCombat) {
+                // Use setTimeout to ensure the state update completes first
+                setTimeout(() => {
+                    storeCombatToFile(updatedCombat);
+                }, 0);
+            }
+            return updatedCombats;
+        });
+    };
+
+    const addCombatantToCombat = async (monster: any, combatId: string) => {
+        const combat = combats.find(c => c.id === combatId);
+        if (!combat) return;
+
+        // Use name+source+index as id to allow duplicates
+        const id = `${monster.name}-${monster.source || ''}-${Date.now()}-${Math.random()}`;
+        // Get max HP
+        let maxHp = 0;
+        if (monster.hp) {
+            if (typeof monster.hp === 'object') {
+                if (typeof monster.hp.average === 'number') maxHp = monster.hp.average;
+                else if (typeof monster.hp.max === 'number') maxHp = monster.hp.max;
+                else {
+                    // Try to find the first number in the object
+                    const values = Object.values(monster.hp).filter(v => typeof v === 'number');
+                    if (values.length > 0) maxHp = values[0];
+                }
+            } else if (typeof monster.hp === 'number') maxHp = monster.hp;
+            else if (!isNaN(Number(monster.hp))) maxHp = Number(monster.hp);
+        }
+        if (!maxHp || maxHp <= 0) {
+            console.warn('Could not determine maxHp for monster:', monster);
+            maxHp = 1;
+        }
+        // Get token url with caching
+        let tokenUrl = DEFAULT_CREATURE_TOKEN;
+        if (monster.source && monster.name) {
+            // Most monsters from 5e.tools have tokens, so we'll try to load them
+            // The token URL follows the pattern: https://5e.tools/img/bestiary/tokens/{source}/{name}.webp
+            const originalTokenUrl = `https://5e.tools/img/bestiary/tokens/${monster.source}/${encodeURIComponent(monster.name)}.webp`;
+
+            try {
+                tokenUrl = await getTokenUrl(monster.source, monster.name, originalTokenUrl);
+            } catch (error) {
+                console.error(`Error caching token for ${monster.name}:`, error);
+                // Fallback to original URL
+                tokenUrl = originalTokenUrl;
+            }
+        }
+
+        const newCombatant: Combatant = {
+            id,
+            name: monster.name,
+            source: monster.source || '',
+            tokenUrl,
+            maxHp: maxHp,
+            currentHp: maxHp,
+            initiative: 0,
+            initiativeBonus: calculateInitiativeBonus(monster), // Calculate initiative bonus
+            ac: extractACValue(monster.ac), // Extract AC from monster.ac
+            passivePerception: calculatePassivePerception(monster), // Calculate passive perception
+            speed: extractSpeed(monster), // Extract speed information
+            senses: extractSenses(monster), // Extract senses information
+        };
+
+        setCombats(prev => {
+            const updatedCombats = prev.map(c =>
+                c.id === combatId
+                    ? { ...c, combatants: [...(c.combatants || []), newCombatant] }
+                    : c
+            );
+            // Save the updated combat immediately
+            const updatedCombat = updatedCombats.find(c => c.id === combatId);
+            if (updatedCombat) {
+                // Use setTimeout to ensure the state update completes first
+                setTimeout(() => {
+                    storeCombatToFile(updatedCombat);
+                }, 0);
+            }
+            return updatedCombats;
+        });
+    };
+
+    const removeCombatant = (id: string) => {
+        if (!currentCombatId) return;
+        setCombats(prev => {
+            const updatedCombats = prev.map(c =>
+                c.id === currentCombatId
+                    ? { ...c, combatants: (c.combatants || []).filter(comb => comb.id !== id) }
+                    : c
+            );
+            // Save the updated combat
+            const updatedCombat = updatedCombats.find(c => c.id === currentCombatId);
+            if (updatedCombat) {
+                saveCombatToFile(updatedCombat);
+            }
+            return updatedCombats;
+        });
+    };
+
+    const updateHp = (id: string, newHp: number) => {
+        if (!currentCombatId) return;
+        setCombats(prev => {
+            const updatedCombats = prev.map(c =>
+                c.id === currentCombatId
+                    ? {
+                        ...c,
+                        combatants: (c.combatants || []).map(comb =>
+                            comb.id === id
+                                ? { ...comb, currentHp: Math.min(newHp, comb.maxHp) }
+                                : comb
+                        )
+                    }
+                    : c
+            );
+            // Save the updated combat
+            const updatedCombat = updatedCombats.find(c => c.id === currentCombatId);
+            if (updatedCombat) {
+                saveCombatToFile(updatedCombat);
+            }
+            return updatedCombats;
+        });
+    };
+
+    const updateMaxHp = (id: string, newMaxHp: number) => {
+        if (!currentCombatId) return;
+        const clampedMaxHp = Math.max(1, newMaxHp);
+        setCombats(prev => {
+            const updatedCombats = prev.map(c =>
+                c.id === currentCombatId
+                    ? {
+                        ...c,
+                        combatants: (c.combatants || []).map(comb =>
+                            comb.id === id
+                                ? {
+                                    ...comb,
+                                    maxHp: clampedMaxHp,
+                                    currentHp: (() => {
+                                        // Apply the same logic as in the UI:
+                                        // - If MaxHP goes down below CurrentHP → CurrentHP = MaxHP
+                                        // - If MaxHP goes up and CurrentHP = MaxHP → CurrentHP goes up with MaxHP
+                                        // - If MaxHP goes up and CurrentHP < MaxHP → CurrentHP stays the same
+                                        if (clampedMaxHp < comb.currentHp) {
+                                            return clampedMaxHp;
+                                        } else if (comb.currentHp === comb.maxHp && clampedMaxHp > comb.maxHp) {
+                                            return clampedMaxHp;
+                                        } else {
+                                            return comb.currentHp;
+                                        }
+                                    })()
+                                }
+                                : comb
+                        )
+                    }
+                    : c
+            );
+            // Save the updated combat
+            const updatedCombat = updatedCombats.find(c => c.id === currentCombatId);
+            if (updatedCombat) {
+                saveCombatToFile(updatedCombat);
+            }
+            return updatedCombats;
+        });
+    };
+
+    const updateAc = (id: string, newAc: number) => {
+        if (!currentCombatId) return;
+        setCombats(prev => prev.map(c =>
+            c.id === currentCombatId
+                ? {
+                    ...c,
+                    combatants: (c.combatants || []).map(comb =>
+                        comb.id === id
+                            ? { ...comb, ac: Math.max(0, newAc) }
+                            : comb
+                    )
+                }
+                : c
+        ));
+        // Save
+        const updatedCombat = combats.find(c => c.id === currentCombatId);
+        if (updatedCombat) storeCombatToFile({ ...updatedCombat, combatants: (updatedCombat.combatants || []).map(comb => comb.id === id ? { ...comb, ac: Math.max(0, newAc) } : comb) });
+    };
+
+    const updateColor = (id: string, color: string | null) => {
+        if (!currentCombatId) return;
+        setCombats(prev => prev.map(c =>
+            c.id === currentCombatId
+                ? {
+                    ...c,
+                    combatants: (c.combatants || []).map(comb =>
+                        comb.id === id
+                            ? { ...comb, color: color || undefined }
+                            : comb
+                    )
+                }
+                : c
+        ));
+        // Save
+        const updatedCombat = combats.find(c => c.id === currentCombatId);
+        if (updatedCombat) storeCombatToFile({ ...updatedCombat, combatants: (updatedCombat.combatants || []).map(comb => comb.id === id ? { ...comb, color: color || undefined } : comb) });
+    };
+
+    const updateInitiative = (id: string, newInit: number) => {
+        console.log(`updateInitiative called: id=${id}, newInit=${newInit}, currentCombatId=${currentCombatId}`);
+        if (!currentCombatId) return;
+        setCombats(prev => {
+            const updatedCombats = prev.map(c =>
+                c.id === currentCombatId
+                    ? {
+                        ...c,
+                        combatants: (c.combatants || []).map(comb =>
+                            comb.id === id
+                                ? { ...comb, initiative: newInit }
+                                : comb
+                        )
+                    }
+                    : c
+            );
+            console.log(`State updated for ${id} with initiative ${newInit}`);
+            // Save the updated combat immediately
+            const updatedCombat = updatedCombats.find(c => c.id === currentCombatId);
+            if (updatedCombat) {
+                console.log(`Saving combat with updated initiative for ${id}: ${newInit}`);
+                // Use setTimeout to ensure the state update completes first
+                setTimeout(() => {
+                    storeCombatToFile(updatedCombat);
+                    console.log(`Combat saved for ${id} with initiative ${newInit}`);
+                }, 0);
+            }
+            return updatedCombats;
+        });
+    };
+
+    const updateInitiativeForGroup = (name: string, newInit: number) => {
+        console.log(`updateInitiativeForGroup called: name=${name}, newInit=${newInit}, currentCombatId=${currentCombatId}`);
+        if (!currentCombatId) return;
+        setCombats(prev => {
+            const updatedCombats = prev.map(c =>
+                c.id === currentCombatId
+                    ? {
+                        ...c,
+                        combatants: (c.combatants || []).map(comb =>
+                            comb.name === name
+                                ? { ...comb, initiative: newInit }
+                                : comb
+                        )
+                    }
+                    : c
+            );
+            // Save the updated combat immediately
+            const updatedCombat = updatedCombats.find(c => c.id === currentCombatId);
+            if (updatedCombat) {
+                // Use setTimeout to ensure the state update completes first
+                setTimeout(() => {
+                    storeCombatToFile(updatedCombat);
+                }, 0);
+            }
+            return updatedCombats;
+        });
+    };
+
+    const updateInitiativeBonus = (id: string, newBonus: number) => {
+        if (!currentCombatId) return;
+        setCombats(prev => {
+            const updatedCombats = prev.map(c =>
+                c.id === currentCombatId
+                    ? {
+                        ...c,
+                        combatants: (c.combatants || []).map(comb =>
+                            comb.id === id
+                                ? { ...comb, initiativeBonus: newBonus }
+                                : comb
+                        )
+                    }
+                    : c
+            );
+            // Save the updated combat immediately
+            const updatedCombat = updatedCombats.find(c => c.id === currentCombatId);
+            if (updatedCombat) {
+                // Use setTimeout to ensure the state update completes first
+                setTimeout(() => {
+                    storeCombatToFile(updatedCombat);
+                }, 0);
+            }
+            return updatedCombats;
+        });
+    };
+
+    const updateCombatantConditions = (id: string, conditions: string[]) => {
+        if (!currentCombatId) return;
+
+        // Clean conditions: remove empty strings and trim whitespace
+        const cleanedConditions = conditions
+            .filter(condition => condition && condition.trim() !== '')
+            .map(condition => condition.trim());
+
+        setCombats(prev => prev.map(c =>
+            c.id === currentCombatId
+                ? {
+                    ...c,
+                    combatants: (c.combatants || []).map(comb =>
+                        comb.id === id
+                            ? { ...comb, conditions: cleanedConditions }
+                            : comb
+                    )
+                }
+                : c
+        ));
+        // Save
+        const updatedCombat = combats.find(c => c.id === currentCombatId);
+        if (updatedCombat) {
+            storeCombatToFile({
+                ...updatedCombat,
+                combatants: (updatedCombat.combatants || []).map(comb =>
+                    comb.id === id ? { ...comb, conditions: cleanedConditions } : comb
+                )
+            });
+        }
+    };
+
+    const updateCombatantNote = (id: string, note: string) => {
+        if (!currentCombatId) return;
+
+        // Update individual combatant note
+        setCombats(prev => prev.map(c =>
+            c.id === currentCombatId
+                ? {
+                    ...c,
+                    combatants: (c.combatants || []).map(comb =>
+                        comb.id === id
+                            ? { ...comb, note }
+                            : comb
+                    )
+                }
+                : c
+        ));
+
+        // Save
+        const updatedCombat = combats.find(c => c.id === currentCombatId);
+        if (updatedCombat) {
+            storeCombatToFile({
+                ...updatedCombat,
+                combatants: (updatedCombat.combatants || []).map(comb =>
+                    comb.id === id ? { ...comb, note } : comb
+                )
+            });
+        }
+    };
+
+    const updateCombat = (id: string, updates: { name?: string; description?: string; campaignId?: string }) => {
+        setCombats(prev => prev.map(c =>
+            c.id === id
+                ? { ...c, ...updates }
+                : c
+        ));
+
+        // Save
+        const updatedCombat = combats.find(c => c.id === id);
+        if (updatedCombat) {
+            storeCombatToFile({ ...updatedCombat, ...updates });
+        }
+    };
+
+    // Grouping logic
+    const isGroupEnabled = (nameOrigin: string) => {
+        if (!currentCombat) return false;
+        // Default to false (ungrouped) if not set
+        return (currentCombat.groupByName || {})[nameOrigin] === true;
+    };
+
+    const toggleGroupForName = (nameOrigin: string) => {
+        if (!currentCombatId) return;
+        setCombats(prev => prev.map(c =>
+            c.id === currentCombatId
+                ? {
+                    ...c,
+                    groupByName: {
+                        ...(c.groupByName || {}),
+                        [nameOrigin]: !((c.groupByName || {})[nameOrigin] === true)
+                    }
+                }
+                : c
+        ));
+        // Save
+        const updatedCombat = combats.find(c => c.id === currentCombatId);
+        if (updatedCombat) {
+            const newGroupByName = { ...(updatedCombat.groupByName || {}), [nameOrigin]: !((updatedCombat.groupByName || {})[nameOrigin] === true) };
+            storeCombatToFile({ ...updatedCombat, groupByName: newGroupByName });
+        }
+    };
+
+    const setGroupForName = (nameOrigin: string, value: boolean) => {
+        if (!currentCombatId) return;
+        setCombats(prev => prev.map(c =>
+            c.id === currentCombatId
+                ? {
+                    ...c,
+                    groupByName: {
+                        ...(c.groupByName || {}),
+                        [nameOrigin]: value
+                    }
+                }
+                : c
+        ));
+        // Save
+        const updatedCombat = combats.find(c => c.id === currentCombatId);
+        if (updatedCombat) storeCombatToFile({ ...updatedCombat, groupByName: { ...(updatedCombat.groupByName || {}), [nameOrigin]: value } });
+    };
+
+    const clearCombat = () => {
+        if (!currentCombatId) return;
+
+        setCombats(prev => prev.map(c => {
+            if (c.id !== currentCombatId) return c;
+
+            // Clear all combatants and reset groups
+            return {
+                ...c,
+                combatants: [],
+                groupByName: {},
+                started: false,
+                round: undefined,
+                turnIndex: undefined
+            };
+        }));
+
+        // Save
+        const updatedCombat = combats.find(c => c.id === currentCombatId);
+        if (updatedCombat) {
+            storeCombatToFile({
+                ...updatedCombat,
+                combatants: [],
+                groupByName: {},
+                started: false,
+                round: undefined,
+                turnIndex: undefined
+            });
+        }
+    };
+
+    const resetCombatGroups = () => {
+        if (!currentCombatId) return;
+
+        setCombats(prev => prev.map(c => {
+            if (c.id !== currentCombatId) return c;
+
+            // Clear all existing groups
+            const newGroupByName: { [nameOrigin: string]: boolean } = {};
+
+            // Reanalyze current combatants and create new groups following the rules
+            const groups: { [nameOrigin: string]: Combatant[] } = {};
+            c.combatants.forEach(combatant => {
+                const nameOrigin = `${normalizeString(combatant.name)}-${normalizeString(combatant.source)}`;
+                if (!groups[nameOrigin]) {
+                    groups[nameOrigin] = [];
+                }
+                groups[nameOrigin].push(combatant);
+            });
+
+            // Apply grouping rules:
+            // 1. If only one combatant with this name-origin, don't group (no need)
+            // 2. If multiple combatants with same name-origin, group by default (true)
+            Object.entries(groups).forEach(([nameOrigin, members]) => {
+                if (members.length > 1) {
+                    newGroupByName[nameOrigin] = true; // Group by default
+                }
+                // If only one member, don't add to groupByName (will default to false)
+            });
+
+            return { ...c, groupByName: newGroupByName };
+        }));
+
+        // Save
+        const updatedCombat = combats.find(c => c.id === currentCombatId);
+        if (updatedCombat) {
+            const newGroupByName: { [nameOrigin: string]: boolean } = {};
+            const groups: { [nameOrigin: string]: Combatant[] } = {};
+
+            updatedCombat.combatants.forEach(combatant => {
+                const nameOrigin = `${normalizeString(combatant.name)}-${normalizeString(combatant.source)}`;
+                if (!groups[nameOrigin]) {
+                    groups[nameOrigin] = [];
+                }
+                groups[nameOrigin].push(combatant);
+            });
+
+            Object.entries(groups).forEach(([nameOrigin, members]) => {
+                if (members.length > 1) {
+                    newGroupByName[nameOrigin] = true;
+                }
+            });
+
+            storeCombatToFile({ ...updatedCombat, groupByName: newGroupByName });
+        }
+    };
+
+    // Helper function to sort combatants considering groups
+    const sortCombatantsWithGroups = (combatants: Combatant[], groupByName: { [nameOrigin: string]: boolean }) => {
+    // Group combatants by name-origin
+        const groups = new Map<string, Combatant[]>();
+        combatants.forEach(c => {
+            const nameOrigin = `${normalizeString(c.name)}-${normalizeString(c.source)}`;
+            if (!groups.has(nameOrigin)) {
+                groups.set(nameOrigin, []);
+            }
+      groups.get(nameOrigin)!.push(c);
+        });
+
+        // Create a list of combatants in the correct order
+        const sortedCombatants: Combatant[] = [];
+
+        // Get turn order to determine the correct sequence
+        const turnOrder = getTurnOrder(combatants, groupByName);
+
+        // For each turn in the order, add the corresponding combatants
+        turnOrder.forEach(turn => {
+            turn.ids.forEach(id => {
+                const combatant = combatants.find(c => c.id === id);
+                if (combatant) {
+                    sortedCombatants.push(combatant);
+                }
+            });
+        });
+
+        return sortedCombatants;
+    };
+
+    const startCombat = () => {
+        if (!currentCombatId) return;
+        setCombats(prev => prev.map(c => {
+            if (c.id !== currentCombatId) return c;
+            // Sort combatants considering groups
+            const sorted = sortCombatantsWithGroups(c.combatants || [], c.groupByName || {});
+            return {
+                ...c,
+                combatants: sorted,
+                round: 1,
+                turnIndex: 0,
+                started: true,
+            };
+        }));
+        // Save
+        const updatedCombat = combats.find(c => c.id === currentCombatId);
+        if (updatedCombat) storeCombatToFile({ ...updatedCombat, round: 1, turnIndex: 0, started: true });
+    };
+
+    const stopCombat = () => {
+        if (!currentCombatId) return;
+        setCombats(prev => prev.map(c => {
+            if (c.id !== currentCombatId) return c;
+            return {
+                ...c,
+                started: false,
+                round: undefined,
+                turnIndex: undefined,
+            };
+        }));
+        // Save
+        const updatedCombat = combats.find(c => c.id === currentCombatId);
+        if (updatedCombat) storeCombatToFile({ ...updatedCombat, started: false, round: undefined, turnIndex: undefined });
+    };
+
+    const nextTurn = () => {
+        if (!currentCombatId) return;
+        setCombats(prev => prev.map(c => {
+            if (c.id !== currentCombatId) return c;
+            if (!c.started) return c;
+            const turnOrder = getTurnOrder(c.combatants || [], c.groupByName || {});
+            const numTurns = turnOrder.length;
+            if (numTurns === 0) return c;
+            let nextTurnIndex = (c.turnIndex ?? 0) + 1;
+            let nextRound = c.round ?? 1;
+            if (nextTurnIndex >= numTurns) {
+                nextTurnIndex = 0;
+                nextRound += 1;
+            }
+            return {
+                ...c,
+                turnIndex: nextTurnIndex,
+                round: nextRound,
+            };
+        }));
+        // Save
+        const updatedCombat = combats.find(c => c.id === currentCombatId);
+        if (updatedCombat) {
+            const turnOrder = getTurnOrder(updatedCombat.combatants || [], updatedCombat.groupByName || {});
+            const numTurns = turnOrder.length;
+            let nextTurnIndex = (updatedCombat.turnIndex ?? 0) + 1;
+            let nextRound = updatedCombat.round ?? 1;
+            if (nextTurnIndex >= numTurns) {
+                nextTurnIndex = 0;
+                nextRound += 1;
+            }
+            storeCombatToFile({ ...updatedCombat, turnIndex: nextTurnIndex, round: nextRound });
+        }
+    };
+
+    // Helper to get turn order based on grouping
+    function getTurnOrder(combatants: Combatant[], groupByName: { [nameOrigin: string]: boolean }) {
+    // Group combatants by name-origin
+        const groups = new Map<string, Combatant[]>();
+        combatants.forEach(c => {
+            const nameOrigin = `${normalizeString(c.name)}-${normalizeString(c.source)}`;
+            if (!groups.has(nameOrigin)) {
+                groups.set(nameOrigin, []);
+            }
+      groups.get(nameOrigin)!.push(c);
+        });
+        // Build turn order: grouped = one entry per group, ungrouped = each individual
+        let turnOrder: { ids: string[], name: string, initiative: number }[] = [];
+        Array.from(groups.entries()).forEach(([nameOrigin, members]) => {
+            if (groupByName[nameOrigin]) {
+                // Grouped: one turn for all
+                turnOrder.push({ ids: members.map(m => m.id), name: members[0].name, initiative: Math.max(...members.map(m => m.initiative)) });
+            } else {
+                // Ungrouped: each is its own turn
+                members.forEach(m => {
+                    turnOrder.push({ ids: [m.id], name: m.name, initiative: m.initiative });
+                });
+            }
+        });
+        // Sort by initiative descending
+        turnOrder.sort((a, b) => b.initiative - a.initiative);
+        return turnOrder;
+    }
+
+    const addPlayerCombatant = (player: { name: string, race: string, class: string, maxHp?: number, ac?: number, passivePerception?: number, initiativeBonus?: number, tokenUrl?: string }) => {
+        if (!currentCombatId) return;
+        const id = `player-${player.name}-${Date.now()}-${Math.random()}`;
+        const newCombatant = {
+            id,
+            name: player.name,
+            source: 'player',
+            maxHp: player.maxHp || 0,
+            currentHp: player.maxHp || 0,
+            initiative: 0,
+            initiativeBonus: player.initiativeBonus || 0, // Use player's initiative bonus or default to 0
+            ac: player.ac || 0,
+            passivePerception: player.passivePerception || 10,
+            color: undefined,
+            tokenUrl: player.tokenUrl || DEFAULT_PLAYER_TOKEN,
+            race: player.race,
+            class: player.class
+        };
+        setCombats(prev => prev.map(c =>
+            c.id === currentCombatId
+                ? { ...c, combatants: [...(c.combatants || []), newCombatant] }
+                : c
+        ));
+    };
+
+    // Sync all player combatants in all combats when a player is edited
+    const syncPlayerCombatants = (player: { name: string, race: string, class: string, maxHp?: number, ac?: number, passivePerception?: number, initiativeBonus?: number, tokenUrl?: string }) => {
+        setCombats(prev => prev.map(combat => ({
+            ...combat,
+            combatants: (combat.combatants || []).map(comb =>
+                comb.source === 'player' && comb.name === player.name
+                    ? {
+                        ...comb,
+                        race: player.race,
+                        class: player.class,
+                        maxHp: player.maxHp || 0,
+                        ac: player.ac || 0,
+                        passivePerception: player.passivePerception || 10,
+                        initiativeBonus: player.initiativeBonus || 0,
+                        tokenUrl: player.tokenUrl || comb.tokenUrl,
+                    }
+                    : comb
+            )
+        })));
+    };
+
+    // Set a combat as active/inactive (only one can be active at a time)
+    const setCombatActive = (id: string, active: boolean) => {
+        setCombats(prev => prev.map(combat => ({
+            ...combat,
+            isActive: active ? (combat.id === id) : false // If setting active, only this one is active. If setting inactive, none are active.
+        })));
+    };
+
+    // Get combats sorted by: started first, then by name (alphabetically)
+    const getSortedCombats = useCallback((campaignId?: string | null): Combat[] => {
+    // Filter combats by campaign if campaignId is provided
+        let filteredCombats = combats;
+        if (campaignId) {
+            // Filter by specific campaign
+            filteredCombats = combats.filter(combat => combat.campaignId === campaignId);
+        } else {
+            // Show all combats when no campaign is selected (null or undefined)
+            filteredCombats = combats;
+        }
+
+        // Ensure all combats have required properties
+        const normalizedCombats = filteredCombats.map(combat => ({
+            ...combat,
+            combatants: combat.combatants || [],
+            groupByName: combat.groupByName || {},
+            started: combat.started || false
+        }));
+
+        return normalizedCombats.sort((a, b) => {
+            // Started combats first
+            if (a.started && !b.started) return -1;
+            if (!a.started && b.started) return 1;
+            // Then by name (alphabetically)
+            return a.name.localeCompare(b.name);
+        });
+    }, [combats]);
+
+    // Reload combats from storage
+    const reloadCombats = async (): Promise<void> => {
+        try {
+            console.log('Reloading combats from storage...');
+            const combatIndexes = await loadCombatsIndexFromFile();
+            console.log('Reloaded combat indexes:', combatIndexes);
+
+            if (combatIndexes && combatIndexes.length > 0) {
+                console.log('Total reloaded combat indexes:', combatIndexes.length);
+
+                // Load full combat data for each combat
+                const loadedCombats = await Promise.all(combatIndexes.map(async (combatIndex, index) => {
+                    try {
+                        const fullCombat = await loadCombatFromFile(combatIndex.file);
+                        if (fullCombat) {
+                            console.log(`✅ Successfully reloaded combat: ${fullCombat.name} (ID: ${fullCombat.id})`);
+                            return fullCombat;
+                        } else {
+                            console.warn(`❌ Failed to reload full combat for ${combatIndex.name}`);
+                            return null;
+                        }
+                    } catch (error) {
+                        console.error(`❌ Error reloading combat ${combatIndex.name}:`, error);
+                        return null;
+                    }
+                }));
+
+                // Filter out null values and update token URLs
+                const validCombats = loadedCombats.filter(combat => combat !== null);
+                const updatedCombats = await Promise.all(validCombats.map(async (combat) => {
+                    if (combat.combatants && combat.combatants.length > 0) {
+                        const updatedCombatants = await Promise.all(combat.combatants.map(async (combatant: Combatant) => {
+                            if (combatant.tokenUrl && combatant.tokenUrl.startsWith('http')) {
+                                try {
+                                    const cachedUrl = await getCachedTokenUrl(combatant.source, combatant.name);
+                                    if (cachedUrl) {
+                                        return { ...combatant, tokenUrl: cachedUrl };
+                                    }
+                                } catch (error) {
+                                    console.error(`Error updating token URL for ${combatant.name}:`, error);
+                                }
+                            }
+                            return combatant;
+                        }));
+                        return { ...combat, combatants: updatedCombatants };
+                    }
+                    return combat;
+                }));
+
+                setCombats(updatedCombats);
+                // Clear current combat when reloading
+                setCurrentCombatId(null);
+            } else {
+                console.log('No combats found during reload');
+                setCombats([]);
+                setCurrentCombatId(null);
+            }
+        } catch (error) {
+            console.error('Error reloading combats:', error);
+        }
+    };
+
+
+
+    return (
+        <CombatContext.Provider value={{
+            combats,
+            currentCombatId,
+            currentCombat,
+            combatants,
+            groupByName,
+            createCombat,
+            selectCombat,
+            clearCurrentCombat,
+            deleteCombat,
+            archiveCombat,
+            resetCombat,
+            addCombatant,
+            addCombatantToCombat,
+            removeCombatant,
+            updateHp,
+            updateMaxHp,
+            updateAc,
+            updateColor,
+            updateInitiative,
+            updateInitiativeForGroup,
+            updateInitiativeBonus,
+            isGroupEnabled,
+            toggleGroupForName,
+            setGroupForName,
+            clearCombat,
+            resetCombatGroups,
+            startCombat,
+            stopCombat,
+            nextTurn,
+            getTurnOrder: (combatants: Combatant[], groupByName: { [name: string]: boolean }) => getTurnOrder(combatants, groupByName),
+            addPlayerCombatant,
+            syncPlayerCombatants,
+            updateCombatantConditions,
+            updateCombatantNote,
+            setCombatActive,
+            updateCombat,
+            getSortedCombats,
+            reloadCombats,
+        }}>
+            {children}
+        </CombatContext.Provider>
+    );
 };
 
 export function useCombat() {
-  const ctx = useContext(CombatContext);
-  if (!ctx) throw new Error('useCombat must be used within a CombatProvider');
-  return ctx;
-} 
+    const ctx = useContext(CombatContext);
+    if (!ctx) throw new Error('useCombat must be used within a CombatProvider');
+    return ctx;
+}
