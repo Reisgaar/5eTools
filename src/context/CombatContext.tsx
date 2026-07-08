@@ -1,5 +1,5 @@
 // REACT
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState, useCallback } from 'react';
 
 // UTILS
 import { calculatePassivePerception, calculateInitiativeBonus, extractSpeed, extractSenses, extractACValue } from 'src/utils/beastUtils';
@@ -44,6 +44,8 @@ export interface Combat {
   started?: boolean;
   isActive?: boolean; // Marks if this combat is currently active/in progress
   campaignId?: string; // Campaign this combat belongs to
+  archived?: boolean; // Marks if this combat has been archived
+  archivedAt?: number; // Timestamp (ms) when the combat was archived
 }
 
 interface CombatContextType {
@@ -315,31 +317,41 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     };
 
     const archiveCombat = (id: string) => {
-        setCombats(prev => prev.map(c =>
-            c.id === id
-                ? { ...c, archived: true, archivedAt: Date.now() }
-                : c
-        ));
+        setCombats(prev => {
+            const updated = prev.map(c =>
+                c.id === id
+                    ? { ...c, archived: true, archivedAt: Date.now() }
+                    : c
+            );
+            const changed = updated.find(c => c.id === id);
+            if (changed) saveCombatToFile(changed); // Persist so the archive survives reload
+            return updated;
+        });
     };
 
     const resetCombat = (id: string) => {
-        setCombats(prev => prev.map(c =>
-            c.id === id
-                ? {
-                    ...c,
-                    round: undefined,
-                    turnIndex: undefined,
-                    started: false,
-                    combatants: (c.combatants || []).map(comb => ({
-                        ...comb,
-                        currentHp: comb.maxHp, // Reset HP to max
-                        initiative: 0, // Reset initiative
-                        conditions: [] // Clear conditions
-                        // Note: initiativeBonus is preserved
-                    }))
-                }
-                : c
-        ));
+        setCombats(prev => {
+            const updated = prev.map(c =>
+                c.id === id
+                    ? {
+                        ...c,
+                        round: undefined,
+                        turnIndex: undefined,
+                        started: false,
+                        combatants: (c.combatants || []).map(comb => ({
+                            ...comb,
+                            currentHp: comb.maxHp, // Reset HP to max
+                            initiative: 0, // Reset initiative
+                            conditions: [] // Clear conditions
+                            // Note: initiativeBonus is preserved
+                        }))
+                    }
+                    : c
+            );
+            const changed = updated.find(c => c.id === id);
+            if (changed) saveCombatToFile(changed); // Persist so the reset survives reload
+            return updated;
+        });
     };
 
     const addCombatant = async (monster: any) => {
@@ -1040,40 +1052,56 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             race: player.race,
             class: player.class
         };
-        setCombats(prev => prev.map(c =>
-            c.id === currentCombatId
-                ? { ...c, combatants: [...(c.combatants || []), newCombatant] }
-                : c
-        ));
+        setCombats(prev => {
+            const updated = prev.map(c =>
+                c.id === currentCombatId
+                    ? { ...c, combatants: [...(c.combatants || []), newCombatant] }
+                    : c
+            );
+            const changed = updated.find(c => c.id === currentCombatId);
+            if (changed) saveCombatToFile(changed); // Persist so the added player survives reload
+            return updated;
+        });
     };
 
     // Sync all player combatants in all combats when a player is edited
     const syncPlayerCombatants = (player: { name: string, race: string, class: string, maxHp?: number, ac?: number, passivePerception?: number, initiativeBonus?: number, tokenUrl?: string }) => {
-        setCombats(prev => prev.map(combat => ({
-            ...combat,
-            combatants: (combat.combatants || []).map(comb =>
-                comb.source === 'player' && comb.name === player.name
-                    ? {
-                        ...comb,
-                        race: player.race,
-                        class: player.class,
-                        maxHp: player.maxHp || 0,
-                        ac: player.ac || 0,
-                        passivePerception: player.passivePerception || 10,
-                        initiativeBonus: player.initiativeBonus || 0,
-                        tokenUrl: player.tokenUrl || comb.tokenUrl,
-                    }
-                    : comb
-            )
-        })));
+        setCombats(prev => prev.map(combat => {
+            const hasPlayer = (combat.combatants || []).some(
+                comb => comb.source === 'player' && comb.name === player.name
+            );
+            if (!hasPlayer) return combat;
+            const updatedCombat = {
+                ...combat,
+                combatants: (combat.combatants || []).map(comb =>
+                    comb.source === 'player' && comb.name === player.name
+                        ? {
+                            ...comb,
+                            race: player.race,
+                            class: player.class,
+                            maxHp: player.maxHp || 0,
+                            ac: player.ac || 0,
+                            passivePerception: player.passivePerception || 10,
+                            initiativeBonus: player.initiativeBonus || 0,
+                            tokenUrl: player.tokenUrl || comb.tokenUrl,
+                        }
+                        : comb
+                )
+            };
+            saveCombatToFile(updatedCombat); // Persist so the player sync survives reload
+            return updatedCombat;
+        }));
     };
 
     // Set a combat as active/inactive (only one can be active at a time)
     const setCombatActive = (id: string, active: boolean) => {
-        setCombats(prev => prev.map(combat => ({
-            ...combat,
-            isActive: active ? (combat.id === id) : false // If setting active, only this one is active. If setting inactive, none are active.
-        })));
+        setCombats(prev => prev.map(combat => {
+            const nextIsActive = active ? (combat.id === id) : false; // If setting active, only this one is active. If setting inactive, none are active.
+            if ((combat.isActive || false) === nextIsActive) return combat; // No change; skip write
+            const updatedCombat = { ...combat, isActive: nextIsActive };
+            saveCombatToFile(updatedCombat); // Persist so the active flag survives reload
+            return updatedCombat;
+        }));
     };
 
     // Get combats sorted by: started first, then by name (alphabetically)
@@ -1169,47 +1197,54 @@ export const CombatProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
 
 
+    // Memoize the context value keyed on the source-of-truth state (combats, currentCombatId).
+    // All handlers below close over only these two values (plus stable setters), and
+    // currentCombat/combatants/groupByName are derived from them — so this is safe and keeps
+    // the value referentially stable across unrelated parent re-renders (e.g. theme changes).
+    const value = useMemo<CombatContextType>(() => ({
+        combats,
+        currentCombatId,
+        currentCombat,
+        combatants,
+        groupByName,
+        createCombat,
+        selectCombat,
+        clearCurrentCombat,
+        deleteCombat,
+        archiveCombat,
+        resetCombat,
+        addCombatant,
+        addCombatantToCombat,
+        removeCombatant,
+        updateHp,
+        updateMaxHp,
+        updateAc,
+        updateColor,
+        updateInitiative,
+        updateInitiativeForGroup,
+        updateInitiativeBonus,
+        isGroupEnabled,
+        toggleGroupForName,
+        setGroupForName,
+        clearCombat,
+        resetCombatGroups,
+        startCombat,
+        stopCombat,
+        nextTurn,
+        getTurnOrder: (combatants: Combatant[], groupByName: { [name: string]: boolean }) => getTurnOrder(combatants, groupByName),
+        addPlayerCombatant,
+        syncPlayerCombatants,
+        updateCombatantConditions,
+        updateCombatantNote,
+        setCombatActive,
+        updateCombat,
+        getSortedCombats,
+        reloadCombats,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }), [combats, currentCombatId]);
+
     return (
-        <CombatContext.Provider value={{
-            combats,
-            currentCombatId,
-            currentCombat,
-            combatants,
-            groupByName,
-            createCombat,
-            selectCombat,
-            clearCurrentCombat,
-            deleteCombat,
-            archiveCombat,
-            resetCombat,
-            addCombatant,
-            addCombatantToCombat,
-            removeCombatant,
-            updateHp,
-            updateMaxHp,
-            updateAc,
-            updateColor,
-            updateInitiative,
-            updateInitiativeForGroup,
-            updateInitiativeBonus,
-            isGroupEnabled,
-            toggleGroupForName,
-            setGroupForName,
-            clearCombat,
-            resetCombatGroups,
-            startCombat,
-            stopCombat,
-            nextTurn,
-            getTurnOrder: (combatants: Combatant[], groupByName: { [name: string]: boolean }) => getTurnOrder(combatants, groupByName),
-            addPlayerCombatant,
-            syncPlayerCombatants,
-            updateCombatantConditions,
-            updateCombatantNote,
-            setCombatActive,
-            updateCombat,
-            getSortedCombats,
-            reloadCombats,
-        }}>
+        <CombatContext.Provider value={value}>
             {children}
         </CombatContext.Provider>
     );

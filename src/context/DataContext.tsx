@@ -1,5 +1,5 @@
 // REACT
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 // CONSTANTS
 import { bestiaryGetRequests, spellsGetRequests, spellSourceLookupRequest } from 'src/constants/requests';
@@ -98,6 +98,63 @@ interface DataContextType {
   getFullSpell: (name: string, source: string) => Promise<Spell | null>;
 }
 
+// Process spell source lookup data to extract available classes and spell-class relations.
+// Pure/module-scoped so it has a stable identity and can be unit-tested in isolation.
+function processSpellSourceLookup(spellSourceLookupData: SpellSourceLookup, spellsData: Spell[]) {
+    const allClasses = new Set<string>();
+    const relations: SpellClassRelation[] = [];
+
+    // Process each source
+    Object.entries(spellSourceLookupData).forEach(([source, spells]) => {
+        // Process each spell in the source
+        Object.entries(spells).forEach(([spellName, spellData]) => {
+            if (spellData.class) {
+                // Process each book for this spell
+                Object.entries(spellData.class).forEach(([book, classData]) => {
+                    if (typeof classData === 'object') {
+                        // Process each class in this book
+                        Object.entries(classData).forEach(([className, canCast]) => {
+                            if (canCast === true) {
+                                allClasses.add(className);
+                                relations.push({ spellName, source, className, book });
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    });
+
+    // Index relations by normalized "name|source" once, so the join below is O(spells + relations)
+    // instead of O(spells × relations) with per-iteration toLowerCase() calls.
+    const classesBySpell = new Map<string, Set<string>>();
+    relations.forEach(relation => {
+        const key = `${relation.spellName.toLowerCase()}|${relation.source.toLowerCase()}`;
+        let set = classesBySpell.get(key);
+        if (!set) {
+            set = new Set<string>();
+            classesBySpell.set(key, set);
+        }
+        set.add(relation.className);
+    });
+
+    // Update spells with their available classes via O(1) map lookups
+    const updatedSpells = spellsData.map(spell => {
+        const key = `${spell.name.toLowerCase()}|${spell.source.toLowerCase()}`;
+        const spellClasses = classesBySpell.get(key);
+        return {
+            ...spell,
+            availableClasses: spellClasses ? Array.from(spellClasses).sort() : []
+        };
+    });
+
+    return {
+        availableClasses: Array.from(allClasses).sort(),
+        spellClassRelations: relations,
+        updatedSpells
+    };
+}
+
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
 /**
@@ -178,64 +235,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
     }, [spellsIndex]);
 
-    // Process spell source lookup data to extract available classes and spell-class relations
-    function processSpellSourceLookup(spellSourceLookupData: SpellSourceLookup, spellsData: Spell[]) {
-        const allClasses = new Set<string>();
-        const relations: SpellClassRelation[] = [];
-
-        // Process each source
-        Object.entries(spellSourceLookupData).forEach(([source, spells]) => {
-            // Process each spell in the source
-            Object.entries(spells).forEach(([spellName, spellData]) => {
-                if (spellData.class) {
-                    // Process each book for this spell
-                    Object.entries(spellData.class).forEach(([book, classData]) => {
-                        if (typeof classData === 'object') {
-                            // Process each class in this book
-                            Object.entries(classData).forEach(([className, canCast]) => {
-                                if (canCast === true) {
-                                    allClasses.add(className);
-                                    relations.push({
-                                        spellName,
-                                        source,
-                                        className,
-                                        book
-                                    });
-                                }
-                            });
-                        }
-                    });
-                }
-            });
-        });
-
-        // Update spells with their available classes
-        const updatedSpells = spellsData.map(spell => {
-            const spellClasses = new Set<string>();
-
-            // Find all relations for this spell (case insensitive)
-            relations.forEach(relation => {
-                if (relation.spellName.toLowerCase() === spell.name.toLowerCase() &&
-            relation.source.toLowerCase() === spell.source.toLowerCase()) {
-                    spellClasses.add(relation.className);
-                }
-            });
-
-            return {
-                ...spell,
-                availableClasses: Array.from(spellClasses).sort()
-            };
-        });
-
-        return {
-            availableClasses: Array.from(allClasses).sort(),
-            spellClassRelations: relations,
-            updatedSpells
-        };
-    }
-
     // Fetch all data from the API
-    const fetchAllData = async () => {
+    const fetchAllData = useCallback(async () => {
         setIsLoading(true);
         try {
             console.log('Fetching beasts data...');
@@ -378,10 +379,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } finally {
             setIsLoading(false);
         }
-    };
+    }, []);
 
     // Load data from files
-    const loadData = async () => {
+    const loadData = useCallback(async () => {
         setIsLoading(true);
         try {
             console.log('Loading data from files...');
@@ -422,15 +423,15 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } finally {
             setIsLoading(false);
         }
-    };
+    }, []);
 
     // Reload data (fetch from API)
-    const reloadData = async () => {
+    const reloadData = useCallback(async () => {
         await fetchAllData();
-    };
+    }, [fetchAllData]);
 
     // Clear all data
-    const clearData = async () => {
+    const clearData = useCallback(async () => {
         try {
             await clearBeastsAndSpellsOnly();
             setBeasts([]);
@@ -444,10 +445,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } catch (error) {
             console.error('Error clearing data:', error);
         }
-    };
+    }, []);
 
     // Get full beast data by name and source
-    const getFullBeast = async (name: string, source: string): Promise<Beast | null> => {
+    const getFullBeast = useCallback(async (name: string, source: string): Promise<Beast | null> => {
         try {
             // Find the beast in the index
             const beastIndex = beastsIndex.find(b =>
@@ -483,10 +484,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             console.error('Error loading full beast:', error);
             return null;
         }
-    };
+    }, [beastsIndex]);
 
     // Get full spell data by name and source
-    const getFullSpell = async (name: string, source: string): Promise<Spell | null> => {
+    const getFullSpell = useCallback(async (name: string, source: string): Promise<Spell | null> => {
         try {
             // Find the spell in the index
             const spellIndex = spellsIndex.find(s =>
@@ -511,7 +512,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             console.error('Error loading full spell:', error);
             return null;
         }
-    };
+    }, [spellsIndex]);
 
     // Initialize data on mount
     useEffect(() => {
@@ -532,23 +533,41 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    // Memoize the context value so consumers don't re-render on unrelated parent renders.
+    const value = useMemo<DataContextType>(() => ({
+        beasts,
+        simpleBeasts,
+        spells,
+        simpleSpells,
+        spellSourceLookup,
+        availableClasses,
+        spellClassRelations,
+        isLoading,
+        isInitialized,
+        loadData,
+        reloadData,
+        clearData,
+        getFullBeast,
+        getFullSpell
+    }), [
+        beasts,
+        simpleBeasts,
+        spells,
+        simpleSpells,
+        spellSourceLookup,
+        availableClasses,
+        spellClassRelations,
+        isLoading,
+        isInitialized,
+        loadData,
+        reloadData,
+        clearData,
+        getFullBeast,
+        getFullSpell
+    ]);
+
     return (
-        <DataContext.Provider value={{
-            beasts,
-            simpleBeasts,
-            spells,
-            simpleSpells,
-            spellSourceLookup,
-            availableClasses,
-            spellClassRelations,
-            isLoading,
-            isInitialized,
-            loadData,
-            reloadData,
-            clearData,
-            getFullBeast,
-            getFullSpell
-        }}>
+        <DataContext.Provider value={value}>
             {children}
         </DataContext.Provider>
     );
