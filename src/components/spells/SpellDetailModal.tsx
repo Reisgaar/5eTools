@@ -51,7 +51,7 @@ export default function SpellDetailModal({
     onCreaturePress?: (name: string, source: string) => void,
     onSpellPress?: (name: string, source: string) => void,
 }) {
-    const { openDiceModal, openAdvancedDiceModal, openBeastModal, openSpellModal } = useModal();
+    const { openDiceModal, openAdvancedDiceModal, openBeastModal, openSpellModal, openEntryModal } = useModal();
     const { simpleBeasts, simpleSpells } = useData();
     const { useAdvancedDiceRoll } = useAppSettingsStore();
     const styles = createSpellStyles(theme);
@@ -228,6 +228,10 @@ export default function SpellDetailModal({
         }
     }
 
+    function handleEntryPress(category: string, name: string, source: string) {
+        openEntryModal(category, name, source);
+    }
+
     // Helper function to check if spell requires concentration
     const requiresConcentration = (duration: any): boolean => {
         if (!duration) return false;
@@ -352,7 +356,7 @@ export default function SpellDetailModal({
                                 {/* Spell Description */}
                                 <View style={{ marginBottom: 15 }}>
                                     <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 8, color: theme.text }}>Description</Text>
-                                    {renderEntries(spell.entries, 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress)}
+                                    {renderEntries(spell.entries, 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress, handleEntryPress)}
                                 </View>
 
                                 {/* Higher Level */}

@@ -3,8 +3,8 @@ const version = '1.0.3';
 const buildNumber = 8;   // +1 on each production build.
 
 // App identification constants.
-const appName = '5e tools';             // Display name shown under the app icon on the device.
-const identifier = 'dnd.5eTools';       // Bundle identifier (iOS) and package name (Android). Must be unique and reverse-DNS formatted.
+const appName = 'Pocket5e';             // Display name shown under the app icon on the device.
+const identifier = 'dnd.Pocket5e';       // Bundle identifier (iOS) and package name (Android). Must be unique and reverse-DNS formatted.
 const slug = '5etools';            // Unique project identifier used by Expo and EAS, must be URL-friendly.
 const scheme = 'dndtools';               // Custom URI scheme used for deep linking, must be unique across apps to avoid conflicts on devices.
 

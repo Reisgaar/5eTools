@@ -216,7 +216,7 @@ function formatConditionImmunities(conditionImmune: any): string {
     return String(conditionImmune);
 }
 
-function formatSpellcasting(spellcasting: any, theme: any, onCreaturePress?: (name: string, source: string) => void, onSpellPress?: (name: string, source: string) => void, handleDamagePress?: (expr: string) => void, handleHitPress?: (bonus: string) => void) {
+function formatSpellcasting(spellcasting: any, theme: any, onCreaturePress?: (name: string, source: string) => void, onSpellPress?: (name: string, source: string) => void, handleDamagePress?: (expr: string) => void, handleHitPress?: (bonus: string) => void, onEntryPress?: (category: string, name: string, source: string) => void) {
     if (!spellcasting) return null;
 
     if (!Array.isArray(spellcasting))
@@ -226,7 +226,7 @@ function formatSpellcasting(spellcasting: any, theme: any, onCreaturePress?: (na
         <View key={i} style={{ marginBottom: 8 }}>
             <Text style={{ fontWeight: 'bold', color: theme.text }}>{sc.name || 'Spellcasting'}{sc.displayAs ? ` (${sc.displayAs})` : ''}.</Text>
             {sc.headerEntries && (
-                renderEntries(sc.headerEntries, 0, theme, onCreaturePress, onSpellPress, {}, handleDamagePress, handleHitPress)
+                renderEntries(sc.headerEntries, 0, theme, onCreaturePress, onSpellPress, {}, handleDamagePress, handleHitPress, onEntryPress)
             )}
             {/* Spellbook style */}
             {sc.spells && (
@@ -237,7 +237,7 @@ function formatSpellcasting(spellcasting: any, theme: any, onCreaturePress?: (na
                             <Text style={{ fontWeight: 'bold', color: theme.text }}>Cantrips (at will): </Text>
                             {sc.spells['0'].spells.map((spell: string, idx: number) => (
                                 <React.Fragment key={idx}>
-                                    {renderEntries(spell, 0, theme, onCreaturePress, onSpellPress, {}, handleDamagePress, handleHitPress)}
+                                    {renderEntries(spell, 0, theme, onCreaturePress, onSpellPress, {}, handleDamagePress, handleHitPress, onEntryPress)}
                                     {idx < sc.spells['0'].spells.length - 1 ? <Text style={{ color: theme.text }}>{', '}</Text> : null}
                                 </React.Fragment>
                             ))}
@@ -249,7 +249,7 @@ function formatSpellcasting(spellcasting: any, theme: any, onCreaturePress?: (na
                             <Text style={{ fontWeight: 'bold', color: theme.text }}>Level {lvl}{data.slots ? ` (${data.slots} slots)` : ''}: </Text>
                             {data.spells.map((spell: string, idx: number) => (
                                 <React.Fragment key={idx}>
-                                    {renderEntries(spell, 0, theme, onCreaturePress, onSpellPress, {}, handleDamagePress, handleHitPress)}
+                                    {renderEntries(spell, 0, theme, onCreaturePress, onSpellPress, {}, handleDamagePress, handleHitPress, onEntryPress)}
                                     {idx < data.spells.length - 1 ? <Text style={{ color: theme.text }}>{', '}</Text> : null}
                                 </React.Fragment>
                             ))}
@@ -263,7 +263,7 @@ function formatSpellcasting(spellcasting: any, theme: any, onCreaturePress?: (na
                     {Object.entries(sc.daily).map(([level, spells]: [string, any], idx: number) => (
                         <View key={level}>
                             <Text style={{ color: theme.text }}>{level.replace('e', '/day')}: </Text>
-                            {renderEntries(spells, 0, theme, onCreaturePress, onSpellPress, {}, handleDamagePress, handleHitPress)}
+                            {renderEntries(spells, 0, theme, onCreaturePress, onSpellPress, {}, handleDamagePress, handleHitPress, onEntryPress)}
                             {idx < Object.entries(sc.daily).length - 1 ? <Text style={{ color: theme.text }}>{'\n'}</Text> : null}
                         </View>
                     ))}
@@ -299,7 +299,7 @@ function formatCR(cr: any) {
 export default function BeastDetailModal({ visible, beast, onClose, theme, onCreaturePress, onSpellPress }: BeastDetailModalProps) {
     const { currentTheme, useAdvancedDiceRoll } = useAppSettingsStore();
     const { simpleBeasts, simpleSpells } = useData();
-    const { openSpellModal, openBeastModal, openDiceModal, openAdvancedDiceModal } = useModal();
+    const { openSpellModal, openBeastModal, openDiceModal, openAdvancedDiceModal, openEntryModal } = useModal();
     const styles = createBaseModalStyles(currentTheme);
 
     // All hooks must be at the top level, before any conditional returns
@@ -570,6 +570,10 @@ export default function BeastDetailModal({ visible, beast, onClose, theme, onCre
         }
     }
 
+    function handleEntryPress(category: string, name: string, source: string) {
+        openEntryModal(category, name, source);
+    }
+
     function handleSaveRoll(statKey: string, statLabel: string) {
         if (!beast) return;
 
@@ -727,37 +731,37 @@ export default function BeastDetailModal({ visible, beast, onClose, theme, onCre
                                                 {beast['trait'] && (
                                                     <>
                                                         <Separator title='Traits'/>
-                                                        {renderEntries(beast['trait'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress)}
+                                                        {renderEntries(beast['trait'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress, handleEntryPress)}
                                                     </>
                                                 )}
                                                 {beast['spellcasting'] && (
                                                     <>
                                                         <Separator title='Spellcasting'/>
-                                                        {formatSpellcasting(beast['spellcasting'], theme, handleCreaturePressLocal, handleSpellPressLocal, handleDamagePress, handleHitPress)}
+                                                        {formatSpellcasting(beast['spellcasting'], theme, handleCreaturePressLocal, handleSpellPressLocal, handleDamagePress, handleHitPress, handleEntryPress)}
                                                     </>
                                                 )}
                                                 {beast['action'] && (
                                                     <>
                                                         <Separator title='Actions'/>
-                                                        {renderEntries(beast['action'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress)}
+                                                        {renderEntries(beast['action'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress, handleEntryPress)}
                                                     </>
                                                 )}
                                                 {beast['bonus'] && (
                                                     <>
                                                         <Separator title='Bonus Actions'/>
-                                                        {renderEntries(beast['bonus'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress)}
+                                                        {renderEntries(beast['bonus'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress, handleEntryPress)}
                                                     </>
                                                 )}
                                                 {beast['reaction'] && (
                                                     <>
                                                         <Separator title='Reactions'/>
-                                                        {renderEntries(beast['reaction'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress)}
+                                                        {renderEntries(beast['reaction'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress, handleEntryPress)}
                                                     </>
                                                 )}
                                                 {beast['lair'] && (
                                                     <>
                                                         <Separator title='Lair Actions'/>
-                                                        {renderEntries(beast['lair'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress)}
+                                                        {renderEntries(beast['lair'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress, handleEntryPress)}
                                                     </>
                                                 )}
                                                 {beast['legendary'] && (
@@ -770,13 +774,13 @@ export default function BeastDetailModal({ visible, beast, onClose, theme, onCre
                                                                 ))}
                                                             </Text>
                                                         )}
-                                                        {renderEntries(beast['legendary'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress)}
+                                                        {renderEntries(beast['legendary'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress, handleEntryPress)}
                                                     </>
                                                 )}
                                                 {beast['mythic'] && (
                                                     <>
                                                         <Separator title='Mythic Actions'/>
-                                                        {renderEntries(beast['mythic'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress)}
+                                                        {renderEntries(beast['mythic'], 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress, handleEntryPress)}
                                                     </>
                                                 )}
                                             </View>

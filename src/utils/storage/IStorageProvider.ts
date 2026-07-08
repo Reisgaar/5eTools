@@ -56,6 +56,16 @@ export interface IStorageProvider {
     createSpellbook(name: string, description?: string): Promise<string>;
     deleteSpellbook(id: string): Promise<void>;
 
+    // Campaign operations
+    saveCampaigns(campaigns: any[]): Promise<void>;
+    loadCampaigns(): Promise<any[]>;
+    createCampaign(name: string, description?: string): Promise<string>;
+    deleteCampaign(id: string): Promise<void>;
+    updateCampaign(id: string, name: string, description?: string): Promise<void>;
+
+    // Filter index operations
+    loadFilterIndexes(): Promise<{ cr: string[], type: string[], source: string[] } | null>;
+
     // Combat operations
     deleteCombat(id: string): Promise<void>;
 

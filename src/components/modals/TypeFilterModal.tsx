@@ -57,7 +57,10 @@ export default function TypeFilterModal({
             }
         >
             <View style={styles.optionsGrid}>
-                {typeOptions.map(type => {
+                {typeOptions.map(rawType => {
+                    // Defensive: never call string ops on a non-string (some data sources
+                    // provide object types); the filter hook already normalizes, this is a guard.
+                    const type = typeof rawType === 'string' ? rawType : String(rawType);
                     const isSelected = selectedSet.has(type);
                     return (
                         <View key={type} style={styles.optionContainer}>

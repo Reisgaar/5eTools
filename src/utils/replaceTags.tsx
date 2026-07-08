@@ -9,7 +9,8 @@ export function replaceTags(
     onCreaturePress?: (name: string, source: string) => void,
     onSpellPress?: (name: string, source: string) => void,
     onDamagePress?: (expression: string) => void,
-    onHitPress?: (bonus: string) => void
+    onHitPress?: (bonus: string) => void,
+    onEntryPress?: (category: string, name: string, source: string) => void
 ): React.ReactNode[] {
     if (!text) return [];
     const tagRegex = /\{@(\w+)([^}]*)\}/g;
@@ -42,25 +43,19 @@ export function replaceTags(
         const params = rest.split('|').map(s => s.trim());
         // Tag handling
         switch (tag) {
-            case 'action':
             case 'adventure':
             case 'b':
             case 'book':
             case 'deity':
-            case 'disease':
-            case 'feat':
             case 'filter':
             case 'footnote':
             case 'i':
-            case 'item':
             case 'note':
             case 'quickref':
             case 'sense':
             case 'skill':
             case 'skillCheck':
-            case 'status':
             case 'table':
-            case 'variantrule':
                 // Italic, stop at first |
                 nodes.push(<Text key={key++} style={{ fontStyle: 'italic', color: theme.text }}>{params[0]}</Text>);
                 break;
@@ -152,9 +147,45 @@ export function replaceTags(
                 nodes.push(<Text key={key++} style={{ fontWeight: 'bold', color: theme.text }}>{params[0] ? `Recharge ${params[0]}` : 'Recharge'}</Text>);
                 break;
             case 'condition':
-                // Italic, add parenthesis if | found
-                nodes.push(<Text key={key++} style={{ fontStyle: 'italic', color: theme.text }}>{params[0]}{params[1] ? ` (${params[1]})` : ''}</Text>);
+            case 'status':
+            case 'disease':
+            case 'action':
+            case 'feat':
+            case 'background':
+            case 'item':
+            case 'race':
+            case 'class':
+            case 'variantrule': {
+                // e.g. {@condition name|source|displayText} — tappable link to the entry modal.
+                const condName = params[0];
+                const condSource = params[1] || '';
+                const condDisplay = params[2] || params[0];
+                if (onEntryPress) {
+                    nodes.push(
+                        <TouchableOpacity
+                            key={key++}
+                            onPressIn={() => onEntryPress(tag, condName, condSource)}
+                            activeOpacity={0.7}
+                            style={{
+                                paddingVertical: 0,
+                                paddingHorizontal: 1,
+                                marginHorizontal: 1,
+                                borderRadius: 1,
+                                minHeight: 14,
+                                alignSelf: 'baseline',
+                                justifyContent: 'center'
+                            }}
+                        >
+                            <Text style={{ fontStyle: 'italic', textDecorationLine: 'underline', color: '#4a90e2' }}>
+                                {condDisplay}
+                            </Text>
+                        </TouchableOpacity>
+                    );
+                } else {
+                    nodes.push(<Text key={key++} style={{ fontStyle: 'italic', color: theme.text }}>{condDisplay}</Text>);
+                }
                 break;
+            }
             case 'creature':
                 // Clickable link to bestiary
                 if (onCreaturePress) {
@@ -251,12 +282,13 @@ export function renderEntries(
     onSpellPress?: (name: string, source: string) => void,
     textStyle: any = {},
     onDamagePress?: (expression: string) => void,
-    onHitPress?: (bonus: string) => void
+    onHitPress?: (bonus: string) => void,
+    onEntryPress?: (category: string, name: string, source: string) => void
 ): React.ReactNode {
     if (!entries) return null;
 
     if (typeof entries === 'string') {
-        const parsed = replaceTags(entries, theme, onCreaturePress, onSpellPress, onDamagePress, onHitPress);
+        const parsed = replaceTags(entries, theme, onCreaturePress, onSpellPress, onDamagePress, onHitPress, onEntryPress);
         return (
             <Text style={[{ marginLeft: indent, marginBottom: 6, color: theme.text, fontSize: 12, flexWrap: 'wrap' }, textStyle]}>
                 {parsed}
@@ -267,7 +299,7 @@ export function renderEntries(
     if (Array.isArray(entries)) {
         return entries.map((entry, idx) => (
             <React.Fragment key={idx}>
-                {renderEntries(entry, indent, theme, onCreaturePress, onSpellPress, textStyle, onDamagePress, onHitPress)}
+                {renderEntries(entry, indent, theme, onCreaturePress, onSpellPress, textStyle, onDamagePress, onHitPress, onEntryPress)}
             </React.Fragment>
         ));
     }
@@ -277,7 +309,7 @@ export function renderEntries(
             return (
                 <View key={entries.name + indent} style={{ marginLeft: indent + 10, marginBottom: 4 }}>
                     <Text style={[{ fontWeight: 'bold', marginBottom: 2, color: theme.text, fontSize: 12 }, textStyle]}>{entries.name}.</Text>
-                    {renderEntries(entries.entries, indent + 10, theme, onCreaturePress, onSpellPress, textStyle, onDamagePress, onHitPress)}
+                    {renderEntries(entries.entries, indent + 10, theme, onCreaturePress, onSpellPress, textStyle, onDamagePress, onHitPress, onEntryPress)}
                 </View>
             );
         }
@@ -291,9 +323,9 @@ export function renderEntries(
                             <View style={[{ flex: 1 }]}>
                                 {typeof item === 'string' ? (
                                     <Text style={[{ color: theme.text, fontSize: 12, flexWrap: 'wrap' }, textStyle]}>
-                                        {replaceTags(item, theme, onCreaturePress, onSpellPress, onDamagePress, onHitPress)}
+                                        {replaceTags(item, theme, onCreaturePress, onSpellPress, onDamagePress, onHitPress, onEntryPress)}
                                     </Text>
-                                ) : renderEntries(item, 0, theme, onCreaturePress, onSpellPress, textStyle, onDamagePress, onHitPress)}
+                                ) : renderEntries(item, 0, theme, onCreaturePress, onSpellPress, textStyle, onDamagePress, onHitPress, onEntryPress)}
                             </View>
                         </View>
                     ))}
@@ -368,7 +400,7 @@ export function renderEntries(
                                     }}>
                                         <Text style={[{ color: theme.text, fontSize: 11, flexWrap: 'wrap' }, textStyle]}>
                                             {typeof cell === 'string' ? 
-                                                replaceTags(cell, theme, onCreaturePress, onSpellPress, onDamagePress, onHitPress) : 
+                                                replaceTags(cell, theme, onCreaturePress, onSpellPress, onDamagePress, onHitPress, onEntryPress) : 
                                                 cell
                                             }
                                         </Text>
@@ -382,7 +414,7 @@ export function renderEntries(
         }
 
         if (entries.entries) {
-            return renderEntries(entries.entries, indent, theme, onCreaturePress, onSpellPress, textStyle, onDamagePress, onHitPress);
+            return renderEntries(entries.entries, indent, theme, onCreaturePress, onSpellPress, textStyle, onDamagePress, onHitPress, onEntryPress);
         }
 
         // Fallback for unknown object types

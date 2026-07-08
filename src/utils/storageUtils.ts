@@ -38,7 +38,7 @@ export const processSpellData = (spell: Spell): SpellProcessingData => {
         if (Array.isArray(spell.duration)) {
             concentration = spell.duration.some(d => d && d.concentration === true);
         } else if (typeof spell.duration === 'object') {
-            concentration = spell.duration.concentration === true;
+            concentration = (spell.duration as any).concentration === true;
         } else {
             concentration = String(spell.duration).toLowerCase().includes('concentration');
         }

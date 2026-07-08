@@ -3,4 +3,5 @@ export { default as AddToSpellbookModal } from 'src/components/spells/AddToSpell
 export { default as SpellbookSelectorModal } from 'src/components/spells/SpellbookSelectorModal';
 export { default as CreateSpellbookModal } from 'src/components/spells/CreateSpellbookModal';
 export { default as SpellbookItem } from 'src/components/spells/SpellbookItem';
+export { default as SpellListItem } from 'src/components/spells/SpellListItem';
 export { default as useSpellbookSearch } from 'src/components/spells/useSpellbookSearch';

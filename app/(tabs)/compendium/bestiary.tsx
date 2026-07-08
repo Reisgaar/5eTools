@@ -1,5 +1,5 @@
 // REACT
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 // STORES
@@ -11,7 +11,6 @@ import { useData } from 'src/context/DataContext';
 import { useModal } from 'src/context/ModalContext';
 
 // UTILS
-import { equalsNormalized } from 'src/utils/stringUtils';
 
 // COMPONENTS
 import { BeastListItem } from 'src/components/beasts';
@@ -33,7 +32,7 @@ import { commonStyles } from 'src/styles/commonStyles';
  */
 export default function BestiaryScreen() {
     const { currentTheme } = useAppSettingsStore();
-    const { simpleBeasts, isLoading,  getFullBeast } = useData();
+    const { simpleBeasts, isLoading, loadError, reloadData, getFullBeast } = useData();
     const { addCombatantToCombat, getSortedCombats } = useCombat();
     const { openBeastModal } = useModal();
     const { selectedCampaignId } = useCampaignStore();
@@ -50,50 +49,43 @@ export default function BestiaryScreen() {
         return getSortedCombats(selectedCampaignId);
     }, [getSortedCombats, selectedCampaignId]);
 
-    // Display beasts individually (no grouping)
-    const groupedBeasts = React.useMemo(() => {
+    // Display beasts individually (no grouping), sorted by name
+    const sortedBeasts = React.useMemo(() => {
         if (!pageReady) return [];
-        
-        // Return each beast as an individual item, sorted by name
         return filters.filteredBeasts
             .slice()
-            .sort((a, b) => a.name.localeCompare(b.name))
-            .map(beast => [beast]); // Wrap each beast in an array to maintain compatibility
+            .sort((a, b) => a.name.localeCompare(b.name));
     }, [filters.filteredBeasts, pageReady]);
 
     // Defer heavy computations to after navigation
     useEffect(() => {
-        if (simpleBeasts.length > 0) {
-            // Small delay to ensure navigation is complete
-            const timer = setTimeout(() => {
-                setPageReady(true);
-            }, 100);
-            return () => clearTimeout(timer);
-        }
+        if (simpleBeasts.length === 0) return undefined;
+        // Small delay to ensure navigation is complete
+        const timer = setTimeout(() => {
+            setPageReady(true);
+        }, 100);
+        return () => clearTimeout(timer);
     }, [simpleBeasts.length]);
 
-    // Find full beast by name (async)
-    const handleGetFullBeast = async (name: string, source: string) => {
+    // Find full beast by name (async). getFullBeast does an O(1) index lookup and
+    // returns null when the beast isn't found, so no pre-scan is needed here.
+    const handleGetFullBeast = useCallback(async (name: string, source: string) => {
         try {
-            // Find the beast in simpleBeasts to get the source
-            const simpleBeast = simpleBeasts.find(b => equalsNormalized(b.name, name) && equalsNormalized(b.source, source));
-            if (!simpleBeast) return null;
-            
-            return await getFullBeast(name, simpleBeast.source);
+            return await getFullBeast(name, source);
         } catch (error) {
             console.error('Error getting full beast:', error);
             return null;
         }
-    };
+    }, [getFullBeast]);
 
-    // Combat selection handlers
-    const handleAddToCombat = async (beast: any) => {
+    // Combat selection handlers (stable identities so memoized list rows don't re-render)
+    const handleAddToCombat = useCallback(async (beast: any) => {
         const fullBeast = await handleGetFullBeast(beast.name, beast.source);
         setBeastToAdd(fullBeast || beast);
         setQuantity('1');
         setCombatSelectionModalVisible(true);
-    };
-    
+    }, [handleGetFullBeast]);
+
     const handleSelectCombat = (combatId: string) => {
         if (beastToAdd) {
             const qty = parseInt(quantity, 10) || 1;
@@ -106,9 +98,23 @@ export default function BestiaryScreen() {
         setQuantity('1');
     };
 
-    const handleViewBeastDetails = async (beast: any) => {
+    const handleViewBeastDetails = useCallback((beast: any) => {
         openBeastModal(beast);
-    };
+    }, [openBeastModal]);
+
+    const renderBeastItem = useCallback(({ item }: { item: any }) => (
+        <BeastListItem
+            beast={item}
+            onAddToCombat={handleAddToCombat}
+            onViewDetails={handleViewBeastDetails}
+            theme={currentTheme}
+        />
+    ), [handleAddToCombat, handleViewBeastDetails, currentTheme]);
+
+    const beastKeyExtractor = useCallback(
+        (item: any) => `${item.name}|${item.source}|${item.CR}`,
+        []
+    );
 
     return (
         <View style={[commonStyles.container, { flex: 1, backgroundColor: currentTheme.background, paddingTop: 10, paddingBottom: 0, paddingHorizontal: 8 }]}>
@@ -224,6 +230,21 @@ export default function BestiaryScreen() {
 
             {/* Content Area */}
             <View style={{ flex: 1 }}>
+                {/* Error state (e.g. offline with no data) — recoverable via retry */}
+                {!isLoading && loadError && simpleBeasts.length === 0 && (
+                    <View style={styles.loadingContainer}>
+                        <Text style={{ color: currentTheme.noticeText, marginTop: 8, textAlign: 'center', paddingHorizontal: 24 }}>
+                            {loadError}
+                        </Text>
+                        <TouchableOpacity
+                            onPress={() => reloadData()}
+                            style={[commonStyles.filterBtn, { borderColor: currentTheme.primary, marginTop: 16 }]}
+                        >
+                            <Text style={{ color: currentTheme.primary, fontWeight: 'bold' }}>Retry</Text>
+                        </TouchableOpacity>
+                    </View>
+                )}
+
                 {/* Loading states */}
                 {isLoading && (
                     <View style={styles.loadingContainer}>
@@ -233,8 +254,8 @@ export default function BestiaryScreen() {
                         </Text>
                     </View>
                 )}
-                
-                {!isLoading && !pageReady && (
+
+                {!isLoading && !loadError && !pageReady && (
                     <View style={styles.loadingContainer}>
                         <ActivityIndicator size="large" color={currentTheme.primary} />
                         <Text style={{ color: currentTheme.noticeText, marginTop: 8 }}>
@@ -243,31 +264,21 @@ export default function BestiaryScreen() {
                     </View>
                 )}
                 
-                {/* Filter applying overlay */}
-                {pageReady && filters.filterApplying && (
-                    <View style={styles.activityOverlay}>
-                        <ActivityIndicator size="large" color={currentTheme.primary} />
-                    </View>
-                )}
-                
                 {/* Main content */}
                 {!isLoading && pageReady && (
-                    groupedBeasts.length === 0 ? (
+                    sortedBeasts.length === 0 ? (
                     <Text style={{ color: currentTheme.noticeText, marginVertical: 16 }}>No beasts found.</Text>
                 ) : (
                     <FlatList
                         style={{paddingVertical: 6 }}
-                        data={groupedBeasts}
-                        keyExtractor={(item, idx) => `${item[0].name}-${item[0].source}-${idx}`}
-                        renderItem={({ item }) => (
-                            <BeastListItem
-                                beast={item[0]}
-                                onAddToCombat={handleAddToCombat}
-                                onViewDetails={handleViewBeastDetails}
-                                theme={currentTheme}
-                            />
-                        )}
+                        data={sortedBeasts}
+                        keyExtractor={beastKeyExtractor}
+                        renderItem={renderBeastItem}
                         contentContainerStyle={{ paddingBottom: 40 }}
+                        initialNumToRender={15}
+                        maxToRenderPerBatch={15}
+                        windowSize={11}
+                        removeClippedSubviews
                     />
                     )
                 )}

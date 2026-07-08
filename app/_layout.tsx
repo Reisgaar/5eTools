@@ -6,7 +6,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
 // STORES
-import { useAppSettingsStore, useCampaignStore, useSpellbookStore, usePlayerStore } from 'src/stores';
+import { useAppSettingsStore, useCampaignStore, useSpellbookStore, usePlayerStore, useLibraryStore } from 'src/stores';
 
 // CONTEXTS
 import { CombatProvider } from 'src/context/CombatContext';
@@ -14,7 +14,7 @@ import { DataProvider } from 'src/context/DataContext';
 import { ModalProvider } from 'src/context/ModalContext';
 
 // COMPONENTS
-import { ErrorBoundary, GlobalModals, Header } from 'src/components';
+import { ErrorBoundary, GlobalModals } from 'src/components';
 
 // Root layout for the app, providing all global providers and navigation stack.
 export default function RootLayout() {
@@ -22,6 +22,7 @@ export default function RootLayout() {
     const { initializeCampaigns } = useCampaignStore();
     const { loadSpellbooks } = useSpellbookStore();
     const { initializePlayers } = usePlayerStore();
+    const { init: initLibrary } = useLibraryStore();
     // Combat initialization is handled by CombatContext
 
     useEffect(() => {
@@ -29,18 +30,16 @@ export default function RootLayout() {
         initializeCampaigns();
         loadSpellbooks();
         initializePlayers();
+        initLibrary();
         // Combat initialization is handled by CombatContext
-    }, [initializeSettings, initializeCampaigns, loadSpellbooks, initializePlayers]);
+    }, [initializeSettings, initializeCampaigns, loadSpellbooks, initializePlayers, initLibrary]);
 
     return (
         <ErrorBoundary>
             <CombatProvider>
                 <DataProvider>
                     <ModalProvider>
-                        <Stack
-                            screenOptions={{
-                                header: () => <Header />
-                            }}>
+                        <Stack screenOptions={{ headerShown: false }}>
                             <Stack.Screen name="(tabs)" />
                         </Stack>
                         <GlobalModals />

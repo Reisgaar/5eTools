@@ -1,11 +1,14 @@
 // REACT
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-// CONSTANTS
-import { bestiaryGetRequests, spellsGetRequests, spellSourceLookupRequest } from 'src/constants/requests';
+// STORAGE
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// BUNDLED DATA (offline)
+import { BESTIARY_BUNDLE, SPELL_BUNDLE, SPELL_SOURCE_LOOKUP, CONDITIONS_DISEASES, ACTIONS, FEATS, BACKGROUNDS, ITEMS, ITEMS_BASE, VARIANT_RULES, RACES, CLASS_FILES, DATA_VERSION } from 'src/data/bundledData';
 
 // UTILS
-import { equalsNormalized } from 'src/utils/stringUtils';
+import { normalizeString } from 'src/utils/stringUtils';
 import { getTokenUrl } from 'src/utils/tokenCache';
 import {
     clearBeastsAndSpellsOnly,
@@ -18,8 +21,12 @@ import {
     storeBeastsToFile,
     storeSpellsToFile,
     storeSpellClassRelationsToFile,
-    storeAvailableClassesToFile
+    storeAvailableClassesToFile,
+    regenerateAllIndexes
 } from 'src/utils/fileStorage';
+
+// Key under which the last-seeded bundled data version is persisted.
+const DATA_VERSION_KEY = 'BUNDLED_DATA_VERSION';
 
 // INTERFACES
 interface Beast {
@@ -91,11 +98,27 @@ interface DataContextType {
   spellClassRelations: SpellClassRelation[];
   isLoading: boolean;
   isInitialized: boolean;
-  loadData: () => Promise<void>;
+  loadError: string | null;
+  loadData: () => Promise<boolean>; // resolves true if data was loaded from files
   reloadData: () => Promise<void>;
   clearData: () => Promise<void>;
   getFullBeast: (name: string, source: string) => Promise<Beast | null>;
   getFullSpell: (name: string, source: string) => Promise<Spell | null>;
+  // Bundled reference content, held in memory (small, static datasets)
+  conditions: any[];
+  diseases: any[];
+  statuses: any[];
+  actions: any[];
+  feats: any[];
+  backgrounds: any[];
+  items: any[];
+  races: any[];
+  classes: any[];
+  variantRules: any[];
+  // Generic lookup by category ('condition' | 'disease' | 'status' | 'action' | 'feat' | 'background' | 'item' | 'race' | 'class' | …)
+  getContentEntry: (category: string, name: string, source?: string) => any | null;
+  // Full parsed class file (class/subclass/classFeature/subclassFeature) for the class detail view.
+  getClassFile: (name: string) => any | null;
 }
 
 // Process spell source lookup data to extract available classes and spell-class relations.
@@ -155,6 +178,98 @@ function processSpellSourceLookup(spellSourceLookupData: SpellSourceLookup, spel
     };
 }
 
+// Bundled reference content (conditions, actions, feats, …) are small, static datasets. Load
+// them once at module scope and index each category by normalized "name|source" (plus a
+// name-only fallback for tags like {@condition Blinded} that omit a source).
+function safeThunk(thunk: () => any): any {
+    try { return thunk() || {}; } catch (e) { console.warn('Failed to load bundled content:', e); return {}; }
+}
+
+const CD = safeThunk(CONDITIONS_DISEASES);
+
+// Races + subraces. Subraces get a combined display name (e.g. "Elf (High)") since their own
+// name is just the variant ("High").
+const RD = safeThunk(RACES);
+const RACE_LIST: any[] = [
+    ...(RD.race || []),
+    ...((RD.subrace || []).map((sr: any) => ({
+        ...sr,
+        name: sr.raceName ? `${sr.raceName}${sr.name ? ` (${sr.name})` : ''}` : (sr.name || 'Subrace'),
+        __isSubrace: true,
+    }))),
+];
+
+// Classes: eagerly parse the per-class files; keep summaries for browsing/lookup and the full
+// files (with classFeature/subclassFeature entries) for the detail view.
+const CLASS_FILE_DATA: any[] = CLASS_FILES
+    .map(thunk => { try { return thunk(); } catch { return null; } })
+    .filter(Boolean);
+const CLASS_SUMMARIES: any[] = CLASS_FILE_DATA
+    .map(f => (f.class && f.class[0]) || null)
+    .filter(Boolean);
+const CLASS_FILE_BY_NAME = new Map<string, any>();
+for (const f of CLASS_FILE_DATA) {
+    const cls = f.class && f.class[0];
+    if (cls) CLASS_FILE_BY_NAME.set(normalizeString(cls.name), f);
+}
+function getClassFileByName(name: string): any | null {
+    return CLASS_FILE_BY_NAME.get(normalizeString(name)) || null;
+}
+
+const CONTENT_DATA: Record<string, any[]> = {
+    condition: CD.condition || [],
+    disease: CD.disease || [],
+    status: CD.status || [],
+    action: safeThunk(ACTIONS).action || [],
+    feat: safeThunk(FEATS).feat || [],
+    background: safeThunk(BACKGROUNDS).background || [],
+    variantrule: safeThunk(VARIANT_RULES).variantrule || [],
+    // Specific/named items plus base equipment (magic-variant generation is intentionally omitted).
+    item: [...(safeThunk(ITEMS).item || []), ...(safeThunk(ITEMS_BASE).baseitem || [])],
+    race: RACE_LIST,
+    class: CLASS_SUMMARIES,
+};
+
+// Per-category lookup indexes.
+const CONTENT_INDEX: Record<string, { byKey: Map<string, any>; byName: Map<string, any> }> = {};
+for (const [category, arr] of Object.entries(CONTENT_DATA)) {
+    const byKey = new Map<string, any>();
+    const byName = new Map<string, any>();
+    for (const entry of arr) {
+        const name = normalizeString(entry.name);
+        byKey.set(`${name}|${normalizeString(entry.source)}`, entry);
+        // First-seen wins for the name-only fallback; prefer the 2024 (XPHB) reprint when present.
+        const existing = byName.get(name);
+        if (!existing || normalizeString(entry.source) === 'xphb') byName.set(name, entry);
+    }
+    CONTENT_INDEX[category] = { byKey, byName };
+}
+
+// Categories that share a namespace, so a mistyped tag (e.g. {@condition} for a status) still resolves.
+const CONDITION_FAMILY = ['condition', 'status', 'disease'];
+
+function lookupContent(category: string, name: string, source?: string): any | null {
+    const n = normalizeString(name);
+    const tryIdx = (ix?: { byKey: Map<string, any>; byName: Map<string, any> }) => {
+        if (!ix) return null;
+        if (source) {
+            const exact = ix.byKey.get(`${n}|${normalizeString(source)}`);
+            if (exact) return exact;
+        }
+        return ix.byName.get(n) || null;
+    };
+    const primary = tryIdx(CONTENT_INDEX[category]);
+    if (primary) return primary;
+    if (CONDITION_FAMILY.includes(category)) {
+        for (const c of CONDITION_FAMILY) {
+            if (c === category) continue;
+            const res = tryIdx(CONTENT_INDEX[c]);
+            if (res) return res;
+        }
+    }
+    return null;
+}
+
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
 /**
@@ -179,6 +294,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [spellClassRelations, setSpellClassRelations] = useState<SpellClassRelation[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isInitialized, setIsInitialized] = useState(false);
+    const [loadError, setLoadError] = useState<string | null>(null);
 
     // Derived simpleBeasts from index
     const simpleBeasts = React.useMemo(() => {
@@ -239,84 +355,57 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const fetchAllData = useCallback(async () => {
         setIsLoading(true);
         try {
-            console.log('Fetching beasts data...');
+            console.log('Loading bundled beasts data...');
 
-            // Fetch beasts data from all URLs
-            const beastsPromises = bestiaryGetRequests.map(async (url: string) => {
+            // Load beasts from the offline-bundled per-source JSON. Each thunk require()s one
+            // source file; we yield to the event loop between sources so parsing the bundled
+            // data (~20MB) doesn't block the UI thread in one long synchronous burst.
+            const beastsResults: any[][] = [];
+            for (const source of Object.keys(BESTIARY_BUNDLE)) {
                 try {
-                    const response = await fetch(url);
-                    if (!response.ok) {
-                        console.warn(`Failed to fetch ${url}: ${response.status}`);
-                        return [];
-                    }
-                    const data = await response.json();
-                    return data.monster || [];
+                    const data = BESTIARY_BUNDLE[source]();
+                    beastsResults.push(data.monster || []);
                 } catch (error) {
-                    console.warn(`Error fetching ${url}:`, error);
-                    return [];
+                    console.warn(`Error loading bundled bestiary source ${source}:`, error);
                 }
-            });
+                await Promise.resolve();
+            }
 
-            console.log('Fetching spells data...');
+            console.log('Loading bundled spells data...');
 
-            // Fetch spells data from all URLs
-            const spellsPromises = spellsGetRequests.map(async (url: string) => {
+            const spellsResults: any[][] = [];
+            for (const source of Object.keys(SPELL_BUNDLE)) {
                 try {
-                    const response = await fetch(url);
-                    if (!response.ok) {
-                        console.warn(`Failed to fetch ${url}: ${response.status}`);
-                        return [];
-                    }
-                    const data = await response.json();
-                    return data.spell || [];
+                    const data = SPELL_BUNDLE[source]();
+                    spellsResults.push(data.spell || []);
                 } catch (error) {
-                    console.warn(`Error fetching ${url}:`, error);
-                    return [];
+                    console.warn(`Error loading bundled spell source ${source}:`, error);
                 }
-            });
+                await Promise.resolve();
+            }
 
-            console.log('Fetching spell source lookup data...');
-
-            // Fetch spell source lookup data
-            const spellSourceLookupPromise = spellSourceLookupRequest.map(async (url: string) => {
-                try {
-                    const response = await fetch(url);
-                    if (!response.ok) {
-                        console.warn(`Failed to fetch ${url}: ${response.status}`);
-                        return {};
-                    }
-                    const data = await response.json();
-                    return data;
-                } catch (error) {
-                    console.warn(`Error fetching ${url}:`, error);
-                    return {};
-                }
-            });
-
-            // Wait for all requests to complete
-            const [beastsResults, spellsResults, spellSourceLookupResults] = await Promise.all([
-                Promise.all(beastsPromises),
-                Promise.all(spellsPromises),
-                Promise.all(spellSourceLookupPromise)
-            ]);
+            console.log('Loading bundled spell source lookup data...');
+            let spellSourceLookupData: SpellSourceLookup = {};
+            try {
+                spellSourceLookupData = SPELL_SOURCE_LOOKUP() || {};
+            } catch (error) {
+                console.warn('Error loading bundled spell source lookup:', error);
+            }
 
             // Flatten and combine results
-            const beastsData = beastsResults.flat().sort((a, b) => {
+            const beastsData = beastsResults.flat().sort((a: any, b: any) => {
                 if (!a.name) return 1;
                 if (!b.name) return -1;
                 return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
             });
 
-            const spellsData = spellsResults.flat().sort((a, b) => {
+            const spellsData = spellsResults.flat().sort((a: any, b: any) => {
                 if (!a.name) return 1;
                 if (!b.name) return -1;
                 return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
             });
 
-            console.log(`Fetched ${beastsData.length} beasts and ${spellsData.length} spells`);
-
-            // Process spell source lookup data
-            const spellSourceLookupData = spellSourceLookupResults[0] || {};
+            console.log(`Loaded ${beastsData.length} beasts and ${spellsData.length} spells from bundle`);
             console.log('Spell source lookup data loaded');
 
             // Process the spell source lookup to extract classes and relations
@@ -372,9 +461,19 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
 
             setIsInitialized(true);
-            console.log('Data loading completed successfully');
+
+            // Build the filter indexes once, right after seeding (no manual "regenerate" step).
+            try {
+                await regenerateAllIndexes();
+            } catch (indexError) {
+                console.warn('Filter index generation failed (filters will compute on the fly):', indexError);
+            }
+
+            // Stamp the bundled data version so we only re-seed on a data update.
+            await AsyncStorage.setItem(DATA_VERSION_KEY, DATA_VERSION);
+            console.log('Data seeding from bundle completed successfully');
         } catch (error) {
-            console.error('Error fetching data:', error);
+            console.error('Error seeding data from bundle:', error);
             throw error;
         } finally {
             setIsLoading(false);
@@ -415,8 +514,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 console.log(`Loaded index with ${availableClassesData.length} available classes`);
             }
 
-            setIsInitialized(true);
-            console.log('Data loading from files completed');
+            // loadData does NOT throw when files are simply absent (fresh install), so report
+            // back whether anything was actually loaded; the caller seeds from the bundle if not.
+            const hasData = !!(beastsIndexData?.length || spellsIndexData?.length);
+            if (hasData) {
+                setIsInitialized(true);
+            }
+            console.log(`Data loading from files completed (hasData=${hasData})`);
+            return hasData;
         } catch (error) {
             console.error('Error loading data from files:', error);
             throw error;
@@ -425,9 +530,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     }, []);
 
-    // Reload data (fetch from API)
+    // Reload data (fetch from API). Doubles as the retry action for the error state.
     const reloadData = useCallback(async () => {
-        await fetchAllData();
+        setLoadError(null);
+        try {
+            await fetchAllData();
+        } catch {
+            setLoadError('Could not load game data. Please restart the app and try again.');
+        }
     }, [fetchAllData]);
 
     // Clear all data
@@ -447,13 +557,29 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     }, []);
 
+    // O(1) lookup maps keyed by normalized "name|source", rebuilt only when an index changes.
+    // Replaces per-call O(n) linear scans of the index on every detail open.
+    const beastIndexByKey = useMemo(() => {
+        const map = new Map<string, BeastIndex>();
+        for (const b of beastsIndex) {
+            map.set(`${normalizeString(b.name)}|${normalizeString(b.source)}`, b);
+        }
+        return map;
+    }, [beastsIndex]);
+
+    const spellIndexByKey = useMemo(() => {
+        const map = new Map<string, SpellIndex>();
+        for (const s of spellsIndex) {
+            map.set(`${normalizeString(s.name)}|${normalizeString(s.source)}`, s);
+        }
+        return map;
+    }, [spellsIndex]);
+
     // Get full beast data by name and source
     const getFullBeast = useCallback(async (name: string, source: string): Promise<Beast | null> => {
         try {
-            // Find the beast in the index
-            const beastIndex = beastsIndex.find(b =>
-                equalsNormalized(b.name, name) && equalsNormalized(b.source, source)
-            );
+            // Find the beast in the index (O(1))
+            const beastIndex = beastIndexByKey.get(`${normalizeString(name)}|${normalizeString(source)}`);
 
             if (!beastIndex) {
                 return null;
@@ -484,15 +610,13 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             console.error('Error loading full beast:', error);
             return null;
         }
-    }, [beastsIndex]);
+    }, [beastIndexByKey]);
 
     // Get full spell data by name and source
     const getFullSpell = useCallback(async (name: string, source: string): Promise<Spell | null> => {
         try {
-            // Find the spell in the index
-            const spellIndex = spellsIndex.find(s =>
-                equalsNormalized(s.name, name) && equalsNormalized(s.source, source)
-            );
+            // Find the spell in the index (O(1))
+            const spellIndex = spellIndexByKey.get(`${normalizeString(name)}|${normalizeString(source)}`);
 
             if (!spellIndex) {
                 return null;
@@ -512,26 +636,51 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             console.error('Error loading full spell:', error);
             return null;
         }
-    }, [spellsIndex]);
+    }, [spellIndexByKey]);
 
-    // Initialize data on mount
-    useEffect(() => {
-        const initializeData = async () => {
-            try {
-                await loadData();
-            } catch {
-                console.error('Failed to load data from files, fetching from API...');
-                try {
-                    await fetchAllData();
-                } catch (fetchError) {
-                    console.error('Failed to fetch data from API:', fetchError);
-                }
+    // Generic reference-content lookup (conditions, actions, feats, …) from the bundled datasets
+    const getContentEntry = useCallback((category: string, name: string, source?: string) => lookupContent(category, name, source), []);
+    const getClassFile = useCallback((name: string) => getClassFileByName(name), []);
+
+    // Initialize data on mount. Falls back from local files → network fetch, and surfaces
+    // a recoverable error (instead of a permanent spinner) when both fail — e.g. a first
+    // launch with no connection and no bundled data.
+    const initializeData = useCallback(async () => {
+        setLoadError(null);
+        try {
+            const storedVersion = await AsyncStorage.getItem(DATA_VERSION_KEY);
+
+            // Seed (or re-seed) from the offline bundle on first launch or after a data update
+            // (bundled DATA_VERSION changed). This also (re)builds all indexes automatically.
+            if (storedVersion !== DATA_VERSION) {
+                console.log(`Seeding from bundle (stored=${storedVersion}, bundle=${DATA_VERSION})...`);
+                await fetchAllData();
+                return;
             }
-        };
 
+            // Version matches → load from the cached per-entity files. If they're somehow
+            // missing/empty, fall back to re-seeding from the bundle.
+            const hadData = await loadData();
+            if (!hadData) {
+                console.log('No stored data found — seeding from bundled data...');
+                await fetchAllData();
+            }
+        } catch {
+            console.error('Failed to load data from files, seeding from bundled data...');
+            try {
+                await fetchAllData();
+            } catch (fetchError) {
+                console.error('Failed to load bundled data:', fetchError);
+                setLoadError(
+                    'Could not load game data. Please restart the app and try again.'
+                );
+            }
+        }
+    }, [loadData, fetchAllData]);
+
+    useEffect(() => {
         initializeData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [initializeData]);
 
     // Memoize the context value so consumers don't re-render on unrelated parent renders.
     const value = useMemo<DataContextType>(() => ({
@@ -544,11 +693,24 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         spellClassRelations,
         isLoading,
         isInitialized,
+        loadError,
         loadData,
         reloadData,
         clearData,
         getFullBeast,
-        getFullSpell
+        getFullSpell,
+        conditions: CONTENT_DATA['condition'],
+        diseases: CONTENT_DATA['disease'],
+        statuses: CONTENT_DATA['status'],
+        actions: CONTENT_DATA['action'],
+        feats: CONTENT_DATA['feat'],
+        backgrounds: CONTENT_DATA['background'],
+        items: CONTENT_DATA['item'],
+        races: CONTENT_DATA['race'],
+        classes: CONTENT_DATA['class'],
+        variantRules: CONTENT_DATA['variantrule'],
+        getContentEntry,
+        getClassFile
     }), [
         beasts,
         simpleBeasts,
@@ -559,11 +721,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         spellClassRelations,
         isLoading,
         isInitialized,
+        loadError,
         loadData,
         reloadData,
         clearData,
         getFullBeast,
-        getFullSpell
+        getFullSpell,
+        getContentEntry,
+        getClassFile
     ]);
 
     return (

@@ -59,7 +59,9 @@ export default function useBestiaryFilters({ simpleBeasts, beasts }: BestiaryFil
 
     // Get unique CRs for filter modal - use indexes if available
     const crOptions = useMemo(() => {
-        if (filterIndexes?.cr) {
+        // Only trust the persisted index if every entry is a string; older/corrupted indexes
+        // could hold raw objects, which crash string ops downstream.
+        if (filterIndexes?.cr && filterIndexes.cr.every(v => typeof v === 'string')) {
             return filterIndexes.cr;
         }
 
@@ -84,22 +86,25 @@ export default function useBestiaryFilters({ simpleBeasts, beasts }: BestiaryFil
 
     // Get unique types for filter modal - use indexes if available
     const typeOptions = useMemo(() => {
-        if (filterIndexes?.type) {
+        // Only trust the persisted index if every entry is a non-empty string; older/corrupted
+        // indexes stored raw object types (e.g. {type,tags}) which crash `type.charAt(...)`.
+        if (filterIndexes?.type && filterIndexes.type.every(v => typeof v === 'string' && v)) {
             return filterIndexes.type;
         }
 
-        // Fallback to original method
+        // Fallback to computing from beast data (getBeastType always yields strings)
         const types = Array.from(new Set(beastData.map(b => b.normalizedType))).filter(Boolean).sort();
         return types;
     }, [beastData, filterIndexes]);
 
     // Get unique sources for filter modal - use indexes if available
     const sourceOptions = useMemo(() => {
-        if (filterIndexes?.source) {
+        // Only trust the persisted index if every entry is a non-empty string.
+        if (filterIndexes?.source && filterIndexes.source.every(v => typeof v === 'string' && v)) {
             return filterIndexes.source;
         }
 
-        // Fallback to original method
+        // Fallback to computing from beast data
         const sources = Array.from(new Set(beastData.map(b => b.normalizedSource))).filter(Boolean).sort();
         return sources;
     }, [beastData, filterIndexes]);

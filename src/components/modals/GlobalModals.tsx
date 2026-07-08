@@ -13,6 +13,10 @@ import SpellDetailModal from 'src/components/spells/SpellDetailModal';
 import AdvancedDiceRollModal from 'src/components/modals/AdvancedDiceRollModal';
 import DiceRollModal from 'src/components/modals/DiceRollModal';
 import CampaignSelectorModal from 'src/components/modals/CampaignSelectorModal';
+import EntryDetailModal from 'src/components/modals/EntryDetailModal';
+import ItemDetailModal from 'src/components/modals/ItemDetailModal';
+import RaceDetailModal from 'src/components/modals/RaceDetailModal';
+import ClassDetailModal from 'src/components/modals/ClassDetailModal';
 
 /**
  * GlobalModals component.
@@ -29,7 +33,11 @@ export default function GlobalModals() {
         closeDiceModal,
         advancedDiceModalState,
         closeAdvancedDiceModal,
-        campaignSelectorModalVisible
+        campaignSelectorModalVisible,
+        entryModalVisible,
+        selectedEntry,
+        selectedEntryCategory,
+        closeEntryModal
     } = useModal();
     const { currentTheme } = useAppSettingsStore();
 
@@ -74,6 +82,39 @@ export default function GlobalModals() {
                         theme={currentTheme}
                     />
                 </>
+            )}
+
+            {/* Reference-content modal (conditions, actions, feats, …) — overlays on top of any
+                other modal, since these tags are tapped from inside beast/spell detail modals. */}
+            {selectedEntryCategory === 'item' ? (
+                <ItemDetailModal
+                    visible={entryModalVisible}
+                    item={selectedEntry}
+                    onClose={closeEntryModal}
+                    theme={currentTheme}
+                />
+            ) : selectedEntryCategory === 'race' ? (
+                <RaceDetailModal
+                    visible={entryModalVisible}
+                    race={selectedEntry}
+                    onClose={closeEntryModal}
+                    theme={currentTheme}
+                />
+            ) : selectedEntryCategory === 'class' ? (
+                <ClassDetailModal
+                    visible={entryModalVisible}
+                    classSummary={selectedEntry}
+                    onClose={closeEntryModal}
+                    theme={currentTheme}
+                />
+            ) : (
+                <EntryDetailModal
+                    visible={entryModalVisible}
+                    entry={selectedEntry}
+                    category={selectedEntryCategory}
+                    onClose={closeEntryModal}
+                    theme={currentTheme}
+                />
             )}
         </>
     );

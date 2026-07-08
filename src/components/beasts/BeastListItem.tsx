@@ -139,7 +139,7 @@ const getSourceInitials = (source: string): string => {
 };
 
 // Component for individual beast (single source)
-export default function BeastListItem({
+function BeastListItem({
     beast,
     onAddToCombat,
     onViewDetails,
@@ -172,3 +172,7 @@ export default function BeastListItem({
         </View>
     );
 }
+
+// Memoized: rows only re-render when their own props change (stable handlers + theme),
+// not on every parent (search/filter) render.
+export default React.memo(BeastListItem);

@@ -8,6 +8,7 @@
     "ios": "expo run:ios",
     "test": "jest --watchAll",
     "lint": "expo lint",
+    "generate:data": "node scripts/generate-data-manifest.mjs",
     "dev": "expo start --dev-client",
     "dev-https": "expo start --dev-client --https"
   },

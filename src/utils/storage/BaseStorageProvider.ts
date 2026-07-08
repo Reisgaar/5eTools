@@ -598,11 +598,14 @@ export abstract class BaseStorageProvider implements IStorageProvider {
                         crIndex.add('Unknown');
                     }
 
-                    // Index Type
-                    if (beast.type) {
-                        typeIndex.add(beast.type);
+                    // Index Type — normalize object types (e.g. {type:"humanoid", tags:[...]})
+                    // to a lowercase string so the persisted index only ever holds strings.
+                    if (typeof beast.type === 'string') {
+                        typeIndex.add(beast.type.toLowerCase());
+                    } else if (beast.type && typeof beast.type === 'object' && typeof beast.type.type === 'string') {
+                        typeIndex.add(beast.type.type.toLowerCase());
                     } else {
-                        typeIndex.add('Unknown');
+                        typeIndex.add('unknown');
                     }
 
                     // Index Source

@@ -41,7 +41,7 @@ export default function NotFoundScreen() {
                 {sentences[Math.floor(Math.random() * sentences.length)]}
             </Text>
             <TouchableOpacity
-                onPress={() => router.replace('/')}
+                onPress={() => router.replace('/home')}
                 style={{ backgroundColor: currentTheme.primary, paddingHorizontal: 32, paddingVertical: 14, borderRadius: 8 }}
             >
                 <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 16 }}>Back to Home</Text>

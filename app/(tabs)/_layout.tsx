@@ -17,9 +17,8 @@ export default function TabsLayout() {
     const { currentTheme } = useAppSettingsStore();
 
     const screens = useMemo(() => [
-        { name: 'index', title: 'Home', icon: 'home' },
-        { name: 'bestiary', title: 'Bestiary', icon: 'paw' },
-        { name: 'spells', title: 'Spells', icon: 'book' },
+        { name: 'home', title: 'Home', icon: 'home' },
+        { name: 'compendium', title: 'Compendium', icon: 'library' },
         { name: 'combat', title: 'Combat', icon: 'skull' },
         { name: 'settings', title: 'Settings', icon: 'settings' },
     ], []);
@@ -27,7 +26,7 @@ export default function TabsLayout() {
     return (
         <SafeAreaView edges={['bottom']} style={{ flex: 1, backgroundColor: currentTheme.tabBackground }}>
             <Tabs
-                initialRouteName="index"
+                initialRouteName="home"
                 screenOptions={({ route }) => {
                     const screen = screens.find(s => s.name === route.name);
                     return {

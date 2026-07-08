@@ -53,6 +53,12 @@ interface ModalContextType {
   openCampaignSelectorModal: () => void;
   closeCampaignSelectorModal: () => void;
 
+  entryModalVisible: boolean;
+  selectedEntry: any | null;
+  selectedEntryCategory: string | null;
+  openEntryModal: (category: string, name: string, source?: string) => void;
+  closeEntryModal: () => void;
+
   beastStack: any[];
   spellStack: any[];
 }
@@ -85,7 +91,11 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
 
     const [campaignSelectorModalVisible, setCampaignSelectorModalVisible] = useState(false);
 
-    const { getFullBeast, getFullSpell } = useData();
+    const [entryModalVisible, setEntryModalVisible] = useState(false);
+    const [selectedEntry, setSelectedEntry] = useState<any | null>(null);
+    const [selectedEntryCategory, setSelectedEntryCategory] = useState<string | null>(null);
+
+    const { getFullBeast, getFullSpell, getContentEntry } = useData();
 
     // If called with fromModal, push the current modal to the stack before opening the new one
     const openBeastModal = useCallback(async (beast: any, fromModal: boolean = false) => {
@@ -169,6 +179,19 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
         setCampaignSelectorModalVisible(false);
     }, []);
 
+    const openEntryModal = useCallback((category: string, name: string, source?: string) => {
+        const entry = getContentEntry(category, name, source);
+        // Fall back to a minimal object so the modal can still show the name if not found.
+        setSelectedEntry(entry || { name, source, entries: ['No details available.'] });
+        setSelectedEntryCategory(category);
+        setEntryModalVisible(true);
+    }, [getContentEntry]);
+    const closeEntryModal = useCallback(() => {
+        setEntryModalVisible(false);
+        setSelectedEntry(null);
+        setSelectedEntryCategory(null);
+    }, []);
+
     const value = useMemo<ModalContextType>(() => ({
         beastModalVisible,
         selectedBeast,
@@ -189,6 +212,11 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
         campaignSelectorModalVisible,
         openCampaignSelectorModal,
         closeCampaignSelectorModal,
+        entryModalVisible,
+        selectedEntry,
+        selectedEntryCategory,
+        openEntryModal,
+        closeEntryModal,
         beastStack,
         spellStack,
     }), [
@@ -197,6 +225,7 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
         diceModalState, openDiceModal, closeDiceModal,
         advancedDiceModalState, openAdvancedDiceModal, closeAdvancedDiceModal,
         campaignSelectorModalVisible, openCampaignSelectorModal, closeCampaignSelectorModal,
+        entryModalVisible, selectedEntry, selectedEntryCategory, openEntryModal, closeEntryModal,
         beastStack, spellStack,
     ]);
 
