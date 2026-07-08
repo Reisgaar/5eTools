@@ -38,7 +38,7 @@ export default function ValueEditModal({
     isInitiative = false,
     initiativeBonus = 0,
     isGroup = false
-}: ValueEditModalProps): JSX.Element {
+}: ValueEditModalProps): React.JSX.Element {
     const [value, setValue] = useState(initialValue);
     const styles = createBaseModalStyles(theme);
 

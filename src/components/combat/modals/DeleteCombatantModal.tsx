@@ -28,7 +28,7 @@ export default function DeleteCombatantModal({
     creatureName = 'Creature',
     combatantNumber,
     theme
-}: DeleteCombatantModalProps): JSX.Element {
+}: DeleteCombatantModalProps): React.JSX.Element {
     const styles = createBaseModalStyles(theme);
 
     const handleConfirm = () => {

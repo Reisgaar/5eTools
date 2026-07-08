@@ -44,7 +44,7 @@ export default function StatusPickerModal({
     creatureName = 'Creature',
     combatantNumber,
     theme
-}: StatusPickerModalProps): JSX.Element {
+}: StatusPickerModalProps): React.JSX.Element {
     const [selectedConditions, setSelectedConditions] = useState<string[]>(currentConditions);
     const [noteText, setNoteText] = useState(currentNote);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);

@@ -26,7 +26,7 @@ interface CampaignSelectorModalProps {
 /**
  * Modal for selecting a campaign.
  */
-export default function CampaignSelectorModal({ visible }: CampaignSelectorModalProps): JSX.Element {
+export default function CampaignSelectorModal({ visible }: CampaignSelectorModalProps): React.JSX.Element {
     const { campaigns, selectedCampaignId, selectCampaign, clearSelectedCampaign } = useCampaignStore();
     const { currentTheme } = useAppSettingsStore();
     const styles = createBaseModalStyles(currentTheme);

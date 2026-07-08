@@ -34,7 +34,7 @@ export default function CombatGroup({
     onTokenPress,
     cachedTokenUrls,
     theme
-}: CombatGroupProps): JSX.Element {
+}: CombatGroupProps): React.JSX.Element {
     const styles = createCombatStyles(theme);
     const [tokenUrl, setTokenUrl] = React.useState<string | undefined>(undefined);
     const ICON_SIZE = 14;

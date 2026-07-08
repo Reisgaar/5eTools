@@ -5,7 +5,7 @@ import { View, Text, TouchableOpacity, Image, Alert, StyleSheet } from 'react-na
 // EXPO
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 
 // INTERFACES
 interface ImagePickerProps {

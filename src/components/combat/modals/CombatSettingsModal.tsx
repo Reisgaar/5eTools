@@ -37,7 +37,7 @@ export default function CombatSettingsModal({
     creatureName = 'Creature',
     combatantNumber,
     theme
-}: CombatSettingsModalProps): JSX.Element {
+}: CombatSettingsModalProps): React.JSX.Element {
     const styles = createBaseModalStyles(theme);
 
     const modalTitle = 'Combat Settings';

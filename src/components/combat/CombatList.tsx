@@ -28,7 +28,7 @@ export default function CombatList({
     onEditCombat,
     onDeleteCombat,
     theme
-}: CombatListProps): JSX.Element {
+}: CombatListProps): React.JSX.Element {
     const styles = createCombatStyles(theme);
     const [searchQuery, setSearchQuery] = useState('');
     const { campaigns } = useCampaignStore();

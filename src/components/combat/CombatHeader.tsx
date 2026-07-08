@@ -21,7 +21,7 @@ export default function CombatHeader({
     onOpenPlayerModal,
     onEditCombat,
     theme
-}: CombatHeaderProps): JSX.Element {
+}: CombatHeaderProps): React.JSX.Element {
     const styles = createCombatStyles(theme);
 
     return (

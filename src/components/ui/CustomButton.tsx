@@ -1,5 +1,5 @@
 // REACT
-import React, { JSX } from 'react';
+import React from 'react';
 import { Text, Pressable } from 'react-native';
 
 // CONTEXTS
@@ -18,7 +18,7 @@ interface CustomButtonProps {
 /**
  * A header with two icon buttons.
  */
-export default function CustomButton({ text, secondaryText, action }: CustomButtonProps): JSX.Element {
+export default function CustomButton({ text, secondaryText, action }: CustomButtonProps): React.JSX.Element {
     const { currentTheme } = useAppSettingsStore();
 
     return (

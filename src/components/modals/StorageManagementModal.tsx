@@ -29,7 +29,7 @@ interface StorageManagementModalProps {
 export default function StorageManagementModal({
     visible,
     onClose
-}: StorageManagementModalProps): JSX.Element {
+}: StorageManagementModalProps): React.JSX.Element {
     const { currentTheme } = useAppSettingsStore();
     const { isInitialized, simpleBeasts, simpleSpells, availableClasses, spellClassRelations } = useData();
 

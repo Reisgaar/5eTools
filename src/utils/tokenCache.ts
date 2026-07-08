@@ -1,5 +1,5 @@
 // EXPO
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 
 // CONSTANTS
 import { DATA_DIR } from 'src/constants/utils';

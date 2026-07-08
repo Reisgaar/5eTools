@@ -1,5 +1,5 @@
 // REACT
-import React, { JSX } from 'react';
+import React from 'react';
 import { Text, View } from 'react-native';
 
 // CONTEXTS
@@ -14,7 +14,7 @@ interface SeparatorProps {
 /**
  * A separator line.
  */
-export default function Seaparator( { size = 'medium', title }: SeparatorProps): JSX.Element {
+export default function Seaparator( { size = 'medium', title }: SeparatorProps): React.JSX.Element {
     const { currentTheme } = useAppSettingsStore();
 
     return (

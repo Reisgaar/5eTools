@@ -32,7 +32,7 @@ export default function CombatSelectionModal({
     onQuantityChange,
     onSelectCombat,
     theme
-}: CombatSelectionModalProps): JSX.Element {
+}: CombatSelectionModalProps): React.JSX.Element {
     const { campaigns } = useCampaignStore();
     const [searchQuery, setSearchQuery] = useState('');
     const [tokenUrl, setTokenUrl] = useState<string | null>(null);

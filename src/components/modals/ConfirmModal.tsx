@@ -32,7 +32,7 @@ export default function ConfirmModal({
     confirmText = 'Accept',
     cancelText = 'Cancel',
     theme
-}: ConfirmModalProps): JSX.Element {
+}: ConfirmModalProps): React.JSX.Element {
     const styles = createBaseModalStyles(theme);
     
 

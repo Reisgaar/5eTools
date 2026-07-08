@@ -34,7 +34,7 @@ export default function HPEditModal({
     initialCurrentHp,
     maxHp,
     theme
-}: HPEditModalProps): JSX.Element {
+}: HPEditModalProps): React.JSX.Element {
     const [currentHp, setCurrentHp] = useState(initialCurrentHp);
     const styles = createBaseModalStyles(theme);
 

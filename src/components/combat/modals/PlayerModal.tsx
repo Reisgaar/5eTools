@@ -47,7 +47,7 @@ export default function PlayerModal({
     selectedPlayers,
     onPlayerToggle,
     theme
-}: PlayerModalProps): JSX.Element {
+}: PlayerModalProps): React.JSX.Element {
     const { selectedCampaign, campaigns } = useCampaignStore();
     const styles = createBaseModalStyles(theme);
 

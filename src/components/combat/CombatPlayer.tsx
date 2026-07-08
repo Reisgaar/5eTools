@@ -41,7 +41,7 @@ export default function CombatPlayer({
     onTokenPress,
     cachedTokenUrls,
     theme
-}: CombatPlayerProps): JSX.Element {
+}: CombatPlayerProps): React.JSX.Element {
     const styles = createCombatStyles(theme);
     const [tokenUrl, setTokenUrl] = React.useState<string | undefined>(undefined);
     const ICON_SIZE = 14;

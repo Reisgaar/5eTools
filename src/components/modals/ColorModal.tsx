@@ -47,7 +47,7 @@ export default function ColorModal({
     creatureName = 'Creature',
     combatantNumber,
     theme
-}: ColorModalProps): JSX.Element {
+}: ColorModalProps): React.JSX.Element {
     const [selectedColor, setSelectedColor] = useState<string | undefined>(currentColor);
     const styles = createBaseModalStyles(theme);
 

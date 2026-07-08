@@ -62,7 +62,7 @@ export default function SettingsModal({
     creatureName = 'Creature',
     combatantNumber,
     theme
-}: SettingsModalProps): JSX.Element {
+}: SettingsModalProps): React.JSX.Element {
     const modalStyles = createBaseModalStyles(theme);
 
     const [selectedConditions, setSelectedConditions] = useState<string[]>(currentConditions);

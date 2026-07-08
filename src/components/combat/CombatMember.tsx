@@ -24,7 +24,7 @@ export default function CombatMember({
     onTokenPress,
     cachedTokenUrls,
     theme
-}: CombatMemberProps): JSX.Element {
+}: CombatMemberProps): React.JSX.Element {
     const styles = createCombatStyles(theme);
     const ICON_SIZE = 14;
 

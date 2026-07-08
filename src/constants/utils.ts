@@ -1,5 +1,5 @@
 // EXPO
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 
 // MODELS
 import { STORAGE_KEYS } from 'src/models/interfaces/utils';

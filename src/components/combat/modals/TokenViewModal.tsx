@@ -31,7 +31,7 @@ export default function TokenViewModal({
     fallbackUrl,
     creatureName,
     theme
-}: TokenViewModalProps): JSX.Element {
+}: TokenViewModalProps): React.JSX.Element {
     const [useFallback, setUseFallback] = React.useState(false);
     const baseStyles = createBaseModalStyles(theme);
 

@@ -41,7 +41,7 @@ export default function CombatFormModal({
     initialCampaignId,
     onCreateCombat,
     theme
-}: CombatFormModalProps): JSX.Element {
+}: CombatFormModalProps): React.JSX.Element {
     const { selectedCampaignId: contextSelectedCampaignId } = useCampaignStore();
     const { updateCombat } = useCombat();
 

@@ -48,8 +48,7 @@ export const useAppSettingsStore = create<AppSettingsState>((set, get) => ({
             if (savedTheme === 'light' || savedTheme === 'dark') {
                 themeName = savedTheme;
             } else {
-                const systemTheme = Appearance.getColorScheme() ?? 'light';
-                themeName = systemTheme;
+                themeName = Appearance.getColorScheme() === 'dark' ? 'dark' : 'light';
             }
 
             const savedDiceRoll = await AsyncStorage.getItem('USE_ADVANCED_DICE_ROLL');

@@ -34,7 +34,7 @@ export default function MaxHPEditModal({
     initialMaxHp,
     currentHp,
     theme
-}: MaxHPEditModalProps): JSX.Element {
+}: MaxHPEditModalProps): React.JSX.Element {
     const [maxHp, setMaxHp] = useState(initialMaxHp);
     const styles = createBaseModalStyles(theme);
 

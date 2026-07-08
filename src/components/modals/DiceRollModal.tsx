@@ -18,7 +18,7 @@ interface DiceRollModalProps {
 /**
  * DiceRollModal component.
  */
-export default function DiceRollModal({ visible, expression, result, breakdown, modifier, type = 'damage', label, theme, onClose }: DiceRollModalProps): JSX.Element | null {
+export default function DiceRollModal({ visible, expression, result, breakdown, modifier, type = 'damage', label, theme, onClose }: DiceRollModalProps): React.JSX.Element | null {
     if (!visible) return null;
 
     let title = label ? label

@@ -30,7 +30,7 @@ export default function NoteModal({
     creatureName = 'Creature',
     combatantNumber,
     theme
-}: NoteModalProps): JSX.Element {
+}: NoteModalProps): React.JSX.Element {
     const [noteText, setNoteText] = useState(currentNote);
     const styles = createBaseModalStyles(theme);
 

@@ -36,7 +36,7 @@ export default function StatusModal({
     creatureName = 'Creature',
     combatantNumber,
     theme
-}: StatusModalProps): JSX.Element {
+}: StatusModalProps): React.JSX.Element {
     const [selectedConditions, setSelectedConditions] = useState<string[]>(currentConditions);
     const styles = createBaseModalStyles(theme);
 

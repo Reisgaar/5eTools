@@ -371,7 +371,7 @@ export default function DataImportModal({ visible, onClose, theme }: DataImportM
 
         // Wait for all file operations to complete before regenerating
         console.log('Waiting for file operations to complete...');
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(() => resolve(undefined), 500));
 
         try {
             // Refresh campaigns store
@@ -402,7 +402,7 @@ export default function DataImportModal({ visible, onClose, theme }: DataImportM
             console.log('Combat context refreshed');
             
             // Force a small delay to ensure all stores are updated and UI re-renders
-            await new Promise(resolve => setTimeout(resolve, 300));
+            await new Promise(resolve => setTimeout(() => resolve(undefined), 300));
         } catch (error) {
             console.error('Error refreshing stores after import:', error);
         }

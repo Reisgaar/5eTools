@@ -40,7 +40,7 @@ export default function AdvancedDiceRollModal({
     theme,
     d20Config,
     damageConfig
-}: AdvancedDiceRollModalProps): JSX.Element {
+}: AdvancedDiceRollModalProps): React.JSX.Element {
     const unifiedStyles = createBaseModalStyles(theme);
 
     const [advantageType, setAdvantageType] = useState<AdvantageType>('normal');

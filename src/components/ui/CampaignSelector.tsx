@@ -26,7 +26,7 @@ export default function CampaignSelector({
     selectedCampaignId,
     onCampaignChange,
     theme,
-}: CampaignSelectorProps): JSX.Element {
+}: CampaignSelectorProps): React.JSX.Element {
     const { campaigns } = useCampaignStore();
     const [showCampaignSelector, setShowCampaignSelector] = useState(false);
     const styles = createBaseModalStyles(theme);

@@ -1,5 +1,5 @@
 // REACT
-import React, { JSX } from 'react';
+import React from 'react';
 import { Text, View, Pressable } from 'react-native';
 
 // CONTEXTS
@@ -18,7 +18,7 @@ interface ClickableTextProps {
 /**
  * A header with two icon buttons.
  */
-export default function ClickableText({ text, align = 'flex-start', action }: ClickableTextProps): JSX.Element {
+export default function ClickableText({ text, align = 'flex-start', action }: ClickableTextProps): React.JSX.Element {
     const { currentTheme } = useAppSettingsStore();
 
     return (
