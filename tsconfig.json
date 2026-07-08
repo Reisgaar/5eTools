@@ -7,7 +7,6 @@
         "jsx": "react-native",
         "lib": ["DOM", "ESNext"],
         "baseUrl": "./",
-        "ignoreDeprecations": "6.0",
         "strict": true,
         "noImplicitReturns": true,
         "forceConsistentCasingInFileNames": true,
