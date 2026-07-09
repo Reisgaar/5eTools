@@ -25,7 +25,7 @@ function SpellListItem({ spell, schoolLabel, hasSpellbook, onPress, onAddToSpell
     const isRitual = spell.ritual === true;
 
     return (
-        <View style={[commonStyles.itemCard, { backgroundColor: theme.card, borderColor: theme.primary }]}>
+        <View style={[commonStyles.itemCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
             <TouchableOpacity
                 style={commonStyles.itemInfoContainer}
                 onPress={() => onPress(spell)}

@@ -1,8 +1,7 @@
 // REACT
 import React from 'react';
 import { styleConstants } from 'src/styles/style-constants';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { ScrollView, StyleSheet, Text, View, Image } from 'react-native';
 
 // STORES
 import { useAppSettingsStore, useCampaignStore, usePlayerStore } from 'src/stores';
@@ -11,8 +10,10 @@ import { useAppSettingsStore, useCampaignStore, usePlayerStore } from 'src/store
 import { getCommonStyles } from 'src/styles/commonStyles';
 
 // COMPONENTS
+import { Button, ListItem, ActionMenu } from 'src/components/ui';
 import ConfirmModal from 'src/components/modals/ConfirmModal';
 import PlayerFormModal from 'src/components/modals/PlayerFormModal';
+import { useTabBarInset } from 'src/hooks/useTabBarInset';
 
 const DEFAULT_TOKEN_URL = 'https://5e.tools/img/blank.webp';
 
@@ -20,6 +21,7 @@ const DEFAULT_TOKEN_URL = 'https://5e.tools/img/blank.webp';
 export default function PlayersScreen() {
     const { currentTheme } = useAppSettingsStore();
     const commonStyles = getCommonStyles(currentTheme);
+    const tabInset = useTabBarInset();
     const { campaigns, selectedCampaign } = useCampaignStore();
     const { players, loadPlayers, createPlayer, deletePlayer, updatePlayer } = usePlayerStore();
 
@@ -78,54 +80,51 @@ export default function PlayersScreen() {
         <View style={[commonStyles.container, { padding: styleConstants.paddingLG, backgroundColor: currentTheme.background, flex: 1 }]}>
             <View style={[commonStyles.row_between_center, commonStyles.mb_sm]}>
                 <Text style={{ fontSize: styleConstants.fontSizeLG, fontWeight: 'bold', color: currentTheme.text }}>Players</Text>
-                <TouchableOpacity onPress={openAddPlayerModal} style={styles.addButton}>
-                    <Ionicons name="add" size={20} color="white" />
-                </TouchableOpacity>
+                <Button title="New" icon="add" size="sm" onPress={openAddPlayerModal} />
             </View>
 
-            <View style={{ flex: 1, paddingBottom: styleConstants.paddingLG }}>
-                {filteredPlayers.length > 0 ? (
-                    <ScrollView style={[styles.container, { borderColor: currentTheme.primary, backgroundColor: currentTheme.card }]}>
-                        {filteredPlayers.map(item => (
-                            <View key={item.name} style={[styles.playerItem, {
-                                borderBottomWidth: styleConstants.borderXS,
-                                borderBottomColor: currentTheme.primary,
-                                backgroundColor: currentTheme.card
-                            }]}>
-                                <View style={styles.playerContent}>
+            {filteredPlayers.length > 0 ? (
+                <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: tabInset }}>
+                    {filteredPlayers.map(item => {
+                        const campaign = getCampaignName(item.campaignId);
+                        return (
+                            <ListItem
+                                key={item.name}
+                                leading={
                                     <Image
                                         source={{ uri: item.tokenUrl || DEFAULT_TOKEN_URL }}
-                                        style={{ width: 40, height: 40, borderRadius: styleConstants.borderRadius2XL, marginRight: styleConstants.marginMD, borderWidth: styleConstants.borderSM, borderColor: '#22c55a' }}
+                                        style={{ width: 44, height: 44, borderRadius: styleConstants.borderRadiusCircle, borderWidth: styleConstants.borderXS, borderColor: currentTheme.border }}
                                     />
-                                    <View style={{ flex: 1 }}>
-                                        <Text style={[styles.playerName, { color: currentTheme.text }]}>{item.name}</Text>
-                                        <Text style={[styles.playerDetails, { color: currentTheme.noticeText }]}>{item.race} - {item.class}</Text>
-                                        {getCampaignName(item.campaignId) ? (
-                                            <Text style={[styles.playerDetails, { color: currentTheme.noticeText, fontSize: styleConstants.fontSizeSM }]}>
-                                                Campaign: {getCampaignName(item.campaignId)}
-                                            </Text>
+                                }
+                                title={item.name}
+                                subtitle={
+                                    <View>
+                                        <Text style={{ color: currentTheme.noticeText, fontSize: styleConstants.fontSizeSM, marginTop: styleConstants.margin2XS }}>{item.race} - {item.class}</Text>
+                                        {campaign ? (
+                                            <Text style={{ color: currentTheme.noticeText, fontSize: styleConstants.fontSizeSM }}>Campaign: {campaign}</Text>
                                         ) : null}
                                     </View>
-                                </View>
-                                <View style={styles.playerActions}>
-                                    <TouchableOpacity onPress={() => openEditPlayerModal(item)} style={[styles.actionButton, { backgroundColor: currentTheme.primary, marginRight: styleConstants.marginSM }]}>
-                                        <Ionicons name="pencil" size={16} color="white" />
-                                    </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => handleDeletePlayer(item.name)} style={[styles.actionButton, { backgroundColor: '#dc2626' }]}>
-                                        <Ionicons name="trash" size={16} color="white" />
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-                        ))}
-                    </ScrollView>
-                ) : (
-                    <View style={[styles.emptyContainer, styles.container, { borderColor: currentTheme.primary, backgroundColor: currentTheme.card }]}>
-                        <Text style={{ color: currentTheme.noticeText, textAlign: 'center' }}>
-                            No players created. Create your first player to get started.
-                        </Text>
-                    </View>
-                )}
-            </View>
+                                }
+                                trailing={
+                                    <ActionMenu
+                                        title={item.name}
+                                        actions={[
+                                            { label: 'Edit', icon: 'pencil', onPress: () => openEditPlayerModal(item) },
+                                            { label: 'Delete', icon: 'trash', destructive: true, onPress: () => handleDeletePlayer(item.name) },
+                                        ]}
+                                    />
+                                }
+                            />
+                        );
+                    })}
+                </ScrollView>
+            ) : (
+                <View style={[styles.emptyContainer, { flex: 1 }]}>
+                    <Text style={{ color: currentTheme.noticeText, textAlign: 'center' }}>
+                        No players created. Create your first player to get started.
+                    </Text>
+                </View>
+            )}
 
             <PlayerFormModal
                 visible={playerModalVisible}
@@ -149,7 +148,6 @@ export default function PlayersScreen() {
 }
 
 const styles = StyleSheet.create({
-    addButton: { backgroundColor: '#22c55e', width: 28, height: 28, borderRadius: styleConstants.borderRadiusLG, alignItems: 'center', justifyContent: 'center' },
     playerItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: styleConstants.paddingMD, paddingHorizontal: styleConstants.paddingLG },
     playerContent: { flex: 1, flexDirection: 'row', alignItems: 'center' },
     playerName: { fontSize: styleConstants.fontSizeLG, fontWeight: '600', marginBottom: styleConstants.margin2XS },

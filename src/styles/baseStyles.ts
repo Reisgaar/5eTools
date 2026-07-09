@@ -30,7 +30,7 @@ export const baseStyles = StyleSheet.create({
         borderRadius: styleConstants.borderRadiusXL,
         padding: styleConstants.paddingXL,
         alignItems: 'stretch',
-        elevation: 6,
+        elevation: 4,
     },
     modalHeader: {
         flexDirection: 'row',
@@ -171,9 +171,9 @@ export const baseStyles = StyleSheet.create({
         borderRadius: styleConstants.borderRadiusXL,
         elevation: 6,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.12,
+        shadowRadius: 10,
     },
     detailCloseBtn: {
         position: 'absolute',

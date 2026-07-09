@@ -36,7 +36,7 @@ export default function SpellbookItem({
 }: SpellbookItemProps) {
     const commonStyles = getCommonStyles(theme);
     return (
-        <View style={[commonStyles.modalItem, { backgroundColor: theme.card, borderColor: theme.primary }]}>
+        <View style={[commonStyles.modalItem, { backgroundColor: theme.card, borderColor: theme.border }]}>
             <TouchableOpacity
                 style={commonStyles.modalItemInfo}
                 onPress={onPress}

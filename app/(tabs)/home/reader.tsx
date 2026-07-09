@@ -17,11 +17,13 @@ import { getCommonStyles } from 'src/styles/commonStyles';
 // UTILS
 import { renderEntries } from 'src/utils/replaceTags';
 import { LibraryType } from 'src/utils/libraryStorage';
+import { useTabBarInset } from 'src/hooks/useTabBarInset';
 
 export default function ReaderScreen() {
     const { type, id } = useLocalSearchParams<{ type: LibraryType; id: string }>();
     const { currentTheme } = useAppSettingsStore();
     const commonStyles = getCommonStyles(currentTheme);
+    const tabInset = useTabBarInset();
     const { getDocument } = useLibraryStore();
     const { openEntryModal, openBeastModal, openSpellModal } = useModal();
 
@@ -61,12 +63,12 @@ export default function ReaderScreen() {
     // Chapter list
     if (chapter === null) {
         return (
-            <ScrollView style={{ flex: 1, backgroundColor: currentTheme.background }} contentContainerStyle={commonStyles.p_md}>
+            <ScrollView style={{ flex: 1, backgroundColor: currentTheme.background }} contentContainerStyle={[commonStyles.p_md, { paddingBottom: tabInset }]}>
                 {chapters.map((ch, i) => (
                     <TouchableOpacity
                         key={i}
                         onPress={() => setChapter(i)}
-                        style={[styles.chapterRow, { backgroundColor: currentTheme.card, borderColor: currentTheme.primary }]}
+                        style={[styles.chapterRow, { backgroundColor: currentTheme.card, borderColor: currentTheme.border }]}
                         activeOpacity={0.7}
                     >
                         <Text style={{ color: currentTheme.text, fontSize: styleConstants.fontSizeMD, fontWeight: '600', flex: 1 }}>
@@ -90,7 +92,7 @@ export default function ReaderScreen() {
                 <Ionicons name="list" size={18} color={currentTheme.primary} />
                 <Text style={{ color: currentTheme.primary, fontWeight: 'bold', marginLeft: styleConstants.marginXS }}>All chapters</Text>
             </TouchableOpacity>
-            <ScrollView contentContainerStyle={{ padding: styleConstants.paddingMD, paddingBottom: 40 }}>
+            <ScrollView contentContainerStyle={{ padding: styleConstants.paddingMD, paddingBottom: tabInset }}>
                 <Text style={{ color: currentTheme.text, fontSize: styleConstants.fontSizeXL, fontWeight: 'bold', marginBottom: styleConstants.marginSM }}>
                     {ch.name || `Chapter ${chapter + 1}`}
                 </Text>

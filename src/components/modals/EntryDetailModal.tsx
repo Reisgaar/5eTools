@@ -10,7 +10,7 @@ import { BaseModal } from 'src/components/ui';
 import { useModal } from 'src/context/ModalContext';
 
 // UTILS
-import { renderEntries } from 'src/utils/replaceTags';
+import { renderEntries, replaceTags } from 'src/utils/replaceTags';
 import { getEntryStatRows } from 'src/utils/entryFields';
 
 interface EntryDetailModalProps {
@@ -53,7 +53,7 @@ const CATEGORY_LABEL: Record<string, string> = {
  * nested tappable tags routed back through openEntryModal so cross-links work.
  */
 export default function EntryDetailModal({ visible, entry, category, onClose, onBack, theme }: EntryDetailModalProps) {
-    const { openEntryModal } = useModal();
+    const { openEntryModal, openBeastModal, openSpellModal } = useModal();
     const commonStyles = getCommonStyles(theme);
 
     if (!entry) return null;
@@ -79,7 +79,17 @@ export default function EntryDetailModal({ visible, entry, category, onClose, on
                     {rows.map(row => (
                         <View key={row.label} style={[commonStyles.mb_2xs, { flexDirection: 'row' }]}>
                             <Text style={[commonStyles.text_bold, commonStyles.text_primary, commonStyles.text_sm, { width: 120 }]}>{row.label}</Text>
-                            <Text style={[commonStyles.text_primary, commonStyles.text_sm, { flex: 1 }]}>{row.value}</Text>
+                            <Text style={[commonStyles.text_primary, commonStyles.text_sm, { flex: 1 }]}>
+                                {replaceTags(
+                                    String(row.value ?? ''),
+                                    theme,
+                                    (name, source) => openBeastModal({ name, source }),
+                                    (name, source) => openSpellModal({ name, source }),
+                                    undefined,
+                                    undefined,
+                                    (cat, name, source) => openEntryModal(cat, name, source),
+                                )}
+                            </Text>
                         </View>
                     ))}
                 </View>

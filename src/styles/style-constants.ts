@@ -110,20 +110,20 @@ export const styleConstants = {
     shadowSM: Platform.select({
         ios: {
             shadowColor: '#000',
-            shadowOpacity: 0.2,
-            shadowRadius: 5,
-            shadowOffset: { width: 0, height: 0 },
+            shadowOpacity: 0.08,
+            shadowRadius: 3,
+            shadowOffset: { width: 0, height: 1 },
         },
-        android: { elevation: 4 },
+        android: { elevation: 2 },
     }),
 
     shadowLG: Platform.select({
         ios: {
             shadowColor: '#000',
-            shadowOpacity: 0.25,
-            shadowRadius: 20,
-            shadowOffset: { width: 0, height: 0 },
+            shadowOpacity: 0.12,
+            shadowRadius: 10,
+            shadowOffset: { width: 0, height: 4 },
         },
-        android: { elevation: 10 },
+        android: { elevation: 6 },
     })
 };

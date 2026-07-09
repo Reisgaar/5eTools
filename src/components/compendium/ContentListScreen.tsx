@@ -1,9 +1,12 @@
 // REACT
 import React from 'react';
-import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { FlatList, StyleSheet, Text, TextInput, View } from 'react-native';
 
 // STORES
 import { useAppSettingsStore } from 'src/stores';
+
+// COMPONENTS
+import { ListItem } from 'src/components/ui';
 
 // CONTEXTS
 import { useModal } from 'src/context/ModalContext';
@@ -11,6 +14,9 @@ import { useModal } from 'src/context/ModalContext';
 // STYLES
 import { getCommonStyles } from 'src/styles/commonStyles';
 import { styleConstants } from 'src/styles/style-constants';
+
+// HOOKS
+import { useTabBarInset } from 'src/hooks/useTabBarInset';
 
 // UTILS
 import { containsNormalized } from 'src/utils/stringUtils';
@@ -35,6 +41,7 @@ interface ContentListScreenProps {
 export default function ContentListScreen({ items, category, categoryOf, searchPlaceholder, getSubtitle }: ContentListScreenProps) {
     const { currentTheme, preferredEdition, ignoredSources } = useAppSettingsStore();
     const commonStyles = getCommonStyles(currentTheme);
+    const tabInset = useTabBarInset();
     const { openEntryModal } = useModal();
     const [search, setSearch] = React.useState('');
 
@@ -50,20 +57,17 @@ export default function ContentListScreen({ items, category, categoryOf, searchP
     const renderItem = React.useCallback(({ item }: { item: any }) => {
         const subtitle = getSubtitle?.(item);
         return (
-            <TouchableOpacity
+            <ListItem
                 onPress={() => openEntryModal(categoryOf ? categoryOf(item) : category, item.name, item.source)}
-                style={[commonStyles.itemCard, { backgroundColor: currentTheme.card, borderColor: currentTheme.primary }]}
-                activeOpacity={0.7}
-            >
-                <View style={commonStyles.itemInfoContainer}>
+                title={
                     <Text style={[commonStyles.itemName, { color: currentTheme.text }]}>
                         <Text style={{ fontWeight: 'bold' }}>{item.name}</Text>
                         <Text style={{ fontStyle: 'italic', fontWeight: 'normal' }}>
                             {subtitle ? `  ${subtitle}` : ''} ({item.source})
                         </Text>
                     </Text>
-                </View>
-            </TouchableOpacity>
+                }
+            />
         );
     }, [openEntryModal, category, categoryOf, getSubtitle, currentTheme]);
 
@@ -74,14 +78,14 @@ export default function ContentListScreen({ items, category, categoryOf, searchP
                 onChangeText={setSearch}
                 placeholder={searchPlaceholder}
                 placeholderTextColor={currentTheme.noticeText}
-                style={[commonStyles.input, styles.search, { color: currentTheme.text, borderColor: currentTheme.primary }]}
+                style={[commonStyles.input, styles.search, { color: currentTheme.text, borderColor: currentTheme.border }]}
             />
 
             <FlatList
                 data={filtered}
                 keyExtractor={(item, index) => `${item.source}|${item.name}|${index}`}
                 renderItem={renderItem}
-                contentContainerStyle={styles.listContent}
+                contentContainerStyle={[styles.listContent, { paddingBottom: tabInset }]}
                 initialNumToRender={15}
                 maxToRenderPerBatch={15}
                 windowSize={11}

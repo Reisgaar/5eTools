@@ -49,65 +49,65 @@ export default function Header({ navigation, options, back }: HeaderProps = {}) 
         return seg.charAt(0).toUpperCase() + seg.slice(1);
     };
 
-    return (
-        <>
-            <SafeAreaView style={[commonStyles.row_between_center, commonStyles.px_sm, commonStyles.py_xs, commonStyles.bwb_sm, {
-                backgroundColor: currentTheme.headerBackground,
-                borderBottomColor: currentTheme.text,
-            }]} edges={['top']}>
-                <View style={[commonStyles.row_start_center, commonStyles.gap_sm]}>
-                    {back && navigation ? (
-                        <TouchableOpacity onPress={() => navigation.goBack()} style={commonStyles.pr_2xs} accessibilityLabel="Go back">
-                            <Ionicons name="chevron-back" size={26} color={currentTheme.text} />
-                        </TouchableOpacity>
-                    ) : (
-                        <Image
-                            source={ themeName === 'light' ?
-                                require('../../../assets/images/logo_bb_lg.png')
-                                : require('../../../assets/images/logo_wbu_lg.png')
-                            }
-                            style={[styles.logo, commonStyles.br_sm, { height: 30, width: 30 }]} />
-                    )}
-                    <Text style={[commonStyles.text_xl, commonStyles.text_bold, commonStyles.text_primary]}>{getTitle()}</Text>
-                </View>
+    const campaignLabel = selectedCampaignId && selectedCampaign ? selectedCampaign.name : 'All Campaigns';
 
-                <TouchableOpacity onPress={handleCampaignPress} style={[styles.filterBtn, { borderColor: currentTheme.text }]}>
-                    <Text style={[styles.filterBtnText, commonStyles.text_primary]}>
-                        {selectedCampaignId && selectedCampaign ? selectedCampaign.name : 'All Campaigns'}
-                    </Text>
-                </TouchableOpacity>
-            </SafeAreaView>
-        </>
+    return (
+        <SafeAreaView
+            style={[commonStyles.row_between_center, commonStyles.px_md, commonStyles.py_sm, styles.bar, {
+                backgroundColor: currentTheme.headerBackground,
+                borderBottomColor: currentTheme.border,
+            }]}
+            edges={['top']}
+        >
+            <View style={[commonStyles.row_start_center, commonStyles.gap_sm, { flex: 1 }]}>
+                {back && navigation ? (
+                    <TouchableOpacity onPress={() => navigation.goBack()} style={commonStyles.pr_2xs} accessibilityLabel="Go back">
+                        <Ionicons name="chevron-back" size={26} color={currentTheme.text} />
+                    </TouchableOpacity>
+                ) : (
+                    <Image
+                        source={ themeName === 'light' ?
+                            require('../../../assets/images/logo_bb_lg.png')
+                            : require('../../../assets/images/logo_wbu_lg.png')
+                        }
+                        style={[styles.logo, commonStyles.br_sm, { height: 30, width: 30 }]} />
+                )}
+                <Text numberOfLines={1} style={[commonStyles.text_xl, commonStyles.text_bold, commonStyles.text_primary, { flexShrink: 1 }]}>{getTitle()}</Text>
+            </View>
+
+            <TouchableOpacity
+                onPress={handleCampaignPress}
+                activeOpacity={0.7}
+                style={[commonStyles.row_start_center, commonStyles.gap_xs, styles.campaignChip, {
+                    backgroundColor: currentTheme.innerBackground,
+                    borderColor: currentTheme.border,
+                }]}
+            >
+                <Ionicons name="flag" size={13} color={currentTheme.primary} />
+                <Text numberOfLines={1} style={[styles.campaignChipText, { color: currentTheme.text }]}>{campaignLabel}</Text>
+                <Ionicons name="chevron-down" size={13} color={currentTheme.noticeText} />
+            </TouchableOpacity>
+        </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: styleConstants.paddingSM,
-        padding: styleConstants.padding2XS,
-        borderColor: '#ccc',
-    },
-    title: {
-        fontSize: styleConstants.fontSizeLG,
-        fontWeight: 'bold',
+    bar: {
+        borderBottomWidth: styleConstants.borderXS,
     },
     logo: {
         resizeMode: 'contain',
     },
-    filterBtn: {
-        borderWidth: styleConstants.borderSM,
-        borderRadius: styleConstants.borderRadiusMD,
+    campaignChip: {
+        borderWidth: styleConstants.borderXS,
+        borderRadius: styleConstants.borderRadiusLG,
         paddingHorizontal: styleConstants.paddingSM,
-        paddingVertical: styleConstants.paddingXS,
-        alignItems: 'center',
-        justifyContent: 'center',
+        paddingVertical: styleConstants.paddingXS + 1,
+        maxWidth: 168,
     },
-    filterBtnText: {
-        fontWeight: 'bold',
+    campaignChipText: {
+        fontWeight: '600',
         fontSize: styleConstants.fontSizeSM,
+        flexShrink: 1,
     },
 });

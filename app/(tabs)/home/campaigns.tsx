@@ -1,8 +1,7 @@
 // REACT
 import React from 'react';
 import { styleConstants } from 'src/styles/style-constants';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 // STORES
 import { useAppSettingsStore, useCampaignStore } from 'src/stores';
@@ -11,13 +10,16 @@ import { useAppSettingsStore, useCampaignStore } from 'src/stores';
 import { getCommonStyles } from 'src/styles/commonStyles';
 
 // COMPONENTS
+import { Button, ListItem, ActionMenu } from 'src/components/ui';
 import ConfirmModal from 'src/components/modals/ConfirmModal';
 import CampaignFormModal from 'src/components/modals/CampaignFormModal';
+import { useTabBarInset } from 'src/hooks/useTabBarInset';
 
 // Campaign management screen (independent, reached from Home).
 export default function CampaignsScreen() {
     const { currentTheme } = useAppSettingsStore();
     const commonStyles = getCommonStyles(currentTheme);
+    const tabInset = useTabBarInset();
     const { campaigns, createCampaign, deleteCampaign, updateCampaign } = useCampaignStore();
 
     const [campaignModalVisible, setCampaignModalVisible] = React.useState(false);
@@ -60,47 +62,35 @@ export default function CampaignsScreen() {
         <View style={[commonStyles.container, { padding: styleConstants.paddingLG, backgroundColor: currentTheme.background, flex: 1 }]}>
             <View style={[commonStyles.row_between_center, commonStyles.mb_sm]}>
                 <Text style={{ fontSize: styleConstants.fontSizeLG, fontWeight: 'bold', color: currentTheme.text }}>Campaigns</Text>
-                <TouchableOpacity onPress={openAddCampaignModal} style={styles.addButton}>
-                    <Ionicons name="add" size={20} color="white" />
-                </TouchableOpacity>
+                <Button title="New" icon="add" size="sm" onPress={openAddCampaignModal} />
             </View>
 
-            <View style={{ flex: 1, paddingBottom: styleConstants.paddingLG }}>
-                {campaigns.length > 0 ? (
-                    <ScrollView style={[styles.container, { borderColor: currentTheme.primary, backgroundColor: currentTheme.card }]}>
-                        {campaigns.map(item => (
-                            <View key={item.id} style={[styles.campaignItem, {
-                                borderBottomWidth: styleConstants.borderXS,
-                                borderBottomColor: currentTheme.primary,
-                                backgroundColor: currentTheme.card
-                            }]}>
-                                <View style={styles.campaignContent}>
-                                    <View style={{ flex: 1 }}>
-                                        <Text style={[styles.campaignName, { color: currentTheme.text }]}>{item.name}</Text>
-                                        {item.description ? (
-                                            <Text style={[styles.campaignDescription, { color: currentTheme.noticeText }]}>{item.description}</Text>
-                                        ) : null}
-                                    </View>
-                                </View>
-                                <View style={styles.campaignActions}>
-                                    <TouchableOpacity onPress={() => openEditCampaignModal(item)} style={[styles.actionButton, { backgroundColor: currentTheme.primary, marginRight: styleConstants.marginSM }]}>
-                                        <Ionicons name="pencil" size={16} color="white" />
-                                    </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => handleDeleteCampaign(item.id)} style={[styles.actionButton, { backgroundColor: '#dc2626' }]}>
-                                        <Ionicons name="trash" size={16} color="white" />
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-                        ))}
-                    </ScrollView>
-                ) : (
-                    <View style={[styles.emptyContainer, styles.container, { borderColor: currentTheme.primary, backgroundColor: currentTheme.card }]}>
-                        <Text style={{ color: currentTheme.noticeText, textAlign: 'center' }}>
-                            No campaigns created. Create your first campaign to get started.
-                        </Text>
-                    </View>
-                )}
-            </View>
+            {campaigns.length > 0 ? (
+                <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: tabInset }}>
+                    {campaigns.map(item => (
+                        <ListItem
+                            key={item.id}
+                            title={item.name}
+                            subtitle={item.description || undefined}
+                            trailing={
+                                <ActionMenu
+                                    title={item.name}
+                                    actions={[
+                                        { label: 'Edit', icon: 'pencil', onPress: () => openEditCampaignModal(item) },
+                                        { label: 'Delete', icon: 'trash', destructive: true, onPress: () => handleDeleteCampaign(item.id) },
+                                    ]}
+                                />
+                            }
+                        />
+                    ))}
+                </ScrollView>
+            ) : (
+                <View style={[styles.emptyContainer, { flex: 1 }]}>
+                    <Text style={{ color: currentTheme.noticeText, textAlign: 'center' }}>
+                        No campaigns created. Create your first campaign to get started.
+                    </Text>
+                </View>
+            )}
 
             <CampaignFormModal
                 visible={campaignModalVisible}
@@ -123,7 +113,6 @@ export default function CampaignsScreen() {
 }
 
 const styles = StyleSheet.create({
-    addButton: { backgroundColor: '#22c55e', width: 28, height: 28, borderRadius: styleConstants.borderRadiusLG, alignItems: 'center', justifyContent: 'center' },
     campaignItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: styleConstants.paddingMD, paddingHorizontal: styleConstants.paddingLG },
     campaignContent: { flex: 1, flexDirection: 'row', alignItems: 'center' },
     campaignName: { fontSize: styleConstants.fontSizeLG, fontWeight: '600', marginBottom: styleConstants.margin2XS },

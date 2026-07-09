@@ -15,11 +15,15 @@ import { NavCard } from 'src/components/ui';
 // STYLES
 import { getCommonStyles } from 'src/styles/commonStyles';
 
+// HOOKS
+import { useTabBarInset } from 'src/hooks/useTabBarInset';
+
 // Home dashboard: shows the active campaign and links out to the campaign-management screens.
 export default function HomeScreen() {
     const router = useRouter();
     const { currentTheme } = useAppSettingsStore();
     const commonStyles = getCommonStyles(currentTheme);
+    const tabInset = useTabBarInset();
     const { campaigns, selectedCampaign } = useCampaignStore();
     const { players } = usePlayerStore();
     const { spellbooks } = useSpellbookStore();
@@ -42,7 +46,7 @@ export default function HomeScreen() {
     ];
 
     return (
-        <ScrollView style={{ flex: 1, backgroundColor: currentTheme.background }}>
+        <ScrollView style={{ flex: 1, backgroundColor: currentTheme.background }} contentContainerStyle={{ paddingBottom: tabInset }}>
             <View style={[commonStyles.container, commonStyles.p_lg, { backgroundColor: currentTheme.background, flex: 1 }]}>
                 {/* Management cards */}
                 {cards.map(card => (

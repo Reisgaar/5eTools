@@ -202,6 +202,13 @@ export function replaceTags(
                     );
                 }
                 break;
+            case 'd20': {
+                // Signed d20 modifier, e.g. {@d20 8} -> "+8", {@d20 -1} -> "-1"
+                const raw = (params[0] || '0').trim();
+                const signed = /^[+-]/.test(raw) ? raw : `+${raw}`;
+                nodes.push(<Text key={key++} style={{ fontWeight: 'bold', color: theme.text }}>{signed}</Text>);
+                break;
+            }
             case 'h':
             case 'hom':
                 // Ignore

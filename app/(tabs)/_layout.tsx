@@ -10,12 +10,16 @@ import { Tabs } from 'expo-router';
 import { useAppSettingsStore } from 'src/stores';
 
 // CONTEXTS
-import { SafeAreaView } from 'react-native-safe-area-context';
-// No longer import modal overlays or ModalProvider here
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+// HOOKS
+import { TAB_BAR_HEIGHT } from 'src/hooks/useTabBarInset';
 
 // Layout for the main tab navigation of the app, providing themed tab bar and screen structure.
 export default function TabsLayout() {
     const { currentTheme } = useAppSettingsStore();
+    const insets = useSafeAreaInsets();
+    const bottomGap = Math.max(insets.bottom, styleConstants.marginSM);
 
     const screens = useMemo(() => [
         { name: 'home', title: 'Home', icon: 'home' },
@@ -25,39 +29,49 @@ export default function TabsLayout() {
     ], []);
 
     return (
-        <SafeAreaView edges={['bottom']} style={{ flex: 1, backgroundColor: currentTheme.tabBackground }}>
-            <Tabs
-                initialRouteName="home"
-                screenOptions={({ route }) => {
-                    const screen = screens.find(s => s.name === route.name);
-                    return {
-                        headerShown: false,
-                        tabBarActiveTintColor: currentTheme.tabActive,
-                        tabBarInactiveTintColor: currentTheme.tabInactive,
-                        tabBarStyle: {
-                            paddingBottom: 0,
-                            height: 60,
-                            elevation: 0, // Android
-                            shadowOpacity: 0, // iOS
-                            backgroundColor: currentTheme.tabBackground,
-                            borderTopWidth: styleConstants.borderXS,
-                            borderColor: currentTheme.tabBorder
-                        },
-                        tabBarIcon: ({ color, size }) => (
-                            <Ionicons
-                                name={(screen?.icon || 'ellipse') as keyof typeof Ionicons.glyphMap}
-                                size={size}
-                                color={color}
-                            />
-                        ),
-                        tabBarLabel: screen?.title,
-                    };
-                }}
-            >
-                {screens.map(({ name }) => (
-                    <Tabs.Screen key={name} name={name} />
-                ))}
-            </Tabs>
-          </SafeAreaView>
+        <Tabs
+            initialRouteName="home"
+            screenOptions={({ route }) => {
+                const screen = screens.find(s => s.name === route.name);
+                return {
+                    headerShown: false,
+                    tabBarActiveTintColor: currentTheme.tabActive,
+                    tabBarInactiveTintColor: currentTheme.tabInactive,
+                    // Floating pill tab bar: absolutely positioned so screen content fills the
+                    // full height and flows underneath it (screens pad their scroll content via
+                    // useTabBarInset so nothing is hidden).
+                    tabBarStyle: {
+                        position: 'absolute',
+                        bottom: bottomGap,
+                        height: TAB_BAR_HEIGHT,
+                        marginHorizontal: styleConstants.marginMD,
+                        borderRadius: styleConstants.borderRadiusCircle,
+                        borderWidth: 1,
+                        borderTopWidth: 1,
+                        borderColor: currentTheme.primary,
+                        backgroundColor: currentTheme.tabBackground,
+                        elevation: 4, // Android
+                        shadowColor: '#000', // iOS
+                        shadowOpacity: 0.1,
+                        shadowRadius: 8,
+                        shadowOffset: { width: 0, height: 2 }
+                    },
+                    tabBarItemStyle: { paddingVertical: styleConstants.paddingXS },
+                    tabBarLabelStyle: { fontSize: styleConstants.fontSizeXS, fontWeight: '600' },
+                    tabBarIcon: ({ color, size }) => (
+                        <Ionicons
+                            name={(screen?.icon || 'ellipse') as keyof typeof Ionicons.glyphMap}
+                            size={size}
+                            color={color}
+                        />
+                    ),
+                    tabBarLabel: screen?.title,
+                };
+            }}
+        >
+            {screens.map(({ name }) => (
+                <Tabs.Screen key={name} name={name} />
+            ))}
+        </Tabs>
     );
 }

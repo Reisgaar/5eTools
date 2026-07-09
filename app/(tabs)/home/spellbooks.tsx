@@ -14,15 +14,17 @@ import { useModal } from 'src/context/ModalContext';
 import { getCommonStyles } from 'src/styles/commonStyles';
 
 // COMPONENTS
-import { BaseModal } from 'src/components/ui';
+import { BaseModal, Button, ListItem, ActionMenu } from 'src/components/ui';
 import ConfirmModal from 'src/components/modals/ConfirmModal';
 import { CreateSpellbookModal } from 'src/components/spells';
+import { useTabBarInset } from 'src/hooks/useTabBarInset';
 
 // Spellbook management screen (independent, reached from Home). Create/delete spellbooks and
 // view their spells. Adding spells happens from the Spells compendium screen.
 export default function SpellbooksScreen() {
     const { currentTheme } = useAppSettingsStore();
     const commonStyles = getCommonStyles(currentTheme);
+    const tabInset = useTabBarInset();
     const { selectedCampaign } = useCampaignStore();
     const { spellbooks, deleteSpellbook, removeSpellFromSpellbook } = useSpellbookStore();
     const { openSpellModal } = useModal();
@@ -56,42 +58,38 @@ export default function SpellbooksScreen() {
         <View style={[commonStyles.container, { padding: styleConstants.paddingLG, backgroundColor: currentTheme.background, flex: 1 }]}>
             <View style={[commonStyles.row_between_center, commonStyles.mb_sm]}>
                 <Text style={{ fontSize: styleConstants.fontSizeLG, fontWeight: 'bold', color: currentTheme.text }}>Spellbooks</Text>
-                <TouchableOpacity onPress={() => setCreateModalVisible(true)} style={styles.addButton}>
-                    <Ionicons name="add" size={20} color="white" />
-                </TouchableOpacity>
+                <Button title="New" icon="add" size="sm" onPress={() => setCreateModalVisible(true)} />
             </View>
 
-            <View style={{ flex: 1, paddingBottom: styleConstants.paddingLG }}>
-                {visibleSpellbooks.length > 0 ? (
-                    <ScrollView style={[styles.listContainer, { borderColor: currentTheme.primary, backgroundColor: currentTheme.card }]}>
-                        {visibleSpellbooks.map(sb => (
-                            <TouchableOpacity
+            {visibleSpellbooks.length > 0 ? (
+                <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: tabInset }}>
+                    {visibleSpellbooks.map(sb => {
+                        const count = sb.spellsIndex?.length || 0;
+                        return (
+                            <ListItem
                                 key={sb.id}
                                 onPress={() => setViewingId(sb.id)}
-                                activeOpacity={0.7}
-                                style={[styles.row, { borderBottomColor: currentTheme.primary }]}
-                            >
-                                <View style={{ flex: 1 }}>
-                                    <Text style={[styles.name, { color: currentTheme.text }]}>{sb.name}</Text>
-                                    <Text style={[styles.sub, { color: currentTheme.noticeText }]}>
-                                        {(sb.spellsIndex?.length || 0)} spell{(sb.spellsIndex?.length || 0) === 1 ? '' : 's'}
-                                        {sb.description ? ` • ${sb.description}` : ''}
-                                    </Text>
-                                </View>
-                                <TouchableOpacity onPress={() => handleDelete(sb.id, sb.name)} style={[styles.actionButton, { backgroundColor: '#dc2626' }]}>
-                                    <Ionicons name="trash" size={16} color="white" />
-                                </TouchableOpacity>
-                            </TouchableOpacity>
-                        ))}
-                    </ScrollView>
-                ) : (
-                    <View style={[styles.empty, styles.listContainer, { borderColor: currentTheme.primary, backgroundColor: currentTheme.card }]}>
-                        <Text style={{ color: currentTheme.noticeText, textAlign: 'center' }}>
-                            No spellbooks yet. Create one, then add spells from the Compendium → Spells screen.
-                        </Text>
-                    </View>
-                )}
-            </View>
+                                title={sb.name}
+                                subtitle={`${count} spell${count === 1 ? '' : 's'}${sb.description ? ` • ${sb.description}` : ''}`}
+                                trailing={
+                                    <ActionMenu
+                                        title={sb.name}
+                                        actions={[
+                                            { label: 'Delete', icon: 'trash', destructive: true, onPress: () => handleDelete(sb.id, sb.name) },
+                                        ]}
+                                    />
+                                }
+                            />
+                        );
+                    })}
+                </ScrollView>
+            ) : (
+                <View style={[styles.empty, { flex: 1 }]}>
+                    <Text style={{ color: currentTheme.noticeText, textAlign: 'center' }}>
+                        No spellbooks yet. Create one, then add spells from the Compendium → Spells screen.
+                    </Text>
+                </View>
+            )}
 
             {/* Create */}
             <CreateSpellbookModal
@@ -114,7 +112,7 @@ export default function SpellbooksScreen() {
                         .map((spell, idx) => (
                             <View
                                 key={`${spell.source}|${spell.name}|${idx}`}
-                                style={[commonStyles.itemCard, { backgroundColor: currentTheme.card, borderColor: currentTheme.primary }]}
+                                style={[commonStyles.itemCard, { backgroundColor: currentTheme.card, borderColor: currentTheme.border }]}
                             >
                                 <TouchableOpacity
                                     style={commonStyles.itemInfoContainer}
@@ -154,7 +152,6 @@ export default function SpellbooksScreen() {
 }
 
 const styles = StyleSheet.create({
-    addButton: { backgroundColor: '#22c55e', width: 28, height: 28, borderRadius: styleConstants.borderRadiusLG, alignItems: 'center', justifyContent: 'center' },
     listContainer: { flex: 1, borderWidth: styleConstants.borderXS, borderRadius: styleConstants.borderRadiusMD, overflow: 'hidden' },
     row: { flexDirection: 'row', alignItems: 'center', paddingVertical: styleConstants.paddingMD, paddingHorizontal: styleConstants.paddingLG, borderBottomWidth: styleConstants.borderXS },
     name: { fontSize: styleConstants.fontSizeLG, fontWeight: '600', marginBottom: styleConstants.margin2XS },

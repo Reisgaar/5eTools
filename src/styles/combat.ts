@@ -217,7 +217,7 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
     memberBox: {
         backgroundColor: theme.card,
         overflow: 'hidden',
-        borderRadius: styleConstants.borderRadiusMD,
+        borderRadius: styleConstants.borderRadiusLG,
         padding: styleConstants.paddingXS,
         borderWidth: styleConstants.borderXS,
         borderColor: theme.border,
@@ -345,11 +345,12 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
     // Combat Group Styles
     groupContainer: {
         backgroundColor: theme.card,
-        borderRadius: styleConstants.borderRadiusMD,
-        marginBottom: styleConstants.marginXS,
+        borderRadius: styleConstants.borderRadiusLG,
+        marginBottom: styleConstants.marginSM,
         padding: styleConstants.paddingMD,
         borderWidth: styleConstants.borderXS,
         borderColor: theme.border,
+        ...styleConstants.shadowSM,
     },
     groupHeader: {
         flexDirection: 'row',

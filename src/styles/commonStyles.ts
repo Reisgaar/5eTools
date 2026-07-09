@@ -285,8 +285,8 @@ export const getCommonStyles = (theme: Theme) => StyleSheet.create({
     // Container styles
     container: {
         alignItems: 'stretch',
-        padding: 20,
-        backgroundColor: '#121212',
+        padding: styleConstants.paddingXL,
+        backgroundColor: theme.background,
         flexGrow: 1,
     },
 
@@ -320,12 +320,15 @@ export const getCommonStyles = (theme: Theme) => StyleSheet.create({
 
     // Input styles
     input: {
-        borderWidth: 1,
-        borderRadius: 8,
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        fontSize: 16,
-        marginBottom: 16,
+        borderWidth: styleConstants.borderXS,
+        borderColor: theme.border,
+        backgroundColor: theme.inputBackground,
+        color: theme.text,
+        borderRadius: styleConstants.borderRadiusLG,
+        paddingHorizontal: styleConstants.paddingMD,
+        paddingVertical: styleConstants.paddingSM + 2,
+        fontSize: styleConstants.fontSizeLG,
+        marginBottom: styleConstants.marginLG,
     },
 
     // Button styles
@@ -340,14 +343,15 @@ export const getCommonStyles = (theme: Theme) => StyleSheet.create({
 
     // Card styles for items (beasts/spells)
     itemCard: {
-        backgroundColor: '#232323',
-        borderRadius: 10,
-        padding: 8,
-        marginBottom: 8,
-        borderWidth: 1,
-        borderColor: '#333',
+        backgroundColor: theme.card,
+        borderRadius: styleConstants.borderRadiusLG,
+        padding: styleConstants.paddingMD,
+        marginBottom: styleConstants.marginSM,
+        borderWidth: styleConstants.borderXS,
+        borderColor: theme.border,
         flexDirection: 'row',
         alignItems: 'center',
+        ...styleConstants.shadowSM,
     },
     itemInfoContainer: {
         flex: 1,
@@ -383,8 +387,8 @@ export const getCommonStyles = (theme: Theme) => StyleSheet.create({
     // View mode selector styles
     viewModeSelector: {
         flexDirection: 'row',
-        marginBottom: 16,
-        borderRadius: 8,
+        marginBottom: styleConstants.marginLG,
+        borderRadius: styleConstants.borderRadiusLG,
         overflow: 'hidden',
     },
     viewModeButton: {
@@ -406,9 +410,9 @@ export const getCommonStyles = (theme: Theme) => StyleSheet.create({
     },
     levelBtn: {
         width: '8%',
-        padding: 4,
-        borderRadius: 100,
-        borderWidth: 1,
+        padding: styleConstants.paddingXS,
+        borderRadius: styleConstants.borderRadiusCircle,
+        borderWidth: styleConstants.borderXS,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -455,11 +459,13 @@ export const getCommonStyles = (theme: Theme) => StyleSheet.create({
         width: '95%',
         maxWidth: 450,
         maxHeight: '90%',
-        backgroundColor: '#232323',
-        borderRadius: 16,
-        padding: 16,
+        backgroundColor: theme.card,
+        borderRadius: styleConstants.borderRadius2XL,
+        borderWidth: styleConstants.borderXS,
+        borderColor: theme.border,
+        padding: styleConstants.paddingLG,
         alignItems: 'stretch',
-        elevation: 6,
+        ...styleConstants.shadowLG,
     },
     modalHeader: {
         flexDirection: 'row',
@@ -487,10 +493,11 @@ export const getCommonStyles = (theme: Theme) => StyleSheet.create({
     modalItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 12,
-        borderRadius: 8,
-        marginBottom: 8,
-        borderWidth: 1,
+        padding: styleConstants.paddingMD,
+        borderRadius: styleConstants.borderRadiusLG,
+        marginBottom: styleConstants.marginSM,
+        borderWidth: styleConstants.borderXS,
+        borderColor: theme.border,
     },
     modalItemInfo: {
         flex: 1,
@@ -517,9 +524,9 @@ export const getCommonStyles = (theme: Theme) => StyleSheet.create({
 
     // Section styles
     section: {
-        padding: 16,
-        borderRadius: 8,
-        marginBottom: 20,
+        padding: styleConstants.paddingLG,
+        borderRadius: styleConstants.borderRadiusLG,
+        marginBottom: styleConstants.marginXL,
     },
     sectionTitle: {
         fontSize: 18,
@@ -543,34 +550,35 @@ export const getCommonStyles = (theme: Theme) => StyleSheet.create({
     },
     langButton: {
         flex: 1,
-        paddingHorizontal: 10,
-        paddingVertical: 8,
-        borderRadius: 8,
+        paddingHorizontal: styleConstants.paddingSM + 2,
+        paddingVertical: styleConstants.paddingSM,
+        borderRadius: styleConstants.borderRadiusLG,
         alignItems: 'center',
-        borderWidth: 1,
-        borderColor: 'rgba(0,0,0,0.1)',
+        borderWidth: styleConstants.borderXS,
+        borderColor: theme.border,
     },
     selected: {
-        backgroundColor: 'rgba(0,0,0,0.05)',
-        borderWidth: 2,
+        backgroundColor: theme.primary + '20',
+        borderColor: theme.primary,
+        borderWidth: styleConstants.borderSM,
     },
     button: {
-        paddingHorizontal: 20,
-        paddingVertical: 12,
-        borderRadius: 8,
+        paddingHorizontal: styleConstants.paddingXL,
+        paddingVertical: styleConstants.paddingMD,
+        borderRadius: styleConstants.borderRadiusLG,
         alignItems: 'center',
-        marginTop: 8,
+        marginTop: styleConstants.marginSM,
     },
     buttonText: {
         fontWeight: '600',
-        fontSize: 16,
+        fontSize: styleConstants.fontSizeLG,
     },
     filterBtn: {
-        borderWidth: 2,
-        borderRadius: 8,
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        marginRight: 8,
+        borderWidth: styleConstants.borderXS,
+        borderRadius: styleConstants.borderRadiusMD,
+        paddingHorizontal: styleConstants.paddingSM,
+        paddingVertical: styleConstants.paddingXS,
+        marginRight: styleConstants.marginSM,
         alignItems: 'center',
         justifyContent: 'center',
     },

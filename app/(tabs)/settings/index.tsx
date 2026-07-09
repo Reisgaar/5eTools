@@ -9,6 +9,9 @@ import { useAppSettingsStore } from 'src/stores';
 // STYLES
 import { getCommonStyles } from 'src/styles/commonStyles';
 
+// HOOKS
+import { useTabBarInset } from 'src/hooks/useTabBarInset';
+
 // COMPONENTS
 import { DataExportModal, DataImportModal, IgnoreSourcesModal } from 'src/components/modals';
 import { Ionicons } from '@expo/vector-icons';
@@ -19,6 +22,7 @@ export default function SettingsScreen() {
         preferredEdition, setPreferredEdition, ignoredSources,
     } = useAppSettingsStore();
     const commonStyles = getCommonStyles(currentTheme);
+    const tabInset = useTabBarInset();
 
     // Data export/import state
     const [exportModalVisible, setExportModalVisible] = React.useState(false);
@@ -26,7 +30,7 @@ export default function SettingsScreen() {
     const [ignoreSourcesVisible, setIgnoreSourcesVisible] = React.useState(false);
 
     return (
-        <ScrollView style={{ flex: 1, backgroundColor: currentTheme.background }}>
+        <ScrollView style={{ flex: 1, backgroundColor: currentTheme.background }} contentContainerStyle={{ paddingBottom: tabInset }}>
             <View style={[commonStyles.container, { backgroundColor: currentTheme.background }]}>
 
                 <Text style={[styles.sectionTitle, { color: currentTheme.text }]}>Theme</Text>

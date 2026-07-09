@@ -15,11 +15,13 @@ import { getCommonStyles } from 'src/styles/commonStyles';
 
 // UTILS
 import { containsNormalized } from 'src/utils/stringUtils';
+import { useTabBarInset } from 'src/hooks/useTabBarInset';
 
 // Browser for conditions, diseases & statuses. Tapping a row opens the shared condition modal.
 export default function ConditionsScreen() {
     const { currentTheme } = useAppSettingsStore();
     const commonStyles = getCommonStyles(currentTheme);
+    const tabInset = useTabBarInset();
     const { conditions, diseases, statuses, isLoading } = useData();
     const { openEntryModal } = useModal();
 
@@ -47,13 +49,13 @@ export default function ConditionsScreen() {
                 onChangeText={setSearch}
                 placeholder="Search conditions & diseases..."
                 placeholderTextColor={currentTheme.noticeText}
-                style={[commonStyles.input, { color: currentTheme.text, borderColor: currentTheme.primary, marginBottom: styleConstants.marginSM }]}
+                style={[commonStyles.input, { color: currentTheme.text, borderColor: currentTheme.border, marginBottom: styleConstants.marginSM }]}
             />
 
             {isLoading && totalCount === 0 ? (
                 <Text style={{ color: currentTheme.noticeText, textAlign: 'center', marginTop: styleConstants.marginLG }}>Loading…</Text>
             ) : (
-                <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
+                <ScrollView contentContainerStyle={{ paddingBottom: tabInset }}>
                     {sections.length === 0 ? (
                         <Text style={{ color: currentTheme.noticeText, textAlign: 'center', marginTop: styleConstants.marginLG }}>No results.</Text>
                     ) : (
@@ -64,7 +66,7 @@ export default function ConditionsScreen() {
                                     <TouchableOpacity
                                         key={`${item.source}|${item.name}|${idx}`}
                                         onPress={() => openEntryModal(section.category, item.name, item.source)}
-                                        style={[commonStyles.itemCard, { backgroundColor: currentTheme.card, borderColor: currentTheme.primary }]}
+                                        style={[commonStyles.itemCard, { backgroundColor: currentTheme.card, borderColor: currentTheme.border }]}
                                         activeOpacity={0.7}
                                     >
                                         <View style={commonStyles.itemInfoContainer}>

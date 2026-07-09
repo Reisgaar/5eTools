@@ -601,11 +601,33 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return map;
     }, [spellsIndex]);
 
+    // Name-only fallback maps (first source wins). Used when a {@creature}/{@spell} tag omits a
+    // source (common in book/adventure content) so the source-qualified lookup would miss.
+    const beastIndexByName = useMemo(() => {
+        const map = new Map<string, BeastIndex>();
+        for (const b of beastsIndex) {
+            const key = normalizeString(b.name);
+            if (!map.has(key)) map.set(key, b);
+        }
+        return map;
+    }, [beastsIndex]);
+
+    const spellIndexByName = useMemo(() => {
+        const map = new Map<string, SpellIndex>();
+        for (const s of spellsIndex) {
+            const key = normalizeString(s.name);
+            if (!map.has(key)) map.set(key, s);
+        }
+        return map;
+    }, [spellsIndex]);
+
     // Get full beast data by name and source
     const getFullBeast = useCallback(async (name: string, source: string): Promise<Beast | null> => {
         try {
-            // Find the beast in the index (O(1))
-            const beastIndex = beastIndexByKey.get(`${normalizeString(name)}|${normalizeString(source)}`);
+            // Find the beast in the index (O(1)); fall back to name-only when the source is
+            // missing or unknown (e.g. sourceless {@creature} links in book content).
+            const beastIndex = beastIndexByKey.get(`${normalizeString(name)}|${normalizeString(source)}`)
+                || beastIndexByName.get(normalizeString(name));
 
             if (!beastIndex) {
                 return null;
@@ -636,13 +658,15 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             console.error('Error loading full beast:', error);
             return null;
         }
-    }, [beastIndexByKey]);
+    }, [beastIndexByKey, beastIndexByName]);
 
     // Get full spell data by name and source
     const getFullSpell = useCallback(async (name: string, source: string): Promise<Spell | null> => {
         try {
-            // Find the spell in the index (O(1))
-            const spellIndex = spellIndexByKey.get(`${normalizeString(name)}|${normalizeString(source)}`);
+            // Find the spell in the index (O(1)); fall back to name-only when the source is
+            // missing or unknown (e.g. sourceless {@spell} links in book content).
+            const spellIndex = spellIndexByKey.get(`${normalizeString(name)}|${normalizeString(source)}`)
+                || spellIndexByName.get(normalizeString(name));
 
             if (!spellIndex) {
                 return null;
@@ -662,7 +686,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             console.error('Error loading full spell:', error);
             return null;
         }
-    }, [spellIndexByKey]);
+    }, [spellIndexByKey, spellIndexByName]);
 
     // Generic reference-content lookup (conditions, actions, feats, …) from the bundled datasets
     const getContentEntry = useCallback((category: string, name: string, source?: string) => lookupContent(category, name, source), []);

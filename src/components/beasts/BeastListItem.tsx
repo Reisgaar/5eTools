@@ -155,7 +155,7 @@ function BeastListItem({
     };
 
     return (
-        <View style={[commonStyles.itemCard, { backgroundColor: theme.card, borderColor: theme.primary }]}>
+        <View style={[commonStyles.itemCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
             <TouchableOpacity
                 style={commonStyles.itemInfoContainer}
                 onPress={() => onViewDetails(beast)}

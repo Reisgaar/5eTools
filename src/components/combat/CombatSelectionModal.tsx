@@ -100,7 +100,7 @@ export default function CombatSelectionModal({
                             </TouchableOpacity>
 
                             <TextInput
-                                style={[styles.quantityInput, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.primary }]}
+                                style={[styles.quantityInput, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.border }]}
                                 value={quantity}
                                 onChangeText={onQuantityChange}
                                 keyboardType="numeric"

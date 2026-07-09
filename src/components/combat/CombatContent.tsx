@@ -32,6 +32,10 @@ import { ConfirmModal, ColorModal } from 'src/components/modals';
 
 // STYLES
 import { createCombatStyles } from 'src/styles/combat';
+import { styleConstants } from 'src/styles/style-constants';
+
+// HOOKS
+import { useTabBarInset } from 'src/hooks/useTabBarInset';
 
 // UTILS
 import { getCombatDisplayList } from 'src/utils/combatUtils';
@@ -44,6 +48,7 @@ import { getCachedTokenUrl } from 'src/utils/tokenCache';
  */
 export default function CombatContent() {
     const { currentTheme } = useAppSettingsStore();
+    const tabInset = useTabBarInset();
     const {
         updateHp,
         updateMaxHp,
@@ -562,7 +567,7 @@ export default function CombatContent() {
             {/* Combat List */}
             <FlatList
                 style={styles.combatList}
-                contentContainerStyle={{ paddingVertical: 60 }}
+                contentContainerStyle={{ paddingTop: 60, paddingBottom: styleConstants.paddingMD }}
                 ref={flatListRef}
                 data={groupedCombatants}
                 keyExtractor={(item) => item.key}
@@ -633,14 +638,16 @@ export default function CombatContent() {
                 }}
             />
 
-            <CombatControls
-                started={started}
-                round={round}
-                onStopCombat={stopCombat}
-                onNextTurn={nextTurn}
-                onStartCombat={startCombat}
-                theme={currentTheme}
-            />
+            <View style={{ marginBottom: tabInset }}>
+                <CombatControls
+                    started={started}
+                    round={round}
+                    onStopCombat={stopCombat}
+                    onNextTurn={nextTurn}
+                    onStartCombat={startCombat}
+                    theme={currentTheme}
+                />
+            </View>
 
             {/* Modals */}
             <PlayerModal

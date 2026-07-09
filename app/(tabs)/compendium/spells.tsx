@@ -24,6 +24,7 @@ import { useSpellFilters } from 'src/hooks/useSpellFilters';
 
 // UTILS
 import { applySourceFilters } from 'src/utils/sourceFilter';
+import { useTabBarInset } from 'src/hooks/useTabBarInset';
 
 const LEVELS = [
     { label: 'C', value: 0 },
@@ -52,6 +53,7 @@ function getFullSchool(school: string) {
 export default function SpellsScreen() {
     const { currentTheme, preferredEdition, ignoredSources } = useAppSettingsStore();
     const commonStyles = getCommonStyles(currentTheme);
+    const tabInset = useTabBarInset();
     const { simpleSpells, spells, spellSourceLookup, availableClasses, isLoading, loadError, reloadData } = useData();
     const { openSpellModal } = useModal();
     const [selectedLevels, setSelectedLevels] = useState<number[]>([]); // multi-select
@@ -258,7 +260,7 @@ export default function SpellsScreen() {
                         data={filteredSpells}
                         keyExtractor={(item, index) => `${item.source}|${item.name}|${item.level}|${index}`}
                         renderItem={renderSpellItem}
-                        contentContainerStyle={{ paddingBottom: 40 }}
+                        contentContainerStyle={{ paddingBottom: tabInset }}
                         initialNumToRender={15}
                         maxToRenderPerBatch={15}
                         windowSize={11}

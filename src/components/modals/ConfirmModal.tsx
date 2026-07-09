@@ -1,13 +1,13 @@
 // REACT
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text } from 'react-native';
 
 // STYLES
 import { createBaseModalStyles } from 'src/styles/baseModalStyles';
 import { getCommonStyles } from 'src/styles/commonStyles';
 
 // COMPONENTS
-import { BaseModal } from 'src/components/ui';
+import { BaseModal, Button } from 'src/components/ui';
 
 // INTERFACES
 interface ConfirmModalProps {
@@ -47,20 +47,12 @@ export default function ConfirmModal({
             title={title}
             footerContent={
                 <View style={[commonStyles.row_center_center, commonStyles.w_100, { gap: '4%' }]}>
-                    <TouchableOpacity
-                        onPress={onClose}
-                        style={[styles.footerButton, { backgroundColor: theme.secondary }]}
-                    >
-                        <Text style={styles.footerButtonText}>{cancelText}</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        onPress={async () => {
-                            await onConfirm();
-                        }}
-                        style={[styles.footerButton, { backgroundColor: theme.primary }]}
-                    >
-                        <Text style={styles.footerButtonText}>{confirmText}</Text>
-                    </TouchableOpacity>
+                    <View style={{ flex: 1 }}>
+                        <Button title={cancelText} variant="secondary" onPress={onClose} fullWidth />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                        <Button title={confirmText} variant="primary" onPress={() => { onConfirm(); }} fullWidth />
+                    </View>
                 </View>
             }
         >

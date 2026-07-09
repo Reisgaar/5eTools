@@ -1,6 +1,6 @@
 // REACT
 import React from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 // EXPO
@@ -10,11 +10,14 @@ import { useRouter } from 'expo-router';
 import { useAppSettingsStore } from 'src/stores';
 
 // COMPONENTS
-import { NavCard } from 'src/components/ui';
+import { NavCard, SegmentedControl } from 'src/components/ui';
 
 // STYLES
 import { getCommonStyles } from 'src/styles/commonStyles';
 import { styleConstants } from 'src/styles/style-constants';
+
+// HOOKS
+import { useTabBarInset } from 'src/hooks/useTabBarInset';
 
 interface CompendiumEntry {
     title: string;
@@ -34,6 +37,7 @@ export default function CompendiumScreen() {
     const router = useRouter();
     const { currentTheme } = useAppSettingsStore();
     const commonStyles = getCommonStyles(currentTheme);
+    const tabInset = useTabBarInset();
 
     const sections: CompendiumSection[] = [
         {
@@ -81,35 +85,31 @@ export default function CompendiumScreen() {
         },
     ];
 
+    const [activeSection, setActiveSection] = React.useState(sections[0].title);
+    const current = sections.find(s => s.title === activeSection) ?? sections[0];
+
     return (
-        <ScrollView style={{ flex: 1, backgroundColor: currentTheme.background }}>
-            <View style={[commonStyles.container, commonStyles.p_lg, { backgroundColor: currentTheme.background, flex: 1 }]}>
-                {sections.map(section => (
-                    <View key={section.title} style={commonStyles.mb_sm}>
-                        <Text style={[styles.sectionTitle, { color: currentTheme.noticeText }]}>{section.title}</Text>
-                        {section.entries.map(entry => (
-                            <NavCard
-                                key={entry.title}
-                                title={entry.title}
-                                subtitle={entry.subtitle}
-                                icon={entry.icon}
-                                onPress={() => router.push(entry.href as any)}
-                            />
-                        ))}
-                    </View>
-                ))}
+        <View style={{ flex: 1, backgroundColor: currentTheme.background }}>
+            <View style={{ paddingHorizontal: styleConstants.paddingLG, paddingTop: styleConstants.paddingMD }}>
+                <SegmentedControl
+                    options={sections.map(s => ({ key: s.title, label: s.title }))}
+                    value={activeSection}
+                    onChange={setActiveSection}
+                />
             </View>
-        </ScrollView>
+            <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: tabInset }}>
+                <View style={[commonStyles.container, commonStyles.p_lg, { backgroundColor: currentTheme.background }]}>
+                    {current.entries.map(entry => (
+                        <NavCard
+                            key={entry.title}
+                            title={entry.title}
+                            subtitle={entry.subtitle}
+                            icon={entry.icon}
+                            onPress={() => router.push(entry.href as any)}
+                        />
+                    ))}
+                </View>
+            </ScrollView>
+        </View>
     );
 }
-
-const styles = StyleSheet.create({
-    sectionTitle: {
-        fontSize: styleConstants.fontSizeSM,
-        fontWeight: '700',
-        textTransform: 'uppercase',
-        letterSpacing: 1,
-        marginBottom: styleConstants.marginSM,
-        marginLeft: styleConstants.marginXS,
-    },
-});

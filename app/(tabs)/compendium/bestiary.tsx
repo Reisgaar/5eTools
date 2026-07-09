@@ -30,6 +30,7 @@ import { books as sourceIdToNameMap } from 'src/constants/books';
 
 // STYLES
 import { getCommonStyles } from 'src/styles/commonStyles';
+import { useTabBarInset } from 'src/hooks/useTabBarInset';
 
 /**
  * Screen that displays the bestiary.
@@ -37,6 +38,7 @@ import { getCommonStyles } from 'src/styles/commonStyles';
 export default function BestiaryScreen() {
     const { currentTheme, preferredEdition, ignoredSources } = useAppSettingsStore();
     const commonStyles = getCommonStyles(currentTheme);
+    const tabInset = useTabBarInset();
     const { simpleBeasts, isLoading, loadError, reloadData, getFullBeast } = useData();
     const { addCombatantToCombat, getSortedCombats } = useCombat();
     const { openBeastModal } = useModal();
@@ -286,7 +288,7 @@ export default function BestiaryScreen() {
                         data={sortedBeasts}
                         keyExtractor={beastKeyExtractor}
                         renderItem={renderBeastItem}
-                        contentContainerStyle={{ paddingBottom: 40 }}
+                        contentContainerStyle={{ paddingBottom: tabInset }}
                         initialNumToRender={15}
                         maxToRenderPerBatch={15}
                         windowSize={11}
