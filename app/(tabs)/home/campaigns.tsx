@@ -1,7 +1,7 @@
 // REACT
 import React from 'react';
 import { styleConstants } from 'src/styles/style-constants';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 // STORES
 import { useAppSettingsStore, useCampaignStore } from 'src/stores';
@@ -10,17 +10,42 @@ import { useAppSettingsStore, useCampaignStore } from 'src/stores';
 import { getCommonStyles } from 'src/styles/commonStyles';
 
 // COMPONENTS
+import ReorderableList, { useReorderableDrag } from 'react-native-reorderable-list';
 import { Button, ListItem, ActionMenu } from 'src/components/ui';
 import ConfirmModal from 'src/components/modals/ConfirmModal';
 import CampaignFormModal from 'src/components/modals/CampaignFormModal';
 import { useTabBarInset } from 'src/hooks/useTabBarInset';
+
+// UTILS
+import { moveItem } from 'src/utils/reorder';
+
+// A single draggable campaign row (long-press anywhere to reorder).
+function CampaignRow({ item, onEdit, onDelete }: { item: any; onEdit: (c: any) => void; onDelete: (id: string) => void }) {
+    const drag = useReorderableDrag();
+    return (
+        <ListItem
+            onLongPress={drag}
+            title={item.name}
+            subtitle={item.description || undefined}
+            trailing={
+                <ActionMenu
+                    title={item.name}
+                    actions={[
+                        { label: 'Edit', icon: 'pencil', onPress: () => onEdit(item) },
+                        { label: 'Delete', icon: 'trash', destructive: true, onPress: () => onDelete(item.id) },
+                    ]}
+                />
+            }
+        />
+    );
+}
 
 // Campaign management screen (independent, reached from Home).
 export default function CampaignsScreen() {
     const { currentTheme } = useAppSettingsStore();
     const commonStyles = getCommonStyles(currentTheme);
     const tabInset = useTabBarInset();
-    const { campaigns, createCampaign, deleteCampaign, updateCampaign } = useCampaignStore();
+    const { campaigns, createCampaign, deleteCampaign, updateCampaign, reorderCampaigns } = useCampaignStore();
 
     const [campaignModalVisible, setCampaignModalVisible] = React.useState(false);
     const [editCampaign, setEditCampaign] = React.useState<any | null>(null);
@@ -66,24 +91,16 @@ export default function CampaignsScreen() {
             </View>
 
             {campaigns.length > 0 ? (
-                <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: tabInset }}>
-                    {campaigns.map(item => (
-                        <ListItem
-                            key={item.id}
-                            title={item.name}
-                            subtitle={item.description || undefined}
-                            trailing={
-                                <ActionMenu
-                                    title={item.name}
-                                    actions={[
-                                        { label: 'Edit', icon: 'pencil', onPress: () => openEditCampaignModal(item) },
-                                        { label: 'Delete', icon: 'trash', destructive: true, onPress: () => handleDeleteCampaign(item.id) },
-                                    ]}
-                                />
-                            }
-                        />
-                    ))}
-                </ScrollView>
+                <ReorderableList
+                    data={campaigns}
+                    keyExtractor={(item: any) => item.id}
+                    style={{ flex: 1 }}
+                    contentContainerStyle={{ paddingBottom: tabInset }}
+                    onReorder={({ from, to }) => reorderCampaigns(moveItem(campaigns, from, to))}
+                    renderItem={({ item }) => (
+                        <CampaignRow item={item} onEdit={openEditCampaignModal} onDelete={handleDeleteCampaign} />
+                    )}
+                />
             ) : (
                 <View style={[styles.emptyContainer, { flex: 1 }]}>
                     <Text style={{ color: currentTheme.noticeText, textAlign: 'center' }}>
@@ -113,12 +130,5 @@ export default function CampaignsScreen() {
 }
 
 const styles = StyleSheet.create({
-    campaignItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: styleConstants.paddingMD, paddingHorizontal: styleConstants.paddingLG },
-    campaignContent: { flex: 1, flexDirection: 'row', alignItems: 'center' },
-    campaignName: { fontSize: styleConstants.fontSizeLG, fontWeight: '600', marginBottom: styleConstants.margin2XS },
-    campaignDescription: { fontSize: styleConstants.fontSizeSM, fontStyle: 'italic' },
-    campaignActions: { flexDirection: 'row', alignItems: 'center' },
-    actionButton: { width: 32, height: 32, borderRadius: styleConstants.borderRadiusXL, alignItems: 'center', justifyContent: 'center' },
-    container: { flex: 1, borderWidth: styleConstants.borderXS, borderRadius: styleConstants.borderRadiusMD, overflow: 'hidden' },
     emptyContainer: { padding: styleConstants.paddingXL, alignItems: 'center', justifyContent: 'center' },
 });

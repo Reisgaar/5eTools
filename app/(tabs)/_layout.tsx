@@ -11,6 +11,7 @@ import { useAppSettingsStore } from 'src/stores';
 
 // CONTEXTS
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useCombat } from 'src/context/CombatContext';
 
 // HOOKS
 import { TAB_BAR_HEIGHT } from 'src/hooks/useTabBarInset';
@@ -20,6 +21,8 @@ export default function TabsLayout() {
     const { currentTheme } = useAppSettingsStore();
     const insets = useSafeAreaInsets();
     const bottomGap = Math.max(insets.bottom, styleConstants.marginSM);
+    // Hide the tab bar while inside an open combat, to give the tracker maximum room.
+    const { currentCombatId } = useCombat();
 
     const screens = useMemo(() => [
         { name: 'home', title: 'Home', icon: 'home' },
@@ -33,14 +36,15 @@ export default function TabsLayout() {
             initialRouteName="home"
             screenOptions={({ route }) => {
                 const screen = screens.find(s => s.name === route.name);
+                const hideBar = route.name === 'combat' && !!currentCombatId;
                 return {
                     headerShown: false,
                     tabBarActiveTintColor: currentTheme.tabActive,
                     tabBarInactiveTintColor: currentTheme.tabInactive,
                     // Floating pill tab bar: absolutely positioned so screen content fills the
                     // full height and flows underneath it (screens pad their scroll content via
-                    // useTabBarInset so nothing is hidden).
-                    tabBarStyle: {
+                    // useTabBarInset so nothing is hidden). Hidden entirely inside an open combat.
+                    tabBarStyle: hideBar ? { display: 'none' } : {
                         position: 'absolute',
                         bottom: bottomGap,
                         height: TAB_BAR_HEIGHT,

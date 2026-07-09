@@ -34,6 +34,24 @@ const fmtAlignment = (v: any): string | undefined => {
 
 const fmtAbility = (v: any): string | undefined => (typeof v === 'string' ? (ABILITY_FULL[v] || v) : fmt(v));
 
+// 5etools vehicleType codes → full labels (mirrors Parser.VEHICLE_TYPE_TO_FULL).
+const VEHICLE_TYPE_FULL: Record<string, string> = {
+    SHIP: 'Ship',
+    SPELLJAMMER: 'Spelljammer',
+    INFWAR: 'Infernal War Machine',
+    CREATURE: 'Creature',
+    OBJECT: 'Object',
+    ELEMENTAL_AIRSHIP: 'Elemental Airship',
+};
+const fmtVehicleType = (v: any): string | undefined => (typeof v === 'string' ? (VEHICLE_TYPE_FULL[v] || v) : fmt(v));
+
+// Terrain is an array of lowercase codes (sea, air, land…) — title-case them.
+const fmtTerrain = (v: any): string | undefined => {
+    const arr = Array.isArray(v) ? v : v != null ? [v] : [];
+    const out = arr.map((t: string) => (typeof t === 'string' && t ? t.charAt(0).toUpperCase() + t.slice(1) : '')).filter(Boolean).join(', ');
+    return out || undefined;
+};
+
 interface FieldSpec { key: string; label: string; fmt?: (v: any) => string | undefined; }
 
 // Whitelisted display fields per content category.
@@ -71,9 +89,9 @@ const FIELDS: Record<string, FieldSpec[]> = {
         { key: 'hp', label: 'HP' },
     ],
     vehicle: [
-        { key: 'vehicleType', label: 'Type' },
+        { key: 'vehicleType', label: 'Type', fmt: fmtVehicleType },
         { key: 'size', label: 'Size', fmt: fmtSize },
-        { key: 'terrain', label: 'Terrain' },
+        { key: 'terrain', label: 'Terrain', fmt: fmtTerrain },
         { key: 'capCrew', label: 'Crew' },
         { key: 'capPassenger', label: 'Passengers' },
         { key: 'pace', label: 'Pace' },

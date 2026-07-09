@@ -1,6 +1,7 @@
 // REACT
 import React, { useEffect, useState } from 'react';
 import { Modal, View, Text, TouchableOpacity, ScrollView, Image, Keyboard, Dimensions } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 
 // STYLES
@@ -34,6 +35,10 @@ interface BaseModalProps {
 
     // Footer configuration
     footerContent?: React.ReactNode;
+
+    // Set false when the children manage their own scrolling (e.g. a ReorderableList/FlatList),
+    // so we don't nest a scroll view inside another.
+    scrollable?: boolean;
 }
 
 /**
@@ -48,7 +53,8 @@ export default function BaseModal({
     title,
     subtitle,
     tokenUrl,
-    footerContent
+    footerContent,
+    scrollable = true,
 }: BaseModalProps) {
     const styles = createBaseModalStyles(theme);
     const commonStyles = getCommonStyles(theme);
@@ -70,7 +76,7 @@ export default function BaseModal({
 
     return (
         <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
-            <View style={[styles.modalOverlay]}>
+            <GestureHandlerRootView style={[styles.modalOverlay]}>
                 <View
                     style={[
                         styles.baseModalContainer,
@@ -102,9 +108,13 @@ export default function BaseModal({
 
                     {/* Content */}
                     <View style={[styles.modalBody, { flex: 1, maxHeight: 300 }]}>
-                        <ScrollView showsVerticalScrollIndicator={true}>
-                            {children}
-                        </ScrollView>
+                        {scrollable ? (
+                            <ScrollView showsVerticalScrollIndicator={true}>
+                                {children}
+                            </ScrollView>
+                        ) : (
+                            children
+                        )}
                     </View>
 
                     {/* Footer */}
@@ -114,7 +124,7 @@ export default function BaseModal({
                         </View>
                     )}
                 </View>
-            </View>
+            </GestureHandlerRootView>
         </Modal>
     );
 }

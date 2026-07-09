@@ -34,8 +34,8 @@ import { ConfirmModal, ColorModal } from 'src/components/modals';
 import { createCombatStyles } from 'src/styles/combat';
 import { styleConstants } from 'src/styles/style-constants';
 
-// HOOKS
-import { useTabBarInset } from 'src/hooks/useTabBarInset';
+// CONTEXTS
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // UTILS
 import { getCombatDisplayList } from 'src/utils/combatUtils';
@@ -48,7 +48,8 @@ import { getCachedTokenUrl } from 'src/utils/tokenCache';
  */
 export default function CombatContent() {
     const { currentTheme } = useAppSettingsStore();
-    const tabInset = useTabBarInset();
+    const insets = useSafeAreaInsets();
+    const bottomInset = Math.max(insets.bottom, styleConstants.paddingMD);
     const {
         updateHp,
         updateMaxHp,
@@ -638,7 +639,7 @@ export default function CombatContent() {
                 }}
             />
 
-            <View style={{ marginBottom: tabInset }}>
+            <View style={{ marginBottom: bottomInset }}>
                 <CombatControls
                     started={started}
                     round={round}

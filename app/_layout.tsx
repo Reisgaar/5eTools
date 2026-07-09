@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 // EXPO
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 // STORES
 import { useAppSettingsStore, useCampaignStore, useSpellbookStore, usePlayerStore, useLibraryStore } from 'src/stores';
@@ -35,18 +36,20 @@ export default function RootLayout() {
     }, [initializeSettings, initializeCampaigns, loadSpellbooks, initializePlayers, initLibrary]);
 
     return (
-        <ErrorBoundary>
-            <CombatProvider>
-                <DataProvider>
-                    <ModalProvider>
-                        <Stack screenOptions={{ headerShown: false }}>
-                            <Stack.Screen name="(tabs)" />
-                        </Stack>
-                        <GlobalModals />
-                        <StatusBar style={themeName === 'dark' ? 'light' : 'dark'} />
-                    </ModalProvider>
-                </DataProvider>
-            </CombatProvider>
-        </ErrorBoundary>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+            <ErrorBoundary>
+                <CombatProvider>
+                    <DataProvider>
+                        <ModalProvider>
+                            <Stack screenOptions={{ headerShown: false }}>
+                                <Stack.Screen name="(tabs)" />
+                            </Stack>
+                            <GlobalModals />
+                            <StatusBar style={themeName === 'dark' ? 'light' : 'dark'} />
+                        </ModalProvider>
+                    </DataProvider>
+                </CombatProvider>
+            </ErrorBoundary>
+        </GestureHandlerRootView>
     );
 }

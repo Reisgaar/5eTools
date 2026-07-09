@@ -1,7 +1,7 @@
 // REACT
 import React from 'react';
 import { styleConstants } from 'src/styles/style-constants';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 // STORES
@@ -14,10 +14,52 @@ import { useModal } from 'src/context/ModalContext';
 import { getCommonStyles } from 'src/styles/commonStyles';
 
 // COMPONENTS
+import ReorderableList, { useReorderableDrag } from 'react-native-reorderable-list';
 import { BaseModal, Button, ListItem, ActionMenu } from 'src/components/ui';
 import ConfirmModal from 'src/components/modals/ConfirmModal';
 import { CreateSpellbookModal } from 'src/components/spells';
 import { useTabBarInset } from 'src/hooks/useTabBarInset';
+
+// UTILS
+import { reorderFullBySubset, moveItem } from 'src/utils/reorder';
+
+// A single draggable spellbook row (long-press anywhere to reorder).
+function SpellbookRow({ sb, onOpen, onDelete }: { sb: any; onOpen: (id: string) => void; onDelete: (id: string, name: string) => void }) {
+    const drag = useReorderableDrag();
+    const count = sb.spellsIndex?.length || 0;
+    return (
+        <ListItem
+            onPress={() => onOpen(sb.id)}
+            onLongPress={drag}
+            title={sb.name}
+            subtitle={`${count} spell${count === 1 ? '' : 's'}${sb.description ? ` • ${sb.description}` : ''}`}
+            trailing={
+                <ActionMenu
+                    title={sb.name}
+                    actions={[{ label: 'Delete', icon: 'trash', destructive: true, onPress: () => onDelete(sb.id, sb.name) }]}
+                />
+            }
+        />
+    );
+}
+
+// A single draggable spell row inside a spellbook (long-press to reorder, tap to open).
+function SpellbookSpellRow({ spell, onOpen, onRemove }: { spell: any; onOpen: (spell: any) => void; onRemove: (spell: any) => void }) {
+    const drag = useReorderableDrag();
+    return (
+        <ListItem
+            onPress={() => onOpen(spell)}
+            onLongPress={drag}
+            title={spell.name}
+            subtitle={`${spell.level === 0 ? 'Cantrip' : `Level ${spell.level}`} (${spell.source})`}
+            trailing={
+                <TouchableOpacity onPress={() => onRemove(spell)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} style={{ padding: styleConstants.paddingXS }}>
+                    <Ionicons name="trash-outline" size={20} color="#dc2626" />
+                </TouchableOpacity>
+            }
+        />
+    );
+}
 
 // Spellbook management screen (independent, reached from Home). Create/delete spellbooks and
 // view their spells. Adding spells happens from the Spells compendium screen.
@@ -26,7 +68,7 @@ export default function SpellbooksScreen() {
     const commonStyles = getCommonStyles(currentTheme);
     const tabInset = useTabBarInset();
     const { selectedCampaign } = useCampaignStore();
-    const { spellbooks, deleteSpellbook, removeSpellFromSpellbook } = useSpellbookStore();
+    const { spellbooks, deleteSpellbook, removeSpellFromSpellbook, reorderSpellbooks, reorderSpellbookSpells } = useSpellbookStore();
     const { openSpellModal } = useModal();
 
     const [createModalVisible, setCreateModalVisible] = React.useState(false);
@@ -62,27 +104,16 @@ export default function SpellbooksScreen() {
             </View>
 
             {visibleSpellbooks.length > 0 ? (
-                <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: tabInset }}>
-                    {visibleSpellbooks.map(sb => {
-                        const count = sb.spellsIndex?.length || 0;
-                        return (
-                            <ListItem
-                                key={sb.id}
-                                onPress={() => setViewingId(sb.id)}
-                                title={sb.name}
-                                subtitle={`${count} spell${count === 1 ? '' : 's'}${sb.description ? ` • ${sb.description}` : ''}`}
-                                trailing={
-                                    <ActionMenu
-                                        title={sb.name}
-                                        actions={[
-                                            { label: 'Delete', icon: 'trash', destructive: true, onPress: () => handleDelete(sb.id, sb.name) },
-                                        ]}
-                                    />
-                                }
-                            />
-                        );
-                    })}
-                </ScrollView>
+                <ReorderableList
+                    data={visibleSpellbooks}
+                    keyExtractor={(item: any) => item.id}
+                    style={{ flex: 1 }}
+                    contentContainerStyle={{ paddingBottom: tabInset }}
+                    onReorder={({ from, to }) => reorderSpellbooks(reorderFullBySubset(spellbooks, visibleSpellbooks, from, to, (s: any) => s.id))}
+                    renderItem={({ item }) => (
+                        <SpellbookRow sb={item} onOpen={setViewingId} onDelete={handleDelete} />
+                    )}
+                />
             ) : (
                 <View style={[styles.empty, { flex: 1 }]}>
                     <Text style={{ color: currentTheme.noticeText, textAlign: 'center' }}>
@@ -105,32 +136,21 @@ export default function SpellbooksScreen() {
                 theme={currentTheme}
                 title={viewingSpellbook?.name || 'Spellbook'}
                 subtitle={`${viewingSpellbook?.spellsIndex?.length || 0} spells`}
+                scrollable={false}
             >
                 {viewingSpellbook && (viewingSpellbook.spellsIndex?.length || 0) > 0 ? (
-                    [...(viewingSpellbook.spellsIndex || [])]
-                        .sort((a, b) => (a.level - b.level) || a.name.localeCompare(b.name))
-                        .map((spell, idx) => (
-                            <View
-                                key={`${spell.source}|${spell.name}|${idx}`}
-                                style={[commonStyles.itemCard, { backgroundColor: currentTheme.card, borderColor: currentTheme.border }]}
-                            >
-                                <TouchableOpacity
-                                    style={commonStyles.itemInfoContainer}
-                                    onPress={() => { setViewingId(null); openSpellModal({ name: spell.name, source: spell.source }); }}
-                                >
-                                    <Text style={[commonStyles.itemName, { color: currentTheme.text }]}>
-                                        <Text style={{ fontWeight: 'bold' }}>{spell.name}</Text>
-                                        <Text style={{ fontStyle: 'italic', fontWeight: 'normal' }}>{'\n'}{spell.level === 0 ? 'Cantrip' : `Level ${spell.level}`} ({spell.source})</Text>
-                                    </Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    onPress={() => removeSpellFromSpellbook(viewingSpellbook.id, spell.name, spell.source)}
-                                    style={[styles.actionButton, { backgroundColor: '#dc2626' }]}
-                                >
-                                    <Ionicons name="trash-outline" size={16} color="white" />
-                                </TouchableOpacity>
-                            </View>
-                        ))
+                    <ReorderableList
+                        data={viewingSpellbook.spellsIndex || []}
+                        keyExtractor={(item: any) => `${item.source}|${item.name}`}
+                        onReorder={({ from, to }) => reorderSpellbookSpells(viewingSpellbook.id, moveItem(viewingSpellbook.spellsIndex || [], from, to))}
+                        renderItem={({ item }) => (
+                            <SpellbookSpellRow
+                                spell={item}
+                                onOpen={(s) => { setViewingId(null); openSpellModal({ name: s.name, source: s.source }); }}
+                                onRemove={(s) => removeSpellFromSpellbook(viewingSpellbook.id, s.name, s.source)}
+                            />
+                        )}
+                    />
                 ) : (
                     <Text style={{ color: currentTheme.noticeText, textAlign: 'center', padding: styleConstants.paddingMD }}>
                         This spellbook is empty. Add spells from the Compendium → Spells screen.
@@ -152,10 +172,5 @@ export default function SpellbooksScreen() {
 }
 
 const styles = StyleSheet.create({
-    listContainer: { flex: 1, borderWidth: styleConstants.borderXS, borderRadius: styleConstants.borderRadiusMD, overflow: 'hidden' },
-    row: { flexDirection: 'row', alignItems: 'center', paddingVertical: styleConstants.paddingMD, paddingHorizontal: styleConstants.paddingLG, borderBottomWidth: styleConstants.borderXS },
-    name: { fontSize: styleConstants.fontSizeLG, fontWeight: '600', marginBottom: styleConstants.margin2XS },
-    sub: { fontSize: styleConstants.fontSizeSM, fontStyle: 'italic' },
-    actionButton: { width: 32, height: 32, borderRadius: styleConstants.borderRadiusXL, alignItems: 'center', justifyContent: 'center' },
     empty: { padding: styleConstants.paddingXL, alignItems: 'center', justifyContent: 'center' },
 });

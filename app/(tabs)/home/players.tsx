@@ -1,7 +1,7 @@
 // REACT
 import React from 'react';
 import { styleConstants } from 'src/styles/style-constants';
-import { ScrollView, StyleSheet, Text, View, Image } from 'react-native';
+import { StyleSheet, Text, View, Image } from 'react-native';
 
 // STORES
 import { useAppSettingsStore, useCampaignStore, usePlayerStore } from 'src/stores';
@@ -10,12 +10,51 @@ import { useAppSettingsStore, useCampaignStore, usePlayerStore } from 'src/store
 import { getCommonStyles } from 'src/styles/commonStyles';
 
 // COMPONENTS
+import ReorderableList, { useReorderableDrag } from 'react-native-reorderable-list';
 import { Button, ListItem, ActionMenu } from 'src/components/ui';
 import ConfirmModal from 'src/components/modals/ConfirmModal';
 import PlayerFormModal from 'src/components/modals/PlayerFormModal';
 import { useTabBarInset } from 'src/hooks/useTabBarInset';
 
+// UTILS
+import { reorderFullBySubset } from 'src/utils/reorder';
+
 const DEFAULT_TOKEN_URL = 'https://5e.tools/img/blank.webp';
+
+// A single draggable player row (long-press anywhere to reorder).
+function PlayerRow({ item, campaign, onEdit, onDelete }: { item: any; campaign: string | null; onEdit: (p: any) => void; onDelete: (name: string) => void }) {
+    const drag = useReorderableDrag();
+    const { currentTheme } = useAppSettingsStore();
+    return (
+        <ListItem
+            onLongPress={drag}
+            leading={
+                <Image
+                    source={{ uri: item.tokenUrl || DEFAULT_TOKEN_URL }}
+                    style={{ width: 44, height: 44, borderRadius: styleConstants.borderRadiusCircle, borderWidth: styleConstants.borderXS, borderColor: currentTheme.border }}
+                />
+            }
+            title={item.name}
+            subtitle={
+                <View>
+                    <Text style={{ color: currentTheme.noticeText, fontSize: styleConstants.fontSizeSM, marginTop: styleConstants.margin2XS }}>{item.race} - {item.class}</Text>
+                    {campaign ? (
+                        <Text style={{ color: currentTheme.noticeText, fontSize: styleConstants.fontSizeSM }}>Campaign: {campaign}</Text>
+                    ) : null}
+                </View>
+            }
+            trailing={
+                <ActionMenu
+                    title={item.name}
+                    actions={[
+                        { label: 'Edit', icon: 'pencil', onPress: () => onEdit(item) },
+                        { label: 'Delete', icon: 'trash', destructive: true, onPress: () => onDelete(item.name) },
+                    ]}
+                />
+            }
+        />
+    );
+}
 
 // Player management screen (independent, reached from Home). Scoped to the selected campaign.
 export default function PlayersScreen() {
@@ -23,7 +62,7 @@ export default function PlayersScreen() {
     const commonStyles = getCommonStyles(currentTheme);
     const tabInset = useTabBarInset();
     const { campaigns, selectedCampaign } = useCampaignStore();
-    const { players, loadPlayers, createPlayer, deletePlayer, updatePlayer } = usePlayerStore();
+    const { players, loadPlayers, createPlayer, deletePlayer, updatePlayer, reorderPlayers } = usePlayerStore();
 
     const [playerModalVisible, setPlayerModalVisible] = React.useState(false);
     const [editPlayer, setEditPlayer] = React.useState<any | null>(null);
@@ -84,40 +123,21 @@ export default function PlayersScreen() {
             </View>
 
             {filteredPlayers.length > 0 ? (
-                <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: tabInset }}>
-                    {filteredPlayers.map(item => {
-                        const campaign = getCampaignName(item.campaignId);
-                        return (
-                            <ListItem
-                                key={item.name}
-                                leading={
-                                    <Image
-                                        source={{ uri: item.tokenUrl || DEFAULT_TOKEN_URL }}
-                                        style={{ width: 44, height: 44, borderRadius: styleConstants.borderRadiusCircle, borderWidth: styleConstants.borderXS, borderColor: currentTheme.border }}
-                                    />
-                                }
-                                title={item.name}
-                                subtitle={
-                                    <View>
-                                        <Text style={{ color: currentTheme.noticeText, fontSize: styleConstants.fontSizeSM, marginTop: styleConstants.margin2XS }}>{item.race} - {item.class}</Text>
-                                        {campaign ? (
-                                            <Text style={{ color: currentTheme.noticeText, fontSize: styleConstants.fontSizeSM }}>Campaign: {campaign}</Text>
-                                        ) : null}
-                                    </View>
-                                }
-                                trailing={
-                                    <ActionMenu
-                                        title={item.name}
-                                        actions={[
-                                            { label: 'Edit', icon: 'pencil', onPress: () => openEditPlayerModal(item) },
-                                            { label: 'Delete', icon: 'trash', destructive: true, onPress: () => handleDeletePlayer(item.name) },
-                                        ]}
-                                    />
-                                }
-                            />
-                        );
-                    })}
-                </ScrollView>
+                <ReorderableList
+                    data={filteredPlayers}
+                    keyExtractor={(item: any) => item.name}
+                    style={{ flex: 1 }}
+                    contentContainerStyle={{ paddingBottom: tabInset }}
+                    onReorder={({ from, to }) => reorderPlayers(reorderFullBySubset(players, filteredPlayers, from, to, (p: any) => p.name))}
+                    renderItem={({ item }) => (
+                        <PlayerRow
+                            item={item}
+                            campaign={getCampaignName(item.campaignId)}
+                            onEdit={openEditPlayerModal}
+                            onDelete={handleDeletePlayer}
+                        />
+                    )}
+                />
             ) : (
                 <View style={[styles.emptyContainer, { flex: 1 }]}>
                     <Text style={{ color: currentTheme.noticeText, textAlign: 'center' }}>
@@ -148,12 +168,5 @@ export default function PlayersScreen() {
 }
 
 const styles = StyleSheet.create({
-    playerItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: styleConstants.paddingMD, paddingHorizontal: styleConstants.paddingLG },
-    playerContent: { flex: 1, flexDirection: 'row', alignItems: 'center' },
-    playerName: { fontSize: styleConstants.fontSizeLG, fontWeight: '600', marginBottom: styleConstants.margin2XS },
-    playerDetails: { fontSize: styleConstants.fontSizeSM, color: '#666' },
-    playerActions: { flexDirection: 'row', alignItems: 'center' },
-    actionButton: { width: 32, height: 32, borderRadius: styleConstants.borderRadiusXL, alignItems: 'center', justifyContent: 'center' },
-    container: { flex: 1, borderWidth: styleConstants.borderXS, borderRadius: styleConstants.borderRadiusMD, overflow: 'hidden' },
     emptyContainer: { padding: styleConstants.paddingXL, alignItems: 'center', justifyContent: 'center' },
 });

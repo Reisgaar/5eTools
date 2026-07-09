@@ -16,6 +16,7 @@ interface PlayerState {
     deletePlayer: (name: string) => void;
     selectPlayer: (name: string | null) => void;
     updatePlayer: (name: string, updatedPlayer: Partial<Player>) => void;
+    reorderPlayers: (players: Player[]) => void;
     clearSelectedPlayer: () => void;
     loadPlayers: () => Promise<void>;
     initializePlayers: () => Promise<void>;
@@ -29,6 +30,11 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     players: [],
     selectedPlayerName: null,
     selectedPlayer: null,
+
+    reorderPlayers: (players: Player[]) => {
+        set({ players });
+        savePlayersList(players);
+    },
 
     loadPlayers: async () => {
         try {

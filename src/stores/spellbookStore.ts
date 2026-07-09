@@ -13,12 +13,14 @@ interface SpellbookState {
     // Spellbook management
     createSpellbook: (name: string, description?: string, campaignId?: string) => string;
     deleteSpellbook: (id: string) => void;
+    reorderSpellbooks: (spellbooks: Spellbook[]) => void;
     selectSpellbook: (id: string) => void;
     clearSpellbookSelection: () => void;
 
     // Spell management
     addSpellToSpellbook: (spellbookId: string, spellName: string, spellSource: string, spellDetails?: any) => void;
     removeSpellFromSpellbook: (spellbookId: string, spellName: string, spellSource: string) => void;
+    reorderSpellbookSpells: (spellbookId: string, spells: SpellbookSpell[]) => void;
     isSpellInSpellbook: (spellbookId: string, spellName: string, spellSource: string) => boolean;
 
     // Getters
@@ -36,6 +38,11 @@ interface SpellbookState {
 export const useSpellbookStore = create<SpellbookState>((set, get) => ({
     spellbooks: [],
     currentSpellbookId: null,
+
+    reorderSpellbooks: (spellbooks: Spellbook[]) => {
+        set({ spellbooks });
+        saveSpellbooksToFile(spellbooks);
+    },
 
     // Spellbook management functions
     createSpellbook: (name: string, description?: string, campaignId?: string): string => {
@@ -138,6 +145,18 @@ export const useSpellbookStore = create<SpellbookState>((set, get) => ({
                 return spellbook;
             });
 
+            saveSpellbooksToFile(updated);
+            return { spellbooks: updated };
+        });
+    },
+
+    reorderSpellbookSpells: (spellbookId: string, spells: SpellbookSpell[]) => {
+        set(state => {
+            const updated = state.spellbooks.map(spellbook =>
+                spellbook.id === spellbookId
+                    ? { ...spellbook, spellsIndex: spells, updatedAt: new Date().toISOString() }
+                    : spellbook
+            );
             saveSpellbooksToFile(updated);
             return { spellbooks: updated };
         });

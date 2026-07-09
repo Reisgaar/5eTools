@@ -491,9 +491,11 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
 
     footerButton: {
         width: '48%',
-        borderRadius: styleConstants.borderRadiusMD,
+        borderRadius: styleConstants.borderRadiusLG,
         paddingVertical: styleConstants.paddingMD,
+        minHeight: 44,
         alignItems: 'center',
+        justifyContent: 'center',
     },
     footerButtonText: {
         color: 'white',

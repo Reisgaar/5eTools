@@ -22,6 +22,7 @@ interface CampaignState {
     deleteCampaign: (id: string) => void;
     selectCampaign: (id: string | null) => void;
     updateCampaign: (id: string, name: string, description?: string) => void;
+    reorderCampaigns: (campaigns: Campaign[]) => void;
     clearSelectedCampaign: () => void;
     loadCampaigns: () => Promise<void>;
     initializeCampaigns: () => Promise<void>;
@@ -34,6 +35,11 @@ export const useCampaignStore = create<CampaignState>((set, get) => ({
     campaigns: [],
     selectedCampaignId: null,
     selectedCampaign: null,
+
+    reorderCampaigns: (campaigns: Campaign[]) => {
+        set({ campaigns });
+        saveCampaignsToFile(campaigns);
+    },
 
     loadCampaigns: async () => {
         try {

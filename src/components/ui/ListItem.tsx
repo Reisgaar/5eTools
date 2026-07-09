@@ -18,6 +18,7 @@ interface ListItemProps {
     leading?: React.ReactNode;
     trailing?: React.ReactNode;
     onPress?: () => void;
+    onLongPress?: () => void;   // e.g. to start a drag-reorder
     selected?: boolean;   // draws the accent border/tint
     disabled?: boolean;
 }
@@ -27,15 +28,17 @@ interface ListItemProps {
  * library, spellbooks…) can render through this: pass a `leading` node for a token/badge, the
  * `title`/`subtitle`, and a `trailing` node for actions. Uses the shared themed card surface.
  */
-export default function ListItem({ title, subtitle, leading, trailing, onPress, selected, disabled }: ListItemProps): React.JSX.Element {
+export default function ListItem({ title, subtitle, leading, trailing, onPress, onLongPress, selected, disabled }: ListItemProps): React.JSX.Element {
     const { currentTheme } = useAppSettingsStore();
     const commonStyles = getCommonStyles(currentTheme);
 
     return (
         <TouchableOpacity
-            activeOpacity={onPress ? 0.7 : 1}
+            activeOpacity={onPress || onLongPress ? 0.7 : 1}
             onPress={onPress}
-            disabled={disabled || !onPress}
+            onLongPress={onLongPress}
+            delayLongPress={200}
+            disabled={disabled || (!onPress && !onLongPress)}
             style={[
                 commonStyles.itemCard,
                 selected && { borderColor: currentTheme.primary, backgroundColor: currentTheme.primary + '18' },
