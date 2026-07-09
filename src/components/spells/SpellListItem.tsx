@@ -1,12 +1,13 @@
 // REACT
 import React from 'react';
+import { styleConstants } from 'src/styles/style-constants';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 // EXPO
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 // STYLES
-import { commonStyles } from 'src/styles/commonStyles';
+import { getCommonStyles } from 'src/styles/commonStyles';
 
 // INTERFACES
 interface SpellListItemProps {
@@ -20,6 +21,7 @@ interface SpellListItemProps {
 
 // Component for a single spell row.
 function SpellListItem({ spell, schoolLabel, hasSpellbook, onPress, onAddToSpellbook, theme }: SpellListItemProps) {
+    const commonStyles = getCommonStyles(theme);
     const isRitual = spell.ritual === true;
 
     return (
@@ -55,14 +57,14 @@ function SpellListItem({ spell, schoolLabel, hasSpellbook, onPress, onAddToSpell
 
 const styles = StyleSheet.create({
     spellbookButton: {
-        borderWidth: 1,
+        borderWidth: styleConstants.borderXS,
         width: 32,
         height: 32,
         borderRadius: 100,
         minHeight: 28,
         justifyContent: 'center',
         alignItems: 'center',
-        marginHorizontal: 2,
+        marginHorizontal: styleConstants.margin2XS,
     },
 });
 

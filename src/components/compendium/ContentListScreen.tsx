@@ -1,6 +1,6 @@
 // REACT
 import React from 'react';
-import { FlatList, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 // STORES
 import { useAppSettingsStore } from 'src/stores';
@@ -9,16 +9,20 @@ import { useAppSettingsStore } from 'src/stores';
 import { useModal } from 'src/context/ModalContext';
 
 // STYLES
-import { commonStyles } from 'src/styles/commonStyles';
+import { getCommonStyles } from 'src/styles/commonStyles';
+import { styleConstants } from 'src/styles/style-constants';
 
 // UTILS
 import { containsNormalized } from 'src/utils/stringUtils';
+import { applySourceFilters } from 'src/utils/sourceFilter';
 
 interface ContentListScreenProps {
     // The bundled entries to browse (each has at least name + source, and optional entries).
     items: any[];
     // Content category passed to the entry modal ('action' | 'feat' | 'background' | …).
     category: string;
+    // For combined lists (e.g. cults + boons), derive the category per item; overrides `category`.
+    categoryOf?: (item: any) => string;
     searchPlaceholder: string;
     // Optional secondary line shown under the name (e.g. a feat's category).
     getSubtitle?: (item: any) => string | undefined;
@@ -28,23 +32,26 @@ interface ContentListScreenProps {
  * Reusable searchable list for a single reference-content type. Rows open the shared
  * EntryDetailModal via openEntryModal(category, name, source).
  */
-export default function ContentListScreen({ items, category, searchPlaceholder, getSubtitle }: ContentListScreenProps) {
-    const { currentTheme } = useAppSettingsStore();
+export default function ContentListScreen({ items, category, categoryOf, searchPlaceholder, getSubtitle }: ContentListScreenProps) {
+    const { currentTheme, preferredEdition, ignoredSources } = useAppSettingsStore();
+    const commonStyles = getCommonStyles(currentTheme);
     const { openEntryModal } = useModal();
     const [search, setSearch] = React.useState('');
 
+    const ignoredSet = React.useMemo(() => new Set(ignoredSources), [ignoredSources]);
+
     const filtered = React.useMemo(() =>
-        items
+        applySourceFilters(items, { preferredEdition, ignoredSources: ignoredSet })
             .filter(e => !search || containsNormalized(e.name, search))
             .slice()
             .sort((a, b) => a.name.localeCompare(b.name)),
-    [items, search]);
+    [items, search, preferredEdition, ignoredSet]);
 
     const renderItem = React.useCallback(({ item }: { item: any }) => {
         const subtitle = getSubtitle?.(item);
         return (
             <TouchableOpacity
-                onPress={() => openEntryModal(category, item.name, item.source)}
+                onPress={() => openEntryModal(categoryOf ? categoryOf(item) : category, item.name, item.source)}
                 style={[commonStyles.itemCard, { backgroundColor: currentTheme.card, borderColor: currentTheme.primary }]}
                 activeOpacity={0.7}
             >
@@ -58,32 +65,39 @@ export default function ContentListScreen({ items, category, searchPlaceholder, 
                 </View>
             </TouchableOpacity>
         );
-    }, [openEntryModal, category, getSubtitle, currentTheme]);
+    }, [openEntryModal, category, categoryOf, getSubtitle, currentTheme]);
 
     return (
-        <View style={[commonStyles.container, { flex: 1, backgroundColor: currentTheme.background, padding: 8 }]}>
+        <View style={[commonStyles.container, styles.container, { backgroundColor: currentTheme.background }]}>
             <TextInput
                 value={search}
                 onChangeText={setSearch}
                 placeholder={searchPlaceholder}
                 placeholderTextColor={currentTheme.noticeText}
-                style={[commonStyles.input, { color: currentTheme.text, borderColor: currentTheme.primary, marginBottom: 8 }]}
+                style={[commonStyles.input, styles.search, { color: currentTheme.text, borderColor: currentTheme.primary }]}
             />
 
             <FlatList
                 data={filtered}
-                keyExtractor={(item) => `${item.name}|${item.source}`}
+                keyExtractor={(item, index) => `${item.source}|${item.name}|${index}`}
                 renderItem={renderItem}
-                contentContainerStyle={{ paddingBottom: 40 }}
+                contentContainerStyle={styles.listContent}
                 initialNumToRender={15}
                 maxToRenderPerBatch={15}
                 windowSize={11}
                 removeClippedSubviews
                 keyboardShouldPersistTaps="handled"
                 ListEmptyComponent={
-                    <Text style={{ color: currentTheme.noticeText, textAlign: 'center', marginTop: 16 }}>No results.</Text>
+                    <Text style={[styles.empty, { color: currentTheme.noticeText }]}>No results.</Text>
                 }
             />
         </View>
     );
 }
+
+const styles = StyleSheet.create({
+    container: { flex: 1, padding: styleConstants.paddingSM },
+    search: { marginBottom: styleConstants.marginSM },
+    listContent: { paddingBottom: styleConstants.padding2XL + styleConstants.paddingSM },
+    empty: { textAlign: 'center', marginTop: styleConstants.marginLG },
+});

@@ -1,5 +1,6 @@
 // REACT
 import React from 'react';
+import { getCommonStyles } from 'src/styles/commonStyles';
 import { Text, View } from 'react-native';
 
 // COMPONENTS
@@ -16,6 +17,7 @@ interface ItemDetailModalProps {
     visible: boolean;
     item: any | null;
     onClose: () => void;
+    onBack?: () => void;
     theme: any;
 }
 
@@ -23,8 +25,9 @@ interface ItemDetailModalProps {
  * Detail modal for an item: a compact stat block (type, rarity, damage, AC, properties, value,
  * weight, …) followed by the item's description entries.
  */
-export default function ItemDetailModal({ visible, item, onClose, theme }: ItemDetailModalProps) {
+export default function ItemDetailModal({ visible, item, onClose, onBack, theme }: ItemDetailModalProps) {
     const { openEntryModal } = useModal();
+    const commonStyles = getCommonStyles(theme);
 
     if (!item) return null;
 
@@ -35,6 +38,7 @@ export default function ItemDetailModal({ visible, item, onClose, theme }: ItemD
         <BaseModal
             visible={visible}
             onClose={onClose}
+            onBack={onBack}
             theme={theme}
             title={item.name}
             subtitle={subtitle}
@@ -42,9 +46,9 @@ export default function ItemDetailModal({ visible, item, onClose, theme }: ItemD
             {/* Stat rows */}
             <View style={{ marginBottom: rows.length ? 10 : 0 }}>
                 {rows.map(row => (
-                    <View key={row.label} style={{ flexDirection: 'row', marginBottom: 3 }}>
-                        <Text style={{ fontWeight: 'bold', color: theme.text, fontSize: 12, width: 110 }}>{row.label}</Text>
-                        <Text style={{ color: theme.text, fontSize: 12, flex: 1, flexWrap: 'wrap' }}>{row.value}</Text>
+                    <View key={row.label} style={[commonStyles.mb_2xs, { flexDirection: 'row' }]}>
+                        <Text style={[commonStyles.text_bold, commonStyles.text_primary, commonStyles.text_sm, { width: 110 }]}>{row.label}</Text>
+                        <Text style={[commonStyles.text_primary, commonStyles.text_sm, { flex: 1, flexWrap: 'wrap' }]}>{row.value}</Text>
                     </View>
                 ))}
             </View>

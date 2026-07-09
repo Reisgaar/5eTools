@@ -13,6 +13,9 @@ import { CombatContent, CombatList } from 'src/components/combat';
 import { CombatFormModal } from 'src/components/combat/modals';
 import ConfirmModal from 'src/components/modals/ConfirmModal';
 
+// STYLES
+import { getCommonStyles } from 'src/styles/commonStyles';
+
 /**
  * Combat screen.
  */
@@ -20,6 +23,7 @@ export default function CombatScreen() {
     const { currentTheme } = useAppSettingsStore();
     const { selectedCampaign } = useCampaignStore();
     const { currentCombatId, createCombat, selectCombat, getSortedCombats, deleteCombat, updateCombat } = useCombat();
+    const commonStyles = getCommonStyles(currentTheme);
 
     const [createCombatModalVisible, setCreateCombatModalVisible] = useState(false);
     const [editCombatModalVisible, setEditCombatModalVisible] = useState(false);
@@ -92,7 +96,7 @@ export default function CombatScreen() {
 
     return (
         <View style={{ flex: 1, backgroundColor: currentTheme.background }}>
-            <View style={{ flex: 1, backgroundColor: currentTheme.background, padding: 0, paddingBottom: 0 }}>
+            <View style={{ flex: 1, backgroundColor: currentTheme.background }}>
                 {/* Show Combat List or Combat Content */}
                 {currentCombatId ? (
                     // Show combat content when a combat is selected

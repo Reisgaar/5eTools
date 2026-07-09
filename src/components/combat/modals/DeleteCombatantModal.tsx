@@ -4,6 +4,7 @@ import { Text, TouchableOpacity, View } from 'react-native';
 
 // STYLES
 import { createBaseModalStyles } from 'src/styles/baseModalStyles';
+import { getCommonStyles } from 'src/styles/commonStyles';
 
 // COMPONENTS
 import { BaseModal } from 'src/components/ui';
@@ -30,6 +31,7 @@ export default function DeleteCombatantModal({
     theme
 }: DeleteCombatantModalProps): React.JSX.Element {
     const styles = createBaseModalStyles(theme);
+    const commonStyles = getCommonStyles(theme);
 
     const handleConfirm = () => {
         onConfirm();
@@ -51,7 +53,7 @@ export default function DeleteCombatantModal({
             title={modalTitle}
             subtitle={modalSubtitle}
             footerContent={
-                <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
+                <View style={[commonStyles.w_100, commonStyles.row_center_center, { gap: '4%' }]}>
                     <TouchableOpacity
                         onPress={onClose}
                         style={[styles.footerButton, { backgroundColor: theme.primary }]}
@@ -69,10 +71,10 @@ export default function DeleteCombatantModal({
         >
             {/* Delete Section */}
             <View style={styles.modalSection}>
-                <Text style={[styles.modalNoticeText, { fontSize: 14, color: theme.text }]}>
+                <Text style={[styles.modalNoticeText, commonStyles.text_md, commonStyles.text_primary]}>
                     Deleting the creature will remove it from the combat tracker permanently.
                 </Text>
-                <Text style={[styles.modalNoticeText, { fontSize: 14, color: theme.text, marginTop: 20 }]}>
+                <Text style={[styles.modalNoticeText, commonStyles.text_md, commonStyles.text_primary, commonStyles.mt_xl]}>
                     Are you sure you want to remove "{creatureName}"?
                 </Text>
             </View>

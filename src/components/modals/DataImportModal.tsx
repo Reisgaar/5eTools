@@ -10,6 +10,9 @@ import { useCombat } from 'src/context/CombatContext';
 // COMPONENTS
 import { BaseModal } from 'src/components/ui';
 
+// STYLES
+import { getCommonStyles } from 'src/styles/commonStyles';
+
 // UTILS
 import { loadPlayersList, savePlayersList } from 'src/utils/fileStorage';
 
@@ -41,7 +44,8 @@ export default function DataImportModal({ visible, onClose, theme }: DataImportM
     const { spellbooks, createSpellbook, addSpellToSpellbook } = useSpellbookStore();
     // Combat data is handled by CombatContext
     const { createCombat, combats, reloadCombats, updateCombat } = useCombat();
-    
+    const commonStyles = getCommonStyles(theme);
+
     const [isImporting, setIsImporting] = useState(false);
     const [conflicts, setConflicts] = useState<ConflictItem[]>([]);
     const [showConflictResolution, setShowConflictResolution] = useState(false);
@@ -437,33 +441,29 @@ export default function DataImportModal({ visible, onClose, theme }: DataImportM
             title={showConflictResolution ? "Resolve Conflicts" : "Import Data"}
             subtitle={showConflictResolution ? "Choose how to handle duplicate items" : "Select a JSON file to import"}
             footerContent={
-                <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-around' }}>
+                <View style={[commonStyles.w_100, { flexDirection: 'row' }, commonStyles.jc_around]}>
                     <TouchableOpacity
                         onPress={handleClose}
-                        style={{
+                        style={[commonStyles.py_md, commonStyles.br_md, {
                             backgroundColor: '#6b7280',
-                            paddingVertical: 12,
                             paddingHorizontal: 24,
-                            borderRadius: 8,
                             flex: 0.4
-                        }}
+                        }]}
                     >
-                        <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold' }}>
+                        <Text style={[commonStyles.text_center, commonStyles.text_bold, { color: 'white' }]}>
                             Cancel
                         </Text>
                     </TouchableOpacity>
                     {!showConflictResolution ? (
                         <TouchableOpacity
                             onPress={handleFilePick}
-                            style={{
+                            style={[commonStyles.py_md, commonStyles.br_md, {
                                 backgroundColor: theme.primary,
-                                paddingVertical: 12,
                                 paddingHorizontal: 24,
-                                borderRadius: 8,
                                 flex: 0.4
-                            }}
+                            }]}
                         >
-                            <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold' }}>
+                            <Text style={[commonStyles.text_center, commonStyles.text_bold, { color: 'white' }]}>
                                 Select File
                             </Text>
                         </TouchableOpacity>
@@ -471,16 +471,14 @@ export default function DataImportModal({ visible, onClose, theme }: DataImportM
                         <TouchableOpacity
                             onPress={handleImportWithConflicts}
                             disabled={isImporting || !isImportValid()}
-                            style={{
+                            style={[commonStyles.py_md, commonStyles.br_md, {
                                 backgroundColor: theme.primary,
-                                paddingVertical: 12,
                                 paddingHorizontal: 24,
-                                borderRadius: 8,
                                 flex: 0.4,
                                 opacity: (isImporting || !isImportValid()) ? 0.6 : 1
-                            }}
+                            }]}
                         >
-                            <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold' }}>
+                            <Text style={[commonStyles.text_center, commonStyles.text_bold, { color: 'white' }]}>
                                 {isImporting ? 'Importing...' : 'Import'}
                             </Text>
                         </TouchableOpacity>
@@ -491,49 +489,37 @@ export default function DataImportModal({ visible, onClose, theme }: DataImportM
             <ScrollView style={{ flex: 1 }}>
                 {showConflictResolution ? (
                     conflicts.map((conflict, index) => (
-                        <View key={index} style={{
-                            paddingVertical: 8,
-                            paddingHorizontal: 12,
-                            borderBottomWidth: 1,
+                        <View key={index} style={[commonStyles.py_sm, commonStyles.px_md, commonStyles.bwb_xs, {
                             borderBottomColor: theme.border
-                        }}>
-                            <Text style={{ color: theme.text, fontSize: 16, fontWeight: '600', marginBottom: 8 }}>
+                        }]}>
+                            <Text style={[commonStyles.text_primary, commonStyles.text_lg, commonStyles.mb_sm, { fontWeight: '600' }]}>
                                 {conflict.type.charAt(0).toUpperCase() + conflict.type.slice(1)}: {conflict.name}
                             </Text>
-                            <View style={{ flexDirection: 'row', gap: 8 }}>
+                            <View style={[{ flexDirection: 'row' }, commonStyles.gap_sm]}>
                                 {['rename', 'skip'].map((action) => (
                                     <TouchableOpacity
                                         key={action}
                                         onPress={() => handleConflictAction(index, action as 'rename' | 'skip')}
-                                        style={{
+                                        style={[commonStyles.py_sm, commonStyles.br_sm, {
                                             backgroundColor: conflict.action === action ? theme.primary : theme.innerBackground,
-                                            paddingVertical: 8,
-                                            borderRadius: 6,
                                             flex: 1
-                                        }}
+                                        }]}
                                     >
-                                        <Text style={{ 
-                                            color: conflict.action === action ? 'white' : theme.text,
-                                            textAlign: 'center',
-                                            fontSize: 12
-                                        }}>
+                                        <Text style={[commonStyles.text_center, commonStyles.text_sm, {
+                                            color: conflict.action === action ? 'white' : theme.text
+                                        }]}>
                                             {action === 'rename' ? 'Rename' : 'Skip'}
                                         </Text>
                                     </TouchableOpacity>
                                 ))}
                             </View>
                             {conflict.action === 'rename' && (
-                                <View style={{ marginTop: 8 }}>
+                                <View style={commonStyles.mt_sm}>
                                     <TextInput
-                                        style={{
-                                            borderWidth: 1,
+                                        style={[commonStyles.bw_xs, commonStyles.br_sm, commonStyles.p_sm, commonStyles.text_primary, commonStyles.text_md, {
                                             borderColor: theme.border,
-                                            borderRadius: 6,
-                                            padding: 8,
-                                            color: theme.text,
-                                            backgroundColor: theme.innerBackground,
-                                            fontSize: 14
-                                        }}
+                                            backgroundColor: theme.innerBackground
+                                        }]}
                                         placeholder="Enter new name"
                                         placeholderTextColor={theme.noticeText}
                                         value={conflict.newName || ''}
@@ -543,11 +529,9 @@ export default function DataImportModal({ visible, onClose, theme }: DataImportM
                                         }}
                                     />
                                     {conflict.newName && (
-                                        <Text style={{ 
-                                            color: isNameAvailable(conflict.type, conflict.newName, conflict.name) ? '#059669' : '#dc2626', 
-                                            fontSize: 12, 
-                                            marginTop: 4 
-                                        }}>
+                                        <Text style={[commonStyles.text_sm, commonStyles.mt_xs, {
+                                            color: isNameAvailable(conflict.type, conflict.newName, conflict.name) ? '#059669' : '#dc2626'
+                                        }]}>
                                             {isNameAvailable(conflict.type, conflict.newName, conflict.name) 
                                                 ? '✓ Name available' 
                                                 : '✗ Name already exists'
@@ -559,11 +543,11 @@ export default function DataImportModal({ visible, onClose, theme }: DataImportM
                         </View>
                     ))
                 ) : (
-                    <View style={{ padding: 20, alignItems: 'center' }}>
-                        <Text style={{ color: theme.text, fontSize: 16, textAlign: 'center', marginBottom: 12 }}>
+                    <View style={[commonStyles.p_xl, commonStyles.ai_center]}>
+                        <Text style={[commonStyles.text_primary, commonStyles.text_lg, commonStyles.text_center, commonStyles.mb_md]}>
                             Select a JSON file exported from D&D Tools to import your data.
                         </Text>
-                        <Text style={{ color: theme.noticeText, fontSize: 14, textAlign: 'center' }}>
+                        <Text style={[commonStyles.text_grey, commonStyles.text_md, commonStyles.text_center]}>
                             This will add the imported data to your existing data. If there are conflicts, you'll be asked how to handle them.
                         </Text>
                     </View>

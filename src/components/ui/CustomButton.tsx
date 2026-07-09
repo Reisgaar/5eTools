@@ -1,12 +1,13 @@
 // REACT
 import React from 'react';
+import { styleConstants } from 'src/styles/style-constants';
 import { Text, Pressable } from 'react-native';
 
 // CONTEXTS
 import { useAppSettingsStore } from 'src/stores/appSettingsStore';
 
 // STYLES
-import { commonStyles } from 'src/styles/commonStyles';
+import { getCommonStyles } from 'src/styles/commonStyles';
 
 // INTERFACES
 interface CustomButtonProps {
@@ -20,6 +21,7 @@ interface CustomButtonProps {
  */
 export default function CustomButton({ text, secondaryText, action }: CustomButtonProps): React.JSX.Element {
     const { currentTheme } = useAppSettingsStore();
+    const commonStyles = getCommonStyles(currentTheme);
 
     return (
         <Pressable
@@ -31,7 +33,7 @@ export default function CustomButton({ text, secondaryText, action }: CustomButt
             </Text>
 
             {secondaryText && (
-                <Text style={{ color: currentTheme.cardText, fontSize: 12, textAlign: 'center' }}>
+                <Text style={{ color: currentTheme.cardText, fontSize: styleConstants.fontSizeSM, textAlign: 'center' }}>
                     {secondaryText}
                 </Text>
             )}

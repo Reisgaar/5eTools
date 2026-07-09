@@ -1,5 +1,6 @@
 // REACT
 import React from 'react';
+import { getCommonStyles } from 'src/styles/commonStyles';
 import { Text, View } from 'react-native';
 
 // COMPONENTS
@@ -16,6 +17,7 @@ interface RaceDetailModalProps {
     visible: boolean;
     race: any | null;
     onClose: () => void;
+    onBack?: () => void;
     theme: any;
 }
 
@@ -54,8 +56,9 @@ function formatSpeed(speed: any): string | undefined {
 /**
  * Detail modal for a race/subrace: an ability/size/speed header followed by trait entries.
  */
-export default function RaceDetailModal({ visible, race, onClose, theme }: RaceDetailModalProps) {
+export default function RaceDetailModal({ visible, race, onClose, onBack, theme }: RaceDetailModalProps) {
     const { openEntryModal } = useModal();
+    const commonStyles = getCommonStyles(theme);
 
     if (!race) return null;
 
@@ -66,12 +69,12 @@ export default function RaceDetailModal({ visible, race, onClose, theme }: RaceD
     push('Speed', formatSpeed(race.speed));
 
     return (
-        <BaseModal visible={visible} onClose={onClose} theme={theme} title={race.name} subtitle={race.source}>
+        <BaseModal visible={visible} onClose={onClose} onBack={onBack} theme={theme} title={race.name} subtitle={race.source}>
             <View style={{ marginBottom: rows.length ? 10 : 0 }}>
                 {rows.map(row => (
-                    <View key={row.label} style={{ flexDirection: 'row', marginBottom: 3 }}>
-                        <Text style={{ fontWeight: 'bold', color: theme.text, fontSize: 12, width: 110 }}>{row.label}</Text>
-                        <Text style={{ color: theme.text, fontSize: 12, flex: 1 }}>{row.value}</Text>
+                    <View key={row.label} style={[commonStyles.mb_2xs, { flexDirection: 'row' }]}>
+                        <Text style={[commonStyles.text_bold, commonStyles.text_primary, commonStyles.text_sm, { width: 110 }]}>{row.label}</Text>
+                        <Text style={[commonStyles.text_primary, commonStyles.text_sm, { flex: 1 }]}>{row.value}</Text>
                     </View>
                 ))}
             </View>

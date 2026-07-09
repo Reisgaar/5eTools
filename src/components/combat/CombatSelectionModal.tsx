@@ -1,5 +1,6 @@
 // REACT
 import React, { useState, useMemo } from 'react';
+import { styleConstants } from 'src/styles/style-constants';
 import { Text, TextInput, TouchableOpacity, View, StyleSheet, Image } from 'react-native';
 
 // EXPO
@@ -202,9 +203,9 @@ export default function CombatSelectionModal({
 
 const styles = StyleSheet.create({
     sectionTitle: {
-        fontSize: 16,
+        fontSize: styleConstants.fontSizeLG,
         fontWeight: '600',
-        marginBottom: 8,
+        marginBottom: styleConstants.marginSM,
     },
     quantityRow: {
         flexDirection: 'row',
@@ -214,61 +215,61 @@ const styles = StyleSheet.create({
     quantityButton: {
         width: 32,
         height: 32,
-        borderRadius: 20,
+        borderRadius: styleConstants.borderRadius2XL,
         justifyContent: 'center',
         alignItems: 'center',
     },
     quantityButtonText: {
         color: 'white',
         fontWeight: 'bold',
-        fontSize: 18,
+        fontSize: styleConstants.fontSizeXL,
     },
     quantityInput: {
         minWidth: 50,
-        paddingVertical: 6,
-        paddingHorizontal: 12,
-        borderWidth: 1,
-        borderRadius: 8,
+        paddingVertical: styleConstants.paddingXS,
+        paddingHorizontal: styleConstants.paddingMD,
+        borderWidth: styleConstants.borderXS,
+        borderRadius: styleConstants.borderRadiusMD,
         textAlign: 'center',
-        marginHorizontal: 8,
-        fontSize: 16,
+        marginHorizontal: styleConstants.marginSM,
+        fontSize: styleConstants.fontSizeLG,
     },
     searchSection: {
-        marginBottom: 16,
+        marginBottom: styleConstants.marginLG,
     },
     searchInput: {
-        borderWidth: 1,
-        borderRadius: 8,
-        padding: 12,
-        fontSize: 16,
+        borderWidth: styleConstants.borderXS,
+        borderRadius: styleConstants.borderRadiusMD,
+        padding: styleConstants.paddingMD,
+        fontSize: styleConstants.fontSizeLG,
     },
     combatListSection: {
-        marginBottom: 16,
+        marginBottom: styleConstants.marginLG,
     },
     combatItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        borderBottomWidth: 1,
-        marginBottom: 4,
-        borderRadius: 6,
+        paddingVertical: styleConstants.paddingMD,
+        paddingHorizontal: styleConstants.paddingLG,
+        borderBottomWidth: styleConstants.borderXS,
+        marginBottom: styleConstants.marginXS,
+        borderRadius: styleConstants.borderRadiusSM,
     },
     combatContent: {
         flex: 1,
     },
     combatName: {
-        fontSize: 16,
+        fontSize: styleConstants.fontSizeLG,
         fontWeight: '600',
-        marginBottom: 4,
+        marginBottom: styleConstants.marginXS,
     },
     combatCount: {
-        fontSize: 14,
+        fontSize: styleConstants.fontSizeMD,
     },
     emptyText: {
         textAlign: 'center',
         fontStyle: 'italic',
-        marginVertical: 8,
+        marginVertical: styleConstants.marginSM,
     },
     beastInfoRow: {
         width: '100%',
@@ -279,7 +280,7 @@ const styles = StyleSheet.create({
     beastTokenContainer: {
         width: 50,
         height: 50,
-        borderRadius: 20,
+        borderRadius: styleConstants.borderRadius2XL,
         overflow: 'hidden',
     },
     beastToken: {
@@ -287,7 +288,7 @@ const styles = StyleSheet.create({
         height: '100%',
     },
     beastName: {
-        fontSize: 16,
+        fontSize: styleConstants.fontSizeLG,
         fontWeight: '600',
     },
     quantityContainer: {
@@ -295,7 +296,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     quantityLabel: {
-        fontSize: 14,
-        marginBottom: 4,
+        fontSize: styleConstants.fontSizeMD,
+        marginBottom: styleConstants.marginXS,
     },
 });

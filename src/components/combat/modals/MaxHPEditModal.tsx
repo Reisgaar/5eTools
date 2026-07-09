@@ -7,6 +7,7 @@ import { BaseModal } from 'src/components/ui';
 
 // STYLES
 import { createBaseModalStyles } from 'src/styles/baseModalStyles';
+import { getCommonStyles } from 'src/styles/commonStyles';
 
 // INTERFACES
 interface MaxHPEditModalProps {
@@ -37,6 +38,7 @@ export default function MaxHPEditModal({
 }: MaxHPEditModalProps): React.JSX.Element {
     const [maxHp, setMaxHp] = useState(initialMaxHp);
     const styles = createBaseModalStyles(theme);
+    const commonStyles = getCommonStyles(theme);
 
     // Update local value when initial value changes
     useEffect(() => {
@@ -71,7 +73,7 @@ export default function MaxHPEditModal({
             title={modalTitle}
             subtitle={modalSubtitle}
             footerContent={
-                <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
+                <View style={[commonStyles.w_100, commonStyles.row_center_center, { gap: '4%' }]}>
                     <TouchableOpacity
                         onPress={handleCancel}
                         style={[styles.footerButton, { backgroundColor: theme.secondary }]}
@@ -88,22 +90,14 @@ export default function MaxHPEditModal({
             }
         >
             {/* Max HP Display */}
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 20, gap: 12 }}>
-                <Text style={[styles.modalText, { fontWeight: 'bold' }]}>Max HP:</Text>
+            <View style={[commonStyles.row_center_center, commonStyles.mb_xl, commonStyles.gap_md]}>
+                <Text style={[styles.modalText, commonStyles.text_bold]}>Max HP:</Text>
                 <TextInput
-                    style={{
-                        borderWidth: 2,
-                        borderRadius: 8,
-                        paddingHorizontal: 16,
-                        paddingVertical: 12,
-                        fontSize: 24,
-                        fontWeight: 'bold',
-                        textAlign: 'center',
+                    style={[commonStyles.bw_sm, commonStyles.br_md, commonStyles.px_lg, commonStyles.py_md, commonStyles.text_2xl, commonStyles.text_bold, commonStyles.text_center, commonStyles.text_primary, {
                         minWidth: 80,
                         backgroundColor: theme.inputBackground,
-                        color: theme.text,
                         borderColor: theme.primary
-                    }}
+                    }]}
                     value={String(maxHp)}
                     onChangeText={(text) => {
                         const num = parseInt(text, 10);
@@ -118,8 +112,8 @@ export default function MaxHPEditModal({
                 />
             </View>
                 
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginBottom: 20, gap: 12 }}>
-                <View style={{ flex: 1, gap: 6, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
+            <View style={[{ flexDirection: 'row' }, commonStyles.jc_between, commonStyles.w_100, commonStyles.mb_xl, commonStyles.gap_md]}>
+                <View style={[commonStyles.row_center_center, commonStyles.gap_xs, { flex: 1, flexWrap: 'wrap' }]}>
                     {[-10, 10, -5, 5, -1, 1].map((value) => (
                         <TouchableOpacity
                             key={value}

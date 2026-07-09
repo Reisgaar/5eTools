@@ -1,12 +1,13 @@
 // REACT
 import React from 'react';
+import { styleConstants } from 'src/styles/style-constants';
 import { View, Text, TouchableOpacity } from 'react-native';
 
 // EXPO
 import { Ionicons } from '@expo/vector-icons';
 
 // STYLES
-import { commonStyles } from 'src/styles/commonStyles';
+import { getCommonStyles } from 'src/styles/commonStyles';
 
 // INTERFACES
 interface SpellbookItemProps {
@@ -33,6 +34,7 @@ export default function SpellbookItem({
     showDeleteButton = false,
     showToggleButton = false
 }: SpellbookItemProps) {
+    const commonStyles = getCommonStyles(theme);
     return (
         <View style={[commonStyles.modalItem, { backgroundColor: theme.card, borderColor: theme.primary }]}>
             <TouchableOpacity
@@ -49,7 +51,7 @@ export default function SpellbookItem({
             </TouchableOpacity>
             <View style={{ flexDirection: 'row' as const, alignItems: 'center' as const }}>
                 {isSelected && (
-                    <View style={[{ width: 24, height: 24, borderRadius: 12, marginRight: 8, alignItems: 'center' as const, justifyContent: 'center' as const }, { backgroundColor: theme.primary }]}>
+                    <View style={[{ width: 24, height: 24, borderRadius: styleConstants.borderRadiusLG, marginRight: styleConstants.marginSM, alignItems: 'center' as const, justifyContent: 'center' as const }, { backgroundColor: theme.primary }]}>
                         <Ionicons name="checkmark" size={16} color="white" />
                     </View>
                 )}

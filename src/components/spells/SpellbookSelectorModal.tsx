@@ -1,5 +1,7 @@
 // REACT
 import React from 'react';
+import { styleConstants } from 'src/styles/style-constants';
+import { getCommonStyles } from 'src/styles/commonStyles';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 // EXPO
@@ -34,6 +36,7 @@ export default function SpellbookSelectorModal({
 
     // Get spellbooks filtered by selected campaign
     const filteredSpellbooks = getSpellbooksByCampaign(selectedCampaignId);
+    const commonStyles = getCommonStyles(currentTheme);
 
     /**
      * Handles the selection of a spellbook.
@@ -82,24 +85,24 @@ export default function SpellbookSelectorModal({
             theme={currentTheme}
             title='Select Spellbook'
             footerContent={
-                <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
+                <View style={[commonStyles.w_100, commonStyles.row_center_center, { gap: '4%' }]}>
                     <TouchableOpacity
                         onPress={handleDeleteSpellbook}
-                        style={[styles.footerButton, { backgroundColor: '#dc2626', width: '33%' }]}
+                        style={[styles.footerButton, commonStyles.w_33, { backgroundColor: '#dc2626' }]}
                     >
-                        <Text style={[styles.footerButtonText, { fontSize: 14 }]}>Delete</Text>
+                        <Text style={[styles.footerButtonText, commonStyles.text_md]}>Delete</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={onCreateSpellbook}
-                        style={[styles.footerButton, { backgroundColor: '#008000', width: '33%' }]}
+                        style={[styles.footerButton, commonStyles.w_33, { backgroundColor: '#008000' }]}
                     >
-                        <Text style={[styles.footerButtonText, { fontSize: 14 }]}>Create New</Text>
+                        <Text style={[styles.footerButtonText, commonStyles.text_md]}>Create New</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={onClose}
-                        style={[styles.footerButton, { backgroundColor: currentTheme.primary, width: '33%' }]}
+                        style={[styles.footerButton, commonStyles.w_33, { backgroundColor: currentTheme.primary }]}
                     >
-                        <Text style={[styles.footerButtonText, { fontSize: 14 }]}>Confirm</Text>
+                        <Text style={[styles.footerButtonText, commonStyles.text_md]}>Confirm</Text>
                     </TouchableOpacity>
                 </View>
             }
@@ -114,10 +117,10 @@ export default function SpellbookSelectorModal({
                         onPress={handleClearFilter}
                     >
                         <View style={styles.spellbookContent}>
-                            <Text style={[styles.spellbookName, { color: currentTheme.text }]}>
+                            <Text style={[styles.spellbookName, commonStyles.text_primary]}>
                                 All Spells
                             </Text>
-                            <Text style={[styles.spellbookDescription, { color: currentTheme.noticeText }]}>
+                            <Text style={[styles.spellbookDescription, commonStyles.text_grey]}>
                                 Show all spells without filter
                             </Text>
                         </View>
@@ -136,10 +139,10 @@ export default function SpellbookSelectorModal({
                             onPress={() => handleSelectSpellbook(spellbook.id)}
                         >
                             <View style={styles.spellbookContent}>
-                                <Text style={[styles.spellbookName, { color: currentTheme.text }]}>
+                                <Text style={[styles.spellbookName, commonStyles.text_primary]}>
                                     {spellbook.name}
                                 </Text>
-                                <Text style={[styles.spellbookDescription, { color: currentTheme.noticeText }]}>
+                                <Text style={[styles.spellbookDescription, commonStyles.text_grey]}>
                                     {spellbook.description && `${spellbook.description} • `}
                                     {(spellbook.spellsIndex || []).length} spells
                                 </Text>
@@ -152,7 +155,7 @@ export default function SpellbookSelectorModal({
                 </>
             ) : (
                 <View style={styles.emptyState}>
-                    <Text style={[styles.emptyText, { color: currentTheme.noticeText }]}>
+                    <Text style={[styles.emptyText, commonStyles.text_grey]}>
                         No spellbooks available
                     </Text>
                 </View>
@@ -164,44 +167,44 @@ export default function SpellbookSelectorModal({
 const styles = StyleSheet.create({
     footerButton: {
         width: '48%',
-        borderRadius: 8,
-        paddingVertical: 12,
+        borderRadius: styleConstants.borderRadiusMD,
+        paddingVertical: styleConstants.paddingMD,
         alignItems: 'center',
     },
     footerButtonText: {
         color: 'white',
         fontWeight: 'bold',
-        fontSize: 16,
+        fontSize: styleConstants.fontSizeLG,
     },
     spellbookItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 16,
-        paddingHorizontal: 20,
-        borderBottomWidth: 1,
+        paddingVertical: styleConstants.paddingLG,
+        paddingHorizontal: styleConstants.paddingXL,
+        borderBottomWidth: styleConstants.borderXS,
         borderBottomColor: '#eee',
     },
     spellbookContent: {
         flex: 1,
     },
     spellbookName: {
-        fontSize: 16,
+        fontSize: styleConstants.fontSizeLG,
         fontWeight: '600',
-        marginBottom: 4,
+        marginBottom: styleConstants.marginXS,
     },
     spellbookDescription: {
-        fontSize: 14,
+        fontSize: styleConstants.fontSizeMD,
     },
     emptyState: {
         padding: 40,
         alignItems: 'center',
     },
     emptyText: {
-        fontSize: 16,
+        fontSize: styleConstants.fontSizeLG,
         textAlign: 'center',
     },
     separator: {
         height: 1,
-        marginVertical: 10,
+        marginVertical: styleConstants.marginSM,
     },
 });

@@ -1,9 +1,11 @@
 // REACT
 import React, { useState } from 'react';
+import { styleConstants } from 'src/styles/style-constants';
 import { View, Text, TouchableOpacity, TouchableWithoutFeedback, Keyboard, Switch } from 'react-native';
 
 // STYLES
 import { createBaseModalStyles } from 'src/styles/baseModalStyles';
+import { getCommonStyles } from 'src/styles/commonStyles';
 
 // COMPONENTS
 import { BaseModal } from 'src/components/ui';
@@ -42,6 +44,7 @@ export default function AdvancedDiceRollModal({
     damageConfig
 }: AdvancedDiceRollModalProps): React.JSX.Element {
     const unifiedStyles = createBaseModalStyles(theme);
+    const commonStyles = getCommonStyles(theme);
 
     const [advantageType, setAdvantageType] = useState<AdvantageType>('normal');
     const [situationalBonus, setSituationalBonus] = useState('');
@@ -170,26 +173,26 @@ export default function AdvancedDiceRollModal({
 
         return (
             <View style={unifiedStyles.modalSection}>
-                <Text style={[unifiedStyles.modalText, { fontSize: 16, fontWeight: 'bold' }]}>
+                <Text style={[unifiedStyles.modalText, { fontSize: styleConstants.fontSizeLG, fontWeight: 'bold' }]}>
                     Roll Configuration
                 </Text>
 
                 {/* Advantage/Disadvantage Switch */}
                 <View style={unifiedStyles.modalSection}>
-                    <View style={[unifiedStyles.actionRow, { marginTop: 6 }]}>
+                    <View style={[unifiedStyles.actionRow, commonStyles.mt_xs]}>
                         <TouchableOpacity
                             style={[
                                 unifiedStyles.modalButton,
                                 unifiedStyles.modalButtonSecondary,
                                 advantageType === 'disadvantage' && unifiedStyles.modalButtonPrimary,
-                                { width: '30%', paddingHorizontal: 1, paddingVertical: 4 }
+                                { width: '30%', paddingHorizontal: styleConstants.padding2XS, paddingVertical: styleConstants.paddingXS }
                             ]}
                             onPress={() => setAdvantageType('disadvantage')}
                         >
                             <Text style={[
                                 unifiedStyles.modalButtonText,
                                 advantageType === 'disadvantage' ? unifiedStyles.modalButtonTextPrimary : unifiedStyles.modalButtonTextSecondary,
-                                { fontSize: 12 }
+                                { fontSize: styleConstants.fontSizeSM }
                             ]}>
                                 Disadv.
                             </Text>
@@ -199,14 +202,14 @@ export default function AdvancedDiceRollModal({
                                 unifiedStyles.modalButton,
                                 unifiedStyles.modalButtonSecondary,
                                 advantageType === 'normal' && unifiedStyles.modalButtonPrimary,
-                                { width: '30%', paddingHorizontal: 1, paddingVertical: 4 }
+                                { width: '30%', paddingHorizontal: styleConstants.padding2XS, paddingVertical: styleConstants.paddingXS }
                             ]}
                             onPress={() => setAdvantageType('normal')}
                         >
                             <Text style={[
                                 unifiedStyles.modalButtonText,
                                 advantageType === 'normal' ? unifiedStyles.modalButtonTextPrimary : unifiedStyles.modalButtonTextSecondary,
-                                { fontSize: 12 }
+                                { fontSize: styleConstants.fontSizeSM }
                             ]}>
                                 Normal
                             </Text>
@@ -216,14 +219,14 @@ export default function AdvancedDiceRollModal({
                                 unifiedStyles.modalButton,
                                 unifiedStyles.modalButtonSecondary,
                                 advantageType === 'advantage' && unifiedStyles.modalButtonPrimary,
-                                { width: '30%', paddingHorizontal: 1, paddingVertical: 4 }
+                                { width: '30%', paddingHorizontal: styleConstants.padding2XS, paddingVertical: styleConstants.paddingXS }
                             ]}
                             onPress={() => setAdvantageType('advantage')}
                         >
                             <Text style={[
                                 unifiedStyles.modalButtonText,
                                 advantageType === 'advantage' ? unifiedStyles.modalButtonTextPrimary : unifiedStyles.modalButtonTextSecondary,
-                                { fontSize: 12 }
+                                { fontSize: styleConstants.fontSizeSM }
                             ]}>
                                 Adv.
                             </Text>
@@ -232,11 +235,11 @@ export default function AdvancedDiceRollModal({
                 </View>
 
                 {/* Situational Bonus */}
-                <View style={[unifiedStyles.modalSection, { display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
-                    <Text style={[unifiedStyles.modalText, { fontSize: 16, fontWeight: 'bold', marginBottom: 0, marginRight: 8 }]}>
+                <View style={[unifiedStyles.modalSection, commonStyles.row_between_center]}>
+                    <Text style={[unifiedStyles.modalText, { fontSize: styleConstants.fontSizeLG, fontWeight: 'bold', marginBottom: 0, marginRight: styleConstants.marginSM }]}>
                         Situational Bonus:
                     </Text>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flex: 1 }}>
+                    <View style={[commonStyles.row_between_center, { flex: 1 }]}>
                         <TouchableOpacity
                             style={{ backgroundColor: theme.primary, height: 30, width: 30, borderRadius: 30, justifyContent: 'center', alignItems: 'center' }}
                             onPress={() => {
@@ -244,24 +247,24 @@ export default function AdvancedDiceRollModal({
                                 setSituationalBonus(String(currentValue - 1));
                             }}
                         >
-                            <Text style={{ fontSize: 18, fontWeight: 'bold', color: 'white' }}>
+                            <Text style={{ fontSize: styleConstants.fontSizeXL, fontWeight: 'bold', color: 'white' }}>
                                 -
                             </Text>
                         </TouchableOpacity>
                         
                         <View style={[
                             { 
-                                paddingVertical: 8,
-                                paddingHorizontal: 2,
-                                borderRadius: 8,
+                                paddingVertical: styleConstants.paddingSM,
+                                paddingHorizontal: styleConstants.padding2XS,
+                                borderRadius: styleConstants.borderRadiusMD,
                                 flex: 1, 
-                                marginHorizontal: 8, 
+                                marginHorizontal: styleConstants.marginSM, 
                                 justifyContent: 'center', 
                                 alignItems: 'center',
                                 backgroundColor: theme.background
                             }
                         ]}>
-                            <Text style={[unifiedStyles.modalText, { fontSize: 16, fontWeight: 'bold' }]}>
+                            <Text style={[unifiedStyles.modalText, { fontSize: styleConstants.fontSizeLG, fontWeight: 'bold' }]}>
                                 {situationalBonus ? (parseInt(situationalBonus) > 0 ? '+' : '') + situationalBonus : '0'}
                             </Text>
                         </View>
@@ -273,7 +276,7 @@ export default function AdvancedDiceRollModal({
                                 setSituationalBonus(String(currentValue + 1));
                             }}
                         >
-                            <Text style={{ fontSize: 18, fontWeight: 'bold', color: 'white' }}>
+                            <Text style={{ fontSize: styleConstants.fontSizeXL, fontWeight: 'bold', color: 'white' }}>
                                 +
                             </Text>
                         </TouchableOpacity>
@@ -282,15 +285,15 @@ export default function AdvancedDiceRollModal({
 
                 {/* Base Bonus Display */}
                 <View style={[unifiedStyles.modalSection, { marginBottom: 0 }]}>
-                    <Text style={[unifiedStyles.modalText, { fontSize: 16, fontWeight: 'bold', marginBottom: 0, marginRight: 8 }]}>
+                    <Text style={[unifiedStyles.modalText, { fontSize: styleConstants.fontSizeLG, fontWeight: 'bold', marginBottom: 0, marginRight: styleConstants.marginSM }]}>
                         Resume:
                     </Text>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center'}}>
+                    <View style={commonStyles.row_around_center}>
                         <Text style={[unifiedStyles.modalText, { textAlign: 'center', fontStyle: 'italic' }]}>
                             Base Bonus: {d20Config!.bonus >= 0 ? '+' : ''}{d20Config!.bonus}
                         </Text>
                         {situationalBonus && (
-                            <Text style={[unifiedStyles.modalText, { textAlign: 'center', fontStyle: 'italic', marginTop: 4 }]}>
+                            <Text style={[unifiedStyles.modalText, { textAlign: 'center', fontStyle: 'italic', marginTop: styleConstants.marginXS }]}>
                                 Total Bonus: {totalBonus >= 0 ? '+' : ''}{totalBonus}
                             </Text>
                         )}
@@ -302,7 +305,7 @@ export default function AdvancedDiceRollModal({
 
     const renderDamageConfig = () => (
         <View style={unifiedStyles.modalSection}>
-            <Text style={[unifiedStyles.modalText, { fontSize: 16, fontWeight: 'bold', marginBottom: 16 }]}>
+            <Text style={[unifiedStyles.modalText, { fontSize: styleConstants.fontSizeLG, fontWeight: 'bold', marginBottom: styleConstants.marginLG }]}>
                 Damage Configuration
             </Text>
 
@@ -343,24 +346,24 @@ export default function AdvancedDiceRollModal({
         if (!result) return renderRollButton();
 
         return (
-            <View style={{ borderWidth: 1, borderColor: theme.border, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 10 }}>
+            <View style={{ borderWidth: styleConstants.borderXS, borderColor: theme.border, borderRadius: styleConstants.borderRadiusMD, paddingHorizontal: styleConstants.paddingSM, paddingVertical: styleConstants.paddingSM }}>
                 <View style={[unifiedStyles.modalSection, {
                     alignItems: 'center',
                     backgroundColor: theme.card + '20'
                 }]}>
                     <Text style={[unifiedStyles.modalText, {
                         lineHeight: 24,
-                        fontSize: 24,
+                        fontSize: styleConstants.fontSize2XL,
                         fontWeight: 'bold',
-                        marginBottom: 8,
+                        marginBottom: styleConstants.marginSM,
                         color: theme.success || '#4ade80'
                     }]}>
                         Total: {result.total}
                     </Text>
-                    <Text style={[unifiedStyles.modalText, { marginBottom: 4 }]}>
+                    <Text style={[unifiedStyles.modalText, commonStyles.mb_xs]}>
                         Dice roll: {result.rolls.join(', ')}
                     </Text>
-                    <Text style={[unifiedStyles.modalText, { fontSize: 12, fontStyle: 'italic' }]}>
+                    <Text style={[unifiedStyles.modalText, { fontSize: styleConstants.fontSizeSM, fontStyle: 'italic' }]}>
                         {result.expression}
                     </Text>
                 </View>
@@ -374,7 +377,7 @@ export default function AdvancedDiceRollModal({
             <View
                 style={[
                     unifiedStyles.actionRow,
-                    { marginTop: 6, marginBottom: 12 },
+                    { marginTop: styleConstants.marginXS, marginBottom: styleConstants.marginMD },
                     result && { marginTop: 0, marginBottom: 0 }
                 ]}
             >

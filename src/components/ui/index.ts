@@ -5,4 +5,5 @@ export { default as Header } from 'src/components/ui/Header';
 export { default as Separator } from 'src/components/ui/Separator';
 export { default as ClickableText } from 'src/components/ui/ClickableText';
 export { default as BaseModal } from 'src/components/ui/BaseModal';
+export { default as NavCard } from 'src/components/ui/NavCard';
 export { default as ImagePicker } from 'src/components/ui/ImagePicker';

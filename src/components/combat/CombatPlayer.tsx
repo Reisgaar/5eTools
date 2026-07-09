@@ -10,6 +10,7 @@ import { DEFAULT_PLAYER_TOKEN } from 'src/constants/tokens';
 
 // STYLES
 import { createCombatStyles } from 'src/styles/combat';
+import { getCommonStyles } from 'src/styles/commonStyles';
 
 // MODELS
 import { Combatant } from 'src/context/CombatContext';
@@ -43,6 +44,7 @@ export default function CombatPlayer({
     theme
 }: CombatPlayerProps): React.JSX.Element {
     const styles = createCombatStyles(theme);
+    const commonStyles = getCommonStyles(theme);
     const [tokenUrl, setTokenUrl] = React.useState<string | undefined>(undefined);
     const ICON_SIZE = 14;
 
@@ -69,17 +71,16 @@ export default function CombatPlayer({
     return (
         <View style={[
             styles.groupContainer,
+            commonStyles.bw_xs,
             {
                 borderColor: theme.border,
-                borderWidth: 1,
                 borderStyle: 'solid'
             }, // Force normal border color and style
-            isActive && {
+            isActive && [commonStyles.bw_sm, {
                 backgroundColor: theme.primary + '20',
-                borderWidth: 2,
                 borderColor: theme.primary,
                 borderStyle: 'solid'
-            }
+            }]
         ]}>
             {/* Main Container with Two Columns */}
             <View style={styles.groupHeader}>
@@ -87,7 +88,7 @@ export default function CombatPlayer({
                 <View style={styles.leftColumn}>
                     <TouchableOpacity
                         onPress={() => onTokenPress(tokenUrl || combatant.tokenUrl || DEFAULT_PLAYER_TOKEN, combatant.name)}
-                        style={[styles.groupToken, { borderWidth: 3, borderColor: '#22c55a', borderRadius: 32 }]}
+                        style={[styles.groupToken, commonStyles.bw_md, { borderColor: '#22c55a', borderRadius: 32 }]}
                     >
                         <Image
                             source={{ uri: tokenUrl || DEFAULT_PLAYER_TOKEN }}
@@ -106,7 +107,7 @@ export default function CombatPlayer({
                                 {combatant.initiative}
                             </Text>
                             {combatant.initiativeBonus !== undefined && combatant.initiativeBonus !== null && (
-                                <Text style={[styles.tokenButtonText, { fontSize: 10, marginLeft: 2, color: 'white' }]}>
+                                <Text style={[styles.tokenButtonText, commonStyles.text_xs, commonStyles.ml_2xs, { color: 'white' }]}>
                                     {`(${combatant.initiativeBonus >= 0 ? '+' : ''}${combatant.initiativeBonus})`}
                                 </Text>
                             )}
@@ -119,7 +120,7 @@ export default function CombatPlayer({
                     {/* Name */}
                     <View style={[styles.groupNameRow, { marginBottom: 0 }]}>
                         <View style={styles.groupName}>
-                            <Text style={[styles.groupNameText, { color: theme.text }]}>
+                            <Text style={[styles.groupNameText, commonStyles.text_primary]}>
                                 {combatant.name}
                             </Text>
                         </View>
@@ -127,25 +128,25 @@ export default function CombatPlayer({
 
                     {/* Player Info in two columns */}
                     {(combatant.race || combatant.class || combatant.passivePerception) && (
-                        <View style={{ marginBottom: 4 }}>
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingRight: 4 }}>
+                        <View style={commonStyles.mb_xs}>
+                            <View style={[commonStyles.row_between_center, commonStyles.pr_xs]}>
                                 {/* First column */}
                                 {combatant.race && (
-                                    <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, fontWeight: 'bold' }]}>
+                                    <Text style={[styles.groupNameText, commonStyles.text_primary, commonStyles.text_xs, commonStyles.text_bold, { opacity: 0.8 }]}>
                                         Race: {combatant.race}
                                     </Text>
                                 )}
                                 {combatant.class && (
                                     <View style={{ flexDirection: 'row' }}>
-                                        <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, fontWeight: 'bold' }]}>
+                                        <Text style={[styles.groupNameText, commonStyles.text_primary, commonStyles.text_xs, commonStyles.text_bold, { opacity: 0.8 }]}>
                                             Class: {combatant.class}
                                         </Text>
                                     </View>
                                 )}
                                 {combatant.passivePerception && (
-                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                        <Ionicons name='eye' size={12} color={theme.text} style={{ opacity: 0.8, marginRight: 4 }} />
-                                        <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8 }]}>
+                                    <View style={[{ flexDirection: 'row' }, commonStyles.ai_center]}>
+                                        <Ionicons name='eye' size={12} color={theme.text} style={[commonStyles.mr_xs, { opacity: 0.8 }]} />
+                                        <Text style={[styles.groupNameText, commonStyles.text_primary, commonStyles.text_xs, { opacity: 0.8 }]}>
                                             {combatant.passivePerception}
                                         </Text>
                                     </View>
@@ -165,7 +166,7 @@ export default function CombatPlayer({
                                 {/* Notes - Title of the container */}
                                 {combatant.note && (
                                     <View style={styles.memberNotesTitle}>
-                                        <Text style={[styles.memberNoteText, { color: theme.text }]}>
+                                        <Text style={[styles.memberNoteText, commonStyles.text_primary]}>
                                             {combatant.note}
                                         </Text>
                                     </View>

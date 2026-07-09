@@ -8,6 +8,7 @@ import CampaignSelector from 'src/components/ui/CampaignSelector';
 
 // STYLES
 import { createBaseModalStyles } from 'src/styles/baseModalStyles';
+import { getCommonStyles } from 'src/styles/commonStyles';
 
 // INTERFACES
 interface PlayerData {
@@ -43,7 +44,8 @@ export default function PlayerFormModal({
     theme
 }: PlayerFormModalProps) {
     const baseModalStyles = createBaseModalStyles(theme);
-    
+    const commonStyles = getCommonStyles(theme);
+
     const [formData, setFormData] = useState({
         name: '',
         race: '',
@@ -144,7 +146,7 @@ export default function PlayerFormModal({
             theme={theme}
             title={player ? 'Edit Player' : 'Add Player'}
             footerContent={(
-                <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-around' }}>
+                <View style={[commonStyles.w_100, { flexDirection: 'row' }, commonStyles.jc_around]}>
                     <TouchableOpacity
                         onPress={handleCancel}
                         style={[baseModalStyles.modalButton, baseModalStyles.modalButtonPrimary, { 
@@ -174,12 +176,11 @@ export default function PlayerFormModal({
             )}
         >
             <View style={baseModalStyles.modalSection}>
-                <Text style={[baseModalStyles.modalSectionTitle, { color: theme.text }]}>Character Name</Text>
+                <Text style={[baseModalStyles.modalSectionTitle, commonStyles.text_primary]}>Character Name</Text>
                 <TextInput
-                    style={[baseModalStyles.modalInput, { 
-                        backgroundColor: theme.inputBackground, 
-                        color: theme.text, 
-                        borderColor: theme.border 
+                    style={[baseModalStyles.modalInput, commonStyles.text_primary, {
+                        backgroundColor: theme.inputBackground,
+                        borderColor: theme.border
                     }]}
                     placeholder="Enter character name"
                     placeholderTextColor={theme.noticeText}
@@ -189,12 +190,11 @@ export default function PlayerFormModal({
             </View>
 
             <View style={baseModalStyles.modalSection}>
-                <Text style={[baseModalStyles.modalSectionTitle, { color: theme.text }]}>Race</Text>
+                <Text style={[baseModalStyles.modalSectionTitle, commonStyles.text_primary]}>Race</Text>
                 <TextInput
-                    style={[baseModalStyles.modalInput, { 
-                        backgroundColor: theme.inputBackground, 
-                        color: theme.text, 
-                        borderColor: theme.border 
+                    style={[baseModalStyles.modalInput, commonStyles.text_primary, {
+                        backgroundColor: theme.inputBackground,
+                        borderColor: theme.border
                     }]}
                     placeholder="e.g., Human, Elf, Dwarf"
                     placeholderTextColor={theme.noticeText}
@@ -204,12 +204,11 @@ export default function PlayerFormModal({
             </View>
 
             <View style={baseModalStyles.modalSection}>
-                <Text style={[baseModalStyles.modalSectionTitle, { color: theme.text }]}>Class</Text>
+                <Text style={[baseModalStyles.modalSectionTitle, commonStyles.text_primary]}>Class</Text>
                 <TextInput
-                    style={[baseModalStyles.modalInput, { 
-                        backgroundColor: theme.inputBackground, 
-                        color: theme.text, 
-                        borderColor: theme.border 
+                    style={[baseModalStyles.modalInput, commonStyles.text_primary, {
+                        backgroundColor: theme.inputBackground,
+                        borderColor: theme.border
                     }]}
                     placeholder="e.g., Fighter, Wizard, Cleric"
                     placeholderTextColor={theme.noticeText}
@@ -219,12 +218,11 @@ export default function PlayerFormModal({
             </View>
 
             <View style={baseModalStyles.modalSection}>
-                <Text style={[baseModalStyles.modalSectionTitle, { color: theme.text }]}>Maximum Hit Points</Text>
+                <Text style={[baseModalStyles.modalSectionTitle, commonStyles.text_primary]}>Maximum Hit Points</Text>
                 <TextInput
-                    style={[baseModalStyles.modalInput, { 
-                        backgroundColor: theme.inputBackground, 
-                        color: theme.text, 
-                        borderColor: theme.border 
+                    style={[baseModalStyles.modalInput, commonStyles.text_primary, {
+                        backgroundColor: theme.inputBackground,
+                        borderColor: theme.border
                     }]}
                     placeholder="e.g., 25"
                     placeholderTextColor={theme.noticeText}
@@ -235,12 +233,11 @@ export default function PlayerFormModal({
             </View>
 
             <View style={baseModalStyles.modalSection}>
-                <Text style={[baseModalStyles.modalSectionTitle, { color: theme.text }]}>Armor Class</Text>
+                <Text style={[baseModalStyles.modalSectionTitle, commonStyles.text_primary]}>Armor Class</Text>
                 <TextInput
-                    style={[baseModalStyles.modalInput, { 
-                        backgroundColor: theme.inputBackground, 
-                        color: theme.text, 
-                        borderColor: theme.border 
+                    style={[baseModalStyles.modalInput, commonStyles.text_primary, {
+                        backgroundColor: theme.inputBackground,
+                        borderColor: theme.border
                     }]}
                     placeholder="e.g., 16"
                     placeholderTextColor={theme.noticeText}
@@ -251,12 +248,11 @@ export default function PlayerFormModal({
             </View>
 
             <View style={baseModalStyles.modalSection}>
-                <Text style={[baseModalStyles.modalSectionTitle, { color: theme.text }]}>Passive Perception</Text>
+                <Text style={[baseModalStyles.modalSectionTitle, commonStyles.text_primary]}>Passive Perception</Text>
                 <TextInput
-                    style={[baseModalStyles.modalInput, { 
-                        backgroundColor: theme.inputBackground, 
-                        color: theme.text, 
-                        borderColor: theme.border 
+                    style={[baseModalStyles.modalInput, commonStyles.text_primary, {
+                        backgroundColor: theme.inputBackground,
+                        borderColor: theme.border
                     }]}
                     placeholder="e.g., 14"
                     placeholderTextColor={theme.noticeText}
@@ -267,12 +263,11 @@ export default function PlayerFormModal({
             </View>
 
             <View style={baseModalStyles.modalSection}>
-                <Text style={[baseModalStyles.modalSectionTitle, { color: theme.text }]}>Initiative Bonus</Text>
+                <Text style={[baseModalStyles.modalSectionTitle, commonStyles.text_primary]}>Initiative Bonus</Text>
                 <TextInput
-                    style={[baseModalStyles.modalInput, { 
-                        backgroundColor: theme.inputBackground, 
-                        color: theme.text, 
-                        borderColor: theme.border 
+                    style={[baseModalStyles.modalInput, commonStyles.text_primary, {
+                        backgroundColor: theme.inputBackground,
+                        borderColor: theme.border
                     }]}
                     placeholder="e.g., +3, -1, 2"
                     placeholderTextColor={theme.noticeText}

@@ -10,6 +10,7 @@ import { BaseModal } from 'src/components/ui';
 
 // STYLES
 import { createBaseModalStyles } from 'src/styles/baseModalStyles';
+import { getCommonStyles } from 'src/styles/commonStyles';
 
 // INTERFACES
 interface ColorModalProps {
@@ -50,6 +51,7 @@ export default function ColorModal({
 }: ColorModalProps): React.JSX.Element {
     const [selectedColor, setSelectedColor] = useState<string | undefined>(currentColor);
     const styles = createBaseModalStyles(theme);
+    const commonStyles = getCommonStyles(theme);
 
     React.useEffect(() => {
         setSelectedColor(currentColor);
@@ -76,7 +78,7 @@ export default function ColorModal({
             title={modalTitle}
             subtitle={modalSubtitle}
             footerContent={
-                <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
+                <View style={[commonStyles.row_center_center, commonStyles.w_100, { gap: '4%' }]}>
                     <TouchableOpacity
                         onPress={handleClear}
                         style={[styles.footerButton, { backgroundColor: theme.secondary }]}
@@ -94,7 +96,7 @@ export default function ColorModal({
         >
             {/* Color Selection Section */}
             <View style={styles.modalSection}>
-                <Text style={[styles.modalNoticeText, { color: theme.noticeText }]}>
+                <Text style={[styles.modalNoticeText, commonStyles.text_grey]}>
                     Choose a color to highlight this creature in the combat tracker.
                 </Text>
 

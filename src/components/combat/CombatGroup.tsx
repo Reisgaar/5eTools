@@ -10,6 +10,7 @@ import { DEFAULT_CREATURE_TOKEN } from 'src/constants/tokens';
 
 // STYLES
 import { createCombatStyles } from 'src/styles/combat';
+import { getCommonStyles } from 'src/styles/commonStyles';
 
 // COMPONENTS
 import CombatMember from 'src/components/combat/CombatMember';
@@ -36,6 +37,7 @@ export default function CombatGroup({
     theme
 }: CombatGroupProps): React.JSX.Element {
     const styles = createCombatStyles(theme);
+    const commonStyles = getCommonStyles(theme);
     const [tokenUrl, setTokenUrl] = React.useState<string | undefined>(undefined);
     const ICON_SIZE = 14;
 
@@ -57,7 +59,7 @@ export default function CombatGroup({
     return (
         <View style={[
             styles.groupContainer,
-            isActive && { backgroundColor: theme.primary + '20', borderWidth: 2, borderColor: theme.primary }
+            isActive && [commonStyles.bw_sm, { backgroundColor: theme.primary + '20', borderColor: theme.primary }]
         ]}>
             {/* Group Header */}
             <View style={styles.groupHeader}>
@@ -84,7 +86,7 @@ export default function CombatGroup({
                                 {group.initiative}
                             </Text>
                             {group.initiativeBonus !== undefined && group.initiativeBonus !== null && (
-                                <Text style={[styles.tokenButtonText, { fontSize: 10, marginLeft: 2, color: 'white' }]}>
+                                <Text style={[styles.tokenButtonText, commonStyles.text_xs, commonStyles.ml_2xs, { color: 'white' }]}>
                                     {`(${group.initiativeBonus >= 0 ? '+' : ''}${group.initiativeBonus})`}
                                 </Text>
                             )}
@@ -100,7 +102,7 @@ export default function CombatGroup({
                             onPress={() => onCreaturePress(group.name, group.source)}
                             style={styles.groupName}
                         >
-                            <Text style={[styles.groupNameText, { color: theme.text }]}>
+                            <Text style={[styles.groupNameText, commonStyles.text_primary]}>
                                 {group.name}
                             </Text>
                         </TouchableOpacity>
@@ -123,16 +125,16 @@ export default function CombatGroup({
 
                     {/* Speed and Senses - Below name */}
                     {(group.speed || group.senses) && (
-                        <View style={{ marginBottom: 8 }}>
+                        <View style={commonStyles.mb_sm}>
                             {group.speed && (
                                 <View style={{ flexDirection: 'row' }}>
                                     <View>
-                                        <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, fontWeight: 'bold' }]}>
+                                        <Text style={[styles.groupNameText, commonStyles.text_primary, commonStyles.text_xs, commonStyles.text_bold, { opacity: 0.8 }]}>
                                             Speed:
                                         </Text>
                                     </View>
-                                    <View style={{ marginLeft: 4 }}>
-                                        <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8 }]}>
+                                    <View style={commonStyles.ml_xs}>
+                                        <Text style={[styles.groupNameText, commonStyles.text_primary, commonStyles.text_xs, { opacity: 0.8 }]}>
                                             {group.speed}
                                         </Text>
                                     </View>
@@ -141,12 +143,12 @@ export default function CombatGroup({
                             {group.senses && (
                                 <View style={{ flexDirection: 'row' }}>
                                     <View>
-                                        <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, fontWeight: 'bold' }]}>
+                                        <Text style={[styles.groupNameText, commonStyles.text_primary, commonStyles.text_xs, commonStyles.text_bold, { opacity: 0.8 }]}>
                                             Senses:
                                         </Text>
                                     </View>
-                                    <View style={{ marginLeft: 4 }}>
-                                        <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8 }]}>
+                                    <View style={commonStyles.ml_xs}>
+                                        <Text style={[styles.groupNameText, commonStyles.text_primary, commonStyles.text_xs, { opacity: 0.8 }]}>
                                             {group.senses}
                                         </Text>
                                     </View>

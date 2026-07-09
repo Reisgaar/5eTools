@@ -1,5 +1,6 @@
 // REACT
 import { StyleSheet } from 'react-native';
+import { styleConstants } from 'src/styles/style-constants';
 
 export const createBaseModalStyles = (theme: any) => StyleSheet.create({
     // Overlay and container
@@ -19,7 +20,7 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         left: '50%',
         transform: [{ translateX: '-50%' }, { translateY: '-50%' }],
         backgroundColor: theme.card,
-        borderRadius: 12,
+        borderRadius: styleConstants.borderRadiusLG,
         overflow: 'hidden',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
@@ -31,7 +32,7 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
     // Main modal content
     modalContent: {
         backgroundColor: theme.card,
-        borderRadius: 12,
+        borderRadius: styleConstants.borderRadiusLG,
         overflow: 'hidden',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
@@ -45,43 +46,43 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 12,
+        paddingHorizontal: styleConstants.paddingLG,
+        paddingVertical: styleConstants.paddingMD,
     },
     modalHeaderContent: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
-        marginRight: 8,
+        marginRight: styleConstants.marginSM,
     },
     modalToken: {
         width: 32,
         height: 32,
-        borderRadius: 16,
-        marginRight: 12,
-        borderWidth: 2,
+        borderRadius: styleConstants.borderRadiusXL,
+        marginRight: styleConstants.marginMD,
+        borderWidth: styleConstants.borderSM,
         borderColor: theme.primary,
     },
     modalHeaderInfo: {
         flex: 1,
     },
     modalTitle: {
-        fontSize: 17,
+        fontSize: styleConstants.fontSizeLG,
         fontWeight: 'bold',
         color: theme.text,
     },
     modalSubtitle: {
-        fontSize: 12,
+        fontSize: styleConstants.fontSizeSM,
         color: theme.noticeText,
-        marginTop: 3,
+        marginTop: styleConstants.margin2XS,
     },
     modalCloseButton: {
-        padding: 4,
+        padding: styleConstants.paddingXS,
     },
     modalCloseText: {
         color: theme.text,
         fontWeight: 'bold',
-        fontSize: 18,
+        fontSize: styleConstants.fontSizeXL,
     },
 
     // Separator
@@ -92,36 +93,36 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
 
     // Content sections
     modalBody: {
-        paddingHorizontal: 10,
-        paddingVertical: 10,
+        paddingHorizontal: styleConstants.paddingSM,
+        paddingVertical: styleConstants.paddingSM,
     },
 
     // Footer section
     modalFooter: {
-        paddingHorizontal: 20,
-        paddingVertical: 12,
-        borderTopWidth: 1,
+        paddingHorizontal: styleConstants.paddingXL,
+        paddingVertical: styleConstants.paddingMD,
+        borderTopWidth: styleConstants.borderXS,
         borderTopColor: theme.border,
         alignItems: 'flex-end',
     },
 
     // Generic content styles
     modalSection: {
-        marginBottom: 20,
+        marginBottom: styleConstants.marginXL,
     },
     modalSectionTitle: {
-        fontSize: 16,
+        fontSize: styleConstants.fontSizeLG,
         fontWeight: 'bold',
         color: theme.text,
-        marginBottom: 12,
+        marginBottom: styleConstants.marginMD,
     },
     modalText: {
-        fontSize: 14,
+        fontSize: styleConstants.fontSizeMD,
         color: theme.text,
         lineHeight: 20,
     },
     modalNoticeText: {
-        fontSize: 12,
+        fontSize: styleConstants.fontSizeSM,
         color: theme.noticeText,
         fontStyle: 'italic',
     },
@@ -130,37 +131,37 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
     modalGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        borderWidth: 1,
+        borderWidth: styleConstants.borderXS,
         borderColor: theme.border,
-        borderRadius: 8,
-        marginBottom: 20,
+        borderRadius: styleConstants.borderRadiusMD,
+        marginBottom: styleConstants.marginXL,
         overflow: 'hidden',
     },
     modalGridItem: {
         width: '50%',
-        borderWidth: 1,
+        borderWidth: styleConstants.borderXS,
         borderColor: theme.border,
-        padding: 16,
+        padding: styleConstants.paddingLG,
         alignItems: 'center',
     },
     modalGridLabel: {
         fontWeight: 'bold',
-        fontSize: 14,
+        fontSize: styleConstants.fontSizeMD,
         color: theme.text,
-        marginBottom: 6,
+        marginBottom: styleConstants.marginXS,
         textAlign: 'center',
     },
     modalGridValue: {
-        fontSize: 14,
+        fontSize: styleConstants.fontSizeMD,
         color: theme.text,
         textAlign: 'center',
     },
 
     // Button styles
     modalButton: {
-        borderRadius: 8,
-        paddingVertical: 10,
-        paddingHorizontal: 20,
+        borderRadius: styleConstants.borderRadiusMD,
+        paddingVertical: styleConstants.paddingSM,
+        paddingHorizontal: styleConstants.paddingXL,
         alignItems: 'center',
         justifyContent: 'center',
         minHeight: 40,
@@ -170,12 +171,12 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
     },
     modalButtonSecondary: {
         backgroundColor: theme.innerBackground,
-        borderWidth: 1,
+        borderWidth: styleConstants.borderXS,
         borderColor: theme.border,
     },
     modalButtonText: {
         fontWeight: 'bold',
-        fontSize: 16,
+        fontSize: styleConstants.fontSizeLG,
     },
     modalButtonTextPrimary: {
         color: theme.buttonText || 'white',
@@ -186,24 +187,24 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
 
     // Input styles
     modalInput: {
-        borderWidth: 1,
+        borderWidth: styleConstants.borderXS,
         borderColor: theme.border,
-        borderRadius: 8,
-        paddingHorizontal: 12,
-        paddingVertical: 8,
+        borderRadius: styleConstants.borderRadiusMD,
+        paddingHorizontal: styleConstants.paddingMD,
+        paddingVertical: styleConstants.paddingSM,
         backgroundColor: theme.inputBackground,
         color: theme.text,
-        fontSize: 16,
-        marginBottom: 16,
+        fontSize: styleConstants.fontSizeLG,
+        marginBottom: styleConstants.marginLG,
     },
 
     // List styles
     modalListItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        borderBottomWidth: 1,
+        paddingVertical: styleConstants.paddingMD,
+        paddingHorizontal: styleConstants.paddingLG,
+        borderBottomWidth: styleConstants.borderXS,
         borderBottomColor: theme.border,
     },
     modalListItemSelected: {
@@ -211,22 +212,22 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
     },
     modalListItemText: {
         flex: 1,
-        fontSize: 16,
+        fontSize: styleConstants.fontSizeLG,
         color: theme.text,
     },
     modalListItemSubtext: {
-        fontSize: 12,
+        fontSize: styleConstants.fontSizeSM,
         color: theme.noticeText,
-        marginTop: 2,
+        marginTop: styleConstants.margin2XS,
     },
 
     // Checkbox for filter modals
     checkbox: {
         width: 20,
         height: 20,
-        borderWidth: 2,
-        borderRadius: 4,
-        marginRight: 12,
+        borderWidth: styleConstants.borderSM,
+        borderRadius: styleConstants.borderRadiusSM,
+        marginRight: styleConstants.marginMD,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -236,42 +237,42 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         width: '100%',
-        gap: 8,
-        marginTop: 16,
+        gap: styleConstants.gapSM,
+        marginTop: styleConstants.marginLG,
     },
 
     // Settings option styles
     settingsOption: {
         width: '48%',
-        marginBottom: 4,
+        marginBottom: styleConstants.marginXS,
         flexDirection: 'column',
         alignItems: 'center',
-        paddingVertical: 12,
-        paddingHorizontal: 8,
-        borderRadius: 8,
+        paddingVertical: styleConstants.paddingMD,
+        paddingHorizontal: styleConstants.paddingSM,
+        borderRadius: styleConstants.borderRadiusMD,
         backgroundColor: 'rgba(0,0,0,0.02)',
-        borderWidth: 1,
+        borderWidth: styleConstants.borderXS,
         borderColor: theme.border,
     },
     optionIcon: {
         width: 40,
         height: 40,
-        borderRadius: 20,
+        borderRadius: styleConstants.borderRadius2XL,
         backgroundColor: 'rgba(0,0,0,0.05)',
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 12,
+        marginRight: styleConstants.marginMD,
     },
     optionContent: {
         flex: 1,
     },
     optionTitle: {
-        fontSize: 16,
+        fontSize: styleConstants.fontSizeLG,
         fontWeight: '600',
-        marginBottom: 2,
+        marginBottom: styleConstants.margin2XS,
     },
     optionDescription: {
-        fontSize: 12,
+        fontSize: styleConstants.fontSizeSM,
         textAlign: 'center',
     },
 
@@ -280,12 +281,12 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
-        paddingHorizontal: 4,
+        paddingHorizontal: styleConstants.paddingXS,
     },
     conditionBtn: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginVertical: 8,
+        marginVertical: styleConstants.marginSM,
         width: '48%',
         minWidth: 0,
     },
@@ -295,94 +296,94 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'center',
-        marginTop: 16,
-        gap: 8,
+        marginTop: styleConstants.marginLG,
+        gap: styleConstants.gapSM,
     },
     colorOption: {
         width: 40,
         height: 40,
-        borderRadius: 20,
-        margin: 4,
+        borderRadius: styleConstants.borderRadius2XL,
+        margin: styleConstants.marginXS,
         justifyContent: 'center',
         alignItems: 'center',
-        borderWidth: 1,
+        borderWidth: styleConstants.borderXS,
         borderColor: 'rgba(0,0,0,0.1)',
     },
     selectedColor: {
-        borderWidth: 2,
+        borderWidth: styleConstants.borderSM,
         borderColor: 'black',
     },
     currentSelection: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 16,
+        marginTop: styleConstants.marginLG,
         justifyContent: 'center',
     },
     currentText: {
-        fontSize: 14,
-        marginRight: 8,
+        fontSize: styleConstants.fontSizeMD,
+        marginRight: styleConstants.marginSM,
     },
     currentColor: {
         width: 20,
         height: 20,
-        borderRadius: 10,
+        borderRadius: styleConstants.borderRadiusMD,
     },
 
     // Note input styles
     noteInput: {
-        borderRadius: 8,
-        padding: 12,
-        fontSize: 14,
+        borderRadius: styleConstants.borderRadiusMD,
+        padding: styleConstants.paddingMD,
+        fontSize: styleConstants.fontSizeMD,
         minHeight: 120,
         textAlignVertical: 'top',
-        marginTop: 12,
-        borderWidth: 1,
+        marginTop: styleConstants.marginMD,
+        borderWidth: styleConstants.borderXS,
     },
 
     // Delete button styles
     deleteBtn: {
-        paddingVertical: 12,
-        borderRadius: 8,
+        paddingVertical: styleConstants.paddingMD,
+        borderRadius: styleConstants.borderRadiusMD,
         alignItems: 'center',
-        marginTop: 16,
+        marginTop: styleConstants.marginLG,
     },
     confirmationContainer: {
-        marginTop: 16,
+        marginTop: styleConstants.marginLG,
     },
     confirmationText: {
-        fontSize: 14,
+        fontSize: styleConstants.fontSizeMD,
         textAlign: 'center',
-        marginBottom: 16,
+        marginBottom: styleConstants.marginLG,
         fontWeight: '500',
     },
     confirmationButtons: {
         flexDirection: 'row',
-        gap: 12,
+        gap: styleConstants.gapMD,
     },
     confirmationBtn: {
         flex: 1,
-        paddingVertical: 12,
-        borderRadius: 8,
+        paddingVertical: styleConstants.paddingMD,
+        borderRadius: styleConstants.borderRadiusMD,
         alignItems: 'center',
     },
 
     // Beast Detail Modal specific styles
     beastDetailModalContent: {
         backgroundColor: theme.card,
-        borderRadius: 12,
-        marginHorizontal: 10,
+        borderRadius: styleConstants.borderRadiusLG,
+        marginHorizontal: styleConstants.marginSM,
         width: '95%',
         maxWidth: '100%',
         maxHeight: '95%',
         overflow: 'hidden',
         alignSelf: 'center',
-        marginTop: 20,
+        marginTop: styleConstants.marginXL,
     },
     beastDetailHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 20,
-        borderBottomWidth: 1,
+        padding: styleConstants.paddingXL,
+        borderBottomWidth: styleConstants.borderXS,
         borderBottomColor: theme.border,
     },
     beastDetailHeaderContent: {
@@ -392,21 +393,21 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
     },
     beastDetailHeaderInfo: {
         flex: 1,
-        marginLeft: 12,
+        marginLeft: styleConstants.marginMD,
     },
     beastDetailHeaderTitle: {
-        fontSize: 20,
+        fontSize: styleConstants.fontSizeXL,
         fontWeight: 'bold',
         color: theme.text,
-        marginBottom: 4,
+        marginBottom: styleConstants.marginXS,
     },
     beastDetailHeaderSubtitle: {
-        fontSize: 14,
+        fontSize: styleConstants.fontSizeMD,
         color: theme.noticeText,
         fontStyle: 'italic',
     },
     beastDetailCloseButton: {
-        padding: 4,
+        padding: styleConstants.paddingXS,
     },
     beastDetailSeparator: {
         height: 1,
@@ -414,8 +415,8 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
     },
     beastDetailImageContainer: {
         alignItems: 'center',
-        padding: 20,
-        borderBottomWidth: 1,
+        padding: styleConstants.paddingXL,
+        borderBottomWidth: styleConstants.borderXS,
         borderBottomColor: theme.border,
     },
     beastDetailImageLoadingContainer: {
@@ -430,68 +431,68 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         resizeMode: 'contain',
     },
     beastDetailBody: {
-        paddingHorizontal: 20,
+        paddingHorizontal: styleConstants.paddingXL,
         flex: 1,
     },
     beastDetailContent: {
-        paddingTop: 5,
+        paddingTop: styleConstants.paddingXS,
     },
     beastDetailText: {
         color: theme.text,
-        marginBottom: 6,
-        fontSize: 12,
+        marginBottom: styleConstants.marginXS,
+        fontSize: styleConstants.fontSizeSM,
     },
     beastDetailBoldText: {
         fontWeight: 'bold',
     },
     beastDetailStatsContainer: {
         flexDirection: 'row',
-        marginVertical: 6,
+        marginVertical: styleConstants.marginXS,
         justifyContent: 'space-between',
     },
     beastDetailStatButton: {
         alignItems: 'center',
         flex: 1,
-        marginHorizontal: 2,
+        marginHorizontal: styleConstants.margin2XS,
         backgroundColor: theme.primary,
-        borderRadius: 8,
-        paddingVertical: 6,
-        paddingHorizontal: 2,
+        borderRadius: styleConstants.borderRadiusMD,
+        paddingVertical: styleConstants.paddingXS,
+        paddingHorizontal: styleConstants.padding2XS,
     },
     beastDetailStatText: {
         color: 'white',
         fontWeight: 'bold',
-        fontSize: 12,
+        fontSize: styleConstants.fontSizeSM,
     },
     beastDetailStatValue: {
         color: 'white',
-        fontSize: 12,
+        fontSize: styleConstants.fontSizeSM,
     },
     beastDetailSourceText: {
         color: theme.noticeText,
         fontStyle: 'italic',
-        marginTop: 8,
-        marginBottom: 18,
+        marginTop: styleConstants.marginSM,
+        marginBottom: styleConstants.marginLG,
         textAlign: 'right',
-        fontSize: 10,
+        fontSize: styleConstants.fontSizeXS,
     },
     beastDetailFooter: {
-        paddingHorizontal: 20,
-        paddingVertical: 12,
-        borderTopWidth: 1,
+        paddingHorizontal: styleConstants.paddingXL,
+        paddingVertical: styleConstants.paddingMD,
+        borderTopWidth: styleConstants.borderXS,
         alignItems: 'flex-end',
     },
 
     footerButton: {
         width: '48%',
-        borderRadius: 8,
-        paddingVertical: 12,
+        borderRadius: styleConstants.borderRadiusMD,
+        paddingVertical: styleConstants.paddingMD,
         alignItems: 'center',
     },
     footerButtonText: {
         color: 'white',
         fontWeight: 'bold',
-        fontSize: 16,
+        fontSize: styleConstants.fontSizeLG,
     },
     optionsGrid: {
         flexDirection: 'row',
@@ -504,11 +505,11 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
     optionRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 8,
-        paddingHorizontal: 6,
-        marginBottom: 4,
+        paddingVertical: styleConstants.paddingSM,
+        paddingHorizontal: styleConstants.paddingXS,
+        marginBottom: styleConstants.marginXS,
     },
     optionText: {
-        fontSize: 14,
+        fontSize: styleConstants.fontSizeMD,
     },
 });

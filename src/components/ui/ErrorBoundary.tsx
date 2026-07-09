@@ -1,5 +1,6 @@
 // REACT
 import React from 'react';
+import { styleConstants } from 'src/styles/style-constants';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 // INTERFACES
@@ -62,23 +63,23 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 20,
+        padding: styleConstants.paddingXL,
         backgroundColor: '#f5f5f5',
     },
     title: {
-        fontSize: 24,
+        fontSize: styleConstants.fontSize2XL,
         fontWeight: 'bold',
-        marginBottom: 16,
+        marginBottom: styleConstants.marginLG,
         color: '#333',
     },
     message: {
-        fontSize: 16,
+        fontSize: styleConstants.fontSizeLG,
         textAlign: 'center',
         marginBottom: 24,
         color: '#666',
     },
     errorText: {
-        fontSize: 12,
+        fontSize: styleConstants.fontSizeSM,
         color: '#999',
         textAlign: 'center',
         marginBottom: 24,
@@ -87,12 +88,12 @@ const styles = StyleSheet.create({
     button: {
         backgroundColor: '#007AFF',
         paddingHorizontal: 24,
-        paddingVertical: 12,
-        borderRadius: 8,
+        paddingVertical: styleConstants.paddingMD,
+        borderRadius: styleConstants.borderRadiusMD,
     },
     buttonText: {
         color: 'white',
-        fontSize: 16,
+        fontSize: styleConstants.fontSizeLG,
         fontWeight: 'bold',
     },
 });

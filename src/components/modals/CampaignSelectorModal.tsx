@@ -1,5 +1,6 @@
 // REACT
 import React from 'react';
+import { styleConstants } from 'src/styles/style-constants';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 // EXPO
@@ -17,6 +18,7 @@ import { BaseModal } from 'src/components/ui';
 
 // STYLES
 import { createBaseModalStyles } from 'src/styles/baseModalStyles';
+import { getCommonStyles } from 'src/styles/commonStyles';
 
 // INTERFACES
 interface CampaignSelectorModalProps {
@@ -30,6 +32,7 @@ export default function CampaignSelectorModal({ visible }: CampaignSelectorModal
     const { campaigns, selectedCampaignId, selectCampaign, clearSelectedCampaign } = useCampaignStore();
     const { currentTheme } = useAppSettingsStore();
     const styles = createBaseModalStyles(currentTheme);
+    const commonStyles = getCommonStyles(currentTheme);
     const { getSortedCombats, reloadCombats } = useCombat();
     const { getSpellbooksByCampaign, clearSpellbookSelection } = useSpellbookStore();
     const { closeCampaignSelectorModal } = useModal();
@@ -74,7 +77,7 @@ export default function CampaignSelectorModal({ visible }: CampaignSelectorModal
             width='90%'
             maxHeight="80%"
             footerContent={
-                <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
+                <View style={[commonStyles.row_center_center, commonStyles.w_100, { gap: '4%' }]}>
                     <TouchableOpacity
                         onPress={closeCampaignSelectorModal}
                         style={[styles.footerButton, { backgroundColor: currentTheme.primary }]}
@@ -94,10 +97,10 @@ export default function CampaignSelectorModal({ visible }: CampaignSelectorModal
                         onPress={handleShowAll}
                     >
                         <View style={localStyles.campaignContent}>
-                            <Text style={[localStyles.campaignName, { color: currentTheme.text }]}>
+                            <Text style={[localStyles.campaignName, commonStyles.text_primary]}>
                                 All Campaigns
                             </Text>
-                            <Text style={[localStyles.campaignDescription, { color: currentTheme.noticeText }]}>
+                            <Text style={[localStyles.campaignDescription, commonStyles.text_grey]}>
                                 Show all campaigns • {getSortedCombats(null).length} combats • {getSpellbooksByCampaign(undefined).length} spellbooks
                             </Text>
                         </View>
@@ -115,10 +118,10 @@ export default function CampaignSelectorModal({ visible }: CampaignSelectorModal
                             onPress={() => handleSelectCampaign(campaign.id)}
                         >
                             <View style={localStyles.campaignContent}>
-                                <Text style={[localStyles.campaignName, { color: currentTheme.text }]}>
+                                <Text style={[localStyles.campaignName, commonStyles.text_primary]}>
                                     {campaign.name}
                                 </Text>
-                                <Text style={[localStyles.campaignDescription, { color: currentTheme.noticeText }]}>
+                                <Text style={[localStyles.campaignDescription, commonStyles.text_grey]}>
                                     {campaign.description && `${campaign.description} • `}
                                     {getSortedCombats(campaign.id).length} combats • {getSpellbooksByCampaign(campaign.id).length} spellbooks
                                 </Text>
@@ -130,7 +133,7 @@ export default function CampaignSelectorModal({ visible }: CampaignSelectorModal
                     ))}
                 </>) : (
                     <View style={localStyles.emptyState}>
-                        <Text style={[localStyles.emptyText, { color: currentTheme.noticeText }]}>
+                        <Text style={[localStyles.emptyText, commonStyles.text_grey]}>
                             No campaigns available
                         </Text>
                     </View>
@@ -143,28 +146,28 @@ const localStyles = StyleSheet.create({
     campaignItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 16,
-        paddingHorizontal: 20,
-        borderBottomWidth: 1,
+        paddingVertical: styleConstants.paddingLG,
+        paddingHorizontal: styleConstants.paddingXL,
+        borderBottomWidth: styleConstants.borderXS,
         borderBottomColor: '#eee',
     },
     campaignContent: {
         flex: 1,
     },
     campaignName: {
-        fontSize: 16,
+        fontSize: styleConstants.fontSizeLG,
         fontWeight: '600',
-        marginBottom: 4,
+        marginBottom: styleConstants.marginXS,
     },
     campaignDescription: {
-        fontSize: 14,
+        fontSize: styleConstants.fontSizeMD,
     },
     emptyState: {
         padding: 40,
         alignItems: 'center',
     },
     emptyText: {
-        fontSize: 16,
+        fontSize: styleConstants.fontSizeLG,
         textAlign: 'center',
     },
 });

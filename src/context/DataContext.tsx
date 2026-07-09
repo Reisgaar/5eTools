@@ -5,7 +5,13 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // BUNDLED DATA (offline)
-import { BESTIARY_BUNDLE, SPELL_BUNDLE, SPELL_SOURCE_LOOKUP, CONDITIONS_DISEASES, ACTIONS, FEATS, BACKGROUNDS, ITEMS, ITEMS_BASE, VARIANT_RULES, RACES, CLASS_FILES, DATA_VERSION } from 'src/data/bundledData';
+import {
+    BESTIARY_BUNDLE, SPELL_BUNDLE, SPELL_SOURCE_LOOKUP, CONDITIONS_DISEASES, ACTIONS, FEATS,
+    BACKGROUNDS, ITEMS, ITEMS_BASE, VARIANT_RULES, RACES, CLASS_FILES,
+    DEITIES, CULTS_BOONS, REWARDS, TRAPS_HAZARDS, BASTIONS, LANGUAGES, OBJECTS,
+    OPTIONAL_FEATURES, CHAR_OPTIONS, SENSES, SKILLS, PSIONICS, VEHICLES,
+    DATA_VERSION,
+} from 'src/data/bundledData';
 
 // UTILS
 import { normalizeString } from 'src/utils/stringUtils';
@@ -117,8 +123,12 @@ interface DataContextType {
   variantRules: any[];
   // Generic lookup by category ('condition' | 'disease' | 'status' | 'action' | 'feat' | 'background' | 'item' | 'race' | 'class' | …)
   getContentEntry: (category: string, name: string, source?: string) => any | null;
+  // Full list for a content category (for the browser screens).
+  getContentList: (category: string) => any[];
   // Full parsed class file (class/subclass/classFeature/subclassFeature) for the class detail view.
   getClassFile: (name: string) => any | null;
+  // All distinct source codes present across the data (for the ignore-books setting).
+  allSources: string[];
 }
 
 // Process spell source lookup data to extract available classes and spell-class relations.
@@ -228,6 +238,22 @@ const CONTENT_DATA: Record<string, any[]> = {
     item: [...(safeThunk(ITEMS).item || []), ...(safeThunk(ITEMS_BASE).baseitem || [])],
     race: RACE_LIST,
     class: CLASS_SUMMARIES,
+    // "World" & extra reference content. Category keys match the {@tag} names where a tag exists.
+    deity: safeThunk(DEITIES).deity || [],
+    cult: safeThunk(CULTS_BOONS).cult || [],
+    boon: safeThunk(CULTS_BOONS).boon || [],
+    reward: safeThunk(REWARDS).reward || [],
+    trap: safeThunk(TRAPS_HAZARDS).trap || [],
+    hazard: safeThunk(TRAPS_HAZARDS).hazard || [],
+    facility: safeThunk(BASTIONS).facility || [],
+    language: safeThunk(LANGUAGES).language || [],
+    object: safeThunk(OBJECTS).object || [],
+    optfeature: safeThunk(OPTIONAL_FEATURES).optionalfeature || [],
+    charoption: safeThunk(CHAR_OPTIONS).charoption || [],
+    sense: safeThunk(SENSES).sense || [],
+    skill: safeThunk(SKILLS).skill || [],
+    psionic: safeThunk(PSIONICS).psionic || [],
+    vehicle: safeThunk(VEHICLES).vehicle || [],
 };
 
 // Per-category lookup indexes.
@@ -640,6 +666,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Generic reference-content lookup (conditions, actions, feats, …) from the bundled datasets
     const getContentEntry = useCallback((category: string, name: string, source?: string) => lookupContent(category, name, source), []);
+    const getContentList = useCallback((category: string) => CONTENT_DATA[category] || [], []);
     const getClassFile = useCallback((name: string) => getClassFileByName(name), []);
 
     // Initialize data on mount. Falls back from local files → network fetch, and surfaces
@@ -683,6 +710,15 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, [initializeData]);
 
     // Memoize the context value so consumers don't re-render on unrelated parent renders.
+    // Distinct source codes across beasts, spells and all bundled content (for ignore-books).
+    const allSources = useMemo(() => {
+        const s = new Set<string>();
+        for (const b of simpleBeasts) if (b.source) s.add(b.source);
+        for (const sp of simpleSpells) if (sp.source) s.add(sp.source);
+        for (const arr of Object.values(CONTENT_DATA)) for (const e of arr) if (e?.source) s.add(e.source);
+        return Array.from(s).sort((a, b) => a.localeCompare(b));
+    }, [simpleBeasts, simpleSpells]);
+
     const value = useMemo<DataContextType>(() => ({
         beasts,
         simpleBeasts,
@@ -710,7 +746,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         classes: CONTENT_DATA['class'],
         variantRules: CONTENT_DATA['variantrule'],
         getContentEntry,
-        getClassFile
+        getContentList,
+        getClassFile,
+        allSources
     }), [
         beasts,
         simpleBeasts,
@@ -728,7 +766,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         getFullBeast,
         getFullSpell,
         getContentEntry,
-        getClassFile
+        getContentList,
+        getClassFile,
+        allSources
     ]);
 
     return (

@@ -1,9 +1,13 @@
 // REACT
 import React, { useCallback, useEffect, useState } from 'react';
+import { styleConstants } from 'src/styles/style-constants';
 import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 // STORES
 import { useAppSettingsStore, useCampaignStore } from 'src/stores';
+
+// UTILS
+import { applySourceFilters } from 'src/utils/sourceFilter';
 
 // CONTEXTS
 import { useCombat } from 'src/context/CombatContext';
@@ -25,13 +29,14 @@ import useBestiaryFilters from 'src/hooks/useBestiaryFilters';
 import { books as sourceIdToNameMap } from 'src/constants/books';
 
 // STYLES
-import { commonStyles } from 'src/styles/commonStyles';
+import { getCommonStyles } from 'src/styles/commonStyles';
 
 /**
  * Screen that displays the bestiary.
  */
 export default function BestiaryScreen() {
-    const { currentTheme } = useAppSettingsStore();
+    const { currentTheme, preferredEdition, ignoredSources } = useAppSettingsStore();
+    const commonStyles = getCommonStyles(currentTheme);
     const { simpleBeasts, isLoading, loadError, reloadData, getFullBeast } = useData();
     const { addCombatantToCombat, getSortedCombats } = useCombat();
     const { openBeastModal } = useModal();
@@ -41,8 +46,15 @@ export default function BestiaryScreen() {
     const [quantity, setQuantity] = useState('1');
     const [pageReady, setPageReady] = useState(false);
 
+    // Apply the global source filter (ignored books + edition dedupe) before filtering/search.
+    const ignoredSet = React.useMemo(() => new Set(ignoredSources), [ignoredSources]);
+    const visibleBeasts = React.useMemo(
+        () => applySourceFilters(simpleBeasts, { preferredEdition, ignoredSources: ignoredSet }),
+        [simpleBeasts, preferredEdition, ignoredSet]
+    );
+
     // Use custom hook for all filter logic - but defer initialization
-    const filters = useBestiaryFilters({ simpleBeasts, beasts: simpleBeasts });
+    const filters = useBestiaryFilters({ simpleBeasts: visibleBeasts, beasts: visibleBeasts });
 
     // Memoize combats to avoid unnecessary recalculations
     const sortedCombats = React.useMemo(() => {
@@ -112,12 +124,12 @@ export default function BestiaryScreen() {
     ), [handleAddToCombat, handleViewBeastDetails, currentTheme]);
 
     const beastKeyExtractor = useCallback(
-        (item: any) => `${item.name}|${item.source}|${item.CR}`,
+        (item: any, index: number) => `${item.source}|${item.name}|${item.CR}|${index}`,
         []
     );
 
     return (
-        <View style={[commonStyles.container, { flex: 1, backgroundColor: currentTheme.background, paddingTop: 10, paddingBottom: 0, paddingHorizontal: 8 }]}>
+        <View style={[commonStyles.container, { flex: 1, backgroundColor: currentTheme.background, paddingTop: styleConstants.paddingSM, paddingBottom: 0, paddingHorizontal: styleConstants.paddingSM }]}>
             {/* Combat Selection Modal */}
             <CombatSelectionModal
                 visible={combatSelectionModalVisible}
@@ -164,14 +176,14 @@ export default function BestiaryScreen() {
                 sourceIdToNameMap={sourceIdToNameMap}
             />
             {/* Filter Buttons */}
-            <View style={[{ marginBottom: 12, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start'}]}>
-                <Text style={[{ fontSize: 16, fontWeight: 'bold', color: currentTheme.text, marginRight: 12}]}>Filters:</Text>
-                <View style={{ flex: 1, display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly', alignItems: 'center', gap: 8 }}>
+            <View style={[commonStyles.row_start_center, commonStyles.mb_md, { display: 'flex' }]}>
+                <Text style={[{ fontSize: styleConstants.fontSizeLG, fontWeight: 'bold', color: currentTheme.text, marginRight: styleConstants.marginMD}]}>Filters:</Text>
+                <View style={[commonStyles.row_evenly_center, commonStyles.gap_sm, { flex: 1, display: 'flex' }]}>
                     <TouchableOpacity
                         onPress={filters.openCRFilterModal}
                         style={[commonStyles.filterBtn, { borderColor: filters.selectedCRs.length > 0 ? currentTheme.primary : currentTheme.text }]}
                     >
-                        <Text style={{ color: filters.selectedCRs.length > 0 ? currentTheme.primary : currentTheme.text, fontWeight: 'bold', fontSize: 12 }}>
+                        <Text style={{ color: filters.selectedCRs.length > 0 ? currentTheme.primary : currentTheme.text, fontWeight: 'bold', fontSize: styleConstants.fontSizeSM }}>
                             CR
                         </Text>
                     </TouchableOpacity>
@@ -179,7 +191,7 @@ export default function BestiaryScreen() {
                         onPress={filters.openTypeFilterModal}
                         style={[commonStyles.filterBtn, { borderColor: filters.selectedTypes.length > 0 ? currentTheme.primary : currentTheme.text }]}
                     >
-                        <Text style={{ color: filters.selectedTypes.length > 0 ? currentTheme.primary : currentTheme.text, fontWeight: 'bold', fontSize: 12 }}>
+                        <Text style={{ color: filters.selectedTypes.length > 0 ? currentTheme.primary : currentTheme.text, fontWeight: 'bold', fontSize: styleConstants.fontSizeSM }}>
                             Type
                         </Text>
                     </TouchableOpacity>
@@ -187,7 +199,7 @@ export default function BestiaryScreen() {
                         onPress={filters.openSourceFilterModal}
                         style={[commonStyles.filterBtn, { borderColor: filters.selectedSources.length > 0 ? currentTheme.primary : currentTheme.text }]}
                     >
-                        <Text style={{ color: filters.selectedSources.length > 0 ? currentTheme.primary : currentTheme.text, fontWeight: 'bold', fontSize: 12 }}>
+                        <Text style={{ color: filters.selectedSources.length > 0 ? currentTheme.primary : currentTheme.text, fontWeight: 'bold', fontSize: styleConstants.fontSizeSM }}>
                             Source
                         </Text>
                     </TouchableOpacity>
@@ -199,7 +211,7 @@ export default function BestiaryScreen() {
                         }}
                         style={[commonStyles.filterBtn, { borderColor: '#ef4444' }]}
                     >
-                        <Text style={{ color: '#ef4444', fontWeight: 'bold', fontSize: 12 }}>
+                        <Text style={{ color: '#ef4444', fontWeight: 'bold', fontSize: styleConstants.fontSizeSM }}>
                             Clear
                         </Text>
                     </TouchableOpacity>
@@ -233,12 +245,12 @@ export default function BestiaryScreen() {
                 {/* Error state (e.g. offline with no data) — recoverable via retry */}
                 {!isLoading && loadError && simpleBeasts.length === 0 && (
                     <View style={styles.loadingContainer}>
-                        <Text style={{ color: currentTheme.noticeText, marginTop: 8, textAlign: 'center', paddingHorizontal: 24 }}>
+                        <Text style={{ color: currentTheme.noticeText, marginTop: styleConstants.marginSM, textAlign: 'center', paddingHorizontal: 24 }}>
                             {loadError}
                         </Text>
                         <TouchableOpacity
                             onPress={() => reloadData()}
-                            style={[commonStyles.filterBtn, { borderColor: currentTheme.primary, marginTop: 16 }]}
+                            style={[commonStyles.filterBtn, { borderColor: currentTheme.primary, marginTop: styleConstants.marginLG }]}
                         >
                             <Text style={{ color: currentTheme.primary, fontWeight: 'bold' }}>Retry</Text>
                         </TouchableOpacity>
@@ -249,7 +261,7 @@ export default function BestiaryScreen() {
                 {isLoading && (
                     <View style={styles.loadingContainer}>
                         <ActivityIndicator size="large" color={currentTheme.primary} />
-                        <Text style={{ color: currentTheme.noticeText, marginTop: 8 }}>
+                        <Text style={{ color: currentTheme.noticeText, marginTop: styleConstants.marginSM }}>
                             Loading data...
                         </Text>
                     </View>
@@ -258,7 +270,7 @@ export default function BestiaryScreen() {
                 {!isLoading && !loadError && !pageReady && (
                     <View style={styles.loadingContainer}>
                         <ActivityIndicator size="large" color={currentTheme.primary} />
-                        <Text style={{ color: currentTheme.noticeText, marginTop: 8 }}>
+                        <Text style={{ color: currentTheme.noticeText, marginTop: styleConstants.marginSM }}>
                             Preparing bestiary...
                         </Text>
                     </View>
@@ -267,10 +279,10 @@ export default function BestiaryScreen() {
                 {/* Main content */}
                 {!isLoading && pageReady && (
                     sortedBeasts.length === 0 ? (
-                    <Text style={{ color: currentTheme.noticeText, marginVertical: 16 }}>No beasts found.</Text>
+                    <Text style={{ color: currentTheme.noticeText, marginVertical: styleConstants.marginLG }}>No beasts found.</Text>
                 ) : (
                     <FlatList
-                        style={{paddingVertical: 6 }}
+                        style={commonStyles.py_xs}
                         data={sortedBeasts}
                         keyExtractor={beastKeyExtractor}
                         renderItem={renderBeastItem}
@@ -291,20 +303,20 @@ const styles = StyleSheet.create({
     titleRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 16,
+        marginBottom: styleConstants.marginLG,
     },
     title: {
-        fontSize: 24,
+        fontSize: styleConstants.fontSize2XL,
         fontWeight: 'bold',
         alignSelf: 'flex-start',
     },
     input: {
-        borderWidth: 1,
-        borderRadius: 8,
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        fontSize: 16,
-        marginBottom: 12,
+        borderWidth: styleConstants.borderXS,
+        borderRadius: styleConstants.borderRadiusMD,
+        paddingHorizontal: styleConstants.paddingMD,
+        paddingVertical: styleConstants.paddingSM,
+        fontSize: styleConstants.fontSizeLG,
+        marginBottom: styleConstants.marginMD,
     },
     activityOverlay: {
         position: 'absolute',
@@ -321,24 +333,24 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        paddingVertical: 20,
+        paddingVertical: styleConstants.paddingXL,
     },
     filterSummaryContainer: {
-        paddingTop: 6,
-        paddingBottom: 4,
+        paddingTop: styleConstants.paddingXS,
+        paddingBottom: styleConstants.paddingXS,
         display: 'flex',
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'flex-start',
         alignItems: 'center',
-        gap: 4,
+        gap: styleConstants.gapXS,
     },
     filterSummaryText: {
-        fontSize: 11,
+        fontSize: styleConstants.fontSizeXS,
         backgroundColor: '#666666',
         color: '#ffffff',
-        borderRadius: 8,
-        paddingHorizontal: 8,
-        paddingVertical: 4,
+        borderRadius: styleConstants.borderRadiusMD,
+        paddingHorizontal: styleConstants.paddingSM,
+        paddingVertical: styleConstants.paddingXS,
     },
 });

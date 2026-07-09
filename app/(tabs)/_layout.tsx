@@ -1,5 +1,6 @@
 // REACT
 import React, { useMemo } from 'react';
+import { styleConstants } from 'src/styles/style-constants';
 
 // EXPO
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -39,7 +40,7 @@ export default function TabsLayout() {
                             elevation: 0, // Android
                             shadowOpacity: 0, // iOS
                             backgroundColor: currentTheme.tabBackground,
-                            borderTopWidth: 1,
+                            borderTopWidth: styleConstants.borderXS,
                             borderColor: currentTheme.tabBorder
                         },
                         tabBarIcon: ({ color, size }) => (

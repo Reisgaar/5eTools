@@ -1,5 +1,6 @@
 // REACT
 import React from 'react';
+import { getCommonStyles } from 'src/styles/commonStyles';
 import { ActivityIndicator, Text, View } from 'react-native';
 
 // CONTEXTS
@@ -19,21 +20,13 @@ interface DataStatusProps {
 export default function DataStatus({ showDetails = true }: DataStatusProps) {
     const { beasts, spells, isLoading, isInitialized } = useData();
     const { currentTheme } = useAppSettingsStore();
+    const commonStyles = getCommonStyles(currentTheme);
 
     if (isLoading) {
         return (
-            <View style={{
-                backgroundColor: currentTheme.card,
-                padding: 16,
-                borderRadius: 8,
-                alignItems: 'center'
-            }}>
+            <View style={[commonStyles.p_lg, commonStyles.br_md, commonStyles.ai_center, { backgroundColor: currentTheme.card }]}>
                 <ActivityIndicator size="small" color={currentTheme.primary} />
-                <Text style={{
-                    color: currentTheme.noticeText,
-                    marginTop: 8,
-                    fontSize: 14
-                }}>
+                <Text style={[commonStyles.text_grey, commonStyles.mt_sm, commonStyles.text_md]}>
                     Loading data...
                 </Text>
             </View>
@@ -42,17 +35,8 @@ export default function DataStatus({ showDetails = true }: DataStatusProps) {
 
     if (!isInitialized) {
         return (
-            <View style={{
-                backgroundColor: currentTheme.card,
-                padding: 16,
-                borderRadius: 8,
-                alignItems: 'center'
-            }}>
-                <Text style={{
-                    color: currentTheme.noticeText,
-                    fontSize: 14,
-                    textAlign: 'center'
-                }}>
+            <View style={[commonStyles.p_lg, commonStyles.br_md, commonStyles.ai_center, { backgroundColor: currentTheme.card }]}>
+                <Text style={[commonStyles.text_grey, commonStyles.text_md, commonStyles.text_center]}>
                     No data available
                 </Text>
             </View>
@@ -60,55 +44,32 @@ export default function DataStatus({ showDetails = true }: DataStatusProps) {
     }
 
     return (
-        <View style={{
-            backgroundColor: currentTheme.card,
-            padding: 16,
-            borderRadius: 8
-        }}>
-            <Text style={{
-                fontSize: 16,
-                fontWeight: 'bold',
-                color: currentTheme.text,
-                marginBottom: 8
-            }}>
+        <View style={[commonStyles.p_lg, commonStyles.br_md, { backgroundColor: currentTheme.card }]}>
+            <Text style={[commonStyles.text_lg, commonStyles.text_bold, commonStyles.text_primary, commonStyles.mb_sm]}>
                 Data Status
             </Text>
 
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                 <View>
-                    <Text style={{
-                        color: currentTheme.noticeText,
-                        fontSize: 14
-                    }}>
+                    <Text style={[commonStyles.text_grey, commonStyles.text_md]}>
                         Beasts: {beasts.length}
                     </Text>
                 </View>
                 <View>
-                    <Text style={{
-                        color: currentTheme.noticeText,
-                        fontSize: 14
-                    }}>
+                    <Text style={[commonStyles.text_grey, commonStyles.text_md]}>
                         Spells: {spells.length}
                     </Text>
                 </View>
             </View>
 
             {showDetails && beasts.length > 0 && (
-                <Text style={{
-                    color: currentTheme.noticeText,
-                    fontSize: 12,
-                    marginTop: 8
-                }}>
+                <Text style={[commonStyles.text_grey, commonStyles.text_sm, commonStyles.mt_sm]}>
                     Sample beast: {beasts[0]?.name}
                 </Text>
             )}
 
             {showDetails && spells.length > 0 && (
-                <Text style={{
-                    color: currentTheme.noticeText,
-                    fontSize: 12,
-                    marginTop: 4
-                }}>
+                <Text style={[commonStyles.text_grey, commonStyles.text_sm, commonStyles.mt_xs]}>
                     Sample spell: {spells[0]?.name}
                 </Text>
             )}

@@ -1,5 +1,6 @@
 // REACT
 import React, { useState, useEffect } from 'react';
+import { styleConstants } from 'src/styles/style-constants';
 
 // EXPO
 import { View, Text, TouchableOpacity, Image, Alert, StyleSheet } from 'react-native';
@@ -111,20 +112,20 @@ export default function PlayerImagePicker({ currentImageUri, onImageSelected, th
 
 const styles = StyleSheet.create({
     container: {
-        marginVertical: 8,
+        marginVertical: styleConstants.marginSM,
     },
     label: {
-        fontSize: 16,
+        fontSize: styleConstants.fontSizeLG,
         fontWeight: '600',
-        marginBottom: 8,
+        marginBottom: styleConstants.marginSM,
     },
     imageContainer: {
         alignItems: 'center',
         justifyContent: 'center',
-        borderWidth: 2,
+        borderWidth: styleConstants.borderSM,
         borderStyle: 'dashed',
-        borderRadius: 12,
-        padding: 20,
+        borderRadius: styleConstants.borderRadiusLG,
+        padding: styleConstants.paddingXL,
         minHeight: 120,
     },
     imageWrapper: {
@@ -134,7 +135,7 @@ const styles = StyleSheet.create({
         width: 100,
         height: 100,
         borderRadius: 50,
-        borderWidth: 3,
+        borderWidth: styleConstants.borderMD,
         borderColor: '#333',
     },
     removeButton: {
@@ -143,34 +144,34 @@ const styles = StyleSheet.create({
         right: -8,
         width: 24,
         height: 24,
-        borderRadius: 12,
+        borderRadius: styleConstants.borderRadiusLG,
         alignItems: 'center',
         justifyContent: 'center',
     },
     placeholder: {
         alignItems: 'center',
         justifyContent: 'center',
-        borderWidth: 2,
+        borderWidth: styleConstants.borderSM,
         borderStyle: 'dashed',
-        borderRadius: 12,
-        padding: 20,
+        borderRadius: styleConstants.borderRadiusLG,
+        padding: styleConstants.paddingXL,
         minHeight: 100,
         width: '100%',
     },
     placeholderText: {
-        marginTop: 8,
-        fontSize: 14,
+        marginTop: styleConstants.marginSM,
+        fontSize: styleConstants.fontSizeMD,
         textAlign: 'center',
     },
     selectButton: {
-        marginTop: 12,
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        borderRadius: 8,
+        marginTop: styleConstants.marginMD,
+        paddingVertical: styleConstants.paddingMD,
+        paddingHorizontal: styleConstants.paddingLG,
+        borderRadius: styleConstants.borderRadiusMD,
         alignItems: 'center',
     },
     selectButtonText: {
-        fontSize: 16,
+        fontSize: styleConstants.fontSizeLG,
         fontWeight: '600',
     },
 });

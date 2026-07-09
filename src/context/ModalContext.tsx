@@ -28,18 +28,26 @@ interface AdvancedDiceModalState {
   };
 }
 
-interface ModalContextType {
-  beastModalVisible: boolean;
-  selectedBeast: any | null;
-  openBeastModal: (beast: any, fromModal?: boolean) => void;
-  closeBeastModal: () => void;
-  beastStackDepth: number;
+// A single content modal in the navigation stack. The top of the stack is what's shown; the
+// stack lets the user travel spell → creature → condition → … and step back through them.
+export type ContentKind = 'beast' | 'spell' | 'item' | 'race' | 'class' | 'entry';
+export interface ContentFrame {
+  kind: ContentKind;
+  data: any;
+  category?: string;   // for 'entry' frames (condition/action/feat/deity/…)
+  loading?: boolean;   // beast/spell data is fetched async
+}
 
-  spellModalVisible: boolean;
-  selectedSpell: any | null;
+interface ModalContextType {
+  // Unified content-modal navigation stack
+  contentStack: ContentFrame[];
+  currentContent: ContentFrame | null;
+  canGoBack: boolean;
+  openBeastModal: (beast: any, fromModal?: boolean) => void;
   openSpellModal: (spell: any, fromModal?: boolean) => void;
-  closeSpellModal: () => void;
-  spellStackDepth: number;
+  openEntryModal: (category: string, name: string, source?: string) => void;
+  modalBack: () => void;
+  closeContentModals: () => void;
 
   diceModalState: DiceModalState;
   openDiceModal: (state: Omit<DiceModalState, 'visible'>) => void;
@@ -52,15 +60,6 @@ interface ModalContextType {
   campaignSelectorModalVisible: boolean;
   openCampaignSelectorModal: () => void;
   closeCampaignSelectorModal: () => void;
-
-  entryModalVisible: boolean;
-  selectedEntry: any | null;
-  selectedEntryCategory: string | null;
-  openEntryModal: (category: string, name: string, source?: string) => void;
-  closeEntryModal: () => void;
-
-  beastStack: any[];
-  spellStack: any[];
 }
 
 const ModalContext = createContext<ModalContextType | undefined>(undefined);
@@ -69,12 +68,7 @@ const ModalContext = createContext<ModalContextType | undefined>(undefined);
  * ModalProvider component.
  */
 export const ModalProvider = ({ children }: { children: ReactNode }) => {
-    const [beastModalVisible, setBeastModalVisible] = useState(false);
-    const [selectedBeast, setSelectedBeast] = useState<any | null>(null);
-    const [beastStack, setBeastStack] = useState<any[]>([]);
-    const [spellModalVisible, setSpellModalVisible] = useState(false);
-    const [selectedSpell, setSelectedSpell] = useState<any | null>(null);
-    const [spellStack, setSpellStack] = useState<any[]>([]);
+    const [contentStack, setContentStack] = useState<ContentFrame[]>([]);
     const [diceModalState, setDiceModalState] = useState<DiceModalState>({
         visible: false,
         expression: '',
@@ -84,79 +78,50 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
         type: 'damage',
         label: '',
     });
-
-    const [advancedDiceModalState, setAdvancedDiceModalState] = useState<AdvancedDiceModalState>({
-        visible: false,
-    });
-
+    const [advancedDiceModalState, setAdvancedDiceModalState] = useState<AdvancedDiceModalState>({ visible: false });
     const [campaignSelectorModalVisible, setCampaignSelectorModalVisible] = useState(false);
-
-    const [entryModalVisible, setEntryModalVisible] = useState(false);
-    const [selectedEntry, setSelectedEntry] = useState<any | null>(null);
-    const [selectedEntryCategory, setSelectedEntryCategory] = useState<string | null>(null);
 
     const { getFullBeast, getFullSpell, getContentEntry } = useData();
 
-    // If called with fromModal, push the current modal to the stack before opening the new one
-    const openBeastModal = useCallback(async (beast: any, fromModal: boolean = false) => {
-        if (fromModal && selectedBeast) {
-            setBeastStack(stack => [...stack, selectedBeast]);
-            setBeastModalVisible(false);
-        }
-        setSelectedBeast(null);
-        setBeastModalVisible(true);
-        if (beast && beast.name && beast.source) {
-            const fullBeast = await getFullBeast(beast.name, beast.source);
-            setSelectedBeast(fullBeast);
-        } else if (beast && beast.name) {
-            const fullBeast = await getFullBeast(beast.name, beast.source || beast._source || '');
-            setSelectedBeast(fullBeast);
-        } else {
-            setSelectedBeast(beast);
-        }
-    }, [selectedBeast, getFullBeast]);
-    const closeBeastModal = useCallback(() => {
-        setBeastModalVisible(false);
-        setSelectedBeast(null);
-        setBeastStack(stack => {
-            if (stack.length > 0) {
-                const prev = stack[stack.length - 1];
-                setTimeout(() => openBeastModal(prev, false), 0);
-                return stack.slice(0, -1);
-            }
-            return stack;
-        });
-    }, [openBeastModal]);
+    const modalBack = useCallback(() => setContentStack(s => s.slice(0, -1)), []);
+    const closeContentModals = useCallback(() => setContentStack([]), []);
 
-    const openSpellModal = useCallback(async (spell: any, fromModal: boolean = false) => {
-        if (fromModal && selectedSpell) {
-            setSpellStack(stack => [...stack, selectedSpell]);
-            setSpellModalVisible(false);
-        }
-        setSelectedSpell(null);
-        setSpellModalVisible(true);
-        if (spell && spell.name && spell.source) {
-            const fullSpell = await getFullSpell(spell.name, spell.source);
-            setSelectedSpell(fullSpell);
-        } else if (spell && spell.name) {
-            const fullSpell = await getFullSpell(spell.name, spell.source || spell._source || '');
-            setSelectedSpell(fullSpell);
-        } else {
-            setSelectedSpell(spell);
-        }
-    }, [selectedSpell, getFullSpell]);
-    const closeSpellModal = useCallback(() => {
-        setSpellModalVisible(false);
-        setSelectedSpell(null);
-        setSpellStack(stack => {
-            if (stack.length > 0) {
-                const prev = stack[stack.length - 1];
-                setTimeout(() => openSpellModal(prev, false), 0);
-                return stack.slice(0, -1);
-            }
-            return stack;
+    // Push a beast/spell frame immediately (with a loading placeholder) so the modal appears
+    // instantly, then fill in the full record once it's loaded from disk.
+    const openAsyncFrame = useCallback(async (kind: 'beast' | 'spell', fallback: any, load: () => Promise<any>) => {
+        setContentStack(s => [...s, { kind, data: fallback ?? null, loading: true }]);
+        let full: any = fallback;
+        try { full = (await load()) || fallback; } catch { full = fallback; }
+        setContentStack(s => {
+            if (s.length === 0) return s;
+            const copy = [...s];
+            const top = copy[copy.length - 1];
+            if (top.kind === kind && top.loading) copy[copy.length - 1] = { kind, data: full };
+            return copy;
         });
-    }, [openSpellModal]);
+    }, []);
+
+    const openBeastModal = useCallback((beast: any) => {
+        if (beast && beast.name) {
+            openAsyncFrame('beast', beast, () => getFullBeast(beast.name, beast.source || beast._source || ''));
+        } else {
+            setContentStack(s => [...s, { kind: 'beast', data: beast }]);
+        }
+    }, [getFullBeast, openAsyncFrame]);
+
+    const openSpellModal = useCallback((spell: any) => {
+        if (spell && spell.name) {
+            openAsyncFrame('spell', spell, () => getFullSpell(spell.name, spell.source || spell._source || ''));
+        } else {
+            setContentStack(s => [...s, { kind: 'spell', data: spell }]);
+        }
+    }, [getFullSpell, openAsyncFrame]);
+
+    const openEntryModal = useCallback((category: string, name: string, source?: string) => {
+        const entry = getContentEntry(category, name, source) || { name, source, entries: ['No details available.'] };
+        const kind: ContentKind = category === 'item' ? 'item' : category === 'race' ? 'race' : category === 'class' ? 'class' : 'entry';
+        setContentStack(s => [...s, { kind, data: entry, category }]);
+    }, [getContentEntry]);
 
     const openDiceModal = useCallback((state: Omit<DiceModalState, 'visible'>) => {
         setDiceModalState({ ...state, visible: true });
@@ -179,30 +144,15 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
         setCampaignSelectorModalVisible(false);
     }, []);
 
-    const openEntryModal = useCallback((category: string, name: string, source?: string) => {
-        const entry = getContentEntry(category, name, source);
-        // Fall back to a minimal object so the modal can still show the name if not found.
-        setSelectedEntry(entry || { name, source, entries: ['No details available.'] });
-        setSelectedEntryCategory(category);
-        setEntryModalVisible(true);
-    }, [getContentEntry]);
-    const closeEntryModal = useCallback(() => {
-        setEntryModalVisible(false);
-        setSelectedEntry(null);
-        setSelectedEntryCategory(null);
-    }, []);
-
     const value = useMemo<ModalContextType>(() => ({
-        beastModalVisible,
-        selectedBeast,
+        contentStack,
+        currentContent: contentStack.length ? contentStack[contentStack.length - 1] : null,
+        canGoBack: contentStack.length > 1,
         openBeastModal,
-        closeBeastModal,
-        beastStackDepth: beastStack.length,
-        spellModalVisible,
-        selectedSpell,
         openSpellModal,
-        closeSpellModal,
-        spellStackDepth: spellStack.length,
+        openEntryModal,
+        modalBack,
+        closeContentModals,
         diceModalState,
         openDiceModal,
         closeDiceModal,
@@ -212,21 +162,11 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
         campaignSelectorModalVisible,
         openCampaignSelectorModal,
         closeCampaignSelectorModal,
-        entryModalVisible,
-        selectedEntry,
-        selectedEntryCategory,
-        openEntryModal,
-        closeEntryModal,
-        beastStack,
-        spellStack,
     }), [
-        beastModalVisible, selectedBeast, openBeastModal, closeBeastModal,
-        spellModalVisible, selectedSpell, openSpellModal, closeSpellModal,
+        contentStack, openBeastModal, openSpellModal, openEntryModal, modalBack, closeContentModals,
         diceModalState, openDiceModal, closeDiceModal,
         advancedDiceModalState, openAdvancedDiceModal, closeAdvancedDiceModal,
         campaignSelectorModalVisible, openCampaignSelectorModal, closeCampaignSelectorModal,
-        entryModalVisible, selectedEntry, selectedEntryCategory, openEntryModal, closeEntryModal,
-        beastStack, spellStack,
     ]);
 
     return (

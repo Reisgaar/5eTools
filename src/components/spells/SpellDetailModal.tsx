@@ -1,5 +1,6 @@
 // REACT
 import React from 'react';
+import { getCommonStyles } from 'src/styles/commonStyles';
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View, Modal, Pressable } from 'react-native';
 
 // STORES
@@ -38,6 +39,7 @@ export default function SpellDetailModal({
     visible,
     spell,
     onClose,
+    onBack,
     schoolFullName,
     theme,
     onCreaturePress,
@@ -46,6 +48,7 @@ export default function SpellDetailModal({
     visible: boolean,
     spell: any,
     onClose: () => void,
+    onBack?: () => void,
     schoolFullName: string,
     theme: any,
     onCreaturePress?: (name: string, source: string) => void,
@@ -55,6 +58,7 @@ export default function SpellDetailModal({
     const { simpleBeasts, simpleSpells } = useData();
     const { useAdvancedDiceRoll } = useAppSettingsStore();
     const styles = createSpellStyles(theme);
+    const commonStyles = getCommonStyles(theme);
     console.log('SpellDetailModal - spell:', JSON.stringify(spell, null, 2));
 
     // Modal state
@@ -254,7 +258,7 @@ export default function SpellDetailModal({
     if (!spell) return (
         <Modal visible={visible} animationType="slide" transparent>
             <Pressable style={styles.spellDetailOverlay} onPress={onClose}>
-                <View style={[styles.spellDetailContent, { justifyContent: 'center', alignItems: 'center' }]}>
+                <View style={[styles.spellDetailContent, commonStyles.jc_center, commonStyles.ai_center]}>
                     <ActivityIndicator size="large" color={theme.primary} />
                 </View>
             </Pressable>
@@ -266,8 +270,8 @@ export default function SpellDetailModal({
         return (
             <Modal visible={visible} animationType="slide" transparent>
                 <Pressable style={styles.spellDetailOverlay} onPress={onClose}>
-                    <View style={[styles.spellDetailContent, { justifyContent: 'center', alignItems: 'center' }]}>
-                        <Text style={{ color: theme.text }}>Invalid spell data</Text>
+                    <View style={[styles.spellDetailContent, commonStyles.jc_center, commonStyles.ai_center]}>
+                        <Text style={commonStyles.text_primary}>Invalid spell data</Text>
                     </View>
                 </Pressable>
             </Modal>
@@ -289,6 +293,11 @@ export default function SpellDetailModal({
                     >
                         {/* Header - Standardized design */}
                         <View style={styles.spellDetailHeader}>
+                            {onBack && (
+                                <TouchableOpacity onPress={onBack} style={[commonStyles.pr_sm, commonStyles.jc_center]} accessibilityLabel="Back">
+                                    <Text style={[commonStyles.text_primary, commonStyles.text_bold, commonStyles.text_2xl]}>←</Text>
+                                </TouchableOpacity>
+                            )}
                             <View style={styles.spellDetailHeaderInfo}>
                                 <Text style={styles.spellDetailTitle}>{spell.name}</Text>
                                 <Text style={styles.spellDetailSubtitle}>
@@ -297,7 +306,7 @@ export default function SpellDetailModal({
                                 </Text>
                             </View>
                             <TouchableOpacity onPress={onClose} style={styles.spellDetailCloseButton}>
-                                <Text style={{ color: theme.text, fontWeight: 'bold', fontSize: 18 }}>✕</Text>
+                                <Text style={[commonStyles.text_primary, commonStyles.text_bold, commonStyles.text_xl]}>✕</Text>
                             </TouchableOpacity>
                         </View>
 
@@ -326,19 +335,19 @@ export default function SpellDetailModal({
                                 {/* Spell Details Grid - 2x2 */}
                                 <View style={styles.spellDetailGridContainer}>
                                     <View style={styles.spellDetailGrid}>
-                                        <View style={[styles.spellDetailGridItem, {borderRightWidth: 1, borderBottomWidth: 1}]}>
+                                        <View style={[styles.spellDetailGridItem, commonStyles.bwr_xs, commonStyles.bwb_xs]}>
                                             <Text style={styles.spellDetailGridLabel}>Casting Time</Text>
                                             <View style={styles.spellDetailGridValueContainer}>
                                                 {formatTime(spell.time, theme, handleCreaturePressLocal, handleSpellPressLocal, spell.meta?.ritual)}
                                             </View>
                                         </View>
-                                        <View style={[styles.spellDetailGridItem, {borderBottomWidth: 1}]}>
+                                        <View style={[styles.spellDetailGridItem, commonStyles.bwb_xs]}>
                                             <Text style={styles.spellDetailGridLabel}>Range</Text>
                                             <View style={styles.spellDetailGridValueContainer}>
                                                 {formatRange(spell.range, theme, handleCreaturePressLocal, handleSpellPressLocal)}
                                             </View>
                                         </View>
-                                        <View style={[styles.spellDetailGridItem, {borderRightWidth: 1}]}>
+                                        <View style={[styles.spellDetailGridItem, commonStyles.bwr_xs]}>
                                             <Text style={styles.spellDetailGridLabel}>Components</Text>
                                             <View style={styles.spellDetailGridValueContainer}>
                                                 {formatComponents(spell.components, theme, handleCreaturePressLocal, handleSpellPressLocal)}
@@ -354,23 +363,23 @@ export default function SpellDetailModal({
                                 </View>
 
                                 {/* Spell Description */}
-                                <View style={{ marginBottom: 15 }}>
-                                    <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 8, color: theme.text }}>Description</Text>
+                                <View style={commonStyles.mb_lg}>
+                                    <Text style={[commonStyles.text_bold, commonStyles.text_lg, commonStyles.mb_sm, commonStyles.text_primary]}>Description</Text>
                                     {renderEntries(spell.entries, 0, theme, handleCreaturePressLocal, handleSpellPressLocal, {}, handleDamagePress, handleHitPress, handleEntryPress)}
                                 </View>
 
                                 {/* Higher Level */}
                                 {spell.entriesHigherLevel && (
-                                    <View style={{ marginBottom: 15 }}>
-                                        <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 8, color: theme.text }}>At Higher Levels</Text>
+                                    <View style={commonStyles.mb_lg}>
+                                        <Text style={[commonStyles.text_bold, commonStyles.text_lg, commonStyles.mb_sm, commonStyles.text_primary]}>At Higher Levels</Text>
                                         {renderHigherLevel(spell.entriesHigherLevel, theme, handleCreaturePressLocal, handleSpellPressLocal)}
                                     </View>
                                 )}
 
                                 {/* Classes */}
                                 {spell.classes && (
-                                    <View style={{ marginBottom: 15 }}>
-                                        <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 8, color: theme.text }}>Classes</Text>
+                                    <View style={commonStyles.mb_lg}>
+                                        <Text style={[commonStyles.text_bold, commonStyles.text_lg, commonStyles.mb_sm, commonStyles.text_primary]}>Classes</Text>
                                         {renderList('Classes', formatClasses(spell.classes), theme)}
                                     </View>
                                 )}
@@ -418,11 +427,12 @@ export default function SpellDetailModal({
 }
 
 function renderHigherLevel(entriesHigherLevel: any, theme: any, onCreaturePress?: (name: string, source: string) => void, onSpellPress?: (name: string, source: string) => void): React.ReactNode {
+    const commonStyles = getCommonStyles(theme);
     if (!entriesHigherLevel) return null;
     if (Array.isArray(entriesHigherLevel)) {
         return entriesHigherLevel.map((e, idx) => (
-            <View key={idx} style={{ marginTop: 8 }}>
-                <Text style={{ fontWeight: 'bold', color: theme.text, fontSize: 12, marginBottom: 6 }}>Using a Higher-Level Spell Slot.</Text>
+            <View key={idx} style={commonStyles.mt_sm}>
+                <Text style={[commonStyles.text_bold, commonStyles.text_primary, commonStyles.text_sm, commonStyles.mb_xs]}>Using a Higher-Level Spell Slot.</Text>
                 {renderEntries(e.entries, 10, theme, onCreaturePress, onSpellPress)}
             </View>
         ));
@@ -431,8 +441,9 @@ function renderHigherLevel(entriesHigherLevel: any, theme: any, onCreaturePress?
 }
 
 function renderList(label: string, arr: any, theme: any) {
+    const commonStyles = getCommonStyles(theme);
     if (!arr || !arr.length) return null;
     return (
-        <Text style={{ color: theme.text, fontSize: 12, marginBottom: 4 }}><Text style={{ fontWeight: 'bold' }}>{label}:</Text> {arr.join(', ')}</Text>
+        <Text style={[commonStyles.text_primary, commonStyles.text_sm, commonStyles.mb_xs]}><Text style={commonStyles.text_bold}>{label}:</Text> {arr.join(', ')}</Text>
     );
 }

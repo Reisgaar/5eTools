@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 // STYLES
 import { createBaseModalStyles } from 'src/styles/baseModalStyles';
+import { getCommonStyles } from 'src/styles/commonStyles';
 
 // COMPONENTS
 import { BaseModal } from 'src/components/ui';
@@ -39,6 +40,7 @@ export default function CombatSettingsModal({
     theme
 }: CombatSettingsModalProps): React.JSX.Element {
     const styles = createBaseModalStyles(theme);
+    const commonStyles = getCommonStyles(theme);
 
     const modalTitle = 'Combat Settings';
     const modalSubtitle = combatantNumber ? `#${combatantNumber} ${creatureName}` : creatureName;
@@ -52,18 +54,18 @@ export default function CombatSettingsModal({
             subtitle={modalSubtitle}
         >
             {/* Settings Options */}
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: '2%' }}>
+            <View style={[{ flexDirection: 'row' }, { flexWrap: 'wrap', gap: '2%' }]}>
                 {/* Status Conditions Option */}
                 <TouchableOpacity
                     style={styles.settingsOption}
                     onPress={onStatusPress}
                 >
-                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+                    <View style={[commonStyles.row_center_center, commonStyles.w_100]}>
                         <Ionicons name="medical" size={18} color={theme.primary} />
-                        <Text style={[styles.optionTitle, { color: theme.text, marginLeft: 4 }]}>Status</Text>
+                        <Text style={[styles.optionTitle, commonStyles.text_primary, commonStyles.ml_xs]}>Status</Text>
                     </View>
                     <View style={styles.optionContent}>
-                        <Text style={[styles.optionDescription, { color: theme.noticeText }]}>
+                        <Text style={[styles.optionDescription, commonStyles.text_grey]}>
                             Add or remove status effects
                         </Text>
                     </View>
@@ -75,12 +77,12 @@ export default function CombatSettingsModal({
                     onPress={onColorPress}
                 >
                     
-                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+                    <View style={[commonStyles.row_center_center, commonStyles.w_100]}>
                         <Ionicons name="color-palette" size={18} color={theme.primary} />
-                        <Text style={[styles.optionTitle, { color: theme.text, marginLeft: 4 }]}>Color</Text>
+                        <Text style={[styles.optionTitle, commonStyles.text_primary, commonStyles.ml_xs]}>Color</Text>
                     </View>
                     <View style={styles.optionContent}>
-                        <Text style={[styles.optionDescription, { color: theme.noticeText }]}>
+                        <Text style={[styles.optionDescription, commonStyles.text_grey]}>
                             Change creature highlight color
                         </Text>
                     </View>
@@ -92,12 +94,12 @@ export default function CombatSettingsModal({
                     onPress={onNotePress}
                 >
                     
-                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+                    <View style={[commonStyles.row_center_center, commonStyles.w_100]}>
                         <Ionicons name="document-text" size={18} color={theme.primary} />
-                        <Text style={[styles.optionTitle, { color: theme.text, marginLeft: 4 }]}>Notes</Text>
+                        <Text style={[styles.optionTitle, commonStyles.text_primary, commonStyles.ml_xs]}>Notes</Text>
                     </View>
                     <View style={styles.optionContent}>
-                        <Text style={[styles.optionDescription, { color: theme.noticeText }]}>
+                        <Text style={[styles.optionDescription, commonStyles.text_grey]}>
                             Add or edit creature notes
                         </Text>
                     </View>
@@ -109,12 +111,12 @@ export default function CombatSettingsModal({
                     onPress={onDeletePress}
                 >
                     
-                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+                    <View style={[commonStyles.row_center_center, commonStyles.w_100]}>
                         <Ionicons name="trash" size={18} color={theme.danger || '#f44336'} />
-                        <Text style={[styles.optionTitle, { color: theme.danger || '#f44336', marginLeft: 4 }]}>Remove</Text>
+                        <Text style={[styles.optionTitle, commonStyles.ml_xs, { color: theme.danger || '#f44336' }]}>Remove</Text>
                     </View>
                     <View style={styles.optionContent}>
-                        <Text style={[styles.optionDescription, { color: theme.noticeText }]}>
+                        <Text style={[styles.optionDescription, commonStyles.text_grey]}>
                             Permanently remove this creature
                         </Text>
                     </View>

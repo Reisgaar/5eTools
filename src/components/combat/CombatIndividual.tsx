@@ -10,6 +10,7 @@ import { DEFAULT_CREATURE_TOKEN } from 'src/constants/tokens';
 
 // STYLES
 import { createCombatStyles } from 'src/styles/combat';
+import { getCommonStyles } from 'src/styles/commonStyles';
 
 // MODELS
 import { CombatIndividualProps } from 'src/models/interfaces/combat';
@@ -34,6 +35,7 @@ export default function CombatIndividual({
     theme
 }: CombatIndividualProps): React.JSX.Element {
     const styles = createCombatStyles(theme);
+    const commonStyles = getCommonStyles(theme);
     const [tokenUrl, setTokenUrl] = React.useState<string | undefined>(undefined);
     const ICON_SIZE = 14;
 
@@ -54,7 +56,7 @@ export default function CombatIndividual({
     return (
         <View style={[
             styles.groupContainer,
-            isActive && { backgroundColor: theme.primary + '20', borderWidth: 2, borderColor: theme.primary }
+            isActive && [commonStyles.bw_sm, { backgroundColor: theme.primary + '20', borderColor: theme.primary }]
         ]}
         >
             {/* Main Container with Two Columns */}
@@ -82,7 +84,7 @@ export default function CombatIndividual({
                                 {combatant.initiative}
                             </Text>
                             {combatant.initiativeBonus !== undefined && combatant.initiativeBonus !== null && (
-                                <Text style={[styles.tokenButtonText, { fontSize: 10, marginLeft: 2, color: 'white' }]}>
+                                <Text style={[styles.tokenButtonText, commonStyles.text_xs, commonStyles.ml_2xs, { color: 'white' }]}>
                                     {`(${combatant.initiativeBonus >= 0 ? '+' : ''}${combatant.initiativeBonus})`}
                                 </Text>
                             )}
@@ -98,7 +100,7 @@ export default function CombatIndividual({
                             onPress={() => onCreaturePress(combatant.name, combatant.source)}
                             style={styles.groupName}
                         >
-                            <Text style={[styles.groupNameText, { color: theme.text }]}>
+                            <Text style={[styles.groupNameText, commonStyles.text_primary]}>
                                 {combatant.name}
                             </Text>
                         </TouchableOpacity>
@@ -116,16 +118,16 @@ export default function CombatIndividual({
 
                     {/* Speed and Senses - Below name */}
                     {(combatant.speed || combatant.senses) && (
-                        <View style={{ marginBottom: 4 }}>
+                        <View style={commonStyles.mb_xs}>
                             {combatant.speed && (
                                 <View style={{ flexDirection: 'row' }}>
                                     <View>
-                                        <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, fontWeight: 'bold' }]}>
+                                        <Text style={[styles.groupNameText, commonStyles.text_primary, commonStyles.text_xs, commonStyles.text_bold, { opacity: 0.8 }]}>
                                             Speed:
                                         </Text>
                                     </View>
-                                    <View style={{ marginLeft: 4 }}>
-                                        <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8 }]}>
+                                    <View style={commonStyles.ml_xs}>
+                                        <Text style={[styles.groupNameText, commonStyles.text_primary, commonStyles.text_xs, { opacity: 0.8 }]}>
                                             {combatant.speed}
                                         </Text>
                                     </View>
@@ -134,12 +136,12 @@ export default function CombatIndividual({
                             {combatant.senses && (
                                 <View style={{ flexDirection: 'row' }}>
                                     <View>
-                                        <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8, fontWeight: 'bold' }]}>
+                                        <Text style={[styles.groupNameText, commonStyles.text_primary, commonStyles.text_xs, commonStyles.text_bold, { opacity: 0.8 }]}>
                                             Senses:
                                         </Text>
                                     </View>
-                                    <View style={{ marginLeft: 4 }}>
-                                        <Text style={[styles.groupNameText, { color: theme.text, fontSize: 10, opacity: 0.8 }]}>
+                                    <View style={commonStyles.ml_xs}>
+                                        <Text style={[styles.groupNameText, commonStyles.text_primary, commonStyles.text_xs, { opacity: 0.8 }]}>
                                             {combatant.senses}
                                         </Text>
                                     </View>
@@ -161,7 +163,7 @@ export default function CombatIndividual({
                                 {/* Notes - Title of the container */}
                                 {combatant.note && (
                                     <View style={styles.memberNotesTitle}>
-                                        <Text style={[styles.memberNoteText, { color: theme.text }]}>
+                                        <Text style={[styles.memberNoteText, commonStyles.text_primary]}>
                                             {combatant.note}
                                         </Text>
                                     </View>

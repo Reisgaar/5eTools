@@ -1,5 +1,6 @@
 // REACT
 import { StyleSheet } from 'react-native';
+import { styleConstants } from 'src/styles/style-constants';
 
 export const createCombatStyles = (theme: any) => StyleSheet.create({
     // Combat Header Styles
@@ -13,17 +14,17 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
         height: 46,
         backgroundColor: theme.combatControls,
         borderColor: theme.primary,
-        borderWidth: 2,
-        borderRadius: 1000,
+        borderWidth: styleConstants.borderSM,
+        borderRadius: styleConstants.borderRadiusCircle,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 6,
+        paddingHorizontal: styleConstants.paddingXS,
     },
     headerBackButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 8,
+        padding: styleConstants.paddingSM,
         minWidth: 44,
         minHeight: 44,
         justifyContent: 'center',
@@ -34,17 +35,17 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         color: theme.text,
-        fontSize: 18,
+        fontSize: styleConstants.fontSizeXL,
         fontWeight: 'bold',
-        marginLeft: 8,
+        marginLeft: styleConstants.marginSM,
     },
     headerMenuButton: {
-        padding: 8,
+        padding: styleConstants.paddingSM,
     },
     headerActionButtons: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
+        gap: styleConstants.gapSM,
     },
     headerIconButton: {
         width: 32,
@@ -62,23 +63,23 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
     headerModalSeparator: {
         height: 1,
         backgroundColor: theme.border,
-        marginBottom: 20,
+        marginBottom: styleConstants.marginXL,
     },
     headerModalButtonsContainer: {
         alignItems: 'center',
-        paddingHorizontal: 16,
+        paddingHorizontal: styleConstants.paddingLG,
     },
     headerModalTitle: {
         fontWeight: 'bold',
-        fontSize: 18,
+        fontSize: styleConstants.fontSizeXL,
         color: theme.text,
-        marginBottom: 16,
+        marginBottom: styleConstants.marginLG,
         textAlign: 'center',
     },
     headerModalButton: {
-        borderRadius: 8,
-        padding: 16,
-        marginBottom: 12,
+        borderRadius: styleConstants.borderRadiusMD,
+        padding: styleConstants.paddingLG,
+        marginBottom: styleConstants.marginMD,
         alignItems: 'center',
         justifyContent: 'center',
         minHeight: 48,
@@ -101,7 +102,7 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
     },
     headerModalButtonText: {
         fontWeight: 'bold',
-        fontSize: 16,
+        fontSize: styleConstants.fontSizeLG,
     },
     headerModalButtonTextPrimary: {
         color: theme.buttonText || 'white',
@@ -124,8 +125,8 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
         height: 46,
         backgroundColor: theme.combatControls,
         borderColor: theme.primary,
-        borderWidth: 2,
-        borderRadius: 1000,
+        borderWidth: styleConstants.borderSM,
+        borderRadius: styleConstants.borderRadiusCircle,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-around',
@@ -133,37 +134,37 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
     controlsStartButton: {
         backgroundColor: theme.primary,
         borderRadius: 100,
-        paddingHorizontal: 18,
-        paddingVertical: 12,
+        paddingHorizontal: styleConstants.paddingLG,
+        paddingVertical: styleConstants.paddingMD,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         width: '100%',
     },
     controlsStartIcon: {
-        marginRight: 6,
+        marginRight: styleConstants.marginXS,
     },
     controlsStartText: {
         color: 'white',
         fontWeight: 'bold',
-        fontSize: 14,
+        fontSize: styleConstants.fontSizeMD,
     },
     controlsFinishButton: {
         backgroundColor: '#eee',
         borderRadius: 100,
-        paddingVertical: 8,
+        paddingVertical: styleConstants.paddingSM,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         width: '31%',
     },
     controlsFinishIcon: {
-        marginRight: 6,
+        marginRight: styleConstants.marginXS,
     },
     controlsFinishText: {
         color: '#c00',
         fontWeight: 'bold',
-        fontSize: 13,
+        fontSize: styleConstants.fontSizeSM,
     },
     controlRoundButton: {
         alignItems: 'center',
@@ -171,54 +172,54 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
         width: '31%',
     },
     controlsRoundText: {
-        fontSize: 10,
+        fontSize: styleConstants.fontSizeXS,
         textTransform: 'uppercase',
         fontWeight: 'bold',
         color: theme.textInverse
     },
     controlsRoundNumberText: {
-        fontSize: 20,
+        fontSize: styleConstants.fontSizeXL,
         fontWeight: 'bold',
         color: theme.textInverse,
     },
     controlsNextButton: {
         backgroundColor: theme.primary,
         borderRadius: 100,
-        paddingVertical: 8,
+        paddingVertical: styleConstants.paddingSM,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         width: '31%',
     },
     controlsNextIcon: {
-        marginRight: 6,
+        marginRight: styleConstants.marginXS,
     },
     controlsNextText: {
         color: 'white',
         fontWeight: 'bold',
-        fontSize: 13,
+        fontSize: styleConstants.fontSizeSM,
     },
 
     // Combat Member Styles
     member: {
-        marginBottom: 4,
+        marginBottom: styleConstants.marginXS,
     },
     memberContainer: {
         flexDirection: 'row',
         alignItems: 'center',
     },
     memberNumber: {
-        fontSize: 12,
+        fontSize: styleConstants.fontSizeSM,
         fontWeight: 'bold',
-        marginRight: 8,
+        marginRight: styleConstants.marginSM,
         color: theme.text,
     },
     memberBox: {
         backgroundColor: theme.card,
         overflow: 'hidden',
-        borderRadius: 8,
-        padding: 4,
-        borderWidth: 1,
+        borderRadius: styleConstants.borderRadiusMD,
+        padding: styleConstants.paddingXS,
+        borderWidth: styleConstants.borderXS,
         borderColor: theme.border,
         flex: 1,
     },
@@ -229,9 +230,9 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
         marginBottom: 0,
     },
     memberButton: {
-        borderRadius: 4,
-        paddingHorizontal: 8,
-        paddingVertical: 4,
+        borderRadius: styleConstants.borderRadiusSM,
+        paddingHorizontal: styleConstants.paddingSM,
+        paddingVertical: styleConstants.paddingXS,
         width: 70,
         height: 32,
         justifyContent: 'center',
@@ -256,10 +257,10 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
     memberLeftButtons: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
+        gap: styleConstants.gapSM,
     },
     memberButtonText: {
-        fontSize: 12,
+        fontSize: styleConstants.fontSizeSM,
         fontWeight: 'bold',
     },
     memberButtonTextLight: {
@@ -269,36 +270,36 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
         color: 'white',
     },
     memberIcon: {
-        marginRight: 3,
+        marginRight: styleConstants.margin2XS,
     },
     memberNotes: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 6,
+        marginBottom: styleConstants.marginXS,
         marginLeft: 0,
     },
     memberNotesTitle: {
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 6,
-        paddingVertical: 2,
+        marginBottom: styleConstants.marginXS,
+        paddingVertical: styleConstants.padding2XS,
         backgroundColor: 'rgba(0, 0, 0, 0.1)',
         marginHorizontal: -4,
         marginTop: -4,
     },
     memberNoteButton: {
         backgroundColor: theme.primary,
-        borderRadius: 4,
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        marginRight: 8,
+        borderRadius: styleConstants.borderRadiusSM,
+        paddingHorizontal: styleConstants.paddingSM,
+        paddingVertical: styleConstants.paddingXS,
+        marginRight: styleConstants.marginSM,
         justifyContent: 'center',
         alignItems: 'center',
         width: 60,
         height: 32,
     },
     memberNoteText: {
-        fontSize: 11,
+        fontSize: styleConstants.fontSizeXS,
         flex: 1,
         fontStyle: 'italic',
         fontWeight: '600',
@@ -306,11 +307,11 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
 
     // Status Conditions Styles
     statusContainer: {
-        marginTop: 4,
+        marginTop: styleConstants.marginXS,
         minHeight: 20,
     },
     statusContainerTop: {
-        marginBottom: 4,
+        marginBottom: styleConstants.marginXS,
         minHeight: 12,
     },
     statusConditions: {
@@ -321,21 +322,21 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
     },
     statusBadge: {
         backgroundColor: '#4A5568',
-        borderRadius: 4,
-        paddingHorizontal: 6,
-        paddingVertical: 1,
-        marginRight: 3,
-        marginBottom: 1,
+        borderRadius: styleConstants.borderRadiusSM,
+        paddingHorizontal: styleConstants.paddingXS,
+        paddingVertical: styleConstants.padding2XS,
+        marginRight: styleConstants.margin2XS,
+        marginBottom: styleConstants.margin2XS,
     },
     statusBadgeText: {
         color: 'white',
         fontWeight: 'bold',
     },
     statusBadgeTextWeb: {
-        fontSize: 10,
+        fontSize: styleConstants.fontSizeXS,
     },
     statusBadgeTextMobile: {
-        fontSize: 8,
+        fontSize: styleConstants.fontSizeXS,
     },
     memberIconColor: {
         color: 'white', // Default color, will be overridden by theme.buttonText
@@ -344,10 +345,10 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
     // Combat Group Styles
     groupContainer: {
         backgroundColor: theme.card,
-        borderRadius: 8,
-        marginBottom: 4,
-        padding: 12,
-        borderWidth: 1,
+        borderRadius: styleConstants.borderRadiusMD,
+        marginBottom: styleConstants.marginXS,
+        padding: styleConstants.paddingMD,
+        borderWidth: styleConstants.borderXS,
         borderColor: theme.border,
     },
     groupHeader: {
@@ -358,10 +359,10 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
     leftColumn: {
         width: 60,
         alignItems: 'center',
-        marginRight: 16,
+        marginRight: styleConstants.marginLG,
     },
     groupToken: {
-        marginBottom: 8,
+        marginBottom: styleConstants.marginSM,
     },
     groupTokenImage: {
         width: 60,
@@ -375,22 +376,22 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
     },
     tokenButton: {
         backgroundColor: theme.primary,
-        borderRadius: 4,
-        paddingHorizontal: 8,
-        paddingVertical: 4,
+        borderRadius: styleConstants.borderRadiusSM,
+        paddingHorizontal: styleConstants.paddingSM,
+        paddingVertical: styleConstants.paddingXS,
         alignItems: 'center',
         justifyContent: 'center',
         flexDirection: 'row',
         width: 70,
         height: 32,
-        marginBottom: 2,
+        marginBottom: styleConstants.margin2XS,
     },
     tokenButtonIcon: {
-        marginRight: 3,
+        marginRight: styleConstants.margin2XS,
     },
     tokenButtonText: {
         color: 'white',
-        fontSize: 12,
+        fontSize: styleConstants.fontSizeSM,
         fontWeight: 'bold',
     },
     // Right column: name and combatants
@@ -405,20 +406,20 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: 8,
+        marginBottom: styleConstants.marginSM,
     },
     groupName: {
         flex: 1,
     },
     groupNameText: {
         fontWeight: 'bold',
-        fontSize: 16,
+        fontSize: styleConstants.fontSizeLG,
         color: 'black', // Will be overridden by theme.text
     },
     groupToggleButton: {
-        borderRadius: 4,
-        paddingHorizontal: 8,
-        paddingVertical: 4,
+        borderRadius: styleConstants.borderRadiusSM,
+        paddingHorizontal: styleConstants.paddingSM,
+        paddingVertical: styleConstants.paddingXS,
     },
     groupToggleButtonGrouped: {
         backgroundColor: '#f44336',
@@ -428,19 +429,19 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
     },
     groupToggleText: {
         color: 'white',
-        fontSize: 10,
+        fontSize: styleConstants.fontSizeXS,
         fontWeight: 'bold',
     },
     groupButtonsRow: {
         flexDirection: 'row',
-        marginBottom: 8,
-        gap: 8,
+        marginBottom: styleConstants.marginSM,
+        gap: styleConstants.gapSM,
     },
     groupButton: {
         backgroundColor: theme.primary,
-        borderRadius: 4,
-        paddingHorizontal: 8,
-        paddingVertical: 4,
+        borderRadius: styleConstants.borderRadiusSM,
+        paddingHorizontal: styleConstants.paddingSM,
+        paddingVertical: styleConstants.paddingXS,
         width: 70,
         height: 32,
         alignItems: 'center',
@@ -449,26 +450,26 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
     },
     groupButtonText: {
         color: theme.buttonText || 'white',
-        fontSize: 12,
+        fontSize: styleConstants.fontSizeSM,
         fontWeight: 'bold',
     },
     groupButtonIcon: {
-        marginRight: 3,
+        marginRight: styleConstants.margin2XS,
     },
 
     // Notes Toggle Styles
     notesToggle: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 8,
+        paddingHorizontal: styleConstants.paddingLG,
+        paddingVertical: styleConstants.paddingSM,
     },
     notesToggleButton: {
         flexDirection: 'row',
         alignItems: 'center',
     },
     notesToggleIcon: {
-        marginRight: 8,
+        marginRight: styleConstants.marginSM,
     },
     notesToggleText: {
         color: theme.text,
@@ -484,25 +485,25 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
     },
     modalContent: {
         backgroundColor: theme.card,
-        borderRadius: 12,
+        borderRadius: styleConstants.borderRadiusLG,
         padding: 24,
         width: 320,
         maxWidth: '90%',
     },
     modalTitle: {
         fontWeight: 'bold',
-        fontSize: 18,
+        fontSize: styleConstants.fontSizeXL,
         color: theme.text,
-        marginBottom: 16,
+        marginBottom: styleConstants.marginLG,
     },
     modalInput: {
-        borderWidth: 1,
+        borderWidth: styleConstants.borderXS,
         borderColor: theme.border,
-        borderRadius: 8,
-        padding: 12,
+        borderRadius: styleConstants.borderRadiusMD,
+        padding: styleConstants.paddingMD,
         backgroundColor: theme.innerBackground,
         color: theme.text,
-        marginBottom: 16,
+        marginBottom: styleConstants.marginLG,
         minHeight: 80,
         textAlignVertical: 'top',
     },
@@ -512,17 +513,17 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
     },
     modalButton: {
         flex: 1,
-        padding: 12,
-        borderRadius: 8,
+        padding: styleConstants.paddingMD,
+        borderRadius: styleConstants.borderRadiusMD,
         alignItems: 'center',
     },
     modalButtonSecondary: {
         backgroundColor: '#eee',
-        marginRight: 8,
+        marginRight: styleConstants.marginSM,
     },
     modalButtonPrimary: {
         backgroundColor: theme.primary,
-        marginLeft: 8,
+        marginLeft: styleConstants.marginSM,
     },
     modalButtonText: {
         fontWeight: 'bold',
@@ -537,35 +538,35 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
     // Combat List Styles
     listContainer: {
         flex: 1,
-        padding: 16,
+        padding: styleConstants.paddingLG,
     },
     listSectionTitle: {
-        fontSize: 16,
+        fontSize: styleConstants.fontSizeLG,
         fontWeight: 'bold',
-        marginBottom: 8,
-        marginLeft: 6,
+        marginBottom: styleConstants.marginSM,
+        marginLeft: styleConstants.marginXS,
         color: 'black', // Will be overridden by theme.text
     },
     listContainerBox: {
-        borderRadius: 8,
-        borderWidth: 1,
-        padding: 16,
-        marginBottom: 16,
+        borderRadius: styleConstants.borderRadiusMD,
+        borderWidth: styleConstants.borderXS,
+        padding: styleConstants.paddingLG,
+        marginBottom: styleConstants.marginLG,
         backgroundColor: 'white', // Will be overridden by theme.card
     },
     listCombatNameInput: {
-        borderWidth: 1,
-        borderRadius: 8,
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        fontSize: 16,
+        borderWidth: styleConstants.borderXS,
+        borderRadius: styleConstants.borderRadiusMD,
+        paddingHorizontal: styleConstants.paddingMD,
+        paddingVertical: styleConstants.paddingSM,
+        fontSize: styleConstants.fontSizeLG,
         backgroundColor: 'white', // Will be overridden by theme.inputBackground
         color: 'black', // Will be overridden by theme.text
     },
     listCreateBtn: {
-        borderRadius: 8,
-        paddingHorizontal: 16,
-        paddingVertical: 8,
+        borderRadius: styleConstants.borderRadiusMD,
+        paddingHorizontal: styleConstants.paddingLG,
+        paddingVertical: styleConstants.paddingSM,
         backgroundColor: 'blue', // Will be overridden by theme.primary
     },
     listCreateBtnText: {
@@ -575,44 +576,44 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
     listCombatListItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 8,
-        borderWidth: 1,
-        borderRadius: 8,
+        marginBottom: styleConstants.marginSM,
+        borderWidth: styleConstants.borderXS,
+        borderRadius: styleConstants.borderRadiusMD,
     },
     listCombatOption: {
         flex: 1,
-        paddingHorizontal: 12,
-        paddingVertical: 16,
-        borderBottomWidth: 1,
+        paddingHorizontal: styleConstants.paddingMD,
+        paddingVertical: styleConstants.paddingLG,
+        borderBottomWidth: styleConstants.borderXS,
         borderBottomColor: theme.primary,
     },
     listCombatName: {
-        fontSize: 16,
+        fontSize: styleConstants.fontSizeLG,
         fontWeight: 'bold',
         marginBottom: 0,
         color: 'black', // Will be overridden by theme.text
     },
     listCombatCount: {
-        fontSize: 12,
+        fontSize: styleConstants.fontSizeSM,
         color: 'gray', // Will be overridden by theme.noticeText
-        marginLeft: 8,
+        marginLeft: styleConstants.marginSM,
     },
     listActiveBadge: {
         backgroundColor: '#4CAF50',
-        paddingHorizontal: 6,
-        paddingVertical: 2,
-        borderRadius: 4,
-        marginLeft: 8,
+        paddingHorizontal: styleConstants.paddingXS,
+        paddingVertical: styleConstants.padding2XS,
+        borderRadius: styleConstants.borderRadiusSM,
+        marginLeft: styleConstants.marginSM,
     },
     listActiveBadgeText: {
         color: 'white',
-        fontSize: 10,
+        fontSize: styleConstants.fontSizeXS,
         fontWeight: 'bold',
     },
     listActiveCombatBtn: {
-        padding: 8,
-        marginLeft: 8,
-        borderRadius: 4,
+        padding: styleConstants.paddingSM,
+        marginLeft: styleConstants.marginSM,
+        borderRadius: styleConstants.borderRadiusSM,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'blue', // Will be overridden by theme.primary
@@ -620,71 +621,71 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
     listEmptyText: {
         color: 'gray', // Will be overridden by theme.noticeText
         textAlign: 'center',
-        marginVertical: 8,
+        marginVertical: styleConstants.marginSM,
         fontStyle: 'italic',
-        fontSize: 16,
+        fontSize: styleConstants.fontSizeLG,
     },
     combatList: {
         flex: 1,
-        padding: 10
+        padding: styleConstants.paddingSM
     },
 
     // Combat Selection Modal Styles
     selectionContainer: {
-        marginBottom: 20,
+        marginBottom: styleConstants.marginXL,
     },
     selectionRow: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: 8,
+        marginTop: styleConstants.marginSM,
     },
     selectionTitle: {
-        marginBottom: 8,
-        fontSize: 16,
+        marginBottom: styleConstants.marginSM,
+        fontSize: styleConstants.fontSizeLG,
         fontWeight: 'bold',
         textAlign: 'center',
     },
     selectionQuantityBtn: {
         width: 44,
         height: 44,
-        borderRadius: 22,
+        borderRadius: styleConstants.borderRadius2XL,
         justifyContent: 'center',
         alignItems: 'center',
-        marginHorizontal: 4,
+        marginHorizontal: styleConstants.marginXS,
     },
     selectionQuantityBtnLeft: {
-        marginRight: 8,
+        marginRight: styleConstants.marginSM,
     },
     selectionQuantityBtnRight: {
-        marginLeft: 8,
+        marginLeft: styleConstants.marginSM,
     },
     selectionQuantityBtnText: {
         color: 'white',
-        fontSize: 20,
+        fontSize: styleConstants.fontSizeXL,
         fontWeight: 'bold',
     },
     selectionQuantityInput: {
-        borderWidth: 1,
-        borderRadius: 8,
-        padding: 12,
+        borderWidth: styleConstants.borderXS,
+        borderRadius: styleConstants.borderRadiusMD,
+        padding: styleConstants.paddingMD,
         width: 80,
         textAlign: 'center',
-        fontSize: 16,
+        fontSize: styleConstants.fontSizeLG,
         fontWeight: 'bold',
     },
     selectionSection: {
-        marginBottom: 20,
+        marginBottom: styleConstants.marginXL,
         flex: 1,
     },
     selectionSectionTitle: {
-        fontSize: 16,
+        fontSize: styleConstants.fontSizeLG,
         fontWeight: 'bold',
-        marginBottom: 12,
+        marginBottom: styleConstants.marginMD,
     },
     selectionEmptyText: {
         textAlign: 'center',
-        marginVertical: 16,
+        marginVertical: styleConstants.marginLG,
         fontStyle: 'italic',
     },
     selectionScrollView: {
@@ -693,45 +694,45 @@ export const createCombatStyles = (theme: any) => StyleSheet.create({
         maxHeight: 200,
     },
     selectionCombatOption: {
-        padding: 16,
-        marginBottom: 8,
-        borderRadius: 12,
-        borderWidth: 1,
+        padding: styleConstants.paddingLG,
+        marginBottom: styleConstants.marginSM,
+        borderRadius: styleConstants.borderRadiusLG,
+        borderWidth: styleConstants.borderXS,
     },
     selectionCombatName: {
         fontWeight: 'bold',
-        marginBottom: 4,
-        fontSize: 16,
+        marginBottom: styleConstants.marginXS,
+        fontSize: styleConstants.fontSizeLG,
     },
     selectionCombatInfo: {
-        fontSize: 12,
+        fontSize: styleConstants.fontSizeSM,
     },
     selectionCreateSection: {
-        marginBottom: 16,
+        marginBottom: styleConstants.marginLG,
     },
     selectionCreateRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: styleConstants.gapXS,
     },
     selectionCreateInput: {
         flex: 1,
-        borderWidth: 1,
-        borderRadius: 8,
-        paddingHorizontal: 10,
-        paddingVertical: 10,
-        fontSize: 14,
+        borderWidth: styleConstants.borderXS,
+        borderRadius: styleConstants.borderRadiusMD,
+        paddingHorizontal: styleConstants.paddingSM,
+        paddingVertical: styleConstants.paddingSM,
+        fontSize: styleConstants.fontSizeMD,
     },
     selectionCreateBtn: {
-        borderRadius: 8,
-        paddingHorizontal: 16,
-        paddingVertical: 10,
+        borderRadius: styleConstants.borderRadiusMD,
+        paddingHorizontal: styleConstants.paddingLG,
+        paddingVertical: styleConstants.paddingSM,
         minWidth: 60,
         alignItems: 'center',
     },
     selectionCreateBtnText: {
         color: 'white',
         fontWeight: 'bold',
-        fontSize: 14,
+        fontSize: styleConstants.fontSizeMD,
     },
 });

@@ -1,5 +1,6 @@
 // REACT
 import React, { useState } from 'react';
+import { styleConstants } from 'src/styles/style-constants';
 import { View, Text, TouchableOpacity } from 'react-native';
 
 // EXPO
@@ -39,13 +40,13 @@ export default function CampaignSelector({
 
     return (
         <View>
-            <Text style={[styles.modalText, { marginBottom: 8 }]}>
+            <Text style={[styles.modalText, { marginBottom: styleConstants.marginSM }]}>
                 {showCampaignSelector ? 'Select one option' : 'Campaign (optional)'}
             </Text>
             {showCampaignSelector ? (
                 <View style={[styles.modalInput, { marginBottom: 0 }]}>
                     <TouchableOpacity
-                        style={[{marginBottom: 8, paddingVertical: 4 }]}
+                        style={[{marginBottom: styleConstants.marginSM, paddingVertical: styleConstants.paddingXS }]}
                         onPress={() => {
                             onCampaignChange(undefined);
                             setShowCampaignSelector(false);
@@ -56,7 +57,7 @@ export default function CampaignSelector({
                     {campaigns.map((campaign, index) => (
                         <TouchableOpacity
                             key={campaign.id}
-                            style={[{marginBottom: index === campaigns.length - 1 ? 0 : 8, paddingVertical: 4, borderTopWidth: 1, borderColor: theme.border }]}
+                            style={[{marginBottom: index === campaigns.length - 1 ? 0 : 8, paddingVertical: styleConstants.paddingXS, borderTopWidth: styleConstants.borderXS, borderColor: theme.border }]}
                             onPress={() => {
                                 onCampaignChange(campaign.id);
                                 setShowCampaignSelector(false);

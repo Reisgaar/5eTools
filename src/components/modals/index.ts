@@ -11,5 +11,6 @@ export { default as DataExportModal } from 'src/components/modals/DataExportModa
 export { default as DataImportModal } from 'src/components/modals/DataImportModal';
 export { default as EntryDetailModal } from 'src/components/modals/EntryDetailModal';
 export { default as ItemDetailModal } from 'src/components/modals/ItemDetailModal';
+export { default as IgnoreSourcesModal } from 'src/components/modals/IgnoreSourcesModal';
 export { default as RaceDetailModal } from 'src/components/modals/RaceDetailModal';
 export { default as ClassDetailModal } from 'src/components/modals/ClassDetailModal';

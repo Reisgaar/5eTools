@@ -1,5 +1,6 @@
 // REACT
 import React, { useState } from 'react';
+import { styleConstants } from 'src/styles/style-constants';
 import { StyleSheet, Text, TouchableOpacity, View, ScrollView, TextInput } from 'react-native';
 
 // EXPO
@@ -13,6 +14,7 @@ import { BaseModal } from 'src/components/ui';
 
 // STYLES
 import { createBaseModalStyles } from 'src/styles/baseModalStyles';
+import { getCommonStyles } from 'src/styles/commonStyles';
 
 // INTERFACES
 interface StatusPickerModalProps {
@@ -50,6 +52,7 @@ export default function StatusPickerModal({
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
     const [activeTab, setActiveTab] = useState<TabType>('status');
     const baseModalStyles = createBaseModalStyles(theme);
+    const commonStyles = getCommonStyles(theme);
 
     React.useEffect(() => {
         setSelectedConditions(currentConditions);
@@ -114,9 +117,9 @@ export default function StatusPickerModal({
                                 name={selectedConditions.includes(item) ? 'checkbox' : 'square-outline'}
                                 size={18}
                                 color={theme.text}
-                                style={{ marginRight: 6 }}
+                                style={commonStyles.mr_xs}
                             />
-                            <Text style={[baseModalStyles.modalText, { fontSize: 12 }]}>{item}</Text>
+                            <Text style={[baseModalStyles.modalText, commonStyles.text_sm]}>{item}</Text>
                         </TouchableOpacity>
                     ))}
                 </View>
@@ -168,7 +171,7 @@ export default function StatusPickerModal({
                     </TouchableOpacity>
                 ) : (
                     <View style={baseModalStyles.confirmationContainer}>
-                        <Text style={[baseModalStyles.modalText, { textAlign: 'center', marginBottom: 12, fontWeight: '500' }]}>
+                        <Text style={[baseModalStyles.modalText, commonStyles.text_center, commonStyles.mb_md, { fontWeight: '500' }]}>
                             Are you sure you want to remove "{creatureName}" from combat?
                         </Text>
                         <View style={baseModalStyles.confirmationButtons}>
@@ -256,19 +259,19 @@ export default function StatusPickerModal({
 const styles = StyleSheet.create({
     tabContainer: {
         flexDirection: 'row',
-        marginBottom: 16,
-        borderRadius: 8,
+        marginBottom: styleConstants.marginLG,
+        borderRadius: styleConstants.borderRadiusMD,
         overflow: 'hidden',
-        borderWidth: 1,
+        borderWidth: styleConstants.borderXS,
         borderColor: 'rgba(0,0,0,0.1)',
     },
     tabButton: {
         flex: 1,
-        paddingVertical: 12,
+        paddingVertical: styleConstants.paddingMD,
         alignItems: 'center',
     },
     tabText: {
-        fontSize: 14,
+        fontSize: styleConstants.fontSizeMD,
         fontWeight: 'bold',
     },
     tabContent: {
@@ -277,8 +280,8 @@ const styles = StyleSheet.create({
     },
     section: {
         marginBottom: 24,
-        paddingBottom: 16,
-        borderBottomWidth: 1,
+        paddingBottom: styleConstants.paddingLG,
+        borderBottomWidth: styleConstants.borderXS,
         borderBottomColor: 'rgba(0,0,0,0.1)',
     },
     dangerSection: {
@@ -288,21 +291,21 @@ const styles = StyleSheet.create({
     conditionBtn: {
         flexDirection: 'row',
         alignItems: 'center',
-        margin: 4,
+        margin: styleConstants.marginXS,
         flex: 1,
         minWidth: 0,
     },
     confirmationContainer: {
-        marginTop: 8,
+        marginTop: styleConstants.marginSM,
     },
     confirmationButtons: {
         flexDirection: 'row',
-        gap: 8,
+        gap: styleConstants.gapSM,
     },
     conditionsGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'space-around',
-        marginBottom: 16,
+        marginBottom: styleConstants.marginLG,
     },
 });

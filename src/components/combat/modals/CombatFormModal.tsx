@@ -10,6 +10,7 @@ import { useCombat } from 'src/context/CombatContext';
 
 // STYLES
 import { createBaseModalStyles } from 'src/styles/baseModalStyles';
+import { getCommonStyles } from 'src/styles/commonStyles';
 
 // COMPONENTS
 import { BaseModal } from 'src/components/ui';
@@ -50,6 +51,7 @@ export default function CombatFormModal({
     const [selectedCampaignId, setSelectedCampaignId] = useState<string | undefined>(initialCampaignId);
 
     const styles = createBaseModalStyles(theme);
+    const commonStyles = getCommonStyles(theme);
 
     const isEditMode = mode === 'edit';
 
@@ -91,7 +93,7 @@ export default function CombatFormModal({
                 theme={theme}
                 title={isEditMode ? 'Edit Combat' : 'Create New Combat'}
                 footerContent={
-                    <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
+                    <View style={[commonStyles.w_100, commonStyles.row_center_center, { gap: '4%' }]}>
                         <TouchableOpacity
                             onPress={onClose}
                             style={[styles.footerButton, { backgroundColor: theme.secondary }]}
@@ -109,7 +111,7 @@ export default function CombatFormModal({
             >
                 <View style={styles.modalSection}>
                     {/* Name Input */}
-                    <Text style={[styles.modalText, { marginBottom: 8 }]}>Combat Name *</Text>
+                    <Text style={[styles.modalText, commonStyles.mb_sm]}>Combat Name *</Text>
                     <TextInput
                         style={styles.modalInput}
                         value={name}
@@ -120,7 +122,7 @@ export default function CombatFormModal({
                     />
 
                     {/* Description Input */}
-                    <Text style={[styles.modalText, { marginBottom: 8 }]}>Description (optional)</Text>
+                    <Text style={[styles.modalText, commonStyles.mb_sm]}>Description (optional)</Text>
                     <TextInput
                         style={[styles.modalInput, { minHeight: 80, textAlignVertical: 'top' }]}
                         value={description}
@@ -141,11 +143,8 @@ export default function CombatFormModal({
 
                     {/* Show info when campaign is auto-selected */}
                     {mode === 'create' && selectedCampaignId === contextSelectedCampaignId && contextSelectedCampaignId && (
-                        <Text style={[styles.modalText, {
-                            fontSize: 12,
-                            color: theme.noticeText,
-                            fontStyle: 'italic',
-                            marginTop: 4
+                        <Text style={[styles.modalText, commonStyles.text_sm, commonStyles.text_grey, commonStyles.mt_xs, {
+                            fontStyle: 'italic'
                         }]}
                         >
                             Campaign automatically selected from current context

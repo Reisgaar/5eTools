@@ -7,6 +7,7 @@ import { BaseModal } from 'src/components/ui';
 
 // STYLES
 import { createBaseModalStyles } from 'src/styles/baseModalStyles';
+import { getCommonStyles } from 'src/styles/commonStyles';
 
 // INTERFACES
 interface OtherFilterModalProps {
@@ -36,6 +37,7 @@ export default function OtherFilterModal({
     isApplying
 }: OtherFilterModalProps) {
     const styles = createBaseModalStyles(theme);
+    const commonStyles = getCommonStyles(theme);
     const allSelected = selectedOptions.length === options.length;
 
     return (
@@ -46,7 +48,7 @@ export default function OtherFilterModal({
             title="Filter by Type"
             maxHeight="80%"
             footerContent={
-                <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
+                <View style={[commonStyles.w_100, commonStyles.row_center_center, { gap: '4%' }]}>
                     <TouchableOpacity
                         onPress={onSelectAll}
                         style={[styles.footerButton, { backgroundColor: theme.secondary }]}
@@ -79,7 +81,7 @@ export default function OtherFilterModal({
                                 selectedOptions.includes(option.value) && { backgroundColor: theme.primary }
                             ]}
                             />
-                            <Text style={[styles.optionText, { color: theme.text }]}>
+                            <Text style={[styles.optionText, commonStyles.text_primary]}>
                                 {option.label}
                             </Text>
                         </TouchableOpacity>

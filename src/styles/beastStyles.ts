@@ -1,5 +1,6 @@
 // REACT
 import { StyleSheet } from 'react-native';
+import { styleConstants } from 'src/styles/style-constants';
 
 // STYLES
 import { baseStyles, createThemedStyles } from 'src/styles/baseStyles';
@@ -113,7 +114,7 @@ export const createBeastStyles = (theme: any) => {
             flex: 1,
         },
         beastQuantitySection: {
-            marginBottom: 16,
+            marginBottom: styleConstants.marginLG,
         },
         beastQuantityRow: {
             flexDirection: 'row',
@@ -121,9 +122,9 @@ export const createBeastStyles = (theme: any) => {
             justifyContent: 'flex-start',
         },
         beastQuantityTitle: {
-            fontSize: 16,
+            fontSize: styleConstants.fontSizeLG,
             fontWeight: '600',
-            marginBottom: 8,
+            marginBottom: styleConstants.marginSM,
             color: theme.text,
         },
         beastQuantityControls: {
@@ -133,7 +134,7 @@ export const createBeastStyles = (theme: any) => {
         beastQuantityButton: {
             width: 40,
             height: 40,
-            borderRadius: 20,
+            borderRadius: styleConstants.borderRadius2XL,
             justifyContent: 'center',
             alignItems: 'center',
             backgroundColor: theme.primary,
@@ -141,28 +142,28 @@ export const createBeastStyles = (theme: any) => {
         beastQuantityInput: {
             width: 60,
             height: 40,
-            borderWidth: 1,
-            borderRadius: 8,
+            borderWidth: styleConstants.borderXS,
+            borderRadius: styleConstants.borderRadiusMD,
             textAlign: 'center',
-            marginHorizontal: 8,
-            fontSize: 16,
+            marginHorizontal: styleConstants.marginSM,
+            fontSize: styleConstants.fontSizeLG,
             backgroundColor: theme.inputBackground,
             color: theme.text,
             borderColor: theme.primary,
         },
         beastCombatListSection: {
-            marginBottom: 16,
+            marginBottom: styleConstants.marginLG,
         },
         beastCombatListTitle: {
-            fontSize: 16,
+            fontSize: styleConstants.fontSizeLG,
             fontWeight: '600',
-            marginBottom: 8,
+            marginBottom: styleConstants.marginSM,
             color: theme.text,
         },
         beastCombatListEmpty: {
             textAlign: 'center',
             fontStyle: 'italic',
-            marginVertical: 8,
+            marginVertical: styleConstants.marginSM,
             color: theme.noticeText,
         },
         beastCombatListScroll: {
@@ -171,47 +172,47 @@ export const createBeastStyles = (theme: any) => {
         beastCombatListItem: {
             flexDirection: 'row',
             alignItems: 'center',
-            paddingVertical: 12,
-            paddingHorizontal: 16,
-            borderBottomWidth: 1,
-            marginBottom: 4,
-            borderRadius: 6,
+            paddingVertical: styleConstants.paddingMD,
+            paddingHorizontal: styleConstants.paddingLG,
+            borderBottomWidth: styleConstants.borderXS,
+            marginBottom: styleConstants.marginXS,
+            borderRadius: styleConstants.borderRadiusSM,
         },
         beastCombatListItemSelected: {
             backgroundColor: theme.primary + '20',
         },
         beastCombatName: {
-            fontSize: 16,
+            fontSize: styleConstants.fontSizeLG,
             fontWeight: '600',
-            marginBottom: 4,
+            marginBottom: styleConstants.marginXS,
             color: theme.text,
         },
         beastCombatCount: {
-            fontSize: 14,
+            fontSize: styleConstants.fontSizeMD,
             color: theme.noticeText,
         },
         beastCancelButton: {
-            borderWidth: 1,
-            borderRadius: 8,
-            padding: 12,
+            borderWidth: styleConstants.borderXS,
+            borderRadius: styleConstants.borderRadiusMD,
+            padding: styleConstants.paddingMD,
             alignItems: 'center',
             borderColor: theme.primary,
         },
         beastCancelButtonText: {
             fontWeight: 'bold',
-            fontSize: 16,
+            fontSize: styleConstants.fontSizeLG,
             color: theme.primary,
         },
 
         // Beast Detail Modal specific styles (now using centralized modals.ts)
         beastDetailRow: {
             flexDirection: 'row',
-            marginBottom: 8,
+            marginBottom: styleConstants.marginSM,
             flexWrap: 'wrap',
         },
         beastDetailLabel: {
             fontWeight: 'bold',
-            marginRight: 6,
+            marginRight: styleConstants.marginXS,
             color: theme.text,
         },
         beastDetailValue: {

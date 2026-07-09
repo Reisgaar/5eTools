@@ -10,6 +10,7 @@ import { BaseModal } from 'src/components/ui';
 
 // STYLES
 import { createBaseModalStyles } from 'src/styles/baseModalStyles';
+import { getCommonStyles } from 'src/styles/commonStyles';
 import CampaignSelector from '../ui/CampaignSelector';
 
 // INTERFACES
@@ -35,6 +36,7 @@ export default function CreateSpellbookModal({
     const [spellbookDescription, setSpellbookDescription] = useState('');
     const [selectedCampaignId, setSelectedCampaignId] = useState<string | undefined>(selectedCampaign?.id || undefined);
     const styles = createBaseModalStyles(theme);
+    const commonStyles = getCommonStyles(theme);
 
     // Keep selectedCampaignId synchronized with selectedCampaign
     useEffect(() => {
@@ -80,7 +82,7 @@ export default function CreateSpellbookModal({
             width='90%'
             maxHeight="80%"
             footerContent={
-                <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
+                <View style={[commonStyles.w_100, commonStyles.row_center_center, { gap: '4%' }]}>
                     <TouchableOpacity
                         onPress={handleCreateSpellbook}
                         style={[styles.footerButton, { backgroundColor: theme.primary }]}
@@ -92,7 +94,7 @@ export default function CreateSpellbookModal({
             }
         >
             <View style={styles.modalSection}>
-                <Text style={[styles.modalText, { marginBottom: 8 }]}>Name *</Text>
+                <Text style={[styles.modalText, commonStyles.mb_sm]}>Name *</Text>
                 <TextInput
                     style={styles.modalInput}
                     placeholder="Enter spellbook name..."
@@ -102,7 +104,7 @@ export default function CreateSpellbookModal({
                     autoFocus
                 />
 
-                <Text style={[styles.modalText, { marginBottom: 8 }]}>Description (optional)</Text>
+                <Text style={[styles.modalText, commonStyles.mb_sm]}>Description (optional)</Text>
                 <TextInput
                     style={[styles.modalInput, { minHeight: 80 }]}
                     placeholder="Enter description..."

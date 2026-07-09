@@ -1,5 +1,6 @@
 // REACT
 import React from 'react';
+import { styleConstants } from 'src/styles/style-constants';
 import { Text, TouchableOpacity, View } from 'react-native';
 
 // Helper for splitting and replacing tags in a string
@@ -22,12 +23,12 @@ export function replaceTags(
     // Style for rolls (damage, hit, save)
     const rollStyle = {
         backgroundColor: theme.primary,
-        borderRadius: 6,
-        paddingHorizontal: 6,
-        paddingVertical: 2,
+        borderRadius: styleConstants.borderRadiusSM,
+        paddingHorizontal: styleConstants.paddingXS,
+        paddingVertical: styleConstants.padding2XS,
         color: '#fff',
         fontWeight: 'bold' as const,
-        marginHorizontal: 2,
+        marginHorizontal: styleConstants.margin2XS,
     };
 
     while ((match = tagRegex.exec(text)) !== null) {
@@ -44,20 +45,81 @@ export function replaceTags(
         // Tag handling
         switch (tag) {
             case 'adventure':
-            case 'b':
             case 'book':
-            case 'deity':
             case 'filter':
             case 'footnote':
-            case 'i':
             case 'note':
             case 'quickref':
-            case 'sense':
-            case 'skill':
             case 'skillCheck':
             case 'table':
                 // Italic, stop at first |
                 nodes.push(<Text key={key++} style={{ fontStyle: 'italic', color: theme.text }}>{params[0]}</Text>);
+                break;
+            case 'i':
+            case 'italic':
+                nodes.push(<Text key={key++} style={{ fontStyle: 'italic', color: theme.text }}>{params[0]}</Text>);
+                break;
+            case 'b':
+            case 'bold':
+                nodes.push(<Text key={key++} style={{ fontWeight: 'bold', color: theme.text }}>{params[0]}</Text>);
+                break;
+            case 'u':
+            case 'underline':
+            case 'underlineDouble':
+                nodes.push(<Text key={key++} style={{ textDecorationLine: 'underline', color: theme.text }}>{params[0]}</Text>);
+                break;
+            case 's':
+            case 'strike':
+            case 'strikeDouble':
+                nodes.push(<Text key={key++} style={{ textDecorationLine: 'line-through', color: theme.text }}>{params[0]}</Text>);
+                break;
+            case 'sup':
+            case 'sub':
+                nodes.push(<Text key={key++} style={{ fontSize: styleConstants.fontSizeXS, color: theme.text }}>{params[0]}</Text>);
+                break;
+            case 'code':
+            case 'kbd':
+                nodes.push(<Text key={key++} style={{ fontFamily: 'SpaceMono-Regular', color: theme.text }}>{params[0]}</Text>);
+                break;
+            case 'highlight':
+                nodes.push(<Text key={key++} style={{ backgroundColor: theme.primary + '33', color: theme.text }}>{params[0]}</Text>);
+                break;
+            // 2024 stat-block action/save labels (e.g. {@actSave dex}, {@actSaveFail}, {@actTrigger})
+            case 'actSave': {
+                const ab: Record<string, string> = { str: 'Strength', dex: 'Dexterity', con: 'Constitution', int: 'Intelligence', wis: 'Wisdom', cha: 'Charisma' };
+                nodes.push(<Text key={key++} style={{ fontWeight: 'bold', fontStyle: 'italic', color: theme.text }}>{`${ab[params[0]] || params[0]} Saving Throw: `}</Text>);
+                break;
+            }
+            case 'actSaveSuccess':
+                nodes.push(<Text key={key++} style={{ fontWeight: 'bold', fontStyle: 'italic', color: theme.text }}>Success: </Text>);
+                break;
+            case 'actSaveFail':
+                nodes.push(<Text key={key++} style={{ fontWeight: 'bold', fontStyle: 'italic', color: theme.text }}>Failure: </Text>);
+                break;
+            case 'actSaveFailBy':
+                nodes.push(<Text key={key++} style={{ fontWeight: 'bold', fontStyle: 'italic', color: theme.text }}>{`Failure by ${params[0]}: `}</Text>);
+                break;
+            case 'actSaveSuccessOrFail':
+                nodes.push(<Text key={key++} style={{ fontWeight: 'bold', fontStyle: 'italic', color: theme.text }}>Success or Failure: </Text>);
+                break;
+            case 'actTrigger':
+                nodes.push(<Text key={key++} style={{ fontWeight: 'bold', fontStyle: 'italic', color: theme.text }}>Trigger: </Text>);
+                break;
+            case 'actResponse':
+                nodes.push(<Text key={key++} style={{ fontWeight: 'bold', fontStyle: 'italic', color: theme.text }}>Response: </Text>);
+                break;
+            case 'hitYourSpellAttack':
+                nodes.push(<Text key={key++} style={{ fontWeight: 'bold', color: theme.text }}>{params[0] || 'your spell attack modifier'}</Text>);
+                break;
+            case 'dcYourSpellSave':
+                nodes.push(<Text key={key++} style={{ fontWeight: 'bold', color: theme.text }}>{params[0] || 'your spell save DC'}</Text>);
+                break;
+            case 'chance':
+                nodes.push(<Text key={key++} style={{ color: theme.text }}>{`${params[0]} percent`}</Text>);
+                break;
+            case 'itemProperty':
+            case 'itemMastery':
+                nodes.push(<Text key={key++} style={{ fontStyle: 'italic', color: theme.text }}>{params[2] || params[0]}</Text>);
                 break;
             case 'atk':
             case 'atkr':
@@ -74,6 +136,8 @@ export function replaceTags(
                 break;
             case 'damage':
             case 'dice':
+            case 'scaledamage':
+            case 'scaledice':
                 if (onDamagePress) {
                     nodes.push(
                         <TouchableOpacity
@@ -84,10 +148,10 @@ export function replaceTags(
                             }}
                             activeOpacity={0.7}
                             style={{
-                                paddingVertical: 1,
-                                paddingHorizontal: 3,
-                                marginHorizontal: 1,
-                                borderRadius: 2,
+                                paddingVertical: styleConstants.padding2XS,
+                                paddingHorizontal: styleConstants.padding2XS,
+                                marginHorizontal: styleConstants.margin2XS,
+                                borderRadius: styleConstants.borderRadiusXS,
                                 minHeight: 16,
                                 zIndex: 1,
                                 alignSelf: 'baseline',
@@ -119,10 +183,10 @@ export function replaceTags(
                             }}
                             activeOpacity={0.7}
                             style={{
-                                paddingVertical: 1,
-                                paddingHorizontal: 3,
-                                marginHorizontal: 1,
-                                borderRadius: 2,
+                                paddingVertical: styleConstants.padding2XS,
+                                paddingHorizontal: styleConstants.padding2XS,
+                                marginHorizontal: styleConstants.margin2XS,
+                                borderRadius: styleConstants.borderRadiusXS,
                                 minHeight: 16,
                                 zIndex: 1,
                                 alignSelf: 'baseline',
@@ -155,7 +219,22 @@ export function replaceTags(
             case 'item':
             case 'race':
             case 'class':
-            case 'variantrule': {
+            case 'variantrule':
+            case 'deity':
+            case 'reward':
+            case 'hazard':
+            case 'trap':
+            case 'object':
+            case 'vehicle':
+            case 'language':
+            case 'optfeature':
+            case 'charoption':
+            case 'sense':
+            case 'skill':
+            case 'cult':
+            case 'boon':
+            case 'psionic':
+            case 'facility': {
                 // e.g. {@condition name|source|displayText} — tappable link to the entry modal.
                 const condName = params[0];
                 const condSource = params[1] || '';
@@ -168,9 +247,9 @@ export function replaceTags(
                             activeOpacity={0.7}
                             style={{
                                 paddingVertical: 0,
-                                paddingHorizontal: 1,
-                                marginHorizontal: 1,
-                                borderRadius: 1,
+                                paddingHorizontal: styleConstants.padding2XS,
+                                marginHorizontal: styleConstants.margin2XS,
+                                borderRadius: styleConstants.borderRadiusXS,
                                 minHeight: 14,
                                 alignSelf: 'baseline',
                                 justifyContent: 'center'
@@ -199,9 +278,9 @@ export function replaceTags(
                             activeOpacity={0.7}
                             style={{
                                 paddingVertical: 0,
-                                paddingHorizontal: 1,
-                                marginHorizontal: 1,
-                                borderRadius: 1,
+                                paddingHorizontal: styleConstants.padding2XS,
+                                marginHorizontal: styleConstants.margin2XS,
+                                borderRadius: styleConstants.borderRadiusXS,
                                 minHeight: 14,
                                 zIndex: 1,
                                 alignSelf: 'baseline',
@@ -234,9 +313,9 @@ export function replaceTags(
                             activeOpacity={0.7}
                             style={{
                                 paddingVertical: 0,
-                                paddingHorizontal: 1,
-                                marginHorizontal: 1,
-                                borderRadius: 1,
+                                paddingHorizontal: styleConstants.padding2XS,
+                                marginHorizontal: styleConstants.margin2XS,
+                                borderRadius: styleConstants.borderRadiusXS,
                                 minHeight: 14,
                                 zIndex: 1,
                                 alignSelf: 'baseline',
@@ -290,7 +369,7 @@ export function renderEntries(
     if (typeof entries === 'string') {
         const parsed = replaceTags(entries, theme, onCreaturePress, onSpellPress, onDamagePress, onHitPress, onEntryPress);
         return (
-            <Text style={[{ marginLeft: indent, marginBottom: 6, color: theme.text, fontSize: 12, flexWrap: 'wrap' }, textStyle]}>
+            <Text style={[{ marginLeft: indent, marginBottom: styleConstants.marginXS, color: theme.text, fontSize: styleConstants.fontSizeSM, flexWrap: 'wrap' }, textStyle]}>
                 {parsed}
             </Text>
         );
@@ -307,8 +386,8 @@ export function renderEntries(
     if (typeof entries === 'object') {
         if (entries.type === 'entries' && entries.name) {
             return (
-                <View key={entries.name + indent} style={{ marginLeft: indent + 10, marginBottom: 4 }}>
-                    <Text style={[{ fontWeight: 'bold', marginBottom: 2, color: theme.text, fontSize: 12 }, textStyle]}>{entries.name}.</Text>
+                <View key={entries.name + indent} style={{ marginLeft: indent + 10, marginBottom: styleConstants.marginXS }}>
+                    <Text style={[{ fontWeight: 'bold', marginBottom: styleConstants.margin2XS, color: theme.text, fontSize: styleConstants.fontSizeSM }, textStyle]}>{entries.name}.</Text>
                     {renderEntries(entries.entries, indent + 10, theme, onCreaturePress, onSpellPress, textStyle, onDamagePress, onHitPress, onEntryPress)}
                 </View>
             );
@@ -316,13 +395,13 @@ export function renderEntries(
 
         if (entries.type === 'list' && entries.items) {
             return (
-                <View style={{ marginLeft: indent, marginBottom: 4 }}>
+                <View style={{ marginLeft: indent, marginBottom: styleConstants.marginXS }}>
                     {entries.items.map((item: any, idx: number) => (
-                        <View key={idx} style={{ flexDirection: 'row', marginBottom: 2 }}>
-                            <Text style={[{ color: theme.text, marginRight: 8, fontSize: 12 }, textStyle]}>•</Text>
+                        <View key={idx} style={{ flexDirection: 'row', marginBottom: styleConstants.margin2XS }}>
+                            <Text style={[{ color: theme.text, marginRight: styleConstants.marginSM, fontSize: styleConstants.fontSizeSM }, textStyle]}>•</Text>
                             <View style={[{ flex: 1 }]}>
                                 {typeof item === 'string' ? (
-                                    <Text style={[{ color: theme.text, fontSize: 12, flexWrap: 'wrap' }, textStyle]}>
+                                    <Text style={[{ color: theme.text, fontSize: styleConstants.fontSizeSM, flexWrap: 'wrap' }, textStyle]}>
                                         {replaceTags(item, theme, onCreaturePress, onSpellPress, onDamagePress, onHitPress, onEntryPress)}
                                     </Text>
                                 ) : renderEntries(item, 0, theme, onCreaturePress, onSpellPress, textStyle, onDamagePress, onHitPress, onEntryPress)}
@@ -363,24 +442,24 @@ export function renderEntries(
             const columnWidths = calculateColumnWidths();
             
             return (
-                <View style={{ marginLeft: indent, marginBottom: 8 }}>
+                <View style={{ marginLeft: indent, marginBottom: styleConstants.marginSM }}>
                     {entries.caption && (
-                        <Text style={[{ fontWeight: 'bold', marginBottom: 4, color: theme.text, fontSize: 12 }, textStyle]}>
+                        <Text style={[{ fontWeight: 'bold', marginBottom: styleConstants.marginXS, color: theme.text, fontSize: styleConstants.fontSizeSM }, textStyle]}>
                             {entries.caption}
                         </Text>
                     )}
-                    <View style={{ borderWidth: 1, borderColor: theme.border, borderRadius: 4 }}>
+                    <View style={{ borderWidth: styleConstants.borderXS, borderColor: theme.border, borderRadius: styleConstants.borderRadiusSM }}>
                         {entries.colLabels && (
-                            <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: theme.border }}>
+                            <View style={{ flexDirection: 'row', borderBottomWidth: styleConstants.borderXS, borderBottomColor: theme.border }}>
                                 {entries.colLabels.map((label: string, idx: number) => (
                                     <View key={idx} style={{ 
                                         flex: columnWidths[idx] || 1, 
-                                        padding: 8, 
+                                        padding: styleConstants.paddingSM, 
                                         backgroundColor: theme.innerBackground || '#f5f5f5',
                                         borderRightWidth: idx < entries.colLabels.length - 1 ? 1 : 0,
                                         borderRightColor: theme.border
                                     }}>
-                                        <Text style={[{ fontWeight: 'bold', color: theme.text, fontSize: 11 }, textStyle]}>
+                                        <Text style={[{ fontWeight: 'bold', color: theme.text, fontSize: styleConstants.fontSizeXS }, textStyle]}>
                                             {label}
                                         </Text>
                                     </View>
@@ -392,13 +471,13 @@ export function renderEntries(
                                 {row.map((cell: any, cellIdx: number) => (
                                     <View key={cellIdx} style={{ 
                                         flex: columnWidths[cellIdx] || 1, 
-                                        padding: 8,
+                                        padding: styleConstants.paddingSM,
                                         borderRightWidth: cellIdx < row.length - 1 ? 1 : 0,
                                         borderRightColor: theme.border,
                                         justifyContent: 'center',
                                         alignItems: 'center'
                                     }}>
-                                        <Text style={[{ color: theme.text, fontSize: 11, flexWrap: 'wrap' }, textStyle]}>
+                                        <Text style={[{ color: theme.text, fontSize: styleConstants.fontSizeXS, flexWrap: 'wrap' }, textStyle]}>
                                             {typeof cell === 'string' ? 
                                                 replaceTags(cell, theme, onCreaturePress, onSpellPress, onDamagePress, onHitPress, onEntryPress) : 
                                                 cell
@@ -418,7 +497,7 @@ export function renderEntries(
         }
 
         // Fallback for unknown object types
-        return <Text style={[{ marginLeft: indent, color: theme.text, fontSize: 12 }, textStyle]}>{JSON.stringify(entries)}</Text>;
+        return <Text style={[{ marginLeft: indent, color: theme.text, fontSize: styleConstants.fontSizeSM }, textStyle]}>{JSON.stringify(entries)}</Text>;
     }
 
     return null;

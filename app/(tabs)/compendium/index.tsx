@@ -1,6 +1,6 @@
 // REACT
 import React from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 // EXPO
@@ -9,8 +9,12 @@ import { useRouter } from 'expo-router';
 // STORES
 import { useAppSettingsStore } from 'src/stores';
 
+// COMPONENTS
+import { NavCard } from 'src/components/ui';
+
 // STYLES
-import { commonStyles } from 'src/styles/commonStyles';
+import { getCommonStyles } from 'src/styles/commonStyles';
+import { styleConstants } from 'src/styles/style-constants';
 
 interface CompendiumEntry {
     title: string;
@@ -29,6 +33,7 @@ interface CompendiumSection {
 export default function CompendiumScreen() {
     const router = useRouter();
     const { currentTheme } = useAppSettingsStore();
+    const commonStyles = getCommonStyles(currentTheme);
 
     const sections: CompendiumSection[] = [
         {
@@ -37,6 +42,7 @@ export default function CompendiumScreen() {
                 { title: 'Bestiary', subtitle: 'Monsters & NPCs', icon: 'paw', href: '/compendium/bestiary' },
                 { title: 'Spells', subtitle: 'Spell reference', icon: 'sparkles', href: '/compendium/spells' },
                 { title: 'Items', subtitle: 'Equipment & magic items', icon: 'cube', href: '/compendium/items' },
+                { title: 'Vehicles', subtitle: 'Ships, mounts & upgrades', icon: 'boat', href: '/compendium/vehicles' },
             ],
         },
         {
@@ -54,32 +60,41 @@ export default function CompendiumScreen() {
                 { title: 'Classes', subtitle: 'Classes & features', icon: 'shield', href: '/compendium/classes' },
                 { title: 'Backgrounds', subtitle: 'Character backgrounds', icon: 'person-circle', href: '/compendium/backgrounds' },
                 { title: 'Feats', subtitle: 'Character feats', icon: 'ribbon', href: '/compendium/feats' },
+                { title: 'Optional Features', subtitle: 'Invocations, maneuvers…', icon: 'options', href: '/compendium/optional-features' },
+                { title: 'Character Options', subtitle: 'Other creation options', icon: 'construct', href: '/compendium/char-options' },
+                { title: 'Senses', subtitle: 'Darkvision, tremorsense…', icon: 'eye', href: '/compendium/senses' },
+                { title: 'Skills', subtitle: 'Skill reference', icon: 'school', href: '/compendium/skills' },
+                { title: 'Psionics', subtitle: 'Disciplines & talents', icon: 'pulse', href: '/compendium/psionics' },
+            ],
+        },
+        {
+            title: 'World',
+            entries: [
+                { title: 'Deities', subtitle: 'Gods & pantheons', icon: 'planet', href: '/compendium/deities' },
+                { title: 'Cults & Boons', subtitle: 'Cults & demonic boons', icon: 'flame', href: '/compendium/cults-boons' },
+                { title: 'Rewards', subtitle: 'Gifts, blessings, charms', icon: 'gift', href: '/compendium/rewards' },
+                { title: 'Traps & Hazards', subtitle: 'Environmental dangers', icon: 'warning', href: '/compendium/traps-hazards' },
+                { title: 'Languages', subtitle: 'Languages & scripts', icon: 'chatbubbles', href: '/compendium/languages' },
+                { title: 'Bastions', subtitle: 'Bastion facilities', icon: 'home', href: '/compendium/bastions' },
+                { title: 'Objects', subtitle: 'Siege & environmental objects', icon: 'cube-outline', href: '/compendium/objects' },
             ],
         },
     ];
 
     return (
         <ScrollView style={{ flex: 1, backgroundColor: currentTheme.background }}>
-            <View style={[commonStyles.container, { padding: 16, backgroundColor: currentTheme.background, flex: 1 }]}>
+            <View style={[commonStyles.container, commonStyles.p_lg, { backgroundColor: currentTheme.background, flex: 1 }]}>
                 {sections.map(section => (
-                    <View key={section.title} style={{ marginBottom: 8 }}>
+                    <View key={section.title} style={commonStyles.mb_sm}>
                         <Text style={[styles.sectionTitle, { color: currentTheme.noticeText }]}>{section.title}</Text>
                         {section.entries.map(entry => (
-                            <TouchableOpacity
+                            <NavCard
                                 key={entry.title}
+                                title={entry.title}
+                                subtitle={entry.subtitle}
+                                icon={entry.icon}
                                 onPress={() => router.push(entry.href as any)}
-                                style={[styles.card, { backgroundColor: currentTheme.card, borderColor: currentTheme.primary }]}
-                                activeOpacity={0.7}
-                            >
-                                <View style={[styles.cardIcon, { backgroundColor: currentTheme.primary }]}>
-                                    <Ionicons name={entry.icon} size={22} color="white" />
-                                </View>
-                                <View style={{ flex: 1 }}>
-                                    <Text style={{ fontSize: 16, fontWeight: '600', color: currentTheme.text }}>{entry.title}</Text>
-                                    <Text style={{ fontSize: 12, color: currentTheme.noticeText }}>{entry.subtitle}</Text>
-                                </View>
-                                <Ionicons name="chevron-forward" size={20} color={currentTheme.noticeText} />
-                            </TouchableOpacity>
+                            />
                         ))}
                     </View>
                 ))}
@@ -90,27 +105,11 @@ export default function CompendiumScreen() {
 
 const styles = StyleSheet.create({
     sectionTitle: {
-        fontSize: 13,
+        fontSize: styleConstants.fontSizeSM,
         fontWeight: '700',
         textTransform: 'uppercase',
         letterSpacing: 1,
-        marginBottom: 8,
-        marginLeft: 4,
-    },
-    card: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderWidth: 1,
-        borderRadius: 10,
-        padding: 14,
-        marginBottom: 12,
-        gap: 14,
-    },
-    cardIcon: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
+        marginBottom: styleConstants.marginSM,
+        marginLeft: styleConstants.marginXS,
     },
 });

@@ -11,6 +11,9 @@ import { useCombat } from 'src/context/CombatContext';
 // COMPONENTS
 import { BaseModal } from 'src/components/ui';
 
+// STYLES
+import { getCommonStyles } from 'src/styles/commonStyles';
+
 // UTILS
 import { loadPlayersList } from 'src/utils/fileStorage';
 
@@ -34,7 +37,8 @@ export default function DataExportModal({ visible, onClose, theme }: DataExportM
     const { campaigns } = useCampaignStore();
     const { spellbooks } = useSpellbookStore();
     const { combats } = useCombat();
-    
+    const commonStyles = getCommonStyles(theme);
+
     // Load data and initialize selections when modal opens
     React.useEffect(() => {
         if (visible) {
@@ -234,34 +238,30 @@ export default function DataExportModal({ visible, onClose, theme }: DataExportM
             title="Export Data"
             subtitle="Select the data you want to export"
             footerContent={
-                <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-around' }}>
+                <View style={[commonStyles.w_100, { flexDirection: 'row' }, commonStyles.jc_around]}>
                     <TouchableOpacity
                         onPress={onClose}
-                        style={{
+                        style={[commonStyles.py_md, commonStyles.br_md, {
                             backgroundColor: '#6b7280',
-                            paddingVertical: 12,
                             paddingHorizontal: 24,
-                            borderRadius: 8,
                             flex: 0.4
-                        }}
+                        }]}
                     >
-                        <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold' }}>
+                        <Text style={[commonStyles.text_center, commonStyles.text_bold, { color: 'white' }]}>
                             Cancel
                         </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={handleExport}
                         disabled={isExporting}
-                        style={{
+                        style={[commonStyles.py_md, commonStyles.br_md, {
                             backgroundColor: theme.primary,
-                            paddingVertical: 12,
                             paddingHorizontal: 24,
-                            borderRadius: 8,
                             flex: 0.4,
                             opacity: isExporting ? 0.6 : 1
-                        }}
+                        }]}
                     >
-                        <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold' }}>
+                        <Text style={[commonStyles.text_center, commonStyles.text_bold, { color: 'white' }]}>
                             {isExporting ? 'Exporting...' : 'Export'}
                         </Text>
                     </TouchableOpacity>
@@ -274,40 +274,30 @@ export default function DataExportModal({ visible, onClose, theme }: DataExportM
                     const selectedCount = selectedItems[key as keyof typeof selectedData].length;
                     
                     return (
-                        <View key={key} style={{ borderWidth: 1, borderColor: theme.tabBorder, borderRadius: 10, marginBottom: 10, overflow: 'hidden' }}>
+                        <View key={key} style={[commonStyles.bw_xs, commonStyles.br_md, commonStyles.mb_sm, { borderColor: theme.tabBorder, overflow: 'hidden' }]}>
                             {/* Main category checkbox */}
                             <TouchableOpacity
                                 onPress={() => handleToggleSelection(key as keyof typeof selectedData)}
-                                style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    paddingVertical: 16,
-                                    paddingHorizontal: 12,
-                                    borderBottomWidth: 1,
+                                style={[{ flexDirection: 'row' }, commonStyles.ai_center, commonStyles.py_lg, commonStyles.px_md, commonStyles.bwb_xs, {
                                     borderBottomColor: theme.border,
                                     backgroundColor: isSelected ? theme.primary + '10' : 'transparent'
-                                }}
+                                }]}
                             >
-                                <View style={{
+                                <View style={[commonStyles.br_sm, commonStyles.bw_sm, commonStyles.mr_md, commonStyles.jc_center, commonStyles.ai_center, {
                                     width: 20,
                                     height: 20,
-                                    borderRadius: 4,
-                                    borderWidth: 2,
                                     borderColor: theme.primary,
-                                    backgroundColor: isSelected ? theme.primary : 'transparent',
-                                    marginRight: 12,
-                                    justifyContent: 'center',
-                                    alignItems: 'center'
-                                }}>
+                                    backgroundColor: isSelected ? theme.primary : 'transparent'
+                                }]}>
                                     {isSelected && (
-                                        <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}>✓</Text>
+                                        <Text style={[commonStyles.text_sm, commonStyles.text_bold, { color: 'white' }]}>✓</Text>
                                     )}
                                 </View>
                                 <View style={{ flex: 1 }}>
-                                    <Text style={{ color: theme.text, fontSize: 16, fontWeight: '600', textTransform: 'capitalize' }}>
+                                    <Text style={[commonStyles.text_primary, commonStyles.text_lg, { fontWeight: '600', textTransform: 'capitalize' }]}>
                                         {key}
                                     </Text>
-                                    <Text style={{ color: theme.noticeText, fontSize: 12 }}>
+                                    <Text style={[commonStyles.text_grey, commonStyles.text_sm]}>
                                         {selectedCount} of {items.length} items selected
                                     </Text>
                                 </View>
@@ -315,7 +305,7 @@ export default function DataExportModal({ visible, onClose, theme }: DataExportM
                             
                             {/* Individual items */}
                             {items.length > 0 && (
-                                <View style={{ paddingLeft: 20, backgroundColor: theme.innerBackground }}>
+                                <View style={[commonStyles.pl_xl, { backgroundColor: theme.innerBackground }]}>
                                     {items.map((item) => {
                                         const itemId = getItemId(key as keyof typeof selectedData, item);
                                         const isItemSelected = selectedItems[key as keyof typeof selectedData].includes(itemId);
@@ -324,36 +314,26 @@ export default function DataExportModal({ visible, onClose, theme }: DataExportM
                                             <TouchableOpacity
                                                 key={itemId}
                                                 onPress={() => handleToggleItem(key as keyof typeof selectedData, itemId)}
-                                                style={{
-                                                    flexDirection: 'row',
-                                                    alignItems: 'center',
-                                                    paddingVertical: 12,
-                                                    paddingHorizontal: 16,
+                                                style={[{ flexDirection: 'row' }, commonStyles.ai_center, commonStyles.py_md, commonStyles.px_lg, {
                                                     borderBottomWidth: 0.5,
                                                     borderBottomColor: theme.border,
                                                     backgroundColor: isItemSelected ? theme.primary + '05' : 'transparent'
-                                                }}
+                                                }]}
                                             >
-                                                <View style={{
+                                                <View style={[commonStyles.br_xs, commonStyles.mr_sm, commonStyles.jc_center, commonStyles.ai_center, {
                                                     width: 16,
                                                     height: 16,
-                                                    borderRadius: 3,
                                                     borderWidth: 1.5,
                                                     borderColor: theme.primary,
-                                                    backgroundColor: isItemSelected ? theme.primary : 'transparent',
-                                                    marginRight: 10,
-                                                    justifyContent: 'center',
-                                                    alignItems: 'center'
-                                                }}>
+                                                    backgroundColor: isItemSelected ? theme.primary : 'transparent'
+                                                }]}>
                                                     {isItemSelected && (
-                                                        <Text style={{ color: 'white', fontSize: 10, fontWeight: 'bold' }}>✓</Text>
+                                                        <Text style={[commonStyles.text_xs, commonStyles.text_bold, { color: 'white' }]}>✓</Text>
                                                     )}
                                                 </View>
-                                                <Text style={{ 
-                                                    color: theme.text, 
-                                                    fontSize: 14,
+                                                <Text style={[commonStyles.text_primary, commonStyles.text_md, {
                                                     flex: 1
-                                                }}>
+                                                }]}>
                                                     {getItemName(key as keyof typeof selectedData, item)}
                                                 </Text>
                                             </TouchableOpacity>

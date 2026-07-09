@@ -1,5 +1,6 @@
 // REACT
 import React from 'react';
+import { styleConstants } from 'src/styles/style-constants';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 // STORES
@@ -10,7 +11,7 @@ import { useData } from 'src/context/DataContext';
 import { useModal } from 'src/context/ModalContext';
 
 // STYLES
-import { commonStyles } from 'src/styles/commonStyles';
+import { getCommonStyles } from 'src/styles/commonStyles';
 
 // UTILS
 import { containsNormalized } from 'src/utils/stringUtils';
@@ -18,6 +19,7 @@ import { containsNormalized } from 'src/utils/stringUtils';
 // Browser for conditions, diseases & statuses. Tapping a row opens the shared condition modal.
 export default function ConditionsScreen() {
     const { currentTheme } = useAppSettingsStore();
+    const commonStyles = getCommonStyles(currentTheme);
     const { conditions, diseases, statuses, isLoading } = useData();
     const { openEntryModal } = useModal();
 
@@ -39,28 +41,28 @@ export default function ConditionsScreen() {
     const totalCount = conditions.length + diseases.length + statuses.length;
 
     return (
-        <View style={[commonStyles.container, { flex: 1, backgroundColor: currentTheme.background, padding: 8 }]}>
+        <View style={[commonStyles.container, { flex: 1, backgroundColor: currentTheme.background, padding: styleConstants.paddingSM }]}>
             <TextInput
                 value={search}
                 onChangeText={setSearch}
                 placeholder="Search conditions & diseases..."
                 placeholderTextColor={currentTheme.noticeText}
-                style={[commonStyles.input, { color: currentTheme.text, borderColor: currentTheme.primary, marginBottom: 8 }]}
+                style={[commonStyles.input, { color: currentTheme.text, borderColor: currentTheme.primary, marginBottom: styleConstants.marginSM }]}
             />
 
             {isLoading && totalCount === 0 ? (
-                <Text style={{ color: currentTheme.noticeText, textAlign: 'center', marginTop: 16 }}>Loading…</Text>
+                <Text style={{ color: currentTheme.noticeText, textAlign: 'center', marginTop: styleConstants.marginLG }}>Loading…</Text>
             ) : (
                 <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
                     {sections.length === 0 ? (
-                        <Text style={{ color: currentTheme.noticeText, textAlign: 'center', marginTop: 16 }}>No results.</Text>
+                        <Text style={{ color: currentTheme.noticeText, textAlign: 'center', marginTop: styleConstants.marginLG }}>No results.</Text>
                     ) : (
                         sections.map(section => (
-                            <View key={section.title} style={{ marginBottom: 12 }}>
+                            <View key={section.title} style={commonStyles.mb_md}>
                                 <Text style={[styles.sectionTitle, { color: currentTheme.noticeText }]}>{section.title}</Text>
-                                {section.data.map((item: any) => (
+                                {section.data.map((item: any, idx: number) => (
                                     <TouchableOpacity
-                                        key={`${item.name}|${item.source}`}
+                                        key={`${item.source}|${item.name}|${idx}`}
                                         onPress={() => openEntryModal(section.category, item.name, item.source)}
                                         style={[commonStyles.itemCard, { backgroundColor: currentTheme.card, borderColor: currentTheme.primary }]}
                                         activeOpacity={0.7}
@@ -84,11 +86,11 @@ export default function ConditionsScreen() {
 
 const styles = StyleSheet.create({
     sectionTitle: {
-        fontSize: 13,
+        fontSize: styleConstants.fontSizeSM,
         fontWeight: '700',
         textTransform: 'uppercase',
         letterSpacing: 1,
-        marginBottom: 4,
-        marginLeft: 4,
+        marginBottom: styleConstants.marginXS,
+        marginLeft: styleConstants.marginXS,
     },
 });

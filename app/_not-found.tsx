@@ -1,5 +1,7 @@
 // REACT
 import React from 'react';
+import { styleConstants } from 'src/styles/style-constants';
+import { getCommonStyles } from 'src/styles/commonStyles';
 import { Text, TouchableOpacity, View } from 'react-native';
 
 // EXPO
@@ -14,6 +16,7 @@ import { useAppSettingsStore } from 'src/stores';
 export default function NotFoundScreen() {
     const router = useRouter();
     const { currentTheme } = useAppSettingsStore();
+    const commonStyles = getCommonStyles(currentTheme);
 
     const sentences = [
         'You have entered the fog of war. This page does not exist!',
@@ -32,19 +35,19 @@ export default function NotFoundScreen() {
     ];
 
     return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24, backgroundColor: currentTheme.background }}>
-            <Text style={{ fontSize: 50, fontWeight: 'bold', marginBottom: 16, color: currentTheme.primary }}>404</Text>
-            <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 24, color: currentTheme.text, textAlign: 'center' }}>
+        <View style={[commonStyles.jc_center, commonStyles.ai_center, { flex: 1, padding: 24, backgroundColor: currentTheme.background }]}>
+            <Text style={[commonStyles.text_bold, commonStyles.mb_lg, { fontSize: 50, color: currentTheme.primary }]}>404</Text>
+            <Text style={[commonStyles.text_xl, commonStyles.text_bold, commonStyles.text_primary, commonStyles.text_center, { marginBottom: 24 }]}>
                 Page not found.
             </Text>
-            <Text style={{ fontSize: 18, marginTop: 24, marginBottom: 40, color: currentTheme.text, textAlign: 'center', fontStyle: 'italic', maxWidth: 250 }}>
+            <Text style={[commonStyles.text_xl, commonStyles.text_primary, commonStyles.text_center, { marginTop: 24, marginBottom: 40, fontStyle: 'italic', maxWidth: 250 }]}>
                 {sentences[Math.floor(Math.random() * sentences.length)]}
             </Text>
             <TouchableOpacity
                 onPress={() => router.replace('/home')}
-                style={{ backgroundColor: currentTheme.primary, paddingHorizontal: 32, paddingVertical: 14, borderRadius: 8 }}
+                style={[commonStyles.py_md, commonStyles.br_md, { backgroundColor: currentTheme.primary, paddingHorizontal: styleConstants.padding2XL }]}
             >
-                <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 16 }}>Back to Home</Text>
+                <Text style={[commonStyles.text_bold, commonStyles.text_lg, { color: 'white' }]}>Back to Home</Text>
             </TouchableOpacity>
         </View>
     );

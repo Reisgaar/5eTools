@@ -1,5 +1,6 @@
 // REACT
 import { StyleSheet } from 'react-native';
+import { styleConstants } from 'src/styles/style-constants';
 
 // STYLES
 import { baseStyles, createThemedStyles } from 'src/styles/baseStyles';
@@ -109,62 +110,62 @@ export const createSpellStyles = (theme: any) => {
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
-            paddingHorizontal: 16,
-            paddingVertical: 12,
+            paddingHorizontal: styleConstants.paddingLG,
+            paddingVertical: styleConstants.paddingMD,
         },
         spellDetailHeaderInfo: {
             flex: 1,
-            marginRight: 8,
+            marginRight: styleConstants.marginSM,
         },
         spellDetailCloseButton: {
-            padding: 4,
+            padding: styleConstants.paddingXS,
         },
         spellDetailSeparator: {
             height: 1,
 
-            marginBottom: 16,
+            marginBottom: styleConstants.marginLG,
         },
         spellDetailGridContainer: {
-            paddingHorizontal: 20,
+            paddingHorizontal: styleConstants.paddingXL,
             marginBottom: 0,
         },
         spellDetailCloseBtn: baseStyles.detailCloseBtn,
         spellDetailTitle: {
             ...applyThemeToBaseStyle(baseStyles.detailTitle, theme),
-            fontSize: 18,
-            marginBottom: 4,
+            fontSize: styleConstants.fontSizeXL,
+            marginBottom: styleConstants.marginXS,
         },
         spellDetailSubtitle: {
             ...baseStyles.detailSubtitle,
             color: theme.noticeText,
-            fontSize: 12,
-            marginBottom: 6,
+            fontSize: styleConstants.fontSizeSM,
+            marginBottom: styleConstants.marginXS,
         },
         spellDetailField: applyThemeToBaseStyle(baseStyles.detailField, theme),
         spellDetailEntry: applyThemeToBaseStyle(baseStyles.detailEntry, theme),
         spellDetailGrid: {
             flexDirection: 'row',
             flexWrap: 'wrap',
-            borderWidth: 1,
+            borderWidth: styleConstants.borderXS,
             borderColor: theme.border,
-            borderRadius: 8,
-            marginBottom: 20,
+            borderRadius: styleConstants.borderRadiusMD,
+            marginBottom: styleConstants.marginXL,
             overflow: 'hidden',
         },
         spellDetailGridItem: {
             width: '50%',
             borderColor: theme.border,
-            padding: 2,
+            padding: styleConstants.padding2XS,
             alignItems: 'center',
         },
         spellDetailGridLabel: {
             fontWeight: 'bold',
-            fontSize: 14,
+            fontSize: styleConstants.fontSizeMD,
             color: theme.text,
             textAlign: 'center',
         },
         spellDetailGridValue: {
-            fontSize: 14,
+            fontSize: styleConstants.fontSizeMD,
             color: theme.text,
             textAlign: 'center',
         },
@@ -174,30 +175,30 @@ export const createSpellStyles = (theme: any) => {
         },
         spellDetailScrollView: {
             flex: 1,
-            paddingHorizontal: 20,
+            paddingHorizontal: styleConstants.paddingXL,
         },
         spellDetailScrollContent: {
-            paddingBottom: 16,
+            paddingBottom: styleConstants.paddingLG,
         },
         spellDetailSection: {
-            marginBottom: 20,
+            marginBottom: styleConstants.marginXL,
         },
         spellDetailSectionTitle: {
-            fontSize: 16,
+            fontSize: styleConstants.fontSizeLG,
             fontWeight: 'bold',
             color: theme.text,
-            marginBottom: 12,
+            marginBottom: styleConstants.marginMD,
             textAlign: 'center',
         },
         spellDetailFooter: {
             alignItems: 'flex-end',
-            paddingHorizontal: 20,
-            paddingVertical: 12,
-            borderTopWidth: 1,
+            paddingHorizontal: styleConstants.paddingXL,
+            paddingVertical: styleConstants.paddingMD,
+            borderTopWidth: styleConstants.borderXS,
             borderTopColor: theme.border,
         },
         spellDetailSource: {
-            fontSize: 10,
+            fontSize: styleConstants.fontSizeXS,
             color: theme.noticeText,
             fontStyle: 'italic',
             textAlign: 'right',

@@ -7,6 +7,7 @@ import { BaseModal } from 'src/components/ui';
 
 // STYLES
 import { createBaseModalStyles } from 'src/styles/baseModalStyles';
+import { getCommonStyles } from 'src/styles/commonStyles';
 
 // INTERFACES
 interface ClassFilterModalProps {
@@ -38,6 +39,7 @@ export default function ClassFilterModal({
     theme
 }: ClassFilterModalProps) {
     const styles = createBaseModalStyles(theme);
+    const commonStyles = getCommonStyles(theme);
 
     // Filter out invalid options
     const validClassOptions = classOptions.filter(className => className !== '[object Object]');
@@ -49,7 +51,7 @@ export default function ClassFilterModal({
             theme={theme}
             title="Filter by Class"
             footerContent={
-                <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
+                <View style={[commonStyles.w_100, commonStyles.row_center_center, { gap: '4%' }]}>
                     <TouchableOpacity
                         onPress={onClear}
                         style={[styles.footerButton, { backgroundColor: theme.secondary }]}
@@ -82,7 +84,7 @@ export default function ClassFilterModal({
                                 selectedClasses.includes(className) && { backgroundColor: theme.primary }
                             ]}
                             />
-                            <Text style={[styles.optionText, { color: theme.text }]}>
+                            <Text style={[styles.optionText, commonStyles.text_primary]}>
                             {capitalize(className)}
                             </Text>
                         </TouchableOpacity>

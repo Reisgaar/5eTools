@@ -1,6 +1,6 @@
 // REACT
 import React from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 // EXPO
@@ -9,13 +9,17 @@ import { useRouter } from 'expo-router';
 // STORES
 import { useAppSettingsStore, useCampaignStore, usePlayerStore, useSpellbookStore } from 'src/stores';
 
+// COMPONENTS
+import { NavCard } from 'src/components/ui';
+
 // STYLES
-import { commonStyles } from 'src/styles/commonStyles';
+import { getCommonStyles } from 'src/styles/commonStyles';
 
 // Home dashboard: shows the active campaign and links out to the campaign-management screens.
 export default function HomeScreen() {
     const router = useRouter();
     const { currentTheme } = useAppSettingsStore();
+    const commonStyles = getCommonStyles(currentTheme);
     const { campaigns, selectedCampaign } = useCampaignStore();
     const { players } = usePlayerStore();
     const { spellbooks } = useSpellbookStore();
@@ -39,51 +43,19 @@ export default function HomeScreen() {
 
     return (
         <ScrollView style={{ flex: 1, backgroundColor: currentTheme.background }}>
-            <View style={[commonStyles.container, { padding: 16, backgroundColor: currentTheme.background, flex: 1 }]}>
+            <View style={[commonStyles.container, commonStyles.p_lg, { backgroundColor: currentTheme.background, flex: 1 }]}>
                 {/* Management cards */}
                 {cards.map(card => (
-                    <TouchableOpacity
+                    <NavCard
                         key={card.title}
+                        title={card.title}
+                        subtitle={card.subtitle}
+                        icon={card.icon}
+                        iconColor={card.color}
                         onPress={() => router.push(card.href as any)}
-                        style={[styles.card, { backgroundColor: currentTheme.card, borderColor: currentTheme.primary }]}
-                        activeOpacity={0.7}
-                    >
-                        <View style={[styles.cardIcon, { backgroundColor: card.color }]}>
-                            <Ionicons name={card.icon} size={22} color="white" />
-                        </View>
-                        <View style={{ flex: 1 }}>
-                            <Text style={{ fontSize: 16, fontWeight: '600', color: currentTheme.text }}>{card.title}</Text>
-                            <Text style={{ fontSize: 12, color: currentTheme.noticeText }}>{card.subtitle}</Text>
-                        </View>
-                        <Ionicons name="chevron-forward" size={20} color={currentTheme.noticeText} />
-                    </TouchableOpacity>
+                    />
                 ))}
             </View>
         </ScrollView>
     );
 }
-
-const styles = StyleSheet.create({
-    banner: {
-        borderWidth: 1,
-        borderRadius: 10,
-        padding: 16,
-        marginBottom: 20,
-    },
-    card: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderWidth: 1,
-        borderRadius: 10,
-        padding: 14,
-        marginBottom: 12,
-        gap: 14,
-    },
-    cardIcon: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-});

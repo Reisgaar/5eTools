@@ -10,6 +10,7 @@ import { useCampaignStore } from 'src/stores';
 
 // STYLES
 import { createBaseModalStyles } from 'src/styles/baseModalStyles';
+import { getCommonStyles } from 'src/styles/commonStyles';
 
 // COMPONENTS
 import { BaseModal } from 'src/components/ui';
@@ -50,6 +51,7 @@ export default function PlayerModal({
 }: PlayerModalProps): React.JSX.Element {
     const { selectedCampaign, campaigns } = useCampaignStore();
     const styles = createBaseModalStyles(theme);
+    const commonStyles = getCommonStyles(theme);
 
     // Filter players by selected campaign
     const filteredPlayers = React.useMemo(() => {
@@ -77,7 +79,7 @@ export default function PlayerModal({
             theme={theme}
             title="Add Players to Combat"
             footerContent={
-                <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
+                <View style={[commonStyles.w_100, commonStyles.row_center_center, { gap: '4%' }]}>
                     <TouchableOpacity
                         onPress={onClose}
                         style={[styles.footerButton, { backgroundColor: theme.secondary }]}
@@ -103,7 +105,8 @@ export default function PlayerModal({
                         key={item.name}
                         style={[
                             styles.modalListItem,
-                            { marginBottom: 8, borderRadius: 8 }
+                            commonStyles.mb_sm,
+                            commonStyles.br_md
                         ]}
                         onPress={() => onPlayerToggle(item.name)}
                     >
@@ -111,21 +114,18 @@ export default function PlayerModal({
                             name={selectedPlayers.includes(item.name) ? 'checkbox' : 'square-outline'}
                             size={22}
                             color={theme.primary}
-                            style={{ marginRight: 12 }}
+                            style={commonStyles.mr_md}
                         />
                         <Image
                             source={{ uri: item.tokenUrl || DEFAULT_PLAYER_TOKEN }}
-                            style={{
+                            style={[commonStyles.br_xl, commonStyles.mr_md, commonStyles.bw_sm, {
                                 width: 32,
                                 height: 32,
-                                borderRadius: 16,
-                                marginRight: 12,
-                                borderWidth: 2,
                                 borderColor: '#22c55a'
-                            }}
+                            }]}
                         />
                         <View style={{ flex: 1 }}>
-                            <Text style={[styles.modalListItemText, { fontWeight: 'bold' }]}>{item.name}</Text>
+                            <Text style={[styles.modalListItemText, commonStyles.text_bold]}>{item.name}</Text>
                             <Text style={styles.modalListItemSubtext}>
                                 {item.race} - {item.class}
                             </Text>

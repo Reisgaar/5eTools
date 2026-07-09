@@ -16,6 +16,7 @@ import { getStorageSummary, cleanupAllCaches } from 'src/utils/storageManager';
 
 // STYLES
 import { createBaseModalStyles } from 'src/styles/baseModalStyles';
+import { getCommonStyles } from 'src/styles/commonStyles';
 
 // INTERFACES
 interface StorageManagementModalProps {
@@ -34,6 +35,7 @@ export default function StorageManagementModal({
     const { isInitialized, simpleBeasts, simpleSpells, availableClasses, spellClassRelations } = useData();
 
     const styles = createBaseModalStyles(currentTheme);
+    const commonStyles = getCommonStyles(currentTheme);
     const [storageInfo, setStorageInfo] = useState<{
         summary: string;
         details: string[];
@@ -94,7 +96,7 @@ export default function StorageManagementModal({
             theme={currentTheme}
             title="Storage Management"
             footerContent={
-                <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
+                <View style={[commonStyles.row_center_center, commonStyles.w_100, { gap: '4%' }]}>
                     <TouchableOpacity
                         onPress={loadStorageInfo}
                         style={[styles.footerButton, { backgroundColor: currentTheme.primary }]}
@@ -112,24 +114,24 @@ export default function StorageManagementModal({
         >
             {isLoading ? (
                 <View style={styles.modalSection}>
-                    <Text style={[styles.modalText, { color: currentTheme.noticeText, textAlign: 'center' }]}>
+                    <Text style={[styles.modalText, commonStyles.text_grey, commonStyles.text_center]}>
                         Loading storage information...
                     </Text>
                 </View>
             ) : storageInfo ? (
                 <View style={styles.modalSection}>
-                    <View style={[styles.modalSection, { backgroundColor: currentTheme.innerBackground, borderRadius: 8, padding: 16 }]}>
-                        <Text style={[styles.modalSectionTitle, { color: currentTheme.text, textAlign: 'center' }]}>
+                    <View style={[styles.modalSection, commonStyles.br_md, commonStyles.p_lg, { backgroundColor: currentTheme.innerBackground }]}>
+                        <Text style={[styles.modalSectionTitle, commonStyles.text_primary, commonStyles.text_center]}>
                             {storageInfo.summary}
                         </Text>
                     </View>
 
                     <View style={styles.modalSection}>
-                        <Text style={[styles.modalSectionTitle, { color: currentTheme.text }]}>
+                        <Text style={[styles.modalSectionTitle, commonStyles.text_primary]}>
                             Storage Breakdown:
                         </Text>
                         {storageInfo.details.map((detail, index) => (
-                            <Text key={index} style={[styles.modalText, { color: currentTheme.noticeText, marginBottom: 4 }]}>
+                            <Text key={index} style={[styles.modalText, commonStyles.text_grey, commonStyles.mb_xs]}>
                                 • {detail}
                             </Text>
                         ))}
@@ -137,28 +139,28 @@ export default function StorageManagementModal({
 
                     {isInitialized && (
                         <View style={styles.modalSection}>
-                            <Text style={[styles.modalSectionTitle, { color: currentTheme.text }]}>
+                            <Text style={[styles.modalSectionTitle, commonStyles.text_primary]}>
                                 Data Loaded:
                             </Text>
-                            <Text style={[styles.modalText, { color: currentTheme.noticeText, marginBottom: 4 }]}>
+                            <Text style={[styles.modalText, commonStyles.text_grey, commonStyles.mb_xs]}>
                                 • Beasts: {simpleBeasts.length} loaded
                             </Text>
-                            <Text style={[styles.modalText, { color: currentTheme.noticeText, marginBottom: 4 }]}>
+                            <Text style={[styles.modalText, commonStyles.text_grey, commonStyles.mb_xs]}>
                                 • Spells: {simpleSpells.length} loaded
                             </Text>
-                            <Text style={[styles.modalText, { color: currentTheme.noticeText, marginBottom: 4 }]}>
+                            <Text style={[styles.modalText, commonStyles.text_grey, commonStyles.mb_xs]}>
                                 • Available Classes: {availableClasses.length} classes
                             </Text>
-                            <Text style={[styles.modalText, { color: currentTheme.noticeText, marginBottom: 4 }]}>
+                            <Text style={[styles.modalText, commonStyles.text_grey, commonStyles.mb_xs]}>
                                 • Spell-Class Relations: {spellClassRelations.length} relations
                             </Text>
 
                             {availableClasses.length > 0 && (
                                 <View style={styles.modalSection}>
-                                    <Text style={[styles.modalSectionTitle, { color: currentTheme.text }]}>
+                                    <Text style={[styles.modalSectionTitle, commonStyles.text_primary]}>
                                         Classes Available:
                                     </Text>
-                                    <Text style={[styles.modalText, { color: currentTheme.noticeText }]}>
+                                    <Text style={[styles.modalText, commonStyles.text_grey]}>
                                         {availableClasses.join(', ')}
                                     </Text>
                                 </View>
@@ -166,27 +168,27 @@ export default function StorageManagementModal({
                         </View>
                     )}
 
-                    <View style={[styles.modalSection, { backgroundColor: currentTheme.innerBackground, borderRadius: 8, padding: 16, borderLeftWidth: 4, borderLeftColor: currentTheme.primary }]}>
-                        <Text style={[styles.modalSectionTitle, { color: currentTheme.text }]}>
+                    <View style={[styles.modalSection, commonStyles.br_md, commonStyles.p_lg, commonStyles.bwl_lg, { backgroundColor: currentTheme.innerBackground, borderLeftColor: currentTheme.primary }]}>
+                        <Text style={[styles.modalSectionTitle, commonStyles.text_primary]}>
                             About Storage:
                         </Text>
-                        <Text style={[styles.modalText, { color: currentTheme.noticeText, marginBottom: 4 }]}>
+                        <Text style={[styles.modalText, commonStyles.text_grey, commonStyles.mb_xs]}>
                             • Token cache stores creature tokens for faster loading
                         </Text>
-                        <Text style={[styles.modalText, { color: currentTheme.noticeText, marginBottom: 4 }]}>
+                        <Text style={[styles.modalText, commonStyles.text_grey, commonStyles.mb_xs]}>
                             • Image cache stores full creature images
                         </Text>
-                        <Text style={[styles.modalText, { color: currentTheme.noticeText, marginBottom: 4 }]}>
+                        <Text style={[styles.modalText, commonStyles.text_grey, commonStyles.mb_xs]}>
                             • Data storage contains your beasts, spells, and other data
                         </Text>
-                        <Text style={[styles.modalText, { color: currentTheme.noticeText, marginBottom: 4 }]}>
+                        <Text style={[styles.modalText, commonStyles.text_grey, commonStyles.mb_xs]}>
                             • Cleaning caches will free up space but may slow down initial loading
                         </Text>
                     </View>
                 </View>
             ) : (
                 <View style={styles.modalSection}>
-                    <Text style={[styles.modalText, { color: '#d32f2f', textAlign: 'center' }]}>
+                    <Text style={[styles.modalText, commonStyles.text_center, { color: '#d32f2f' }]}>
                         Failed to load storage information
                     </Text>
                 </View>

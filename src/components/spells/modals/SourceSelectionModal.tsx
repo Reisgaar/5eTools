@@ -1,5 +1,6 @@
 // REACT
 import React from 'react';
+import { styleConstants } from 'src/styles/style-constants';
 import { Modal, View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 
 // EXPO
@@ -94,59 +95,59 @@ const styles = StyleSheet.create({
         width: '90%',
         maxWidth: 500,
         maxHeight: '80%',
-        borderRadius: 12,
-        padding: 20,
-        borderWidth: 1,
+        borderRadius: styleConstants.borderRadiusLG,
+        padding: styleConstants.paddingXL,
+        borderWidth: styleConstants.borderXS,
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 16,
+        marginBottom: styleConstants.marginLG,
     },
     title: {
-        fontSize: 18,
+        fontSize: styleConstants.fontSizeXL,
         fontWeight: 'bold',
-        marginLeft: 8,
+        marginLeft: styleConstants.marginSM,
     },
     content: {
         flex: 1,
-        marginBottom: 20,
+        marginBottom: styleConstants.marginXL,
     },
     message: {
-        fontSize: 16,
-        marginBottom: 16,
+        fontSize: styleConstants.fontSizeLG,
+        marginBottom: styleConstants.marginLG,
         textAlign: 'center',
     },
     optionsContainer: {
         maxHeight: 300,
     },
     option: {
-        padding: 12,
-        borderWidth: 1,
-        borderRadius: 8,
-        marginBottom: 8,
+        padding: styleConstants.paddingMD,
+        borderWidth: styleConstants.borderXS,
+        borderRadius: styleConstants.borderRadiusMD,
+        marginBottom: styleConstants.marginSM,
     },
     optionName: {
-        fontSize: 16,
+        fontSize: styleConstants.fontSizeLG,
         fontWeight: 'bold',
-        marginBottom: 4,
+        marginBottom: styleConstants.marginXS,
     },
     optionSource: {
-        fontSize: 14,
+        fontSize: styleConstants.fontSizeMD,
         fontStyle: 'italic',
     },
     button: {
-        paddingVertical: 12,
+        paddingVertical: styleConstants.paddingMD,
         paddingHorizontal: 24,
-        borderRadius: 8,
+        borderRadius: styleConstants.borderRadiusMD,
         alignItems: 'center',
     },
     buttonText: {
-        fontSize: 16,
+        fontSize: styleConstants.fontSizeLG,
         fontWeight: 'bold',
     },
     separator: {
         height: 1,
-        marginVertical: 16,
+        marginVertical: styleConstants.marginLG,
     },
 });

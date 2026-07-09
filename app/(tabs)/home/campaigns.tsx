@@ -1,5 +1,6 @@
 // REACT
 import React from 'react';
+import { styleConstants } from 'src/styles/style-constants';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -7,7 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAppSettingsStore, useCampaignStore } from 'src/stores';
 
 // STYLES
-import { commonStyles } from 'src/styles/commonStyles';
+import { getCommonStyles } from 'src/styles/commonStyles';
 
 // COMPONENTS
 import ConfirmModal from 'src/components/modals/ConfirmModal';
@@ -16,6 +17,7 @@ import CampaignFormModal from 'src/components/modals/CampaignFormModal';
 // Campaign management screen (independent, reached from Home).
 export default function CampaignsScreen() {
     const { currentTheme } = useAppSettingsStore();
+    const commonStyles = getCommonStyles(currentTheme);
     const { campaigns, createCampaign, deleteCampaign, updateCampaign } = useCampaignStore();
 
     const [campaignModalVisible, setCampaignModalVisible] = React.useState(false);
@@ -55,20 +57,20 @@ export default function CampaignsScreen() {
     };
 
     return (
-        <View style={[commonStyles.container, { padding: 16, backgroundColor: currentTheme.background, flex: 1 }]}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                <Text style={{ fontSize: 16, fontWeight: 'bold', color: currentTheme.text }}>Campaigns</Text>
+        <View style={[commonStyles.container, { padding: styleConstants.paddingLG, backgroundColor: currentTheme.background, flex: 1 }]}>
+            <View style={[commonStyles.row_between_center, commonStyles.mb_sm]}>
+                <Text style={{ fontSize: styleConstants.fontSizeLG, fontWeight: 'bold', color: currentTheme.text }}>Campaigns</Text>
                 <TouchableOpacity onPress={openAddCampaignModal} style={styles.addButton}>
                     <Ionicons name="add" size={20} color="white" />
                 </TouchableOpacity>
             </View>
 
-            <View style={{ flex: 1, paddingBottom: 16 }}>
+            <View style={{ flex: 1, paddingBottom: styleConstants.paddingLG }}>
                 {campaigns.length > 0 ? (
                     <ScrollView style={[styles.container, { borderColor: currentTheme.primary, backgroundColor: currentTheme.card }]}>
                         {campaigns.map(item => (
                             <View key={item.id} style={[styles.campaignItem, {
-                                borderBottomWidth: 1,
+                                borderBottomWidth: styleConstants.borderXS,
                                 borderBottomColor: currentTheme.primary,
                                 backgroundColor: currentTheme.card
                             }]}>
@@ -81,7 +83,7 @@ export default function CampaignsScreen() {
                                     </View>
                                 </View>
                                 <View style={styles.campaignActions}>
-                                    <TouchableOpacity onPress={() => openEditCampaignModal(item)} style={[styles.actionButton, { backgroundColor: currentTheme.primary, marginRight: 8 }]}>
+                                    <TouchableOpacity onPress={() => openEditCampaignModal(item)} style={[styles.actionButton, { backgroundColor: currentTheme.primary, marginRight: styleConstants.marginSM }]}>
                                         <Ionicons name="pencil" size={16} color="white" />
                                     </TouchableOpacity>
                                     <TouchableOpacity onPress={() => handleDeleteCampaign(item.id)} style={[styles.actionButton, { backgroundColor: '#dc2626' }]}>
@@ -121,13 +123,13 @@ export default function CampaignsScreen() {
 }
 
 const styles = StyleSheet.create({
-    addButton: { backgroundColor: '#22c55e', width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
-    campaignItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 16 },
+    addButton: { backgroundColor: '#22c55e', width: 28, height: 28, borderRadius: styleConstants.borderRadiusLG, alignItems: 'center', justifyContent: 'center' },
+    campaignItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: styleConstants.paddingMD, paddingHorizontal: styleConstants.paddingLG },
     campaignContent: { flex: 1, flexDirection: 'row', alignItems: 'center' },
-    campaignName: { fontSize: 16, fontWeight: '600', marginBottom: 2 },
-    campaignDescription: { fontSize: 12, fontStyle: 'italic' },
+    campaignName: { fontSize: styleConstants.fontSizeLG, fontWeight: '600', marginBottom: styleConstants.margin2XS },
+    campaignDescription: { fontSize: styleConstants.fontSizeSM, fontStyle: 'italic' },
     campaignActions: { flexDirection: 'row', alignItems: 'center' },
-    actionButton: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
-    container: { flex: 1, borderWidth: 1, borderRadius: 8, overflow: 'hidden' },
-    emptyContainer: { padding: 20, alignItems: 'center', justifyContent: 'center' },
+    actionButton: { width: 32, height: 32, borderRadius: styleConstants.borderRadiusXL, alignItems: 'center', justifyContent: 'center' },
+    container: { flex: 1, borderWidth: styleConstants.borderXS, borderRadius: styleConstants.borderRadiusMD, overflow: 'hidden' },
+    emptyContainer: { padding: styleConstants.paddingXL, alignItems: 'center', justifyContent: 'center' },
 });

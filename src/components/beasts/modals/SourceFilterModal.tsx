@@ -1,5 +1,7 @@
 // REACT
 import React, { useMemo } from 'react';
+import { styleConstants } from 'src/styles/style-constants';
+import { getCommonStyles } from 'src/styles/commonStyles';
 import { Text, TouchableOpacity, View, StyleSheet } from 'react-native';
 
 // COMPONENTS
@@ -34,6 +36,7 @@ export default function SourceFilterModal({
 }: SourceFilterModalProps) {
     // Pre-compute selected state for better performance
     const selectedSet = useMemo(() => new Set(selectedSources), [selectedSources]);
+    const commonStyles = getCommonStyles(theme);
 
     return (
         <BaseModal
@@ -42,7 +45,7 @@ export default function SourceFilterModal({
             theme={theme}
             title='Filter by Source'
             footerContent={
-                <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
+                <View style={[commonStyles.w_100, commonStyles.row_center_center, { gap: '4%' }]}>
                     <TouchableOpacity
                         onPress={onClear}
                         style={[styles.footerButton, { backgroundColor: theme.secondary }]}
@@ -58,13 +61,13 @@ export default function SourceFilterModal({
                 </View>
             }
         >
-            <View style={{ paddingLeft: 10, marginRight: 40 }}>
+            <View style={[commonStyles.pl_sm, { marginRight: 40 }]}>
                 {sourceOptions.map(source => {
                     const isSelected = selectedSet.has(source);
                     const displayName = sourceIdToNameMap && sourceIdToNameMap[source.toUpperCase()]
                         ? sourceIdToNameMap[source.toUpperCase()] : source;
                     return (
-                        <View key={source} style={{ marginBottom: 8 }}>
+                        <View key={source} style={commonStyles.mb_sm}>
                             <TouchableOpacity
                                 style={[
                                     styles.optionRow,
@@ -81,7 +84,7 @@ export default function SourceFilterModal({
                                 />
 
                                 <View style={styles.optionTextContainer}>
-                                    <Text style={[styles.optionText, { color: theme.text }]}>
+                                    <Text style={[styles.optionText, commonStyles.text_primary]}>
                                         {displayName}
                                     </Text>
                                 </View>
@@ -98,35 +101,35 @@ const styles = StyleSheet.create({
     optionRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginVertical: 4,
+        marginVertical: styleConstants.marginXS,
     },
     checkbox: {
         width: 18,
         height: 18,
-        borderWidth: 2,
-        borderRadius: 4,
-        marginRight: 8,
+        borderWidth: styleConstants.borderSM,
+        borderRadius: styleConstants.borderRadiusSM,
+        marginRight: styleConstants.marginSM,
     },
     optionTextContainer: {
         flexDirection: 'row',
         alignItems: 'center',
     },
     optionText: {
-        fontSize: 14,
+        fontSize: styleConstants.fontSizeMD,
     },
     optionAcronym: {
-        fontSize: 12,
-        marginLeft: 4,
+        fontSize: styleConstants.fontSizeSM,
+        marginLeft: styleConstants.marginXS,
     },
     footerButton: {
         width: '48%',
-        borderRadius: 8,
-        paddingVertical: 12,
+        borderRadius: styleConstants.borderRadiusMD,
+        paddingVertical: styleConstants.paddingMD,
         alignItems: 'center',
     },
     footerButtonText: {
         color: 'white',
         fontWeight: 'bold',
-        fontSize: 16,
+        fontSize: styleConstants.fontSizeLG,
     },
 });

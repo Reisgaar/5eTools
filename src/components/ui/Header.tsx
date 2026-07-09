@@ -1,5 +1,7 @@
 // REACT
 import React from 'react';
+import { styleConstants } from 'src/styles/style-constants';
+import { getCommonStyles } from 'src/styles/commonStyles';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -32,6 +34,7 @@ export default function Header({ navigation, options, back }: HeaderProps = {}) 
     const { currentTheme, themeName } = useAppSettingsStore();
     const { openCampaignSelectorModal } = useModal();
     const path = usePathname();
+    const commonStyles = getCommonStyles(currentTheme);
 
     const handleCampaignPress = () => {
         openCampaignSelectorModal();
@@ -48,19 +51,13 @@ export default function Header({ navigation, options, back }: HeaderProps = {}) 
 
     return (
         <>
-            <SafeAreaView style={{
+            <SafeAreaView style={[commonStyles.row_between_center, commonStyles.px_sm, commonStyles.py_xs, commonStyles.bwb_sm, {
                 backgroundColor: currentTheme.headerBackground,
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                paddingHorizontal: 10,
-                paddingVertical: 5,
-                borderBottomWidth: 2,
                 borderBottomColor: currentTheme.text,
-            }} edges={['top']}>
-                <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', gap: 10 }}>
+            }]} edges={['top']}>
+                <View style={[commonStyles.row_start_center, commonStyles.gap_sm]}>
                     {back && navigation ? (
-                        <TouchableOpacity onPress={() => navigation.goBack()} style={{ paddingRight: 2 }} accessibilityLabel="Go back">
+                        <TouchableOpacity onPress={() => navigation.goBack()} style={commonStyles.pr_2xs} accessibilityLabel="Go back">
                             <Ionicons name="chevron-back" size={26} color={currentTheme.text} />
                         </TouchableOpacity>
                     ) : (
@@ -69,13 +66,13 @@ export default function Header({ navigation, options, back }: HeaderProps = {}) 
                                 require('../../../assets/images/logo_bb_lg.png')
                                 : require('../../../assets/images/logo_wbu_lg.png')
                             }
-                            style={[styles.logo, { height: 30, width: 30, borderRadius: 6 }]} />
+                            style={[styles.logo, commonStyles.br_sm, { height: 30, width: 30 }]} />
                     )}
-                    <Text style={{ fontSize: 18, fontWeight: 'bold', color: currentTheme.text }}>{getTitle()}</Text>
+                    <Text style={[commonStyles.text_xl, commonStyles.text_bold, commonStyles.text_primary]}>{getTitle()}</Text>
                 </View>
 
                 <TouchableOpacity onPress={handleCampaignPress} style={[styles.filterBtn, { borderColor: currentTheme.text }]}>
-                    <Text style={[styles.filterBtnText, { color: currentTheme.text }]}>
+                    <Text style={[styles.filterBtnText, commonStyles.text_primary]}>
                         {selectedCampaignId && selectedCampaign ? selectedCampaign.name : 'All Campaigns'}
                     </Text>
                 </TouchableOpacity>
@@ -90,27 +87,27 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 10,
-        padding: 2,
+        paddingHorizontal: styleConstants.paddingSM,
+        padding: styleConstants.padding2XS,
         borderColor: '#ccc',
     },
     title: {
-        fontSize: 16,
+        fontSize: styleConstants.fontSizeLG,
         fontWeight: 'bold',
     },
     logo: {
         resizeMode: 'contain',
     },
     filterBtn: {
-        borderWidth: 2,
-        borderRadius: 8,
-        paddingHorizontal: 8,
-        paddingVertical: 4,
+        borderWidth: styleConstants.borderSM,
+        borderRadius: styleConstants.borderRadiusMD,
+        paddingHorizontal: styleConstants.paddingSM,
+        paddingVertical: styleConstants.paddingXS,
         alignItems: 'center',
         justifyContent: 'center',
     },
     filterBtnText: {
         fontWeight: 'bold',
-        fontSize: 12,
+        fontSize: styleConstants.fontSizeSM,
     },
 });

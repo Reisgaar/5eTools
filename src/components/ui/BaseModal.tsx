@@ -1,9 +1,11 @@
 // REACT
 import React, { useEffect, useState } from 'react';
 import { Modal, View, Text, TouchableOpacity, ScrollView, Image, Keyboard, Dimensions } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 // STYLES
 import { createBaseModalStyles } from 'src/styles/baseModalStyles';
+import { getCommonStyles } from 'src/styles/commonStyles';
 
 // CONSTANTS
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -12,6 +14,7 @@ const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
 interface BaseModalProps {
     visible: boolean;
     onClose: () => void;
+    onBack?: () => void;   // when set, shows a back button (left) to pop the modal nav stack
     children: React.ReactNode;
     theme: any;
 
@@ -39,6 +42,7 @@ interface BaseModalProps {
 export default function BaseModal({
     visible,
     onClose,
+    onBack,
     children,
     theme,
     title,
@@ -47,6 +51,7 @@ export default function BaseModal({
     footerContent
 }: BaseModalProps) {
     const styles = createBaseModalStyles(theme);
+    const commonStyles = getCommonStyles(theme);
     const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
     useEffect(() => {
@@ -75,6 +80,11 @@ export default function BaseModal({
                 >
                     {/* Header */}
                     <View style={styles.modalHeader}>
+                        {onBack && (
+                            <TouchableOpacity onPress={onBack} style={[commonStyles.pr_sm, commonStyles.jc_center]} accessibilityLabel="Back">
+                                <Ionicons name="chevron-back" size={24} color={theme.text} />
+                            </TouchableOpacity>
+                        )}
                         <View style={styles.modalHeaderContent}>
                             {tokenUrl && (<Image source={{ uri: tokenUrl }} style={styles.modalToken} resizeMode="contain" />)}
                             <View style={styles.modalHeaderInfo}>

@@ -1,5 +1,7 @@
 // REACT
 import React from 'react';
+import { styleConstants } from 'src/styles/style-constants';
+import { getCommonStyles } from 'src/styles/commonStyles';
 import { ActivityIndicator, Image, Modal, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 
 // STORES
@@ -27,6 +29,7 @@ interface BeastDetailModalProps {
     visible: boolean;
     beast: Record<string, any> | null;
     onClose: () => void;
+    onBack?: () => void;
     theme: any;
     onCreaturePress?: (name: string, source: string) => void;
     onSpellPress?: (name: string, source: string) => void;
@@ -217,40 +220,41 @@ function formatConditionImmunities(conditionImmune: any): string {
 }
 
 function formatSpellcasting(spellcasting: any, theme: any, onCreaturePress?: (name: string, source: string) => void, onSpellPress?: (name: string, source: string) => void, handleDamagePress?: (expr: string) => void, handleHitPress?: (bonus: string) => void, onEntryPress?: (category: string, name: string, source: string) => void) {
+    const commonStyles = getCommonStyles(theme);
     if (!spellcasting) return null;
 
     if (!Array.isArray(spellcasting))
         spellcasting = [spellcasting];
 
     return spellcasting.map((sc: any, i: number) => (
-        <View key={i} style={{ marginBottom: 8 }}>
-            <Text style={{ fontWeight: 'bold', color: theme.text }}>{sc.name || 'Spellcasting'}{sc.displayAs ? ` (${sc.displayAs})` : ''}.</Text>
+        <View key={i} style={commonStyles.mb_sm}>
+            <Text style={[commonStyles.text_bold, commonStyles.text_primary]}>{sc.name || 'Spellcasting'}{sc.displayAs ? ` (${sc.displayAs})` : ''}.</Text>
             {sc.headerEntries && (
                 renderEntries(sc.headerEntries, 0, theme, onCreaturePress, onSpellPress, {}, handleDamagePress, handleHitPress, onEntryPress)
             )}
             {/* Spellbook style */}
             {sc.spells && (
-                <View style={{ marginTop: 4 }}>
+                <View style={commonStyles.mt_xs}>
                     {/* Cantrips */}
                     {sc.spells['0'] && (
-                        <Text style={{ marginBottom: 2, color: theme.text }}>
-                            <Text style={{ fontWeight: 'bold', color: theme.text }}>Cantrips (at will): </Text>
+                        <Text style={[commonStyles.mb_2xs, commonStyles.text_primary]}>
+                            <Text style={[commonStyles.text_bold, commonStyles.text_primary]}>Cantrips (at will): </Text>
                             {sc.spells['0'].spells.map((spell: string, idx: number) => (
                                 <React.Fragment key={idx}>
                                     {renderEntries(spell, 0, theme, onCreaturePress, onSpellPress, {}, handleDamagePress, handleHitPress, onEntryPress)}
-                                    {idx < sc.spells['0'].spells.length - 1 ? <Text style={{ color: theme.text }}>{', '}</Text> : null}
+                                    {idx < sc.spells['0'].spells.length - 1 ? <Text style={commonStyles.text_primary}>{', '}</Text> : null}
                                 </React.Fragment>
                             ))}
                         </Text>
                     )}
                     {/* Spell levels 1-9 */}
                     {Object.entries(sc.spells).filter(([lvl]) => lvl !== '0').map(([lvl, data]: [string, any]) => (
-                        <Text key={lvl} style={{ marginBottom: 2, color: theme.text }}>
-                            <Text style={{ fontWeight: 'bold', color: theme.text }}>Level {lvl}{data.slots ? ` (${data.slots} slots)` : ''}: </Text>
+                        <Text key={lvl} style={[commonStyles.mb_2xs, commonStyles.text_primary]}>
+                            <Text style={[commonStyles.text_bold, commonStyles.text_primary]}>Level {lvl}{data.slots ? ` (${data.slots} slots)` : ''}: </Text>
                             {data.spells.map((spell: string, idx: number) => (
                                 <React.Fragment key={idx}>
                                     {renderEntries(spell, 0, theme, onCreaturePress, onSpellPress, {}, handleDamagePress, handleHitPress, onEntryPress)}
-                                    {idx < data.spells.length - 1 ? <Text style={{ color: theme.text }}>{', '}</Text> : null}
+                                    {idx < data.spells.length - 1 ? <Text style={commonStyles.text_primary}>{', '}</Text> : null}
                                 </React.Fragment>
                             ))}
                         </Text>
@@ -262,9 +266,9 @@ function formatSpellcasting(spellcasting: any, theme: any, onCreaturePress?: (na
                 <View>
                     {Object.entries(sc.daily).map(([level, spells]: [string, any], idx: number) => (
                         <View key={level}>
-                            <Text style={{ color: theme.text }}>{level.replace('e', '/day')}: </Text>
+                            <Text style={commonStyles.text_primary}>{level.replace('e', '/day')}: </Text>
                             {renderEntries(spells, 0, theme, onCreaturePress, onSpellPress, {}, handleDamagePress, handleHitPress, onEntryPress)}
-                            {idx < Object.entries(sc.daily).length - 1 ? <Text style={{ color: theme.text }}>{'\n'}</Text> : null}
+                            {idx < Object.entries(sc.daily).length - 1 ? <Text style={commonStyles.text_primary}>{'\n'}</Text> : null}
                         </View>
                     ))}
                 </View>
@@ -296,11 +300,12 @@ function formatCR(cr: any) {
 /**
  * Modal for displaying a beast's details.
  */
-export default function BeastDetailModal({ visible, beast, onClose, theme, onCreaturePress, onSpellPress }: BeastDetailModalProps) {
+export default function BeastDetailModal({ visible, beast, onClose, onBack, theme, onCreaturePress, onSpellPress }: BeastDetailModalProps) {
     const { currentTheme, useAdvancedDiceRoll } = useAppSettingsStore();
     const { simpleBeasts, simpleSpells } = useData();
     const { openSpellModal, openBeastModal, openDiceModal, openAdvancedDiceModal, openEntryModal } = useModal();
     const styles = createBaseModalStyles(currentTheme);
+    const commonStyles = getCommonStyles(theme);
 
     // All hooks must be at the top level, before any conditional returns
     const [cachedImageUrl, setCachedImageUrl] = React.useState<string | null>(null);
@@ -399,7 +404,7 @@ export default function BeastDetailModal({ visible, beast, onClose, theme, onCre
         return (
             <Modal visible={visible} animationType="slide" transparent>
                 <View style={styles.modalOverlay}>
-                    <View style={[styles.beastDetailModalContent, { justifyContent: 'center', alignItems: 'center' }]}>
+                    <View style={[styles.beastDetailModalContent, commonStyles.jc_center, commonStyles.ai_center]}>
                         <ActivityIndicator size="large" color={theme.primary} />
                     </View>
                 </View>
@@ -617,15 +622,20 @@ export default function BeastDetailModal({ visible, beast, onClose, theme, onCre
     return (
         <>
             <Modal visible={visible} animationType="slide" transparent>
-                <View style={[styles.modalOverlay, { paddingHorizontal: 10, paddingVertical: 30 }]}>
+                <View style={[styles.modalOverlay, commonStyles.px_sm, { paddingVertical: styleConstants.padding2XL }]}>
                     <View style={[styles.beastDetailModalContent, { flex: 1 }]}>
                         <View style={styles.beastDetailHeader}>
+                            {onBack && (
+                                <TouchableOpacity onPress={onBack} style={[commonStyles.pr_sm, commonStyles.jc_center]} accessibilityLabel="Back">
+                                    <Text style={[commonStyles.text_primary, commonStyles.text_bold, commonStyles.text_2xl]}>←</Text>
+                                </TouchableOpacity>
+                            )}
                             <View style={styles.beastDetailHeaderContent}>
                                 {(cachedImageUrl) && (
                                     <TouchableOpacity onPress={handleTokenPress} style={{ position: 'relative' }}>
                                         <Image
                                             source={{ uri: cachedImageUrl }}
-                                            style={{ width: 50, height: 50, borderRadius: 8 }}
+                                            style={[commonStyles.br_md, { width: 50, height: 50 }]}
                                             resizeMode="cover"
                                         />
                                     </TouchableOpacity>
@@ -644,7 +654,7 @@ export default function BeastDetailModal({ visible, beast, onClose, theme, onCre
                                     onClose();
                                 }} style={styles.beastDetailCloseButton}
                             >
-                                <Text style={{ color: theme.text, fontWeight: 'bold', fontSize: 18 }}>✕</Text>
+                                <Text style={[commonStyles.text_primary, commonStyles.text_bold, commonStyles.text_xl]}>✕</Text>
                             </TouchableOpacity>
                         </View>
 
@@ -656,7 +666,7 @@ export default function BeastDetailModal({ visible, beast, onClose, theme, onCre
                                     {isLoadingImage ? (
                                         <View style={styles.beastDetailImageLoadingContainer}>
                                             <ActivityIndicator size="large" color={theme.primary} />
-                                            <Text style={{ color: theme.text, marginTop: 10 }}>Loading image...</Text>
+                                            <Text style={[commonStyles.text_primary, commonStyles.mt_sm]}>Loading image...</Text>
                                         </View>
                                     ) : (
                                         <Image
@@ -674,7 +684,7 @@ export default function BeastDetailModal({ visible, beast, onClose, theme, onCre
                             : (
                                 <>
                                     <View style={styles.beastDetailBody}>
-                                        <ScrollView contentContainerStyle={{ paddingBottom: 20 }} >
+                                        <ScrollView contentContainerStyle={commonStyles.pb_xl} >
                                             <View style={[styles.beastDetailContent, { flex: 1 }]}>
                                                 {/* AC, Initiative, HP, Speed */}
                                                 <Separator title='Basics'/>
@@ -768,7 +778,7 @@ export default function BeastDetailModal({ visible, beast, onClose, theme, onCre
                                                     <>
                                                         <Separator title='Legendary Actions'/>
                                                         {beast['legendaryHeader'] && (
-                                                            <Text style={{ color: theme.text, marginBottom: 8, fontStyle: 'italic' }}>
+                                                            <Text style={[commonStyles.text_primary, commonStyles.mb_sm, { fontStyle: 'italic' }]}>
                                                                 {beast['legendaryHeader'].map((header: string, i: number) => (
                                                                     <Text key={i}>{header}{i < beast['legendaryHeader'].length - 1 ? '\n' : ''}</Text>
                                                                 ))}

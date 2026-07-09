@@ -4,6 +4,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 
 // STYLES
 import { createBaseModalStyles } from 'src/styles/baseModalStyles';
+import { getCommonStyles } from 'src/styles/commonStyles';
 
 // COMPONENTS
 import { BaseModal } from 'src/components/ui';
@@ -34,7 +35,8 @@ export default function ConfirmModal({
     theme
 }: ConfirmModalProps): React.JSX.Element {
     const styles = createBaseModalStyles(theme);
-    
+    const commonStyles = getCommonStyles(theme);
+
 
 
     return (
@@ -44,7 +46,7 @@ export default function ConfirmModal({
             theme={theme}
             title={title}
             footerContent={
-                <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
+                <View style={[commonStyles.row_center_center, commonStyles.w_100, { gap: '4%' }]}>
                     <TouchableOpacity
                         onPress={onClose}
                         style={[styles.footerButton, { backgroundColor: theme.secondary }]}
@@ -62,8 +64,8 @@ export default function ConfirmModal({
                 </View>
             }
         >
-            <View style={{ marginVertical: 20 }}>
-                <Text style={[styles.modalText, { fontSize: 14, color: theme.text, textAlign: 'center' }]}>
+            <View style={commonStyles.my_xl}>
+                <Text style={[styles.modalText, commonStyles.text_md, commonStyles.text_primary, commonStyles.text_center]}>
                     {message}
                 </Text>
             </View>

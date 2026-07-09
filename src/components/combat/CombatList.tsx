@@ -16,6 +16,7 @@ import { formatDate } from 'src/utils/combatUtils';
 
 // STYLES
 import { createCombatStyles } from 'src/styles/combat';
+import { getCommonStyles } from 'src/styles/commonStyles';
 
 /**
  * List of combats.
@@ -30,6 +31,7 @@ export default function CombatList({
     theme
 }: CombatListProps): React.JSX.Element {
     const styles = createCombatStyles(theme);
+    const commonStyles = getCommonStyles(theme);
     const [searchQuery, setSearchQuery] = useState('');
     const { campaigns } = useCampaignStore();
 
@@ -55,7 +57,7 @@ export default function CombatList({
             {/* Create Combat Floating Button */}
             <TouchableOpacity
                 onPress={onCreateCombat}
-                style={{
+                style={[commonStyles.ai_center, commonStyles.jc_center, {
                     position: 'absolute',
                     right: 10,
                     bottom: 10,
@@ -63,35 +65,33 @@ export default function CombatList({
                     backgroundColor: theme.primary,
                     width: 60,
                     height: 60,
-                    borderRadius: 30,
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                }}
+                    borderRadius: 30
+                }]}
             >
                 <Ionicons name="add" size={20} color="white" />
             </TouchableOpacity>
 
             {/* Search Input */}
             <TextInput
-                style={[styles.listCombatNameInput, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.primary, marginBottom: 12 }]}
+                style={[styles.listCombatNameInput, commonStyles.text_primary, commonStyles.mb_md, { backgroundColor: theme.inputBackground, borderColor: theme.primary }]}
                 placeholder="Search combats..."
                 placeholderTextColor={theme.noticeText}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
             />
 
-            <Text style={[styles.listSectionTitle, { color: theme.text }]}>Saved Combats</Text>
+            <Text style={[styles.listSectionTitle, commonStyles.text_primary]}>Saved Combats</Text>
             <View style={[styles.listContainerBox, { backgroundColor: theme.card, borderColor: theme.primary, flex: 1, padding: 0 }]}>
                 {/* Existing Combats */}
                 <View>
                     {!filteredCombats || filteredCombats.length === 0 ? (
-                        <View style={{ height: '100%', justifyContent: 'center', alignItems: 'center' }}>
-                            <Text style={[styles.listEmptyText, { color: theme.noticeText }]}>
+                        <View style={[commonStyles.h_100, commonStyles.jc_center, commonStyles.ai_center]}>
+                            <Text style={[styles.listEmptyText, commonStyles.text_grey]}>
                                 {searchQuery.trim() ? 'No combats found matching your search.' : 'No combats created yet'}
                             </Text>
                         </View>
                     ) : (
-                        <ScrollView style={{ height: '100%' }}>
+                        <ScrollView style={commonStyles.h_100}>
                             <View style={{ flex: 1, padding: 0 }}>
                                 {filteredCombats.map(combat => (
                                     <View key={combat.id} style={styles.listCombatOption}>
@@ -99,32 +99,28 @@ export default function CombatList({
                                             onPress={() => onSelectCombat(combat.id)}
                                             style={{ flex: 1 }}
                                         >
-                                            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                                                <View style={{ flex: 1, flexDirection: 'column', alignItems: 'flex-start'}}>
-                                                    <Text style={[styles.listCombatName, { color: theme.text }]}>{combat.name}</Text>
-                                                    <Text style={[styles.listCombatCount, { color: theme.noticeText, fontSize: 12, marginLeft: 0 }]}>
+                                            <View style={[commonStyles.row_between_center, { flex: 1 }]}>
+                                                <View style={[commonStyles.ai_start, { flex: 1, flexDirection: 'column' }]}>
+                                                    <Text style={[styles.listCombatName, commonStyles.text_primary]}>{combat.name}</Text>
+                                                    <Text style={[styles.listCombatCount, commonStyles.text_grey, commonStyles.text_sm, { marginLeft: 0 }]}>
                                                         Campaign: {getCampaignName(combat.campaignId)}
                                                     </Text>
-                                                    <Text style={[styles.listCombatCount, { color: theme.noticeText, marginLeft: 0 }]}>
+                                                    <Text style={[styles.listCombatCount, commonStyles.text_grey, { marginLeft: 0 }]}>
                                                         {`(${combat.combatants?.length || 0} creatures)`}
                                                     </Text>
                                                 </View>
-                                                <View style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                <View style={[commonStyles.ai_center, commonStyles.jc_between, { flexDirection: 'column' }]}>
                                                     {/* Edit and Delete Buttons */}
                                                     {(onEditCombat || onDeleteCombat) && (
-                                                        <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 8 }}>
+                                                        <View style={[{ flexDirection: 'row' }, commonStyles.ai_center, commonStyles.ml_sm]}>
                                                             {onEditCombat && (
                                                                 <TouchableOpacity 
                                                                     onPress={() => onEditCombat(combat)} 
-                                                                    style={{
+                                                                    style={[commonStyles.br_lg, commonStyles.ai_center, commonStyles.jc_center, commonStyles.mr_sm, {
                                                                         backgroundColor: theme.primary,
                                                                         width: 28,
-                                                                        height: 28,
-                                                                        borderRadius: 14,
-                                                                        alignItems: 'center',
-                                                                        justifyContent: 'center',
-                                                                        marginRight: 8
-                                                                    }}
+                                                                        height: 28
+                                                                    }]}
                                                                 >
                                                                     <Ionicons name="pencil" size={16} color="white" />
                                                                 </TouchableOpacity>
@@ -132,14 +128,11 @@ export default function CombatList({
                                                             {onDeleteCombat && (
                                                                 <TouchableOpacity 
                                                                     onPress={() => onDeleteCombat(combat.id)}
-                                                                    style={{
+                                                                    style={[commonStyles.br_lg, commonStyles.ai_center, commonStyles.jc_center, {
                                                                         backgroundColor: '#dc2626',
                                                                         width: 28,
-                                                                        height: 28,
-                                                                        borderRadius: 14,
-                                                                        alignItems: 'center',
-                                                                        justifyContent: 'center'
-                                                                    }}
+                                                                        height: 28
+                                                                    }]}
                                                                 >
                                                                     <Ionicons name="trash" size={16} color="white" />
                                                                 </TouchableOpacity>

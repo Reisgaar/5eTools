@@ -1,5 +1,6 @@
 // REACT
 import React from 'react';
+import { getCommonStyles } from 'src/styles/commonStyles';
 import { Text, View } from 'react-native';
 
 // COMPONENTS
@@ -17,6 +18,7 @@ interface ClassDetailModalProps {
     visible: boolean;
     classSummary: any | null;
     onClose: () => void;
+    onBack?: () => void;
     theme: any;
 }
 
@@ -32,9 +34,10 @@ function parseFeatureRef(ref: any): { name: string; level: number } | null {
     return { name: parts[0], level: parseInt(parts[3], 10) || 1 };
 }
 
-export default function ClassDetailModal({ visible, classSummary, onClose, theme }: ClassDetailModalProps) {
+export default function ClassDetailModal({ visible, classSummary, onClose, onBack, theme }: ClassDetailModalProps) {
     const { openEntryModal } = useModal();
     const { getClassFile } = useData();
+    const commonStyles = getCommonStyles(theme);
 
     const view = React.useMemo(() => {
         if (!classSummary) return null;
@@ -75,27 +78,27 @@ export default function ClassDetailModal({ visible, classSummary, onClose, theme
     }
 
     return (
-        <BaseModal visible={visible} onClose={onClose} theme={theme} title={cls.name} subtitle={cls.source}>
+        <BaseModal visible={visible} onClose={onClose} onBack={onBack} theme={theme} title={cls.name} subtitle={cls.source}>
             <View style={{ marginBottom: rows.length ? 10 : 0 }}>
                 {rows.map(row => (
-                    <View key={row.label} style={{ flexDirection: 'row', marginBottom: 3 }}>
-                        <Text style={{ fontWeight: 'bold', color: theme.text, fontSize: 12, width: 110 }}>{row.label}</Text>
-                        <Text style={{ color: theme.text, fontSize: 12, flex: 1 }}>{row.value}</Text>
+                    <View key={row.label} style={[commonStyles.mb_2xs, { flexDirection: 'row' }]}>
+                        <Text style={[commonStyles.text_bold, commonStyles.text_primary, commonStyles.text_sm, { width: 110 }]}>{row.label}</Text>
+                        <Text style={[commonStyles.text_primary, commonStyles.text_sm, { flex: 1 }]}>{row.value}</Text>
                     </View>
                 ))}
             </View>
 
             {sortedLevels.length === 0 ? (
-                <Text style={{ color: theme.noticeText, fontSize: 12 }}>No class features available.</Text>
+                <Text style={[commonStyles.text_grey, commonStyles.text_sm]}>No class features available.</Text>
             ) : (
                 sortedLevels.map(level => (
-                    <View key={level} style={{ marginBottom: 8 }}>
-                        <Text style={{ fontWeight: 'bold', color: theme.primary, fontSize: 13, marginBottom: 4 }}>
+                    <View key={level} style={commonStyles.mb_sm}>
+                        <Text style={[commonStyles.text_bold, commonStyles.text_sm, commonStyles.mb_xs, { color: theme.primary }]}>
                             Level {level}
                         </Text>
                         {levels.get(level)!.map((cf: any, idx: number) => (
-                            <View key={`${cf.name}-${idx}`} style={{ marginBottom: 6 }}>
-                                <Text style={{ fontWeight: 'bold', color: theme.text, fontSize: 12, marginBottom: 2 }}>{cf.name}</Text>
+                            <View key={`${cf.name}-${idx}`} style={commonStyles.mb_xs}>
+                                <Text style={[commonStyles.text_bold, commonStyles.text_primary, commonStyles.text_sm, commonStyles.mb_2xs]}>{cf.name}</Text>
                                 {renderEntries(cf.entries, 0, theme, undefined, undefined, {}, undefined, undefined,
                                     (cat, name, source) => openEntryModal(cat, name, source))}
                             </View>
@@ -105,12 +108,12 @@ export default function ClassDetailModal({ visible, classSummary, onClose, theme
             )}
 
             {subclasses.length > 0 && (
-                <View style={{ marginTop: 6 }}>
-                    <Text style={{ fontWeight: 'bold', color: theme.primary, fontSize: 13, marginBottom: 4 }}>
+                <View style={commonStyles.mt_xs}>
+                    <Text style={[commonStyles.text_bold, commonStyles.text_sm, commonStyles.mb_xs, { color: theme.primary }]}>
                         {cls.subclassTitle || 'Subclasses'}
                     </Text>
                     {subclasses.map((name: string) => (
-                        <Text key={name} style={{ color: theme.text, fontSize: 12, marginBottom: 2 }}>• {name}</Text>
+                        <Text key={name} style={[commonStyles.text_primary, commonStyles.text_sm, commonStyles.mb_2xs]}>• {name}</Text>
                     ))}
                 </View>
             )}

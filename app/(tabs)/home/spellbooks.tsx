@@ -1,5 +1,6 @@
 // REACT
 import React from 'react';
+import { styleConstants } from 'src/styles/style-constants';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -10,7 +11,7 @@ import { useAppSettingsStore, useCampaignStore, useSpellbookStore } from 'src/st
 import { useModal } from 'src/context/ModalContext';
 
 // STYLES
-import { commonStyles } from 'src/styles/commonStyles';
+import { getCommonStyles } from 'src/styles/commonStyles';
 
 // COMPONENTS
 import { BaseModal } from 'src/components/ui';
@@ -21,6 +22,7 @@ import { CreateSpellbookModal } from 'src/components/spells';
 // view their spells. Adding spells happens from the Spells compendium screen.
 export default function SpellbooksScreen() {
     const { currentTheme } = useAppSettingsStore();
+    const commonStyles = getCommonStyles(currentTheme);
     const { selectedCampaign } = useCampaignStore();
     const { spellbooks, deleteSpellbook, removeSpellFromSpellbook } = useSpellbookStore();
     const { openSpellModal } = useModal();
@@ -51,15 +53,15 @@ export default function SpellbooksScreen() {
     };
 
     return (
-        <View style={[commonStyles.container, { padding: 16, backgroundColor: currentTheme.background, flex: 1 }]}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                <Text style={{ fontSize: 16, fontWeight: 'bold', color: currentTheme.text }}>Spellbooks</Text>
+        <View style={[commonStyles.container, { padding: styleConstants.paddingLG, backgroundColor: currentTheme.background, flex: 1 }]}>
+            <View style={[commonStyles.row_between_center, commonStyles.mb_sm]}>
+                <Text style={{ fontSize: styleConstants.fontSizeLG, fontWeight: 'bold', color: currentTheme.text }}>Spellbooks</Text>
                 <TouchableOpacity onPress={() => setCreateModalVisible(true)} style={styles.addButton}>
                     <Ionicons name="add" size={20} color="white" />
                 </TouchableOpacity>
             </View>
 
-            <View style={{ flex: 1, paddingBottom: 16 }}>
+            <View style={{ flex: 1, paddingBottom: styleConstants.paddingLG }}>
                 {visibleSpellbooks.length > 0 ? (
                     <ScrollView style={[styles.listContainer, { borderColor: currentTheme.primary, backgroundColor: currentTheme.card }]}>
                         {visibleSpellbooks.map(sb => (
@@ -109,9 +111,9 @@ export default function SpellbooksScreen() {
                 {viewingSpellbook && (viewingSpellbook.spellsIndex?.length || 0) > 0 ? (
                     [...(viewingSpellbook.spellsIndex || [])]
                         .sort((a, b) => (a.level - b.level) || a.name.localeCompare(b.name))
-                        .map(spell => (
+                        .map((spell, idx) => (
                             <View
-                                key={`${spell.name}|${spell.source}`}
+                                key={`${spell.source}|${spell.name}|${idx}`}
                                 style={[commonStyles.itemCard, { backgroundColor: currentTheme.card, borderColor: currentTheme.primary }]}
                             >
                                 <TouchableOpacity
@@ -132,7 +134,7 @@ export default function SpellbooksScreen() {
                             </View>
                         ))
                 ) : (
-                    <Text style={{ color: currentTheme.noticeText, textAlign: 'center', padding: 12 }}>
+                    <Text style={{ color: currentTheme.noticeText, textAlign: 'center', padding: styleConstants.paddingMD }}>
                         This spellbook is empty. Add spells from the Compendium → Spells screen.
                     </Text>
                 )}
@@ -152,11 +154,11 @@ export default function SpellbooksScreen() {
 }
 
 const styles = StyleSheet.create({
-    addButton: { backgroundColor: '#22c55e', width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
-    listContainer: { flex: 1, borderWidth: 1, borderRadius: 8, overflow: 'hidden' },
-    row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 16, borderBottomWidth: 1 },
-    name: { fontSize: 16, fontWeight: '600', marginBottom: 2 },
-    sub: { fontSize: 12, fontStyle: 'italic' },
-    actionButton: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
-    empty: { padding: 20, alignItems: 'center', justifyContent: 'center' },
+    addButton: { backgroundColor: '#22c55e', width: 28, height: 28, borderRadius: styleConstants.borderRadiusLG, alignItems: 'center', justifyContent: 'center' },
+    listContainer: { flex: 1, borderWidth: styleConstants.borderXS, borderRadius: styleConstants.borderRadiusMD, overflow: 'hidden' },
+    row: { flexDirection: 'row', alignItems: 'center', paddingVertical: styleConstants.paddingMD, paddingHorizontal: styleConstants.paddingLG, borderBottomWidth: styleConstants.borderXS },
+    name: { fontSize: styleConstants.fontSizeLG, fontWeight: '600', marginBottom: styleConstants.margin2XS },
+    sub: { fontSize: styleConstants.fontSizeSM, fontStyle: 'italic' },
+    actionButton: { width: 32, height: 32, borderRadius: styleConstants.borderRadiusXL, alignItems: 'center', justifyContent: 'center' },
+    empty: { padding: styleConstants.paddingXL, alignItems: 'center', justifyContent: 'center' },
 });

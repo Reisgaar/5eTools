@@ -1,5 +1,6 @@
 // REACT
 import React from 'react';
+import { getCommonStyles } from 'src/styles/commonStyles';
 import { Text, View } from 'react-native';
 
 // CONTEXTS
@@ -16,13 +17,14 @@ interface SeparatorProps {
  */
 export default function Seaparator( { size = 'medium', title }: SeparatorProps): React.JSX.Element {
     const { currentTheme } = useAppSettingsStore();
+    const commonStyles = getCommonStyles(currentTheme);
 
     return (
         <View>
             {title && (
-                <Text style={{ color: currentTheme.text, textAlign: 'center', fontWeight: 'bold', marginTop: 8, marginBottom: -8 }}>{title}</Text>
+                <Text style={[commonStyles.text_primary, commonStyles.text_center, commonStyles.text_bold, commonStyles.mt_sm, { marginBottom: -8 }]}>{title}</Text>
             )}
-            <View style={{ width: '100%', height: 1, marginVertical: size === 'small' ? 8 : size === 'medium' ? 12 : 20, backgroundColor: currentTheme.text }} />
+            <View style={[commonStyles.w_100, { height: 1, marginVertical: size === 'small' ? 8 : size === 'medium' ? 12 : 20, backgroundColor: currentTheme.text }]} />
         </View>
     );
 }

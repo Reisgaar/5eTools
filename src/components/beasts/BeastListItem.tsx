@@ -6,7 +6,7 @@ import { Text, TouchableOpacity, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 // STYLES
-import { commonStyles } from 'src/styles/commonStyles';
+import { getCommonStyles } from 'src/styles/commonStyles';
 
 // INTERFACES
 interface BeastListItemProps {
@@ -145,6 +145,8 @@ function BeastListItem({
     onViewDetails,
     theme
 }: BeastListItemProps) {
+    const commonStyles = getCommonStyles(theme);
+
     // Format CR display
     const formatCR = (cr: any): string => {
         if (!cr || cr === 'Unknown' || cr === '') return '?';

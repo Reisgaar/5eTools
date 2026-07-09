@@ -1,5 +1,6 @@
 // REACT
 import React from 'react';
+import { styleConstants } from 'src/styles/style-constants';
 import { View, Text, Image, StyleSheet } from 'react-native';
 
 // EXPO
@@ -89,7 +90,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 20,
+        padding: styleConstants.paddingXL,
         minHeight: 300,
     },
     tokenImage: {
@@ -97,7 +98,7 @@ const styles = StyleSheet.create({
         height: '100%',
         maxWidth: 300,
         maxHeight: 300,
-        borderRadius: 8,
+        borderRadius: styleConstants.borderRadiusMD,
     },
     noTokenContainer: {
         width: 200,
@@ -108,8 +109,8 @@ const styles = StyleSheet.create({
     },
     noTokenText: {
         color: 'white',
-        fontSize: 16,
+        fontSize: styleConstants.fontSizeLG,
         fontWeight: 'bold',
-        marginTop: 8,
+        marginTop: styleConstants.marginSM,
     },
 });

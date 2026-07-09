@@ -1,5 +1,6 @@
 // REACT
 import React from 'react';
+import { styleConstants } from 'src/styles/style-constants';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 // INTERFACES
@@ -53,33 +54,33 @@ const styles = StyleSheet.create({
         zIndex: 100,
     },
     content: {
-        borderRadius: 12,
+        borderRadius: styleConstants.borderRadiusLG,
         padding: 24,
         alignItems: 'center',
         minWidth: 260,
     },
     title: {
-        fontSize: 18,
+        fontSize: styleConstants.fontSizeXL,
         fontWeight: 'bold',
-        marginBottom: 12,
+        marginBottom: styleConstants.marginMD,
     },
     result: {
-        fontSize: 22,
+        fontSize: styleConstants.fontSize2XL,
         fontWeight: 'bold',
-        marginBottom: 8,
+        marginBottom: styleConstants.marginSM,
     },
     breakdown: {
-        fontSize: 15,
-        marginBottom: 16,
+        fontSize: styleConstants.fontSizeMD,
+        marginBottom: styleConstants.marginLG,
         textAlign: 'center',
     },
     closeBtn: {
-        borderRadius: 8,
+        borderRadius: styleConstants.borderRadiusMD,
         paddingHorizontal: 24,
-        paddingVertical: 8,
+        paddingVertical: styleConstants.paddingSM,
     },
     closeText: {
         fontWeight: 'bold',
-        fontSize: 16,
+        fontSize: styleConstants.fontSizeLG,
     },
 });

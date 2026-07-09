@@ -12,6 +12,7 @@ import useSpellbookSearch from 'src/components/spells/useSpellbookSearch';
 
 // STYLES
 import { createBaseModalStyles } from 'src/styles/baseModalStyles';
+import { getCommonStyles } from 'src/styles/commonStyles';
 
 // INTERFACES
 interface AddToSpellbookModalProps {
@@ -35,6 +36,7 @@ export default function AddToSpellbookModal({
     const filteredSpellbooks = getSpellbooksByCampaign(selectedCampaign?.id);
     const { searchQuery, setSearchQuery, filteredSpellbooks: searchedSpellbooks } = useSpellbookSearch(filteredSpellbooks);
     const styles = createBaseModalStyles(theme);
+    const commonStyles = getCommonStyles(theme);
 
     const handleToggleSpellbook = (spellbookId: string) => {
         if (!spell) return;
@@ -79,7 +81,7 @@ export default function AddToSpellbookModal({
                 width='90%'
                 maxHeight="80%"
                 footerContent={
-                    <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
+                    <View style={[commonStyles.w_100, commonStyles.row_center_center, { gap: '4%' }]}>
                         <TouchableOpacity
                             onPress={onClose}
                             style={[styles.footerButton, { backgroundColor: theme.primary }]}

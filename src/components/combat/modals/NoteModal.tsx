@@ -7,6 +7,7 @@ import { BaseModal } from 'src/components/ui';
 
 // STYLES
 import { createBaseModalStyles } from 'src/styles/baseModalStyles';
+import { getCommonStyles } from 'src/styles/commonStyles';
 
 // INTERFACES
 interface NoteModalProps {
@@ -33,6 +34,7 @@ export default function NoteModal({
 }: NoteModalProps): React.JSX.Element {
     const [noteText, setNoteText] = useState(currentNote);
     const styles = createBaseModalStyles(theme);
+    const commonStyles = getCommonStyles(theme);
 
     React.useEffect(() => {
         setNoteText(currentNote);
@@ -54,7 +56,7 @@ export default function NoteModal({
             title={modalTitle}
             subtitle={modalSubtitle}
             footerContent={
-                <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
+                <View style={[commonStyles.w_100, commonStyles.row_center_center, { gap: '4%' }]}>
                     <TouchableOpacity
                         onPress={onClose}
                         style={[styles.footerButton, { backgroundColor: theme.secondary }]}
@@ -72,13 +74,12 @@ export default function NoteModal({
         >
             {/* Notes Section */}
             <View style={styles.modalSection}>
-                <Text style={[styles.modalNoticeText, { color: theme.noticeText }]}>
+                <Text style={[styles.modalNoticeText, commonStyles.text_grey]}>
                     Add notes about this creature for quick reference during combat.
                 </Text>
                 <TextInput
-                    style={[styles.noteInput, {
+                    style={[styles.noteInput, commonStyles.text_primary, {
                         backgroundColor: theme.inputBackground,
-                        color: theme.text,
                         borderColor: theme.border
                     }]}
                     placeholder="Add notes about this creature..."

@@ -7,6 +7,7 @@ import { BaseModal } from 'src/components/ui';
 
 // STYLES
 import { createBaseModalStyles } from 'src/styles/baseModalStyles';
+import { getCommonStyles } from 'src/styles/commonStyles';
 
 // INTERFACES
 interface ValueEditModalProps {
@@ -41,6 +42,7 @@ export default function ValueEditModal({
 }: ValueEditModalProps): React.JSX.Element {
     const [value, setValue] = useState(initialValue);
     const styles = createBaseModalStyles(theme);
+    const commonStyles = getCommonStyles(theme);
 
     // Update local value when initialValue changes
     useEffect(() => {
@@ -80,7 +82,7 @@ export default function ValueEditModal({
             title={modalTitle}
             subtitle={modalSubtitle}
             footerContent={
-                <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
+                <View style={[commonStyles.w_100, commonStyles.row_center_center, { gap: '4%' }]}>
                     <TouchableOpacity
                         onPress={onClose}
                         style={[styles.footerButton, { backgroundColor: theme.secondary }]}
@@ -98,16 +100,9 @@ export default function ValueEditModal({
         >
             {/* Value Display and Input */}
             <TextInput
-                style={[styles.modalInput, {
+                style={[styles.modalInput, commonStyles.text_primary, commonStyles.text_xl, commonStyles.text_bold, commonStyles.text_center, commonStyles.py_xs, commonStyles.bw_sm, commonStyles.br_md, {
                     backgroundColor: theme.inputBackground,
-                    color: theme.text,
-                    borderColor: theme.primary,
-                    fontSize: 18,
-                    fontWeight: 'bold',
-                    textAlign: 'center',
-                    paddingVertical: 6,
-                    borderWidth: 2,
-                    borderRadius: 8
+                    borderColor: theme.primary
                 }]}
                 value={String(value)}
                 onChangeText={(text) => {
@@ -123,8 +118,8 @@ export default function ValueEditModal({
             />
 
             {/* Increment/Decrement Buttons */}
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginBottom: 20, gap: 12 }}>
-                <View style={{ flex: 1, gap: 6, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
+            <View style={[{ flexDirection: 'row' }, commonStyles.jc_between, commonStyles.w_100, commonStyles.mb_xl, commonStyles.gap_md]}>
+                <View style={[commonStyles.row_center_center, commonStyles.gap_xs, { flex: 1, flexWrap: 'wrap' }]}>
                     {[-10, 10, -5, 5, -1, 1].map((value) => (
                         <TouchableOpacity
                             key={value}

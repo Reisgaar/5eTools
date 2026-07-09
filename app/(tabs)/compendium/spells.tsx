@@ -1,5 +1,6 @@
 // REACT
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { styleConstants } from 'src/styles/style-constants';
 import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 // EXPO
@@ -16,10 +17,13 @@ import { AddToSpellbookModal, SpellListItem } from 'src/components/spells';
 import { SchoolFilterModal, ClassFilterModal, OtherFilterModal } from 'src/components/spells/modals';
 
 // STYLES
-import { commonStyles } from 'src/styles/commonStyles';
+import { getCommonStyles } from 'src/styles/commonStyles';
 
 // HOOKS
 import { useSpellFilters } from 'src/hooks/useSpellFilters';
+
+// UTILS
+import { applySourceFilters } from 'src/utils/sourceFilter';
 
 const LEVELS = [
     { label: 'C', value: 0 },
@@ -46,7 +50,8 @@ function getFullSchool(school: string) {
 }
 
 export default function SpellsScreen() {
-    const { currentTheme } = useAppSettingsStore();
+    const { currentTheme, preferredEdition, ignoredSources } = useAppSettingsStore();
+    const commonStyles = getCommonStyles(currentTheme);
     const { simpleSpells, spells, spellSourceLookup, availableClasses, isLoading, loadError, reloadData } = useData();
     const { openSpellModal } = useModal();
     const [selectedLevels, setSelectedLevels] = useState<number[]>([]); // multi-select
@@ -54,8 +59,15 @@ export default function SpellsScreen() {
     const [addToSpellbookModalVisible, setAddToSpellbookModalVisible] = useState(false);
     const [selectedSpellForSpellbook, setSelectedSpellForSpellbook] = useState<any>(null);
 
+    // Apply the global source filter (ignored books + edition dedupe) before filtering/search.
+    const ignoredSet = useMemo(() => new Set(ignoredSources), [ignoredSources]);
+    const visibleSpells = useMemo(
+        () => applySourceFilters(simpleSpells, { preferredEdition, ignoredSources: ignoredSet }),
+        [simpleSpells, preferredEdition, ignoredSet]
+    );
+
     // Use the spell filters hook for UI state management
-    const filters = useSpellFilters(simpleSpells, spells, spellSourceLookup, availableClasses);
+    const filters = useSpellFilters(visibleSpells, spells, spellSourceLookup, availableClasses);
 
     // Defer heavy computations to after navigation
     useEffect(() => {
@@ -116,40 +128,40 @@ export default function SpellsScreen() {
     ), [handleSpellPress, handleAddToSpellbook, currentTheme]);
 
     return (
-        <View style={[commonStyles.container, { flex: 1, backgroundColor: currentTheme.background, paddingTop: 10, paddingBottom: 0, paddingHorizontal: 8 }]}>
+        <View style={[commonStyles.container, { flex: 1, backgroundColor: currentTheme.background, paddingTop: styleConstants.paddingSM, paddingBottom: 0, paddingHorizontal: styleConstants.paddingSM }]}>
             {/* Title Row with Filter Buttons */}
-            <View style={[{ marginBottom: 12, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start'}]}>
-                <Text style={[{ fontSize: 16, fontWeight: 'bold', color: currentTheme.text, marginRight: 12}]}>Filters:</Text>
-                <View style={{ flex: 1, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <View style={[commonStyles.row_start_center, commonStyles.mb_md, { display: 'flex' }]}>
+                <Text style={[{ fontSize: styleConstants.fontSizeLG, fontWeight: 'bold', color: currentTheme.text, marginRight: styleConstants.marginMD}]}>Filters:</Text>
+                <View style={[commonStyles.row_start_center, commonStyles.gap_sm, { flex: 1, display: 'flex' }]}>
                     <TouchableOpacity
                         onPress={filters.openSchoolFilterModal}
-                        style={[commonStyles.filterBtn, { borderColor: filters.selectedSchools.length > 0 ? currentTheme.primary : currentTheme.text, flex: 1, marginRight: 4 }]}
+                        style={[commonStyles.filterBtn, { borderColor: filters.selectedSchools.length > 0 ? currentTheme.primary : currentTheme.text, flex: 1, marginRight: styleConstants.marginXS }]}
                     >
-                        <Text style={{ color: filters.selectedSchools.length > 0 ? currentTheme.primary : currentTheme.text, fontWeight: 'bold', fontSize: 11 }}>
+                        <Text style={{ color: filters.selectedSchools.length > 0 ? currentTheme.primary : currentTheme.text, fontWeight: 'bold', fontSize: styleConstants.fontSizeXS }}>
                             School
                         </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={filters.openClassFilterModal}
-                        style={[commonStyles.filterBtn, { borderColor: filters.selectedClasses.length > 0 ? currentTheme.primary : currentTheme.text, flex: 1, marginHorizontal: 2 }]}
+                        style={[commonStyles.filterBtn, { borderColor: filters.selectedClasses.length > 0 ? currentTheme.primary : currentTheme.text, flex: 1, marginHorizontal: styleConstants.margin2XS }]}
                     >
-                        <Text style={{ color: filters.selectedClasses.length > 0 ? currentTheme.primary : currentTheme.text, fontWeight: 'bold', fontSize: 11 }}>
+                        <Text style={{ color: filters.selectedClasses.length > 0 ? currentTheme.primary : currentTheme.text, fontWeight: 'bold', fontSize: styleConstants.fontSizeXS }}>
                             Class
                         </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={filters.openOtherFilterModal}
-                        style={[commonStyles.filterBtn, { borderColor: filters.selectedOthers.length > 0 ? currentTheme.primary : currentTheme.text, flex: 1, marginHorizontal: 2 }]}
+                        style={[commonStyles.filterBtn, { borderColor: filters.selectedOthers.length > 0 ? currentTheme.primary : currentTheme.text, flex: 1, marginHorizontal: styleConstants.margin2XS }]}
                     >
-                        <Text style={{ color: filters.selectedOthers.length > 0 ? currentTheme.primary : currentTheme.text, fontWeight: 'bold', fontSize: 11 }}>
+                        <Text style={{ color: filters.selectedOthers.length > 0 ? currentTheme.primary : currentTheme.text, fontWeight: 'bold', fontSize: styleConstants.fontSizeXS }}>
                             Other
                         </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={filters.clearAllFilters}
-                        style={[commonStyles.filterBtn, { borderColor: '#ef4444', flex: 1, marginLeft: 4 }]}
+                        style={[commonStyles.filterBtn, { borderColor: '#ef4444', flex: 1, marginLeft: styleConstants.marginXS }]}
                     >
-                        <Text style={{ color: '#ef4444', fontWeight: 'bold', fontSize: 11 }}>Clear</Text>
+                        <Text style={{ color: '#ef4444', fontWeight: 'bold', fontSize: styleConstants.fontSizeXS }}>Clear</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -176,7 +188,7 @@ export default function SpellsScreen() {
             </View>
             
             {/* Search Input with Clear Button */}
-            <View style={{ flexDirection: 'row', marginBottom: 0 }}>
+            <View style={{ flexDirection: 'row' }}>
                 <TextInput
                     style={[commonStyles.input, { backgroundColor: currentTheme.inputBackground, color: currentTheme.text, borderColor: currentTheme.card, flex: 1, marginBottom: 0 }]}
                     placeholder="Search by name..."
@@ -208,12 +220,12 @@ export default function SpellsScreen() {
                 {/* Error state (e.g. offline with no data) — recoverable via retry */}
                 {!isLoading && loadError && simpleSpells.length === 0 && (
                     <View style={commonStyles.loadingContainer}>
-                        <Text style={{ color: currentTheme.noticeText, marginTop: 8, textAlign: 'center', paddingHorizontal: 24 }}>
+                        <Text style={{ color: currentTheme.noticeText, marginTop: styleConstants.marginSM, textAlign: 'center', paddingHorizontal: 24 }}>
                             {loadError}
                         </Text>
                         <TouchableOpacity
                             onPress={() => reloadData()}
-                            style={[commonStyles.filterBtn, { borderColor: currentTheme.primary, marginTop: 16 }]}
+                            style={[commonStyles.filterBtn, { borderColor: currentTheme.primary, marginTop: styleConstants.marginLG }]}
                         >
                             <Text style={{ color: currentTheme.primary, fontWeight: 'bold' }}>Retry</Text>
                         </TouchableOpacity>
@@ -224,7 +236,7 @@ export default function SpellsScreen() {
                 {isLoading && (
                     <View style={commonStyles.loadingContainer}>
                         <ActivityIndicator size="large" color={currentTheme.primary} />
-                        <Text style={{ color: currentTheme.noticeText, marginTop: 8 }}>
+                        <Text style={{ color: currentTheme.noticeText, marginTop: styleConstants.marginSM }}>
                             Loading data...
                         </Text>
                     </View>
@@ -233,7 +245,7 @@ export default function SpellsScreen() {
                 {!isLoading && !loadError && !pageReady && (
                     <View style={commonStyles.loadingContainer}>
                         <ActivityIndicator size="large" color={currentTheme.primary} />
-                        <Text style={{ color: currentTheme.noticeText, marginTop: 8 }}>
+                        <Text style={{ color: currentTheme.noticeText, marginTop: styleConstants.marginSM }}>
                             Preparing spells...
                         </Text>
                     </View>
@@ -242,9 +254,9 @@ export default function SpellsScreen() {
                 {/* Main content */}
                 {!isLoading && pageReady && (
                     <FlatList
-                        style={{paddingVertical: 6 }}
+                        style={commonStyles.py_xs}
                         data={filteredSpells}
-                        keyExtractor={(item) => `${item.name}|${item.source}|${item.level}`}
+                        keyExtractor={(item, index) => `${item.source}|${item.name}|${item.level}|${index}`}
                         renderItem={renderSpellItem}
                         contentContainerStyle={{ paddingBottom: 40 }}
                         initialNumToRender={15}
@@ -316,59 +328,59 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
-        marginBottom: 8,
-        gap: 6,
-        paddingHorizontal: 4,
+        marginBottom: styleConstants.marginSM,
+        gap: styleConstants.gapXS,
+        paddingHorizontal: styleConstants.paddingXS,
     },
     levelButton: {
-        borderWidth: 1,
-        borderRadius: 16,
-        paddingVertical: 6,
+        borderWidth: styleConstants.borderXS,
+        borderRadius: styleConstants.borderRadiusXL,
+        paddingVertical: styleConstants.paddingXS,
         justifyContent: 'center',
         alignItems: 'center',
-        marginHorizontal: 1,
+        marginHorizontal: styleConstants.margin2XS,
         flex: 1,
         maxWidth: '9%',
     },
     levelButtonText: {
-        fontSize: 13,
+        fontSize: styleConstants.fontSizeSM,
         fontWeight: 'bold',
     },
     filterSummaryContainer: {
-        paddingTop: 6,
-        paddingBottom: 4,
+        paddingTop: styleConstants.paddingXS,
+        paddingBottom: styleConstants.paddingXS,
         display: 'flex',
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'flex-start',
         alignItems: 'center',
-        gap: 4,
+        gap: styleConstants.gapXS,
     },
     filterSummaryText: {
-        fontSize: 11,
+        fontSize: styleConstants.fontSizeXS,
         backgroundColor: '#666666',
         color: '#ffffff',
-        borderRadius: 8,
-        paddingHorizontal: 8,
-        paddingVertical: 4,
+        borderRadius: styleConstants.borderRadiusMD,
+        paddingHorizontal: styleConstants.paddingSM,
+        paddingVertical: styleConstants.paddingXS,
     },
     spellbookAbsoluteButtonWrapper: {
         position: 'absolute',
         right: 0,
         bottom: 0,
         zIndex: 1,
-        borderTopWidth: 1,
-        borderLeftWidth: 1,
+        borderTopWidth: styleConstants.borderXS,
+        borderLeftWidth: styleConstants.borderXS,
         borderTopLeftRadius: 8,
-        paddingTop: 8,
-        paddingRight: 6,
-        paddingBottom: 6,
-        paddingLeft: 8,
+        paddingTop: styleConstants.paddingSM,
+        paddingRight: styleConstants.paddingXS,
+        paddingBottom: styleConstants.paddingXS,
+        paddingLeft: styleConstants.paddingSM,
     },
     spellbookAbsoluteButton: {
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 8,
+        paddingHorizontal: styleConstants.paddingMD,
+        paddingVertical: styleConstants.paddingXS,
+        borderRadius: styleConstants.borderRadiusMD,
     }
 });
 

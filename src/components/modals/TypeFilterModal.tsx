@@ -1,9 +1,13 @@
 // REACT
 import React, { useMemo } from 'react';
+import { styleConstants } from 'src/styles/style-constants';
 import { Text, TouchableOpacity, View, StyleSheet } from 'react-native';
 
 // COMPONENTS
 import { BaseModal } from 'src/components/ui';
+
+// STYLES
+import { getCommonStyles } from 'src/styles/commonStyles';
 
 // INTERFACES
 interface TypeFilterModalProps {
@@ -30,6 +34,7 @@ export default function TypeFilterModal({
     onApply,
     theme
 }: TypeFilterModalProps) {
+    const commonStyles = getCommonStyles(theme);
     // Pre-compute selected state for better performance
     const selectedSet = useMemo(() => new Set(selectedTypes), [selectedTypes]);
 
@@ -40,7 +45,7 @@ export default function TypeFilterModal({
             theme={theme}
             title='Filter by Type'
             footerContent={
-                <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
+                <View style={[commonStyles.row_center_center, commonStyles.w_100, { gap: '4%' }]}>
                     <TouchableOpacity
                         onPress={onClear}
                         style={[styles.footerButton, { backgroundColor: theme.secondary }]}
@@ -77,7 +82,7 @@ export default function TypeFilterModal({
                                     { borderColor: theme.primary },
                                     isSelected && { backgroundColor: theme.primary }
                                 ]} />
-                                <Text style={[styles.optionText, { color: theme.text }]}>
+                                <Text style={[styles.optionText, commonStyles.text_primary]}>
                                     {type.charAt(0).toUpperCase() + type.slice(1)}
                                 </Text>
                             </TouchableOpacity>
@@ -92,18 +97,18 @@ export default function TypeFilterModal({
 const styles = StyleSheet.create({
     footerButton: {
         width: '48%',
-        borderRadius: 8,
-        paddingVertical: 12,
+        borderRadius: styleConstants.borderRadiusMD,
+        paddingVertical: styleConstants.paddingMD,
         alignItems: 'center',
     },
     footerButtonText: {
         color: 'white',
         fontWeight: 'bold',
-        fontSize: 16,
+        fontSize: styleConstants.fontSizeLG,
     },
     scrollView: {
         maxHeight: 300,
-        marginBottom: 16,
+        marginBottom: styleConstants.marginLG,
     },
     optionsGrid: {
         flexDirection: 'row',
@@ -116,18 +121,18 @@ const styles = StyleSheet.create({
     optionRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 8,
-        paddingHorizontal: 6,
-        marginBottom: 4,
+        paddingVertical: styleConstants.paddingSM,
+        paddingHorizontal: styleConstants.paddingXS,
+        marginBottom: styleConstants.marginXS,
     },
     checkbox: {
         width: 18,
         height: 18,
-        borderWidth: 2,
-        borderRadius: 4,
-        marginRight: 8,
+        borderWidth: styleConstants.borderSM,
+        borderRadius: styleConstants.borderRadiusSM,
+        marginRight: styleConstants.marginSM,
     },
     optionText: {
-        fontSize: 14,
+        fontSize: styleConstants.fontSizeMD,
     },
 });

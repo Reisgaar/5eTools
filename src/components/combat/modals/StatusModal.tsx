@@ -13,6 +13,7 @@ import { BaseModal } from 'src/components/ui';
 
 // STYLES
 import { createBaseModalStyles } from 'src/styles/baseModalStyles';
+import { getCommonStyles } from 'src/styles/commonStyles';
 
 // INTERFACES
 interface StatusModalProps {
@@ -39,6 +40,7 @@ export default function StatusModal({
 }: StatusModalProps): React.JSX.Element {
     const [selectedConditions, setSelectedConditions] = useState<string[]>(currentConditions);
     const styles = createBaseModalStyles(theme);
+    const commonStyles = getCommonStyles(theme);
 
     React.useEffect(() => {
         setSelectedConditions(currentConditions);
@@ -68,7 +70,7 @@ export default function StatusModal({
             title={modalTitle}
             subtitle={modalSubtitle}
             footerContent={
-                <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '4%' }}>
+                <View style={[commonStyles.w_100, commonStyles.row_center_center, { gap: '4%' }]}>
                     <TouchableOpacity
                         onPress={onClose}
                         style={[styles.footerButton, { backgroundColor: theme.secondary }]}
@@ -97,9 +99,9 @@ export default function StatusModal({
                                 name={selectedConditions.includes(item) ? 'checkbox' : 'square-outline'}
                                 size={18}
                                 color={theme.text}
-                                style={{ marginRight: 6 }}
+                                style={commonStyles.mr_xs}
                             />
-                            <Text style={{ color: theme.text, fontSize: 12 }}>{item}</Text>
+                            <Text style={[commonStyles.text_primary, commonStyles.text_sm]}>{item}</Text>
                         </TouchableOpacity>
                     ))}
                 </View>

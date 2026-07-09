@@ -1,5 +1,6 @@
 // REACT
 import React, { useState } from 'react';
+import { styleConstants } from 'src/styles/style-constants';
 import { StyleSheet, Text, TouchableOpacity, View, ScrollView, TextInput } from 'react-native';
 
 // EXPO
@@ -13,6 +14,7 @@ import { BaseModal } from 'src/components/ui';
 
 // STYLES
 import { createBaseModalStyles } from 'src/styles/baseModalStyles';
+import { getCommonStyles } from 'src/styles/commonStyles';
 
 // INTERFACES
 interface SettingsModalProps {
@@ -64,6 +66,7 @@ export default function SettingsModal({
     theme
 }: SettingsModalProps): React.JSX.Element {
     const modalStyles = createBaseModalStyles(theme);
+    const commonStyles = getCommonStyles(theme);
 
     const [selectedConditions, setSelectedConditions] = useState<string[]>(currentConditions);
     const [selectedColor, setSelectedColor] = useState<string | undefined>(currentColor);
@@ -131,11 +134,11 @@ export default function SettingsModal({
 
     const renderStatusTab = () => (
         <ScrollView style={styles.tabContent} showsVerticalScrollIndicator={false}>
-            <Text style={[styles.subtitle, { color: theme.text }]}>{creatureName}</Text>
+            <Text style={[styles.subtitle, commonStyles.text_primary]}>{creatureName}</Text>
 
             {/* Status Conditions Section */}
             <View style={styles.section}>
-                <Text style={[styles.sectionTitle, { color: theme.text }]}>Status Conditions</Text>
+                <Text style={[styles.sectionTitle, commonStyles.text_primary]}>Status Conditions</Text>
                 <View style={styles.conditionsGrid}>
                     {DEFAULT_CONDITIONS.map((item) => (
                         <TouchableOpacity
@@ -147,9 +150,9 @@ export default function SettingsModal({
                                 name={selectedConditions.includes(item) ? 'checkbox' : 'square-outline'}
                                 size={18}
                                 color={theme.text}
-                                style={{ marginRight: 6 }}
+                                style={commonStyles.mr_xs}
                             />
-                            <Text style={{ color: theme.text, fontSize: 12 }}>{item}</Text>
+                            <Text style={[commonStyles.text_primary, commonStyles.text_sm]}>{item}</Text>
                         </TouchableOpacity>
                     ))}
                 </View>
@@ -164,12 +167,12 @@ export default function SettingsModal({
 
     const renderColorTab = () => (
         <View style={styles.tabContent}>
-            <Text style={[styles.subtitle, { color: theme.text }]}>{creatureName}</Text>
+            <Text style={[styles.subtitle, commonStyles.text_primary]}>{creatureName}</Text>
 
             {/* Color Selection Section */}
             <View style={styles.section}>
-                <Text style={[styles.sectionTitle, { color: theme.text }]}>Creature Color</Text>
-                <Text style={[styles.sectionDescription, { color: theme.noticeText }]}>
+                <Text style={[styles.sectionTitle, commonStyles.text_primary]}>Creature Color</Text>
+                <Text style={[styles.sectionDescription, commonStyles.text_grey]}>
                     Select a color to highlight this creature in the combat tracker.
                 </Text>
 
@@ -195,7 +198,7 @@ export default function SettingsModal({
                 {/* Current Selection */}
                 {selectedColor && (
                     <View style={styles.currentSelection}>
-                        <Text style={[styles.currentText, { color: theme.text }]}>Selected:</Text>
+                        <Text style={[styles.currentText, commonStyles.text_primary]}>Selected:</Text>
                         <View style={[styles.currentColor, { backgroundColor: selectedColor }]} />
                     </View>
                 )}
@@ -221,11 +224,11 @@ export default function SettingsModal({
 
     const renderNotesTab = () => (
         <View style={styles.tabContent}>
-            <Text style={[styles.subtitle, { color: theme.text }]}>{creatureName}</Text>
+            <Text style={[styles.subtitle, commonStyles.text_primary]}>{creatureName}</Text>
 
             {/* Notes Section */}
             <View style={styles.section}>
-                <Text style={[styles.sectionTitle, { color: theme.text }]}>Notes</Text>
+                <Text style={[styles.sectionTitle, commonStyles.text_primary]}>Notes</Text>
                 <TextInput
                     style={[modalStyles.modalInput]}
                     placeholder="Add notes about this creature..."
@@ -247,12 +250,12 @@ export default function SettingsModal({
 
     const renderDeleteTab = () => (
         <View style={styles.tabContent}>
-            <Text style={[styles.subtitle, { color: theme.text }]}>{creatureName}</Text>
+            <Text style={[styles.subtitle, commonStyles.text_primary]}>{creatureName}</Text>
 
             {/* Combat Management Section */}
             <View style={[styles.section, styles.dangerSection]}>
                 <Text style={[styles.sectionTitle, { color: '#f44336' }]}>Combat Management</Text>
-                <Text style={[styles.dangerText, { color: theme.noticeText }]}>
+                <Text style={[styles.dangerText, commonStyles.text_grey]}>
                     Remove this creature from the combat tracker permanently.
                 </Text>
 
@@ -262,7 +265,7 @@ export default function SettingsModal({
                     </TouchableOpacity>
                 ) : (
                     <View style={styles.confirmationContainer}>
-                        <Text style={[styles.confirmationText, { color: theme.text }]}>
+                        <Text style={[styles.confirmationText, commonStyles.text_primary]}>
                             Are you sure you want to remove "{creatureName}" from combat?
                         </Text>
                         <View style={styles.confirmationButtons}>
@@ -362,18 +365,18 @@ export default function SettingsModal({
 const styles = StyleSheet.create({
     tabContainer: {
         flexDirection: 'row',
-        marginBottom: 16,
-        borderRadius: 8,
+        marginBottom: styleConstants.marginLG,
+        borderRadius: styleConstants.borderRadiusMD,
         overflow: 'hidden',
-        borderWidth: 1,
+        borderWidth: styleConstants.borderXS,
     },
     tabButton: {
         flex: 1,
-        paddingVertical: 12,
+        paddingVertical: styleConstants.paddingMD,
         alignItems: 'center',
     },
     tabText: {
-        fontSize: 14,
+        fontSize: styleConstants.fontSizeMD,
         fontWeight: 'bold',
     },
     tabContent: {
@@ -381,90 +384,90 @@ const styles = StyleSheet.create({
         maxHeight: 400,
     },
     subtitle: {
-        fontSize: 14,
-        marginBottom: 16,
+        fontSize: styleConstants.fontSizeMD,
+        marginBottom: styleConstants.marginLG,
         fontStyle: 'italic',
     },
     section: {
         marginBottom: 24,
-        paddingBottom: 16,
-        borderBottomWidth: 1,
+        paddingBottom: styleConstants.paddingLG,
+        borderBottomWidth: styleConstants.borderXS,
     },
     dangerSection: {
         borderBottomWidth: 0,
         marginBottom: 0,
     },
     sectionTitle: {
-        fontSize: 16,
+        fontSize: styleConstants.fontSizeLG,
         fontWeight: 'bold',
-        marginBottom: 12,
+        marginBottom: styleConstants.marginMD,
     },
     dangerText: {
-        fontSize: 12,
-        marginBottom: 12,
+        fontSize: styleConstants.fontSizeSM,
+        marginBottom: styleConstants.marginMD,
         fontStyle: 'italic',
     },
     conditionBtn: {
         flexDirection: 'row',
         alignItems: 'center',
-        margin: 4,
+        margin: styleConstants.marginXS,
         flex: 1,
         minWidth: 0,
     },
     confirmationContainer: {
-        marginTop: 8,
+        marginTop: styleConstants.marginSM,
     },
     confirmationText: {
-        fontSize: 14,
+        fontSize: styleConstants.fontSizeMD,
         textAlign: 'center',
-        marginBottom: 12,
+        marginBottom: styleConstants.marginMD,
         fontWeight: '500',
     },
     confirmationButtons: {
         flexDirection: 'row',
-        gap: 8,
+        gap: styleConstants.gapSM,
     },
 
     colorGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'space-around',
-        marginTop: 10,
+        marginTop: styleConstants.marginSM,
     },
     colorOption: {
         width: 40,
         height: 40,
-        borderRadius: 20,
-        margin: 5,
+        borderRadius: styleConstants.borderRadius2XL,
+        margin: styleConstants.marginXS,
         justifyContent: 'center',
         alignItems: 'center',
     },
     selectedColor: {
-        borderWidth: 2,
+        borderWidth: styleConstants.borderSM,
         borderColor: 'black',
     },
     currentSelection: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 10,
+        marginTop: styleConstants.marginSM,
     },
     currentText: {
-        fontSize: 14,
-        marginRight: 8,
+        fontSize: styleConstants.fontSizeMD,
+        marginRight: styleConstants.marginSM,
     },
     currentColor: {
         width: 20,
         height: 20,
-        borderRadius: 10,
+        borderRadius: styleConstants.borderRadiusMD,
     },
     actionRow: {
         flexDirection: 'row',
         justifyContent: 'space-around',
-        marginTop: 10,
+        marginTop: styleConstants.marginSM,
     },
     sectionDescription: {
-        fontSize: 12,
-        marginBottom: 10,
+        fontSize: styleConstants.fontSizeSM,
+        marginBottom: styleConstants.marginSM,
     },
     conditionsGrid: {
         flexDirection: 'row',
