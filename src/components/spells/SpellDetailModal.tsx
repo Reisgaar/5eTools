@@ -59,7 +59,6 @@ export default function SpellDetailModal({
     const { useAdvancedDiceRoll } = useAppSettingsStore();
     const styles = createSpellStyles(theme);
     const commonStyles = getCommonStyles(theme);
-    console.log('SpellDetailModal - spell:', JSON.stringify(spell, null, 2));
 
     // Modal state
     const [spellNotFoundVisible, setSpellNotFoundVisible] = React.useState(false);
@@ -75,9 +74,6 @@ export default function SpellDetailModal({
     });
 
     const handleCreaturePressLocal = (name: string, source: string) => {
-        console.log('GlobalModals SpellDetailModal onCreaturePress called with:', { name, source });
-        console.log('SpellDetailModal - simpleBeasts count:', simpleBeasts.length);
-
         // Get current spell source for 2024 logic
         const currentSpellSource = spell?.source;
 
@@ -86,8 +82,6 @@ export default function SpellDetailModal({
             const nameMatch = normalizeString(b.name) === normalizeString(name);
             return nameMatch;
         });
-
-        console.log('Matching creatures:', matchingCreatures.map(c => ({ name: c.name, source: c.source })));
 
         if (matchingCreatures.length === 0) {
             // No creatures found
@@ -102,8 +96,6 @@ export default function SpellDetailModal({
             const isBeast2024 = is2024Source(b.source);
             return isCurrentSpell2024 ? isBeast2024 : !isBeast2024;
         });
-
-        console.log('Filtered creatures:', filteredCreatures.map(c => ({ name: c.name, source: c.source })));
 
         if (filteredCreatures.length === 0) {
             // No creatures found after filtering
@@ -132,9 +124,6 @@ export default function SpellDetailModal({
     };
 
     const handleSpellPressLocal = (name: string, source: string) => {
-        console.log('GlobalModals SpellDetailModal onSpellPress called with:', { name, source });
-        console.log('SpellDetailModal - simpleSpells count:', simpleSpells.length);
-
         // Get current spell source for 2024 logic
         const currentSpellSource = spell?.source;
 
@@ -143,8 +132,6 @@ export default function SpellDetailModal({
             const nameMatch = normalizeString(s.name) === normalizeString(name);
             return nameMatch;
         });
-
-        console.log('Matching spells:', matchingSpells.map(sp => ({ name: sp.name, source: sp.source })));
 
         if (matchingSpells.length === 0) {
             // No spells found
@@ -159,8 +146,6 @@ export default function SpellDetailModal({
             const isSpell2024 = is2024Source(s.source);
             return isCurrentSpell2024 ? isSpell2024 : !isSpell2024;
         });
-
-        console.log('Filtered spells:', filteredSpells.map(sp => ({ name: sp.name, source: sp.source })));
 
         if (filteredSpells.length === 0) {
             // No spells found after filtering

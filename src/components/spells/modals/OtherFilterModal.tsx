@@ -1,9 +1,10 @@
 // REACT
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 // COMPONENTS
-import { BaseModal } from 'src/components/ui';
+import { BaseModal, Button } from 'src/components/ui';
 
 // STYLES
 import { createBaseModalStyles } from 'src/styles/baseModalStyles';
@@ -48,45 +49,38 @@ export default function OtherFilterModal({
             title="Filter by Type"
             maxHeight="80%"
             footerContent={
-                <View style={[commonStyles.w_100, commonStyles.row_center_center, { gap: '4%' }]}>
-                    <TouchableOpacity
-                        onPress={onSelectAll}
-                        style={[styles.footerButton, { backgroundColor: theme.secondary }]}
-                    >
-                        <Text style={styles.footerButtonText}>{allSelected ? 'Clear All' : 'Select All'}</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        onPress={onApply}
-                        style={[styles.footerButton, { backgroundColor: theme.primary }]}
-                    >
-                        <Text style={styles.footerButtonText}>{isApplying ? 'Applying...' : 'Apply'}</Text>
-                    </TouchableOpacity>
+                <View style={[commonStyles.w_100, commonStyles.row_center_center, commonStyles.gap_sm]}>
+                    <View style={{ flex: 1 }}><Button title={allSelected ? 'Clear All' : 'Select All'} variant="secondary" onPress={onSelectAll} fullWidth /></View>
+                    <View style={{ flex: 1 }}><Button title="Apply" variant="primary" onPress={onApply} loading={isApplying} fullWidth /></View>
                 </View>
             }
         >
             <View style={styles.optionsGrid}>
-                {options.map((option) => (
-                    <View key={option.value} style={styles.optionContainer}>
-                        <TouchableOpacity
-                            style={[
-                                styles.optionRow,
-                                { borderColor: theme.border },
-                                selectedOptions.includes(option.value) && { backgroundColor: theme.primary + '20' }
-                            ]}
-                            onPress={() => onToggleOption(option.value)}
-                        >
-                            <View style={[
-                                styles.checkbox,
-                                { borderColor: theme.primary },
-                                selectedOptions.includes(option.value) && { backgroundColor: theme.primary }
-                            ]}
-                            />
-                            <Text style={[styles.optionText, commonStyles.text_primary]}>
-                                {option.label}
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
-                ))}
+                {options.map((option) => {
+                    const isSelected = selectedOptions.includes(option.value);
+                    return (
+                        <View key={option.value} style={styles.optionContainer}>
+                            <TouchableOpacity
+                                style={[
+                                    styles.optionRow,
+                                    { borderColor: theme.border },
+                                    isSelected && { backgroundColor: theme.primary + '20' }
+                                ]}
+                                onPress={() => onToggleOption(option.value)}
+                            >
+                                <View style={[
+                                    styles.checkbox,
+                                    isSelected ? { backgroundColor: theme.primary, borderColor: theme.primary } : { borderColor: theme.border }
+                                ]}>
+                                    {isSelected && <Ionicons name="checkmark" size={14} color="#fff" />}
+                                </View>
+                                <Text style={[styles.optionText, commonStyles.text_primary]}>
+                                    {option.label}
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    );
+                })}
             </View>
         </BaseModal>
     );

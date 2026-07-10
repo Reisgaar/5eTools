@@ -1,12 +1,12 @@
 // REACT
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TextInput, Alert } from 'react-native';
 
 // STORES
 import { useCampaignStore, useSpellbookStore } from 'src/stores';
 
 // COMPONENTS
-import { BaseModal } from 'src/components/ui';
+import { BaseModal, Button } from 'src/components/ui';
 
 // STYLES
 import { createBaseModalStyles } from 'src/styles/baseModalStyles';
@@ -83,13 +83,13 @@ export default function CreateSpellbookModal({
             maxHeight="80%"
             footerContent={
                 <View style={[commonStyles.w_100, commonStyles.row_center_center, { gap: '4%' }]}>
-                    <TouchableOpacity
+                    <Button
+                        title="Create"
                         onPress={handleCreateSpellbook}
-                        style={[styles.footerButton, { backgroundColor: theme.primary }]}
+                        variant="primary"
+                        fullWidth
                         disabled={!spellbookName.trim()}
-                    >
-                        <Text style={styles.footerButtonText}>Create</Text>
-                    </TouchableOpacity>
+                    />
                 </View>
             }
         >

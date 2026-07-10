@@ -11,3 +11,4 @@ export { default as Button } from 'src/components/ui/Button';
 export { default as ListItem } from 'src/components/ui/ListItem';
 export { default as ActionMenu } from 'src/components/ui/ActionMenu';
 export { default as ImagePicker } from 'src/components/ui/ImagePicker';
+export { default as SelectField } from 'src/components/ui/SelectField';

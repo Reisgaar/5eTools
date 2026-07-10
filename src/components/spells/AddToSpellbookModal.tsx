@@ -1,12 +1,12 @@
 // REACT
 import React from 'react';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput } from 'react-native';
 
 // STORES
 import { useCampaignStore, useSpellbookStore } from 'src/stores';
 
 // COMPONENTS
-import { BaseModal } from 'src/components/ui';
+import { BaseModal, Button } from 'src/components/ui';
 import SpellbookItem from 'src/components/spells/SpellbookItem';
 import useSpellbookSearch from 'src/components/spells/useSpellbookSearch';
 
@@ -82,30 +82,12 @@ export default function AddToSpellbookModal({
                 maxHeight="80%"
                 footerContent={
                     <View style={[commonStyles.w_100, commonStyles.row_center_center, { gap: '4%' }]}>
-                        <TouchableOpacity
-                            onPress={onClose}
-                            style={[styles.footerButton, { backgroundColor: theme.primary }]}
-                        >
-                            <Text style={styles.footerButtonText}>Done</Text>
-                        </TouchableOpacity>
+                        <Button title="Done" onPress={onClose} variant="secondary" fullWidth />
                     </View>
                 }
             >
-                {/* Search */}
-                <View style={styles.modalSection}>
-                    <Text style={styles.modalSectionTitle}>Search Spellbooks</Text>
-                    <TextInput
-                        style={styles.modalInput}
-                        placeholder="Search spellbooks..."
-                        placeholderTextColor={theme.noticeText}
-                        value={searchQuery}
-                        onChangeText={setSearchQuery}
-                    />
-                </View>
-
                 {/* Spellbooks List */}
                 <View style={styles.modalSection}>
-                    <Text style={styles.modalSectionTitle}>Select Spellbooks</Text>
                     {searchedSpellbooks.length === 0 ? (
                         <Text style={styles.modalNoticeText}>
                             {searchQuery.trim() ? 'No spellbooks found matching your search.' : 'No spellbooks available. Create one first!'}

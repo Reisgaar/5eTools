@@ -27,6 +27,7 @@ export default function TabsLayout() {
     const screens = useMemo(() => [
         { name: 'home', title: 'Home', icon: 'home' },
         { name: 'compendium', title: 'Compendium', icon: 'library' },
+        { name: 'dice', title: 'Dice', icon: 'dice' },
         { name: 'combat', title: 'Combat', icon: 'skull' },
         { name: 'settings', title: 'Settings', icon: 'settings' },
     ], []);
@@ -48,7 +49,8 @@ export default function TabsLayout() {
                         position: 'absolute',
                         bottom: bottomGap,
                         height: TAB_BAR_HEIGHT,
-                        marginHorizontal: styleConstants.marginMD,
+                        marginHorizontal: styleConstants.marginSM,
+                        paddingVertical: styleConstants.paddingSM,
                         borderRadius: styleConstants.borderRadiusCircle,
                         borderWidth: 1,
                         borderTopWidth: 1,
@@ -60,8 +62,8 @@ export default function TabsLayout() {
                         shadowRadius: 8,
                         shadowOffset: { width: 0, height: 2 }
                     },
-                    tabBarItemStyle: { paddingVertical: styleConstants.paddingXS },
-                    tabBarLabelStyle: { fontSize: styleConstants.fontSizeXS, fontWeight: '600' },
+                    tabBarItemStyle: { paddingHorizontal: 0 },
+                    tabBarLabelStyle: { fontSize: styleConstants.fontSizeXS, lineHeight: 14, letterSpacing: -0.2, fontWeight: '600' },
                     tabBarIcon: ({ color, size }) => (
                         <Ionicons
                             name={(screen?.icon || 'ellipse') as keyof typeof Ionicons.glyphMap}

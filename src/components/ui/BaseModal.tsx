@@ -1,5 +1,5 @@
 // REACT
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Modal, View, Text, TouchableOpacity, ScrollView, Image, Keyboard, Dimensions } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
@@ -39,6 +39,9 @@ interface BaseModalProps {
     // Set false when the children manage their own scrolling (e.g. a ReorderableList/FlatList),
     // so we don't nest a scroll view inside another.
     scrollable?: boolean;
+
+    // When this value changes, the internal scroll view jumps back to the top (e.g. wizard steps).
+    scrollResetKey?: string | number;
 }
 
 /**
@@ -55,10 +58,16 @@ export default function BaseModal({
     tokenUrl,
     footerContent,
     scrollable = true,
+    scrollResetKey,
 }: BaseModalProps) {
     const styles = createBaseModalStyles(theme);
     const commonStyles = getCommonStyles(theme);
     const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+    const scrollRef = useRef<ScrollView>(null);
+
+    useEffect(() => {
+        scrollRef.current?.scrollTo({ y: 0, animated: false });
+    }, [scrollResetKey]);
 
     useEffect(() => {
         const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
@@ -109,7 +118,7 @@ export default function BaseModal({
                     {/* Content */}
                     <View style={[styles.modalBody, { flex: 1, maxHeight: 300 }]}>
                         {scrollable ? (
-                            <ScrollView showsVerticalScrollIndicator={true}>
+                            <ScrollView ref={scrollRef} showsVerticalScrollIndicator={true}>
                                 {children}
                             </ScrollView>
                         ) : (

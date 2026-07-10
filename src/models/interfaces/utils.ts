@@ -83,17 +83,100 @@ export interface Spell {
     [key: string]: any;
 }
 
-export interface Player {
+export interface AbilityScores {
+    str: number;
+    dex: number;
+    con: number;
+    int: number;
+    wis: number;
+    cha: number;
+}
+
+// A single class entry — characters can have several (multiclassing).
+export interface CharacterClass {
+    name: string;
+    source?: string;
+    subclass?: string;
+    subclassSource?: string;
+    level: number;
+}
+
+export interface InventoryItem {
+    name: string;
+    source?: string;
+    quantity: number;
+    equipped?: boolean;
+    attuned?: boolean;
+}
+
+export interface CharacterCreature {
+    name: string;
+    source: string;
+}
+
+// A spell on a character's list — a spellbook spell plus a "prepared" flag.
+export interface CharacterSpell extends SpellbookSpell {
+    prepared?: boolean;
+}
+
+export interface Currency {
+    cp?: number;
+    sp?: number;
+    ep?: number;
+    gp?: number;
+    pp?: number;
+}
+
+/**
+ * A player character. The first block mirrors the original lightweight "Player" shape (still
+ * consumed by the combat tracker); everything below is optional so pre-existing saved data
+ * loads unchanged. `Player` remains an alias for backward compatibility.
+ */
+export interface Character {
+    // Core / combat-tracker fields
     name: string;
     race: string;
-    class: string;
+    class: string; // display string; derived from `classes` when that is present
     maxHp: number;
     ac: number;
     passivePerception?: number;
     initiativeBonus?: number;
     tokenUrl?: string;
     campaignId?: string;
+
+    // Identity
+    subrace?: string;
+    background?: string;
+    alignment?: string;
+    gender?: string;
+    notes?: string;
+
+    // Level & classes
+    level?: number;                 // total level fallback when `classes` is absent
+    classes?: CharacterClass[];     // multiclass-aware
+
+    // Ability scores & proficiencies
+    abilities?: AbilityScores;
+    savingThrowProficiencies?: string[]; // ability keys: 'str','dex',…
+    skillProficiencies?: string[];       // lowercase skill names: 'perception',…
+    skillExpertise?: string[];
+
+    // Vitals
+    currentHp?: number;
+    tempHp?: number;
+    speed?: number;
+    hitDice?: string;               // e.g. "3d10"
+
+    // Attached content (later phases)
+    inventory?: InventoryItem[];
+    currency?: Currency;
+    spellbookId?: string;
+    spells?: CharacterSpell[];
+    creatures?: CharacterCreature[];
 }
+
+// Backward-compatible alias — combat/import code and storage still refer to `Player`.
+export type Player = Character;
 
 export interface SpellbookSpell {
     name: string;

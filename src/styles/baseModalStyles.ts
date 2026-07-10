@@ -376,7 +376,7 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
     // Beast Detail Modal specific styles
     beastDetailModalContent: {
         backgroundColor: theme.card,
-        borderRadius: styleConstants.borderRadiusLG,
+        borderRadius: styleConstants.borderRadius2XL,
         marginHorizontal: styleConstants.marginSM,
         width: '95%',
         maxWidth: '100%',
@@ -461,7 +461,7 @@ export const createBaseModalStyles = (theme: any) => StyleSheet.create({
         flex: 1,
         marginHorizontal: styleConstants.margin2XS,
         backgroundColor: theme.primary,
-        borderRadius: styleConstants.borderRadiusMD,
+        borderRadius: styleConstants.borderRadiusLG,
         paddingVertical: styleConstants.paddingXS,
         paddingHorizontal: styleConstants.padding2XS,
     },

@@ -1,7 +1,10 @@
 // REACT
 import React from 'react';
 import { styleConstants } from 'src/styles/style-constants';
-import { Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+
+// Support / donation link — replace with your own Buy Me a Coffee (or Ko-fi, PayPal, etc.) page.
+const SUPPORT_URL = 'https://www.buymeacoffee.com/';
 
 // STORES
 import { useAppSettingsStore } from 'src/stores';
@@ -32,6 +35,20 @@ export default function SettingsScreen() {
     return (
         <ScrollView style={{ flex: 1, backgroundColor: currentTheme.background }} contentContainerStyle={{ paddingBottom: tabInset }}>
             <View style={[commonStyles.container, { backgroundColor: currentTheme.background }]}>
+
+                {/* Support / Buy me a coffee */}
+                <TouchableOpacity
+                    onPress={() => Linking.openURL(SUPPORT_URL)}
+                    activeOpacity={0.85}
+                    style={styles.coffeeButton}
+                >
+                    <Ionicons name="cafe" size={22} color="#3B2F14" />
+                    <View style={{ marginLeft: styleConstants.marginSM }}>
+                        <Text style={styles.coffeeTitle}>Buy me a coffee</Text>
+                        <Text style={styles.coffeeSubtitle}>Support the development of this app</Text>
+                    </View>
+                    <Ionicons name="open-outline" size={18} color="#3B2F14" style={{ marginLeft: 'auto' }} />
+                </TouchableOpacity>
 
                 <Text style={[styles.sectionTitle, { color: currentTheme.text }]}>Theme</Text>
                 <View style={[styles.sectionContainer, { backgroundColor: currentTheme.settingsContainer }]}>
@@ -195,6 +212,18 @@ export default function SettingsScreen() {
 }
 
 const styles = StyleSheet.create({
+    coffeeButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#FFDD00', // Buy Me a Coffee brand yellow
+        borderRadius: styleConstants.borderRadiusMD,
+        paddingVertical: styleConstants.paddingMD,
+        paddingHorizontal: styleConstants.paddingLG,
+        marginBottom: 26,
+        ...styleConstants.shadowSM,
+    },
+    coffeeTitle: { color: '#3B2F14', fontWeight: '800', fontSize: styleConstants.fontSizeMD },
+    coffeeSubtitle: { color: '#3B2F14', opacity: 0.8, fontSize: styleConstants.fontSizeXS, marginTop: 2 },
     sectionTitle: {
         fontSize: styleConstants.fontSizeMD,
         fontWeight: '600',

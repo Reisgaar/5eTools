@@ -1,0 +1,60 @@
+{
+	"_note": "Player's Handbook (2014) human names, organised by Forgotten Realms ethnicity. Not present in the bundled XGE names.json (which gives real-world-flavoured given names with no surnames). Used to give human characters authentic full names, including surnames. Tethyrians use Chondathan names per the PHB, expressed here via \"sameAs\".",
+	"race": "Human",
+	"source": "PHB",
+	"page": 20,
+	"ethnicities": [
+		{
+			"name": "Calishite",
+			"male": ["Aseir", "Bardeid", "Haseid", "Khemed", "Mehmen", "Sudeiman", "Zasheir"],
+			"female": ["Atala", "Ceidil", "Hama", "Jasmal", "Meilil", "Seipora", "Yasheira", "Zasheida"],
+			"surname": ["Basha", "Dumein", "Jassan", "Khalid", "Mostana", "Pashar", "Rein"]
+		},
+		{
+			"name": "Chondathan",
+			"male": ["Darvin", "Dorn", "Evendur", "Gorstag", "Grim", "Helm", "Malark", "Morn", "Randal", "Stedd"],
+			"female": ["Arveene", "Esvele", "Jhessail", "Kerri", "Lureene", "Miri", "Rowan", "Shandri", "Tessele"],
+			"surname": ["Amblecrown", "Buckman", "Dundragon", "Evenwood", "Greycastle", "Tallstag"]
+		},
+		{
+			"name": "Damaran",
+			"male": ["Bor", "Fodel", "Glar", "Grigor", "Igan", "Ivor", "Kosef", "Mival", "Orel", "Pavel", "Sergor"],
+			"female": ["Alethra", "Kara", "Katernin", "Mara", "Natali", "Olma", "Tana", "Zora"],
+			"surname": ["Bersk", "Chernin", "Dotsk", "Kulenov", "Marsk", "Nemetsk", "Shemov", "Starag"]
+		},
+		{
+			"name": "Illuskan",
+			"male": ["Ander", "Blath", "Bran", "Frath", "Geth", "Lander", "Luth", "Malcer", "Stor", "Taman", "Urth"],
+			"female": ["Amafrey", "Betha", "Cefrey", "Kethra", "Mara", "Olga", "Silifrey", "Westra"],
+			"surname": ["Brightwood", "Helder", "Hornraven", "Lackman", "Stormwind", "Windrivver"]
+		},
+		{
+			"name": "Mulan",
+			"male": ["Aoth", "Bareris", "Ehput-Ki", "Kethoth", "Mumed", "Ramas", "So-Kehur", "Thazar-De", "Urhur"],
+			"female": ["Arizima", "Chathi", "Nephis", "Nulara", "Murithi", "Sefris", "Thola", "Umara", "Zolis"],
+			"surname": ["Ankhalab", "Anskuld", "Fezim", "Hahpet", "Nathandem", "Sepret", "Uuthrakt"]
+		},
+		{
+			"name": "Rashemi",
+			"male": ["Borivik", "Faurgar", "Jandar", "Kanithar", "Madislak", "Ralmevik", "Shaumar", "Vladislak"],
+			"female": ["Fyevarra", "Hulmarra", "Immith", "Imzel", "Navarra", "Shevarra", "Tammith", "Yuldra"],
+			"surname": ["Chergoba", "Dyernina", "Iltazyara", "Murnyethara", "Stayanoga", "Ulmokina"]
+		},
+		{
+			"name": "Shou",
+			"male": ["An", "Chen", "Chi", "Fai", "Jiang", "Jun", "Lian", "Long", "Meng", "On", "Shan", "Shui", "Wen"],
+			"female": ["Bai", "Chao", "Jia", "Lei", "Mei", "Qiao", "Shui", "Tai"],
+			"surname": ["Chien", "Huang", "Kao", "Kung", "Lao", "Ling", "Mei", "Pin", "Shin", "Sum", "Tan", "Wan"]
+		},
+		{
+			"name": "Tethyrian",
+			"sameAs": "Chondathan"
+		},
+		{
+			"name": "Turami",
+			"male": ["Anton", "Diero", "Marcon", "Pieron", "Rimardo", "Romero", "Salazar", "Umbero"],
+			"female": ["Balama", "Dona", "Faila", "Jalana", "Luisa", "Marta", "Quara", "Selise", "Vonda"],
+			"surname": ["Agosto", "Astorio", "Calabra", "Domine", "Falone", "Marivaldi", "Pisacar", "Ramondo"]
+		}
+	]
+}

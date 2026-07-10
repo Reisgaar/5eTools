@@ -1,7 +1,6 @@
 // REACT
 import React from 'react';
-import { styleConstants } from 'src/styles/style-constants';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
 
 // EXPO
 import { Ionicons } from '@expo/vector-icons';
@@ -14,10 +13,9 @@ import { useCombat } from 'src/context/CombatContext';
 import { useModal } from 'src/context/ModalContext';
 
 // COMPONENTS
-import { BaseModal } from 'src/components/ui';
+import { BaseModal, Button, ListItem } from 'src/components/ui';
 
 // STYLES
-import { createBaseModalStyles } from 'src/styles/baseModalStyles';
 import { getCommonStyles } from 'src/styles/commonStyles';
 
 // INTERFACES
@@ -31,7 +29,6 @@ interface CampaignSelectorModalProps {
 export default function CampaignSelectorModal({ visible }: CampaignSelectorModalProps): React.JSX.Element {
     const { campaigns, selectedCampaignId, selectCampaign, clearSelectedCampaign } = useCampaignStore();
     const { currentTheme } = useAppSettingsStore();
-    const styles = createBaseModalStyles(currentTheme);
     const commonStyles = getCommonStyles(currentTheme);
     const { getSortedCombats, reloadCombats } = useCombat();
     const { getSpellbooksByCampaign, clearSpellbookSelection } = useSpellbookStore();
@@ -77,97 +74,40 @@ export default function CampaignSelectorModal({ visible }: CampaignSelectorModal
             width='90%'
             maxHeight="80%"
             footerContent={
-                <View style={[commonStyles.row_center_center, commonStyles.w_100, { gap: '4%' }]}>
-                    <TouchableOpacity
-                        onPress={closeCampaignSelectorModal}
-                        style={[styles.footerButton, { backgroundColor: currentTheme.primary }]}
-                    >
-                        <Text style={styles.footerButtonText}>Cancel</Text>
-                    </TouchableOpacity>
+                <View style={[commonStyles.row_center_center, commonStyles.w_100]}>
+                    <View style={{ flex: 1 }}>
+                        <Button title="Cancel" variant="secondary" onPress={closeCampaignSelectorModal} fullWidth />
+                    </View>
                 </View>
             }
         >
             {campaigns && campaigns.length > 0 ? (
                 <>
-                    <TouchableOpacity
-                        style={[
-                            localStyles.campaignItem,
-                            { backgroundColor: !selectedCampaignId ? currentTheme.primary + '20' : 'transparent' }
-                        ]}
+                    <ListItem
+                        selected={!selectedCampaignId}
                         onPress={handleShowAll}
-                    >
-                        <View style={localStyles.campaignContent}>
-                            <Text style={[localStyles.campaignName, commonStyles.text_primary]}>
-                                All Campaigns
-                            </Text>
-                            <Text style={[localStyles.campaignDescription, commonStyles.text_grey]}>
-                                Show all campaigns • {getSortedCombats(null).length} combats • {getSpellbooksByCampaign(undefined).length} spellbooks
-                            </Text>
-                        </View>
-                        {!selectedCampaignId && (
-                            <Ionicons name="checkmark-circle" size={20} color={currentTheme.primary} />
-                        )}
-                    </TouchableOpacity>
+                        title="All Campaigns"
+                        subtitle={`Show all • ${getSortedCombats(null).length} combats • ${getSpellbooksByCampaign(undefined).length} spellbooks`}
+                        trailing={!selectedCampaignId ? <Ionicons name="checkmark-circle" size={22} color={currentTheme.primary} /> : undefined}
+                    />
                     {campaigns.map(campaign => (
-                        <TouchableOpacity
+                        <ListItem
                             key={campaign.id}
-                            style={[
-                                localStyles.campaignItem,
-                                { backgroundColor: selectedCampaignId === campaign.id ? currentTheme.primary + '20' : 'transparent' }
-                            ]}
+                            selected={selectedCampaignId === campaign.id}
                             onPress={() => handleSelectCampaign(campaign.id)}
-                        >
-                            <View style={localStyles.campaignContent}>
-                                <Text style={[localStyles.campaignName, commonStyles.text_primary]}>
-                                    {campaign.name}
-                                </Text>
-                                <Text style={[localStyles.campaignDescription, commonStyles.text_grey]}>
-                                    {campaign.description && `${campaign.description} • `}
-                                    {getSortedCombats(campaign.id).length} combats • {getSpellbooksByCampaign(campaign.id).length} spellbooks
-                                </Text>
-                            </View>
-                            {selectedCampaignId === campaign.id && (
-                                <Ionicons name="checkmark-circle" size={20} color={currentTheme.primary} />
-                            )}
-                        </TouchableOpacity>
+                            title={campaign.name}
+                            subtitle={`${campaign.description ? `${campaign.description} • ` : ''}${getSortedCombats(campaign.id).length} combats • ${getSpellbooksByCampaign(campaign.id).length} spellbooks`}
+                            trailing={selectedCampaignId === campaign.id ? <Ionicons name="checkmark-circle" size={22} color={currentTheme.primary} /> : undefined}
+                        />
                     ))}
-                </>) : (
-                    <View style={localStyles.emptyState}>
-                        <Text style={[localStyles.emptyText, commonStyles.text_grey]}>
-                            No campaigns available
-                        </Text>
-                    </View>
-                )}
+                </>
+            ) : (
+                <View style={{ padding: 40, alignItems: 'center' }}>
+                    <Text style={[commonStyles.text_lg, commonStyles.text_grey, commonStyles.text_center]}>
+                        No campaigns available
+                    </Text>
+                </View>
+            )}
         </BaseModal>
     );
 };
-
-const localStyles = StyleSheet.create({
-    campaignItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: styleConstants.paddingLG,
-        paddingHorizontal: styleConstants.paddingXL,
-        borderBottomWidth: styleConstants.borderXS,
-        borderBottomColor: '#eee',
-    },
-    campaignContent: {
-        flex: 1,
-    },
-    campaignName: {
-        fontSize: styleConstants.fontSizeLG,
-        fontWeight: '600',
-        marginBottom: styleConstants.marginXS,
-    },
-    campaignDescription: {
-        fontSize: styleConstants.fontSizeMD,
-    },
-    emptyState: {
-        padding: 40,
-        alignItems: 'center',
-    },
-    emptyText: {
-        fontSize: styleConstants.fontSizeLG,
-        textAlign: 'center',
-    },
-});

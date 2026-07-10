@@ -1,8 +1,7 @@
 // REACT
 import React from 'react';
-import { styleConstants } from 'src/styles/style-constants';
 import { getCommonStyles } from 'src/styles/commonStyles';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
 
 // EXPO
 import { Ionicons } from '@expo/vector-icons';
@@ -11,7 +10,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAppSettingsStore, useCampaignStore, useSpellbookStore } from 'src/stores';
 
 // COMPONENTS
-import { BaseModal } from 'src/components/ui';
+import { BaseModal, Button, ListItem } from 'src/components/ui';
 
 // INTERFACES
 interface SpellbookSelectorModalProps {
@@ -85,77 +84,36 @@ export default function SpellbookSelectorModal({
             theme={currentTheme}
             title='Select Spellbook'
             footerContent={
-                <View style={[commonStyles.w_100, commonStyles.row_center_center, { gap: '4%' }]}>
-                    <TouchableOpacity
-                        onPress={handleDeleteSpellbook}
-                        style={[styles.footerButton, commonStyles.w_33, { backgroundColor: '#dc2626' }]}
-                    >
-                        <Text style={[styles.footerButtonText, commonStyles.text_md]}>Delete</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        onPress={onCreateSpellbook}
-                        style={[styles.footerButton, commonStyles.w_33, { backgroundColor: '#008000' }]}
-                    >
-                        <Text style={[styles.footerButtonText, commonStyles.text_md]}>Create New</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        onPress={onClose}
-                        style={[styles.footerButton, commonStyles.w_33, { backgroundColor: currentTheme.primary }]}
-                    >
-                        <Text style={[styles.footerButtonText, commonStyles.text_md]}>Confirm</Text>
-                    </TouchableOpacity>
+                <View style={[commonStyles.w_100, commonStyles.row_center_center, commonStyles.gap_sm]}>
+                    <View style={{ flex: 1 }}><Button title="Delete" variant="danger" size="sm" onPress={handleDeleteSpellbook} fullWidth /></View>
+                    <View style={{ flex: 1 }}><Button title="New" icon="add" variant="secondary" size="sm" onPress={onCreateSpellbook} fullWidth /></View>
+                    <View style={{ flex: 1 }}><Button title="Done" variant="primary" size="sm" onPress={onClose} fullWidth /></View>
                 </View>
             }
         >
             {filteredSpellbooks.length > 0 ? (
                 <>
-                    <TouchableOpacity
-                        style={[
-                            styles.spellbookItem,
-                            { backgroundColor: currentSpellbookId === null ? currentTheme.primary + '20' : 'transparent' }
-                        ]}
+                    <ListItem
+                        selected={currentSpellbookId === null}
                         onPress={handleClearFilter}
-                    >
-                        <View style={styles.spellbookContent}>
-                            <Text style={[styles.spellbookName, commonStyles.text_primary]}>
-                                All Spells
-                            </Text>
-                            <Text style={[styles.spellbookDescription, commonStyles.text_grey]}>
-                                Show all spells without filter
-                            </Text>
-                        </View>
-                        {currentSpellbookId === null && (
-                            <Ionicons name="checkmark-circle" size={20} color={currentTheme.primary} />
-                        )}
-                    </TouchableOpacity>
-
+                        title="All Spells"
+                        subtitle="Show all spells without filter"
+                        trailing={currentSpellbookId === null ? <Ionicons name="checkmark-circle" size={22} color={currentTheme.primary} /> : undefined}
+                    />
                     {filteredSpellbooks.map((spellbook) => (
-                        <TouchableOpacity
+                        <ListItem
                             key={`${spellbook.id}_${spellbook.name}`}
-                            style={[
-                                styles.spellbookItem,
-                                { backgroundColor: currentSpellbookId === spellbook.id ? currentTheme.primary + '20' : 'transparent' }
-                            ]}
+                            selected={currentSpellbookId === spellbook.id}
                             onPress={() => handleSelectSpellbook(spellbook.id)}
-                        >
-                            <View style={styles.spellbookContent}>
-                                <Text style={[styles.spellbookName, commonStyles.text_primary]}>
-                                    {spellbook.name}
-                                </Text>
-                                <Text style={[styles.spellbookDescription, commonStyles.text_grey]}>
-                                    {spellbook.description && `${spellbook.description} • `}
-                                    {(spellbook.spellsIndex || []).length} spells
-                                </Text>
-                            </View>
-                            {currentSpellbookId === spellbook.id && (
-                                <Ionicons name="checkmark-circle" size={20} color={currentTheme.primary} />
-                            )}
-                        </TouchableOpacity>
+                            title={spellbook.name}
+                            subtitle={`${spellbook.description ? `${spellbook.description} • ` : ''}${(spellbook.spellsIndex || []).length} spells`}
+                            trailing={currentSpellbookId === spellbook.id ? <Ionicons name="checkmark-circle" size={22} color={currentTheme.primary} /> : undefined}
+                        />
                     ))}
                 </>
             ) : (
-                <View style={styles.emptyState}>
-                    <Text style={[styles.emptyText, commonStyles.text_grey]}>
+                <View style={{ padding: 40, alignItems: 'center' }}>
+                    <Text style={[commonStyles.text_lg, commonStyles.text_grey, commonStyles.text_center]}>
                         No spellbooks available
                     </Text>
                 </View>
@@ -163,48 +121,3 @@ export default function SpellbookSelectorModal({
         </BaseModal>
     );
 };
-
-const styles = StyleSheet.create({
-    footerButton: {
-        width: '48%',
-        borderRadius: styleConstants.borderRadiusMD,
-        paddingVertical: styleConstants.paddingMD,
-        alignItems: 'center',
-    },
-    footerButtonText: {
-        color: 'white',
-        fontWeight: 'bold',
-        fontSize: styleConstants.fontSizeLG,
-    },
-    spellbookItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: styleConstants.paddingLG,
-        paddingHorizontal: styleConstants.paddingXL,
-        borderBottomWidth: styleConstants.borderXS,
-        borderBottomColor: '#eee',
-    },
-    spellbookContent: {
-        flex: 1,
-    },
-    spellbookName: {
-        fontSize: styleConstants.fontSizeLG,
-        fontWeight: '600',
-        marginBottom: styleConstants.marginXS,
-    },
-    spellbookDescription: {
-        fontSize: styleConstants.fontSizeMD,
-    },
-    emptyState: {
-        padding: 40,
-        alignItems: 'center',
-    },
-    emptyText: {
-        fontSize: styleConstants.fontSizeLG,
-        textAlign: 'center',
-    },
-    separator: {
-        height: 1,
-        marginVertical: styleConstants.marginSM,
-    },
-});

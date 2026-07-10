@@ -1,10 +1,13 @@
 // REACT
 import React from 'react';
 import { styleConstants } from 'src/styles/style-constants';
-import { Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Modal, View, Text, StyleSheet } from 'react-native';
 
 // EXPO
 import { Ionicons } from '@expo/vector-icons';
+
+// COMPONENTS
+import { Button } from 'src/components/ui';
 
 // INTERFACES
 interface CreatureNotFoundModalProps {
@@ -48,12 +51,7 @@ export default function CreatureNotFoundModal({
                         </Text>
                     </View>
 
-                    <TouchableOpacity
-                        style={[styles.button, { backgroundColor: theme.primary }]}
-                        onPress={onClose}
-                    >
-                        <Text style={[styles.buttonText, { color: theme.buttonText }]}>OK</Text>
-                    </TouchableOpacity>
+                    <Button title='OK' variant='primary' onPress={onClose} fullWidth />
                 </View>
             </View>
         </Modal>
@@ -69,9 +67,10 @@ const styles = StyleSheet.create({
     modal: {
         width: '80%',
         maxWidth: 400,
-        borderRadius: styleConstants.borderRadiusLG,
+        borderRadius: styleConstants.borderRadius2XL,
         padding: styleConstants.paddingXL,
         borderWidth: styleConstants.borderXS,
+        ...styleConstants.shadowLG,
     },
     header: {
         flexDirection: 'row',
@@ -95,16 +94,6 @@ const styles = StyleSheet.create({
         fontSize: styleConstants.fontSizeMD,
         textAlign: 'center',
         fontStyle: 'italic',
-    },
-    button: {
-        paddingVertical: styleConstants.paddingMD,
-        paddingHorizontal: 24,
-        borderRadius: styleConstants.borderRadiusMD,
-        alignItems: 'center',
-    },
-    buttonText: {
-        fontSize: styleConstants.fontSizeLG,
-        fontWeight: 'bold',
     },
     separator: {
         height: 1,

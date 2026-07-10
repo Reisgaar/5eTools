@@ -1,9 +1,10 @@
 // REACT
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 // COMPONENTS
-import { BaseModal } from 'src/components/ui';
+import { BaseModal, Button } from 'src/components/ui';
 
 // STYLES
 import { createBaseModalStyles } from 'src/styles/baseModalStyles';
@@ -51,45 +52,38 @@ export default function ClassFilterModal({
             theme={theme}
             title="Filter by Class"
             footerContent={
-                <View style={[commonStyles.w_100, commonStyles.row_center_center, { gap: '4%' }]}>
-                    <TouchableOpacity
-                        onPress={onClear}
-                        style={[styles.footerButton, { backgroundColor: theme.secondary }]}
-                    >
-                        <Text style={styles.footerButtonText}>Clear</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        onPress={onApply}
-                        style={[styles.footerButton, { backgroundColor: theme.primary }]}
-                    >
-                        <Text style={styles.footerButtonText}>Apply</Text>
-                    </TouchableOpacity>
+                <View style={[commonStyles.w_100, commonStyles.row_center_center, commonStyles.gap_sm]}>
+                    <View style={{ flex: 1 }}><Button title="Clear" variant="secondary" onPress={onClear} fullWidth /></View>
+                    <View style={{ flex: 1 }}><Button title="Apply" variant="primary" onPress={onApply} fullWidth /></View>
                 </View>
             }
         >
             <View style={styles.optionsGrid}>
-                {validClassOptions.map(className => (
-                    <View key={className} style={styles.optionContainer}>
-                        <TouchableOpacity
-                            style={[
-                                styles.optionRow,
-                                { borderColor: theme.border },
-                                selectedClasses.includes(className) && { backgroundColor: theme.primary + '20' }
-                            ]}
-                            onPress={() => onToggleClass(className)}
-                        >
-                            <View style={[
-                                styles.checkbox,
-                                { borderColor: theme.primary },
-                                selectedClasses.includes(className) && { backgroundColor: theme.primary }
-                            ]}
-                            />
-                            <Text style={[styles.optionText, commonStyles.text_primary]}>
-                            {capitalize(className)}
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
-                ))}
+                {validClassOptions.map(className => {
+                    const isSelected = selectedClasses.includes(className);
+                    return (
+                        <View key={className} style={styles.optionContainer}>
+                            <TouchableOpacity
+                                style={[
+                                    styles.optionRow,
+                                    { borderColor: theme.border },
+                                    isSelected && { backgroundColor: theme.primary + '20' }
+                                ]}
+                                onPress={() => onToggleClass(className)}
+                            >
+                                <View style={[
+                                    styles.checkbox,
+                                    isSelected ? { backgroundColor: theme.primary, borderColor: theme.primary } : { borderColor: theme.border }
+                                ]}>
+                                    {isSelected && <Ionicons name="checkmark" size={14} color="#fff" />}
+                                </View>
+                                <Text style={[styles.optionText, commonStyles.text_primary]}>
+                                    {capitalize(className)}
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    );
+                })}
             </View>
         </BaseModal>
     );

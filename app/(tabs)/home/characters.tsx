@@ -3,30 +3,36 @@ import React from 'react';
 import { styleConstants } from 'src/styles/style-constants';
 import { StyleSheet, Text, View, Image } from 'react-native';
 
+// EXPO
+import { useRouter } from 'expo-router';
+
 // STORES
-import { useAppSettingsStore, useCampaignStore, usePlayerStore } from 'src/stores';
+import { useAppSettingsStore, useCampaignStore, useCharacterStore } from 'src/stores';
 
 // STYLES
 import { getCommonStyles } from 'src/styles/commonStyles';
 
 // COMPONENTS
 import ReorderableList, { useReorderableDrag } from 'react-native-reorderable-list';
-import { Button, ListItem, ActionMenu } from 'src/components/ui';
+import { ListItem, ActionMenu, Button } from 'src/components/ui';
 import ConfirmModal from 'src/components/modals/ConfirmModal';
-import PlayerFormModal from 'src/components/modals/PlayerFormModal';
+import CharacterWizardModal from 'src/components/characters/CharacterWizardModal';
 import { useTabBarInset } from 'src/hooks/useTabBarInset';
 
 // UTILS
 import { reorderFullBySubset } from 'src/utils/reorder';
+import { classSummary } from 'src/utils/characterUtils';
 
 const DEFAULT_TOKEN_URL = 'https://5e.tools/img/blank.webp';
 
-// A single draggable player row (long-press anywhere to reorder).
-function PlayerRow({ item, campaign, onEdit, onDelete }: { item: any; campaign: string | null; onEdit: (p: any) => void; onDelete: (name: string) => void }) {
+// A single draggable character row (tap to open the sheet, long-press to reorder).
+function CharacterRow({ item, campaign, onOpen, onEdit, onDelete }: { item: any; campaign: string | null; onOpen: (c: any) => void; onEdit: (c: any) => void; onDelete: (name: string) => void }) {
     const drag = useReorderableDrag();
     const { currentTheme } = useAppSettingsStore();
+    const summary = classSummary(item);
     return (
         <ListItem
+            onPress={() => onOpen(item)}
             onLongPress={drag}
             leading={
                 <Image
@@ -37,7 +43,9 @@ function PlayerRow({ item, campaign, onEdit, onDelete }: { item: any; campaign: 
             title={item.name}
             subtitle={
                 <View>
-                    <Text style={{ color: currentTheme.noticeText, fontSize: styleConstants.fontSizeSM, marginTop: styleConstants.margin2XS }}>{item.race} - {item.class}</Text>
+                    <Text style={{ color: currentTheme.noticeText, fontSize: styleConstants.fontSizeSM, marginTop: styleConstants.margin2XS }}>
+                        {[item.race, summary].filter(Boolean).join(' • ')}
+                    </Text>
                     {campaign ? (
                         <Text style={{ color: currentTheme.noticeText, fontSize: styleConstants.fontSizeSM }}>Campaign: {campaign}</Text>
                     ) : null}
@@ -47,6 +55,7 @@ function PlayerRow({ item, campaign, onEdit, onDelete }: { item: any; campaign: 
                 <ActionMenu
                     title={item.name}
                     actions={[
+                        { label: 'Open Sheet', icon: 'reader-outline', onPress: () => onOpen(item) },
                         { label: 'Edit', icon: 'pencil', onPress: () => onEdit(item) },
                         { label: 'Delete', icon: 'trash', destructive: true, onPress: () => onDelete(item.name) },
                     ]}
@@ -56,16 +65,17 @@ function PlayerRow({ item, campaign, onEdit, onDelete }: { item: any; campaign: 
     );
 }
 
-// Player management screen (independent, reached from Home). Scoped to the selected campaign.
-export default function PlayersScreen() {
+// Character management screen (reached from Home). Scoped to the selected campaign.
+export default function CharactersScreen() {
+    const router = useRouter();
     const { currentTheme } = useAppSettingsStore();
     const commonStyles = getCommonStyles(currentTheme);
     const tabInset = useTabBarInset();
     const { campaigns, selectedCampaign } = useCampaignStore();
-    const { players, loadPlayers, createPlayer, deletePlayer, updatePlayer, reorderPlayers } = usePlayerStore();
+    const { players, loadPlayers, createPlayer, deletePlayer, updatePlayer, reorderPlayers } = useCharacterStore();
 
-    const [playerModalVisible, setPlayerModalVisible] = React.useState(false);
-    const [editPlayer, setEditPlayer] = React.useState<any | null>(null);
+    const [formModalVisible, setFormModalVisible] = React.useState(false);
+    const [editCharacter, setEditCharacter] = React.useState<any | null>(null);
 
     const [confirmModalVisible, setConfirmModalVisible] = React.useState(false);
     const [confirmAction, setConfirmAction] = React.useState<(() => void) | null>(null);
@@ -76,10 +86,10 @@ export default function PlayersScreen() {
         loadPlayers();
     }, [selectedCampaign?.id, loadPlayers]);
 
-    const filteredPlayers = React.useMemo(() => {
+    const filteredCharacters = React.useMemo(() => {
         const selectedCampaignId = selectedCampaign?.id;
         if (!selectedCampaignId) return players;
-        return players.filter(player => player.campaignId === selectedCampaignId);
+        return players.filter(c => c.campaignId === selectedCampaignId);
     }, [players, selectedCampaign?.id]);
 
     const getCampaignName = (campaignId?: string) => {
@@ -88,69 +98,74 @@ export default function PlayersScreen() {
         return campaign ? campaign.name : null;
     };
 
-    const handleSavePlayer = async (playerData: any) => {
-        if (editPlayer) {
-            updatePlayer(editPlayer.name, playerData);
+    const handleSave = async (data: any) => {
+        if (editCharacter) {
+            updatePlayer(editCharacter.name, data);
         } else {
-            createPlayer(playerData);
+            createPlayer(data);
         }
-        setPlayerModalVisible(false);
-        setEditPlayer(null);
+        setFormModalVisible(false);
+        setEditCharacter(null);
     };
 
-    const handleDeletePlayer = async (name: string) => {
-        setConfirmTitle('Delete Player');
-        setConfirmMessage(`Are you sure you want to delete the player "${name}"?`);
+    const handleDelete = async (name: string) => {
+        setConfirmTitle('Delete Character');
+        setConfirmMessage(`Are you sure you want to delete the character "${name}"?`);
         setConfirmAction(() => () => deletePlayer(name));
         setConfirmModalVisible(true);
     };
 
-    const openAddPlayerModal = () => {
-        setEditPlayer(null);
-        setPlayerModalVisible(true);
+    const openAddModal = () => {
+        setEditCharacter(null);
+        setFormModalVisible(true);
     };
 
-    const openEditPlayerModal = (player: any) => {
-        setEditPlayer(player);
-        setPlayerModalVisible(true);
+    const openEditModal = (character: any) => {
+        setEditCharacter(character);
+        setFormModalVisible(true);
+    };
+
+    const openSheet = (character: any) => {
+        router.push({ pathname: '/home/character', params: { name: character.name } });
     };
 
     return (
         <View style={[commonStyles.container, { padding: styleConstants.paddingLG, backgroundColor: currentTheme.background, flex: 1 }]}>
             <View style={[commonStyles.row_between_center, commonStyles.mb_sm]}>
-                <Text style={{ fontSize: styleConstants.fontSizeLG, fontWeight: 'bold', color: currentTheme.text }}>Players</Text>
-                <Button title="New" icon="add" size="sm" onPress={openAddPlayerModal} />
+                <Text style={{ fontSize: styleConstants.fontSizeLG, fontWeight: 'bold', color: currentTheme.text }}>Characters</Text>
+                <Button title="New" icon="add" size="sm" onPress={openAddModal} />
             </View>
 
-            {filteredPlayers.length > 0 ? (
+            {filteredCharacters.length > 0 ? (
                 <ReorderableList
-                    data={filteredPlayers}
+                    data={filteredCharacters}
                     keyExtractor={(item: any) => item.name}
                     style={{ flex: 1 }}
                     contentContainerStyle={{ paddingBottom: tabInset }}
-                    onReorder={({ from, to }) => reorderPlayers(reorderFullBySubset(players, filteredPlayers, from, to, (p: any) => p.name))}
+                    onReorder={({ from, to }) => reorderPlayers(reorderFullBySubset(players, filteredCharacters, from, to, (c: any) => c.name))}
                     renderItem={({ item }) => (
-                        <PlayerRow
+                        <CharacterRow
                             item={item}
                             campaign={getCampaignName(item.campaignId)}
-                            onEdit={openEditPlayerModal}
-                            onDelete={handleDeletePlayer}
+                            onOpen={openSheet}
+                            onEdit={openEditModal}
+                            onDelete={handleDelete}
                         />
                     )}
                 />
             ) : (
                 <View style={[styles.emptyContainer, { flex: 1 }]}>
                     <Text style={{ color: currentTheme.noticeText, textAlign: 'center' }}>
-                        No players created. Create your first player to get started.
+                        No characters yet. Create your first character to get started.
                     </Text>
                 </View>
             )}
 
-            <PlayerFormModal
-                visible={playerModalVisible}
-                onClose={() => { setPlayerModalVisible(false); setEditPlayer(null); }}
-                onSave={handleSavePlayer}
-                player={editPlayer}
+            <CharacterWizardModal
+                visible={formModalVisible}
+                onClose={() => { setFormModalVisible(false); setEditCharacter(null); }}
+                onSave={handleSave}
+                character={editCharacter}
                 campaigns={campaigns}
                 theme={currentTheme}
             />

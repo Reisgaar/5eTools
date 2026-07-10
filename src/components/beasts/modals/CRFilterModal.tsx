@@ -4,8 +4,11 @@ import { styleConstants } from 'src/styles/style-constants';
 import { getCommonStyles } from 'src/styles/commonStyles';
 import { Text, TouchableOpacity, View, StyleSheet } from 'react-native';
 
+// EXPO
+import { Ionicons } from '@expo/vector-icons';
+
 // COMPONENTS
-import { BaseModal } from 'src/components/ui';
+import { BaseModal, Button } from 'src/components/ui';
 
 // INTERFACES
 interface CRFilterModalProps {
@@ -52,18 +55,12 @@ export default function CRFilterModal({
             title='Filter by CR'
             footerContent={
                 <View style={[commonStyles.w_100, commonStyles.row_center_center, { gap: '4%' }]}>
-                    <TouchableOpacity
-                        onPress={onSelectAll}
-                        style={[styles.footerButton, { backgroundColor: theme.secondary }]}
-                    >
-                        <Text style={styles.footerButtonText}>Clear</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        onPress={onApply}
-                        style={[styles.footerButton, { backgroundColor: theme.primary }]}
-                    >
-                        <Text style={styles.footerButtonText}>Apply</Text>
-                    </TouchableOpacity>
+                    <View style={{ flex: 1 }}>
+                        <Button title='Clear' variant='secondary' onPress={onSelectAll} fullWidth />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                        <Button title='Apply' variant='primary' onPress={onApply} fullWidth />
+                    </View>
                 </View>
             }
         >
@@ -82,10 +79,12 @@ export default function CRFilterModal({
                             >
                                 <View style={[
                                     styles.checkbox,
-                                    { borderColor: theme.primary },
+                                    { borderColor: isSelected ? theme.primary : theme.border },
                                     isSelected && { backgroundColor: theme.primary }
                                 ]}
-                                />
+                                >
+                                    {isSelected && <Ionicons name='checkmark' size={14} color='#fff' />}
+                                </View>
                                 <Text style={[styles.optionText, commonStyles.text_primary]}>
                                     {sourceIdToNameMap && sourceIdToNameMap[cr] ? sourceIdToNameMap[cr] : (cr === 'Unknown' ? 'Unknown' : cr)}
                                 </Text>
@@ -99,17 +98,6 @@ export default function CRFilterModal({
 }
 
 const styles = StyleSheet.create({
-    footerButton: {
-        width: '48%',
-        borderRadius: styleConstants.borderRadiusMD,
-        paddingVertical: styleConstants.paddingMD,
-        alignItems: 'center',
-    },
-    footerButtonText: {
-        color: 'white',
-        fontWeight: 'bold',
-        fontSize: styleConstants.fontSizeLG,
-    },
     scrollView: {
         maxHeight: 300,
         marginBottom: styleConstants.marginLG,
@@ -135,6 +123,8 @@ const styles = StyleSheet.create({
         borderWidth: styleConstants.borderSM,
         borderRadius: styleConstants.borderRadiusSM,
         marginRight: styleConstants.marginSM,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     optionText: {
         fontSize: styleConstants.fontSizeMD,

@@ -1,13 +1,13 @@
 // REACT
 import React from 'react';
 import { styleConstants } from 'src/styles/style-constants';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 
 // EXPO
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-// STYLES
-import { getCommonStyles } from 'src/styles/commonStyles';
+// COMPONENTS
+import { ListItem } from 'src/components/ui';
 
 // INTERFACES
 interface SpellListItemProps {
@@ -21,37 +21,44 @@ interface SpellListItemProps {
 
 // Component for a single spell row.
 function SpellListItem({ spell, schoolLabel, hasSpellbook, onPress, onAddToSpellbook, theme }: SpellListItemProps) {
-    const commonStyles = getCommonStyles(theme);
     const isRitual = spell.ritual === true;
 
+    const title = (
+        <Text style={{ color: theme.text, fontWeight: 'bold' }}>
+            {spell.name}
+            {isRitual && ' (R)'}
+        </Text>
+    );
+
+    const subtitle = (
+        <Text style={{ color: theme.noticeText, fontStyle: 'italic' }}>
+            {spell.level === 0 ? 'C' : spell.level} - {schoolLabel} ({spell.source || spell._source || 'Unknown'})
+        </Text>
+    );
+
+    const trailing = (
+        <TouchableOpacity
+            onPress={() => onAddToSpellbook(spell)}
+            style={[styles.spellbookButton, {
+                backgroundColor: hasSpellbook ? '#dc2626' : theme.primary,
+                borderColor: hasSpellbook ? '#dc2626' : theme.primary
+            }]}
+        >
+            <Ionicons
+                name={hasSpellbook ? 'trash-outline' : 'add'}
+                size={16}
+                color="white"
+            />
+        </TouchableOpacity>
+    );
+
     return (
-        <View style={[commonStyles.itemCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
-            <TouchableOpacity
-                style={commonStyles.itemInfoContainer}
-                onPress={() => onPress(spell)}
-            >
-                <Text style={[commonStyles.itemName, { color: theme.text }]}>
-                    <Text style={{ fontWeight: 'bold' }}>
-                        {spell.name}
-                        {isRitual && ' (R)'}
-                    </Text>
-                    <Text style={{ fontStyle: 'italic', fontWeight: 'normal' }}>{'\n'}{spell.level === 0 ? 'C' : spell.level} - {schoolLabel} ({spell.source || spell._source || 'Unknown'})</Text>
-                </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-                onPress={() => onAddToSpellbook(spell)}
-                style={[styles.spellbookButton, {
-                    backgroundColor: hasSpellbook ? '#dc2626' : theme.primary,
-                    borderColor: hasSpellbook ? '#dc2626' : theme.primary
-                }]}
-            >
-                <Ionicons
-                    name={hasSpellbook ? 'trash-outline' : 'add'}
-                    size={16}
-                    color="white"
-                />
-            </TouchableOpacity>
-        </View>
+        <ListItem
+            title={title}
+            subtitle={subtitle}
+            onPress={() => onPress(spell)}
+            trailing={trailing}
+        />
     );
 }
 

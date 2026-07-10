@@ -28,7 +28,7 @@ export default function HomeScreen() {
     const { players } = usePlayerStore();
     const { spellbooks } = useSpellbookStore();
 
-    const playerCount = React.useMemo(() => {
+    const characterCount = React.useMemo(() => {
         const id = selectedCampaign?.id;
         return id ? players.filter(p => p.campaignId === id).length : players.length;
     }, [players, selectedCampaign?.id]);
@@ -40,7 +40,7 @@ export default function HomeScreen() {
 
     const cards: { title: string; subtitle: string; icon: keyof typeof Ionicons.glyphMap; href: string; color: string }[] = [
         { title: 'Campaigns', subtitle: `${campaigns.length} total`, icon: 'flag', href: '/home/campaigns', color: currentTheme.primary },
-        { title: 'Players', subtitle: `${playerCount} ${selectedCampaign ? 'in campaign' : 'total'}`, icon: 'people', href: '/home/players', color: currentTheme.primary },
+        { title: 'Characters', subtitle: `${characterCount} ${selectedCampaign ? 'in campaign' : 'total'}`, icon: 'people', href: '/home/characters', color: currentTheme.primary },
         { title: 'Spellbooks', subtitle: `${spellbookCount} ${selectedCampaign ? 'in campaign' : 'total'}`, icon: 'book', href: '/home/spellbooks', color: currentTheme.primary },
         { title: 'Library', subtitle: 'Books & adventures', icon: 'library', href: '/home/library', color: currentTheme.primary },
     ];
