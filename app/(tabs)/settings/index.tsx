@@ -3,9 +3,6 @@ import React from 'react';
 import { styleConstants } from 'src/styles/style-constants';
 import { Linking, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-// Support / donation link — replace with your own Buy Me a Coffee (or Ko-fi, PayPal, etc.) page.
-const SUPPORT_URL = 'https://www.buymeacoffee.com/';
-
 // STORES
 import { useAppSettingsStore } from 'src/stores';
 
@@ -18,6 +15,9 @@ import { useTabBarInset } from 'src/hooks/useTabBarInset';
 // COMPONENTS
 import { DataExportModal, DataImportModal, IgnoreSourcesModal } from 'src/components/modals';
 import { Ionicons } from '@expo/vector-icons';
+
+// Support / donation link (PayPal).
+const SUPPORT_URL = 'https://paypal.me/reisgaar?locale.x=es_ES&country.x=ES';
 
 export default function SettingsScreen() {
     const {
@@ -45,7 +45,7 @@ export default function SettingsScreen() {
                     <Ionicons name="cafe" size={22} color="#3B2F14" />
                     <View style={{ marginLeft: styleConstants.marginSM }}>
                         <Text style={styles.coffeeTitle}>Buy me a coffee</Text>
-                        <Text style={styles.coffeeSubtitle}>Support the development of this app</Text>
+                        <Text style={styles.coffeeSubtitle}>Support development · donate via PayPal</Text>
                     </View>
                     <Ionicons name="open-outline" size={18} color="#3B2F14" style={{ marginLeft: 'auto' }} />
                 </TouchableOpacity>
