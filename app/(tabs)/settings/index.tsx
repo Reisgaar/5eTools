@@ -37,6 +37,7 @@ export default function SettingsScreen() {
             <View style={[commonStyles.container, { backgroundColor: currentTheme.background }]}>
 
                 {/* Support / Buy me a coffee */}
+                <Text style={[styles.coffeeHeading, { color: currentTheme.text }]}>Enjoying the app?</Text>
                 <TouchableOpacity
                     onPress={() => Linking.openURL(SUPPORT_URL)}
                     activeOpacity={0.85}
@@ -49,6 +50,9 @@ export default function SettingsScreen() {
                     </View>
                     <Ionicons name="open-outline" size={18} color="#3B2F14" style={{ marginLeft: 'auto' }} />
                 </TouchableOpacity>
+                <Text style={[styles.coffeeHeadingSub, { color: currentTheme.noticeText }]}>
+                    It&apos;s a free passion project, still in active development. If you find it useful, thank you in advance for any support — every bit helps keep the project going and growing!
+                </Text>
 
                 <Text style={[styles.sectionTitle, { color: currentTheme.text }]}>Theme</Text>
                 <View style={[styles.sectionContainer, { backgroundColor: currentTheme.settingsContainer }]}>
@@ -212,6 +216,19 @@ export default function SettingsScreen() {
 }
 
 const styles = StyleSheet.create({
+    coffeeHeading: {
+        fontSize: styleConstants.fontSizeLG,
+        fontWeight: '600',
+        marginLeft: styleConstants.marginXS,
+        marginBottom: styleConstants.marginSM,
+    },
+    coffeeHeadingSub: {
+        fontSize: styleConstants.fontSizeSM,
+        marginLeft: styleConstants.marginXS,
+        marginTop: styleConstants.marginSM,
+        marginBottom: 26,
+        lineHeight: 18,
+    },
     coffeeButton: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -219,7 +236,6 @@ const styles = StyleSheet.create({
         borderRadius: styleConstants.borderRadiusMD,
         paddingVertical: styleConstants.paddingMD,
         paddingHorizontal: styleConstants.paddingLG,
-        marginBottom: 26,
         ...styleConstants.shadowSM,
     },
     coffeeTitle: { color: '#3B2F14', fontWeight: '800', fontSize: styleConstants.fontSizeMD },
